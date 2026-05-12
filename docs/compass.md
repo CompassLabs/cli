@@ -38,7 +38,7 @@ compass [flags]
 * [compass earn](compass_earn.md)	 - Operations for earn
 * [compass explore](compass_explore.md)	 - Interactively browse and run commands
 * [compass gas-sponsorship](compass_gas-sponsorship.md)	 - Operations for gas-sponsorship
+* [compass global-markets-perps](compass_global-markets-perps.md)	 - Operations for global-markets-perps
 * [compass tokenized-assets](compass_tokenized-assets.md)	 - Operations for tokenized-assets
-* [compass traditional-investing](compass_traditional-investing.md)	 - Operations for traditional-investing
 * [compass version](compass_version.md)	 - Print the CLI version
 * [compass whoami](compass_whoami.md)	 - Display current authentication configuration

@@ -50,12 +50,12 @@ func Pointer[T any](v T) *T { return &v }
 
 // CompassCLI - Compass API: Compass Labs DeFi API
 type CompassCLI struct {
-	SDKVersion           string
-	GasSponsorship       *GasSponsorship
-	Earn                 *Earn
-	Credit               *Credit
-	TraditionalInvesting *TraditionalInvesting
-	TokenizedAssets      *TokenizedAssets
+	SDKVersion         string
+	GasSponsorship     *GasSponsorship
+	Earn               *Earn
+	Credit             *Credit
+	GlobalMarketsPerps *GlobalMarketsPerps
+	TokenizedAssets    *TokenizedAssets
 
 	sdkConfiguration config.SDKConfiguration
 	hooks            *hooks.Hooks
@@ -152,7 +152,7 @@ func New(opts ...SDKOption) *CompassCLI {
 	sdk.GasSponsorship = newGasSponsorship(sdk, sdk.sdkConfiguration, sdk.hooks)
 	sdk.Earn = newEarn(sdk, sdk.sdkConfiguration, sdk.hooks)
 	sdk.Credit = newCredit(sdk, sdk.sdkConfiguration, sdk.hooks)
-	sdk.TraditionalInvesting = newTraditionalInvesting(sdk, sdk.sdkConfiguration, sdk.hooks)
+	sdk.GlobalMarketsPerps = newGlobalMarketsPerps(sdk, sdk.sdkConfiguration, sdk.hooks)
 	sdk.TokenizedAssets = newTokenizedAssets(sdk, sdk.sdkConfiguration, sdk.hooks)
 
 	return sdk

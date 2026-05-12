@@ -1,26 +1,34 @@
-## compass configure
+## compass global-markets-perps global-markets-perps-execute
 
-Configure authentication credentials and preferences
+Execute signed action
 
 ### Synopsis
 
-Interactively configure authentication credentials and preferences for the CLI.
-Settings are stored in ~/.config/compass/config.yaml.
-Secret credentials are stored in the OS keychain when available.
+Submit a signed Hyperliquid action for execution.
 
-You can also set values via environment variables with the COMPASS_ prefix
-(e.g., COMPASS_API_KEY) or pass them as flags to individual commands.
-
-Priority: CLI flags > environment variables > OS keychain > config file
+Accepts the signature from any prepare endpoint (market_order, limit_order,
+cancel_order, withdraw, approve_builder_fee) and POSTs it to the Hyperliquid
+exchange API.
 
 ```
-compass configure [flags]
+compass global-markets-perps global-markets-perps-execute [flags]
+```
+
+### Examples
+
+```
+  compass global-markets-perps global-markets-perps-execute --action '{"key":"<value>","key1":"<value>"}' --nonce 511479 --signature <value>
 ```
 
 ### Options
 
 ```
-  -h, --help   help for configure
+  -a, --action string          Raw Hyperliquid action from the prepare step [required]
+      --body string            Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -h, --help                   help for global-markets-perps-execute
+  -n, --nonce int              Nonce from the prepare step [required]
+  -s, --signature string       User's EIP-712 signature (hex, 65 bytes) [required]
+  -v, --vault-address string   Optional vault address
 ```
 
 ### Options inherited from parent commands
@@ -44,4 +52,4 @@ compass configure [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
+* [compass global-markets-perps](compass_global-markets-perps.md)	 - Operations for global-markets-perps

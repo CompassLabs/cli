@@ -1,26 +1,33 @@
-## compass configure
+## compass global-markets-perps global-markets-perps-cancel-order
 
-Configure authentication credentials and preferences
+Cancel order
 
 ### Synopsis
 
-Interactively configure authentication credentials and preferences for the CLI.
-Settings are stored in ~/.config/compass/config.yaml.
-Secret credentials are stored in the OS keychain when available.
+Prepare an order cancellation.
 
-You can also set values via environment variables with the COMPASS_ prefix
-(e.g., COMPASS_API_KEY) or pass them as flags to individual commands.
-
-Priority: CLI flags > environment variables > OS keychain > config file
+Returns EIP-712 typed data for the user to sign. After signing, submit
+the signature via the /execute endpoint.
 
 ```
-compass configure [flags]
+compass global-markets-perps global-markets-perps-cancel-order [flags]
+```
+
+### Examples
+
+```
+  compass global-markets-perps global-markets-perps-cancel-order --owner 0x01E62835dd7F52173546A325294762143eE4a882 --asset AAPL
 ```
 
 ### Options
 
 ```
-  -h, --help   help for configure
+  -a, --asset string             Asset ticker symbol (e.g. AAPL, GOLD, EUR) [required]
+      --body string              Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -c, --client-order-id string   Client order ID to cancel (alternative to order_id)
+  -h, --help                     help for global-markets-perps-cancel-order
+      --order-id string          Hyperliquid order ID to cancel
+      --owner string             Owner of the global markets perps product account [required]
 ```
 
 ### Options inherited from parent commands
@@ -44,4 +51,4 @@ compass configure [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
+* [compass global-markets-perps](compass_global-markets-perps.md)	 - Operations for global-markets-perps

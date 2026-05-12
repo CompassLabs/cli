@@ -1,26 +1,37 @@
-## compass configure
+## compass global-markets-perps global-markets-perps-limit-order
 
-Configure authentication credentials and preferences
+Place limit order
 
 ### Synopsis
 
-Interactively configure authentication credentials and preferences for the CLI.
-Settings are stored in ~/.config/compass/config.yaml.
-Secret credentials are stored in the OS keychain when available.
+Prepare a limit order on a global markets perps market.
 
-You can also set values via environment variables with the COMPASS_ prefix
-(e.g., COMPASS_API_KEY) or pass them as flags to individual commands.
-
-Priority: CLI flags > environment variables > OS keychain > config file
+Returns EIP-712 typed data for the user to sign. After signing, submit
+the signature via the /execute endpoint. Supports GTC and ALO time-in-force.
 
 ```
-compass configure [flags]
+compass global-markets-perps global-markets-perps-limit-order [flags]
+```
+
+### Examples
+
+```
+  compass global-markets-perps global-markets-perps-limit-order --owner 0x01E62835dd7F52173546A325294762143eE4a882 --asset AAPL --side buy --size 10.0 --price 190.00
 ```
 
 ### Options
 
 ```
-  -h, --help   help for configure
+  -a, --asset string             Asset ticker symbol (e.g. AAPL, GOLD, EUR) [required]
+      --body string              Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -c, --client-order-id string   Optional client order ID for idempotency (uint128)
+  -h, --help                     help for global-markets-perps-limit-order
+      --owner string             Owner of the global markets perps product account [required]
+  -p, --price string             Limit price (human-readable) [required]
+  -r, --reduce-only              If true, order can only reduce an existing position
+      --side string              Order side: 'buy' or 'sell' [required]
+      --size string              Number of contracts (human-readable) [required]
+  -t, --time-in-force string     Time-in-force: 'gtc' (good til cancel) or 'alo' (add liquidity only)
 ```
 
 ### Options inherited from parent commands
@@ -44,4 +55,4 @@ compass configure [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
+* [compass global-markets-perps](compass_global-markets-perps.md)	 - Operations for global-markets-perps

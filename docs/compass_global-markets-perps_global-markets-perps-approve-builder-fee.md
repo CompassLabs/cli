@@ -1,26 +1,31 @@
-## compass configure
+## compass global-markets-perps global-markets-perps-approve-builder-fee
 
-Configure authentication credentials and preferences
+Approve builder fee
 
 ### Synopsis
 
-Interactively configure authentication credentials and preferences for the CLI.
-Settings are stored in ~/.config/compass/config.yaml.
-Secret credentials are stored in the OS keychain when available.
+Prepare builder fee approval for the global markets perps DEX.
 
-You can also set values via environment variables with the COMPASS_ prefix
-(e.g., COMPASS_API_KEY) or pass them as flags to individual commands.
-
-Priority: CLI flags > environment variables > OS keychain > config file
+This is a one-time action required before placing the first trade.
+Returns EIP-712 typed data for the user to sign. After signing, submit
+the signature via the /execute endpoint.
 
 ```
-compass configure [flags]
+compass global-markets-perps global-markets-perps-approve-builder-fee [flags]
+```
+
+### Examples
+
+```
+  compass global-markets-perps global-markets-perps-approve-builder-fee --owner <value>
 ```
 
 ### Options
 
 ```
-  -h, --help   help for configure
+      --body string    Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -h, --help           help for global-markets-perps-approve-builder-fee
+      --owner string   User's EOA address [required]
 ```
 
 ### Options inherited from parent commands
@@ -44,4 +49,4 @@ compass configure [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
+* [compass global-markets-perps](compass_global-markets-perps.md)	 - Operations for global-markets-perps

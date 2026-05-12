@@ -1,26 +1,32 @@
-## compass configure
+## compass global-markets-perps global-markets-perps-deposit
 
-Configure authentication credentials and preferences
+Deposit USDC to global markets perps account
 
 ### Synopsis
 
-Interactively configure authentication credentials and preferences for the CLI.
-Settings are stored in ~/.config/compass/config.yaml.
-Secret credentials are stored in the OS keychain when available.
+Prepare a USDC deposit from Arbitrum via EIP-2612 Permit.
 
-You can also set values via environment variables with the COMPASS_ prefix
-(e.g., COMPASS_API_KEY) or pass them as flags to individual commands.
-
-Priority: CLI flags > environment variables > OS keychain > config file
+Returns EIP-712 typed data for the user to sign off-chain (no gas needed).
+After signing, send the permit signature to the deposit/execute endpoint,
+where a gas sponsor calls batchedDepositWithPermit on the HL Bridge2.
 
 ```
-compass configure [flags]
+compass global-markets-perps global-markets-perps-deposit [flags]
+```
+
+### Examples
+
+```
+  compass global-markets-perps global-markets-perps-deposit --owner 0x01E62835dd7F52173546A325294762143eE4a882 --amount 100.0
 ```
 
 ### Options
 
 ```
-  -h, --help   help for configure
+  -a, --amount string   USDC amount to deposit (human-readable, e.g. '1000.0') [required]
+      --body string     Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -h, --help            help for global-markets-perps-deposit
+      --owner string    The user's EOA address on Arbitrum [required]
 ```
 
 ### Options inherited from parent commands
@@ -44,4 +50,4 @@ compass configure [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
+* [compass global-markets-perps](compass_global-markets-perps.md)	 - Operations for global-markets-perps

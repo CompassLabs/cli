@@ -13,7 +13,7 @@ import (
 // which propagates the value here (see cmd/compass/main.go):
 //
 //	go build -ldflags "-X main.version=x.y.z" ./cmd/compass
-var Version = "0.0.3"
+var Version = "0.0.4"
 
 // BuildTime is optionally set at build time via ldflags targeting the main package.
 var BuildTime string

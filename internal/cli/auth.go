@@ -4,10 +4,10 @@ package cli
 
 import (
 	"fmt"
-	"github.com/charmbracelet/huh"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/CompassLabs/cli/internal/config"
 	"github.com/CompassLabs/cli/internal/output"
+	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 	"os"

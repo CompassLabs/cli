@@ -1,26 +1,31 @@
-## compass configure
+## compass global-markets-perps global-markets-perps-positions
 
-Configure authentication credentials and preferences
+List global markets perps positions
 
 ### Synopsis
 
-Interactively configure authentication credentials and preferences for the CLI.
-Settings are stored in ~/.config/compass/config.yaml.
-Secret credentials are stored in the OS keychain when available.
+List open perpetual futures positions for a user.
 
-You can also set values via environment variables with the COMPASS_ prefix
-(e.g., COMPASS_API_KEY) or pass them as flags to individual commands.
-
-Priority: CLI flags > environment variables > OS keychain > config file
+Returns position data including size, entry price, mark price, PnL, liquidation price,
+leverage, and cumulative funding. Optionally filter by asset ticker.
+Returns an empty list if no positions are open.
 
 ```
-compass configure [flags]
+compass global-markets-perps global-markets-perps-positions [flags]
+```
+
+### Examples
+
+```
+  compass global-markets-perps global-markets-perps-positions --owner 0x01E62835dd7F52173546A325294762143eE4a882
 ```
 
 ### Options
 
 ```
-  -h, --help   help for configure
+  -a, --asset string   Filter to a specific asset ticker (e.g. AAPL)
+  -h, --help           help for global-markets-perps-positions
+      --owner string   User's EOA address (looks up their global markets perps product account) [required]
 ```
 
 ### Options inherited from parent commands
@@ -44,4 +49,4 @@ compass configure [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
+* [compass global-markets-perps](compass_global-markets-perps.md)	 - Operations for global-markets-perps

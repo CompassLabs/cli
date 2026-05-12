@@ -1,26 +1,36 @@
-## compass configure
+## compass global-markets-perps global-markets-perps-opportunities
 
-Configure authentication credentials and preferences
+List global markets perps markets
 
 ### Synopsis
 
-Interactively configure authentication credentials and preferences for the CLI.
-Settings are stored in ~/.config/compass/config.yaml.
-Secret credentials are stored in the OS keychain when available.
+List available global markets perps markets with key metrics.
 
-You can also set values via environment variables with the COMPASS_ prefix
-(e.g., COMPASS_API_KEY) or pass them as flags to individual commands.
+Returns perp markets (stocks, commodities, forex) with open interest,
+24h volume, funding rate, and max leverage. Supports filtering by category,
+minimum OI/volume, and sorting.
 
-Priority: CLI flags > environment variables > OS keychain > config file
+Only global markets perps assets are returned — crypto perps are excluded.
 
 ```
-compass configure [flags]
+compass global-markets-perps global-markets-perps-opportunities [flags]
+```
+
+### Examples
+
+```
+  compass global-markets-perps global-markets-perps-opportunities
 ```
 
 ### Options
 
 ```
-  -h, --help   help for configure
+  -c, --category string            Filter by asset category: stock, commodity, forex (options: stock, commodity, forex)
+  -h, --help                       help for global-markets-perps-opportunities
+      --min-open-interest string   Filter by minimum open interest in USD
+      --min-volume-24h string      Filter by minimum 24h volume in USD
+      --sort-by string             Sort results by this field (options: open_interest, volume_24h, funding_rate)
+      --sort-order string          Sort direction (options: asc, desc)
 ```
 
 ### Options inherited from parent commands
@@ -44,4 +54,4 @@ compass configure [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
+* [compass global-markets-perps](compass_global-markets-perps.md)	 - Operations for global-markets-perps

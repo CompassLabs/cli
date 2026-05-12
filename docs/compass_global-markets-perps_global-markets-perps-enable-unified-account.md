@@ -1,26 +1,32 @@
-## compass configure
+## compass global-markets-perps global-markets-perps-enable-unified-account
 
-Configure authentication credentials and preferences
+Enable unified account mode
 
 ### Synopsis
 
-Interactively configure authentication credentials and preferences for the CLI.
-Settings are stored in ~/.config/compass/config.yaml.
-Secret credentials are stored in the OS keychain when available.
+Check account mode and prepare the enable-unified-account action if needed.
 
-You can also set values via environment variables with the COMPASS_ prefix
-(e.g., COMPASS_API_KEY) or pass them as flags to individual commands.
-
-Priority: CLI flags > environment variables > OS keychain > config file
+If the account is already in unified mode (or portfolio margin), returns
+the current mode with null typed_data — no signing needed. Otherwise,
+returns EIP-712 typed data for the user to sign. After signing, submit
+the signature via the /execute endpoint.
 
 ```
-compass configure [flags]
+compass global-markets-perps global-markets-perps-enable-unified-account [flags]
+```
+
+### Examples
+
+```
+  compass global-markets-perps global-markets-perps-enable-unified-account --owner <value>
 ```
 
 ### Options
 
 ```
-  -h, --help   help for configure
+      --body string    Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -h, --help           help for global-markets-perps-enable-unified-account
+      --owner string   User's EOA address [required]
 ```
 
 ### Options inherited from parent commands
@@ -44,4 +50,4 @@ compass configure [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
+* [compass global-markets-perps](compass_global-markets-perps.md)	 - Operations for global-markets-perps

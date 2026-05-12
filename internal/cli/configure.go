@@ -4,11 +4,11 @@ package cli
 
 import (
 	"fmt"
-	"github.com/charmbracelet/huh"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/CompassLabs/cli/internal/config"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/usage"
+	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 	"os"
@@ -24,7 +24,7 @@ Settings are stored in ~/.config/compass/config.yaml.
 Secret credentials are stored in the OS keychain when available.
 
 You can also set values via environment variables with the COMPASS_ prefix
-(e.g., COMPASS_API_KEY_AUTH) or pass them as flags to individual commands.
+(e.g., COMPASS_API_KEY) or pass them as flags to individual commands.
 
 Priority: CLI flags > environment variables > OS keychain > config file`,
 		RunE: runConfigureCmd,

@@ -30,6 +30,8 @@ Compass API: Compass Labs DeFi API
   * [Output Formats](#output-formats)
   * [Error Handling](#error-handling)
   * [Diagnostics](#diagnostics)
+  * [Wallet Signing — Local Daemon](#wallet-signing-local-daemon)
+  * [Common Pitfalls](#common-pitfalls)
 * [Development](#development)
   * [Maturity](#maturity)
   * [Contributions](#contributions)
@@ -42,13 +44,13 @@ Compass API: Compass Labs DeFi API
 ### Quick Install (Linux/macOS)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/compass-labs/mono/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/CompassLabs/cli/main/scripts/install.sh | bash
 ```
 
 ### Quick Install (Windows PowerShell)
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/compass-labs/mono/main/scripts/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/CompassLabs/cli/main/scripts/install.ps1 | iex
 ```
 
 ### Go Install
@@ -61,7 +63,7 @@ go install github.com/CompassLabs/cli/cmd/compass@latest
 
 ### Manual Download
 
-Download pre-built binaries for your platform from the [releases page](https://github.com/compass-labs/mono/releases).
+Download pre-built binaries for your platform from the [releases page](https://github.com/CompassLabs/cli/releases).
 <!-- End CLI Installation [installation] -->
 
 <!-- Start Shell Completion [completion] -->
@@ -111,7 +113,7 @@ compass completion powershell | Out-String | Invoke-Expression
 ### Example
 
 ```bash
-compass gas-sponsorship gas-sponsorship-prepare --api-key-auth test_api_key --owner 0xCE1A77F0abff993d6d3D04d44b70831c6924fb40 --chain arbitrum --eip-712 '{"domain":{"name":"USD Coin","version":"2","chainId":42161,"verifyingContract":"0xaf88d065e77c8cC2239327C5EDb3A432268e5831"},"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","message":{"owner":"0xCE1A77F0abff993d6d3D04d44b70831c6924fb40","spender":"0x000000000022D473030F116dDEE9F6B43aC78BA3","value":"115792089237316195423570985008687907853269984665640564039457584007913129639935","nonce":"0","deadline":"1762269774"}}' --signature 0x160d2709ae195f591daa33ad6ab1fb18b8762a39d8c4466c4cbe95cf6881fc3d54d469710ef0e7fd64ecff47c1ba5741d7254903bfaebdacea5aa8289f81ba9a1c --sender 0x02122Ac49b0Be2e0eAD957F2D080805A0127Aa9d
+compass gas-sponsorship gas-sponsorship-prepare --api-key-auth test_api_key --owner 0xCE1A77F0abff993d6d3D04d44b70831c6924fb40 --chain arbitrum --eip-712 '{"domain":{"name":"USD Coin","version":"2","chainId":42161,"verifyingContract":"0xaf88d065e77c8cC2239327C5EDb3A432268e5831"},"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","message":{"owner":"0xCE1A77F0abff993d6d3D04d44b70831c6924fb40","spender":"0x000000000022D473030F116dDEE9F6B43aC78BA3","value":"115792089237316195423570985008687907853269984665640564039457584007913129639935","nonce":"0","deadline":"1762269774"\x7d\x7d' --signature 0x160d2709ae195f591daa33ad6ab1fb18b8762a39d8c4466c4cbe95cf6881fc3d54d469710ef0e7fd64ecff47c1ba5741d7254903bfaebdacea5aa8289f81ba9a1c --sender 0x02122Ac49b0Be2e0eAD957F2D080805A0127Aa9d
 
 ```
 <!-- End CLI Example Usage [usage] -->
@@ -198,19 +200,19 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`credit-repay`](docs/compass_credit_credit-repay.md) - Repay debt and withdraw collateral
 * [`credit-bundle`](docs/compass_credit_credit-bundle.md) - Execute multiple credit actions
 
-### [traditional-investing](docs/compass_traditional-investing.md)
+### [global-markets-perps](docs/compass_global-markets-perps.md)
 
-* [`traditional-investing-opportunities`](docs/compass_traditional-investing_traditional-investing-opportunities.md) - List traditional investing perp markets
-* [`traditional-investing-positions`](docs/compass_traditional-investing_traditional-investing-positions.md) - List traditional investing positions
-* [`traditional-investing-deposit`](docs/compass_traditional-investing_traditional-investing-deposit.md) - Deposit USDC to traditional investments account
-* [`traditional-investing-withdraw`](docs/compass_traditional-investing_traditional-investing-withdraw.md) - Withdraw USDC from traditional investments account
-* [`traditional-investing-market-order`](docs/compass_traditional-investing_traditional-investing-market-order.md) - Place market order
-* [`traditional-investing-limit-order`](docs/compass_traditional-investing_traditional-investing-limit-order.md) - Place limit order
-* [`traditional-investing-cancel-order`](docs/compass_traditional-investing_traditional-investing-cancel-order.md) - Cancel order
-* [`traditional-investing-execute`](docs/compass_traditional-investing_traditional-investing-execute.md) - Execute signed action
-* [`traditional-investing-approve-builder-fee`](docs/compass_traditional-investing_traditional-investing-approve-builder-fee.md) - Approve builder fee
-* [`traditional-investing-enable-unified-account`](docs/compass_traditional-investing_traditional-investing-enable-unified-account.md) - Enable unified account mode
-* [`traditional-investing-ensure-leverage`](docs/compass_traditional-investing_traditional-investing-ensure-leverage.md) - Ensure 1x cross leverage
+* [`global-markets-perps-opportunities`](docs/compass_global-markets-perps_global-markets-perps-opportunities.md) - List global markets perps markets
+* [`global-markets-perps-positions`](docs/compass_global-markets-perps_global-markets-perps-positions.md) - List global markets perps positions
+* [`global-markets-perps-deposit`](docs/compass_global-markets-perps_global-markets-perps-deposit.md) - Deposit USDC to global markets perps account
+* [`global-markets-perps-withdraw`](docs/compass_global-markets-perps_global-markets-perps-withdraw.md) - Withdraw USDC from global markets perps account
+* [`global-markets-perps-market-order`](docs/compass_global-markets-perps_global-markets-perps-market-order.md) - Place market order
+* [`global-markets-perps-limit-order`](docs/compass_global-markets-perps_global-markets-perps-limit-order.md) - Place limit order
+* [`global-markets-perps-cancel-order`](docs/compass_global-markets-perps_global-markets-perps-cancel-order.md) - Cancel order
+* [`global-markets-perps-execute`](docs/compass_global-markets-perps_global-markets-perps-execute.md) - Execute signed action
+* [`global-markets-perps-approve-builder-fee`](docs/compass_global-markets-perps_global-markets-perps-approve-builder-fee.md) - Approve builder fee
+* [`global-markets-perps-enable-unified-account`](docs/compass_global-markets-perps_global-markets-perps-enable-unified-account.md) - Enable unified account mode
+* [`global-markets-perps-ensure-leverage`](docs/compass_global-markets-perps_global-markets-perps-ensure-leverage.md) - Ensure 1x cross leverage
 
 ### [tokenized-assets](docs/compass_tokenized-assets.md)
 
