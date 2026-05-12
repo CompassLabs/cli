@@ -50,3 +50,5 @@ release:
 
 checksum:
   name_template: "checksums.txt"
+
+project_name: compass
