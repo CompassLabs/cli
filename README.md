@@ -5,11 +5,6 @@ Command-line interface for the *Compass* API.
 [![Built by Speakeasy](https://img.shields.io/badge/Built_by-SPEAKEASY-374151?style=for-the-badge&labelColor=f3f4f6)](https://www.speakeasy.com/?utm_source=github.com/CompassLabs/cli&utm_campaign=cli)
 [![License: MIT](https://img.shields.io/badge/LICENSE_//_MIT-3b5bdb?style=for-the-badge&labelColor=eff6ff)](https://opensource.org/licenses/MIT)
 
-
-<br /><br />
-> [!IMPORTANT]
-> This CLI is not yet ready for production use. To complete setup please follow the steps outlined in your [workspace](https://app.speakeasy.com/org/compasslabs/api). Delete this section before > publishing to a package manager.
-
 <!-- Start Summary [summary] -->
 ## Summary
 
@@ -30,7 +25,6 @@ Compass API: Compass Labs DeFi API
   * [Output Formats](#output-formats)
   * [Error Handling](#error-handling)
   * [Diagnostics](#diagnostics)
-  * [Wallet Signing — Local Daemon](#wallet-signing-local-daemon)
   * [Common Pitfalls](#common-pitfalls)
 * [Development](#development)
   * [Maturity](#maturity)
@@ -439,50 +433,30 @@ Sensitive information is automatically redacted in diagnostic output:
 Diagnostic output should still be treated as potentially sensitive operational data.
 <!-- End Diagnostics [diagnostics] -->
 
-## Wallet Signing — Local Daemon
-
-The CLI is non-custodial: action endpoints return either an unsigned transaction or EIP-712 typed data, and the signing happens in the user's wallet. The CLI ships with a small **embedded signer daemon** that pairs with the `compass sign` subcommand. The daemon binary, page, and JS are all baked into `compass` itself — no Node, no separate install.
-
-```bash
-# 1. Start the daemon (foreground; opens http://127.0.0.1:3030 in your browser)
-compass daemon start
-
-# 2. In the browser: click "Connect wallet" — uses your installed wallet
-#    (MetaMask, Rabby, Coinbase Wallet, Frame, etc. via window.ethereum).
-
-# 3. In another terminal, pipe any signing-shaped output into `compass sign`
-compass earn earn-manage --venue.vault.vault-address 0x... \
-  --action DEPOSIT --amount 100 --owner 0x... --chain base \
-  --output-format json --jq '.unsigned_tx' \
-  | compass sign
-```
-
-`compass sign` reads JSON from stdin (or `--input <file>`), POSTs it to the daemon, and prints the signature or transaction hash. The browser tab shows an approval prompt for every incoming request.
-
-| Setting | Default | Override |
-|---------|---------|----------|
-| Daemon port | `3030` | `compass daemon start --port <n>` |
-| Signer URL (for `compass sign`) | `http://127.0.0.1:3030/api/sign` | `$COMPASS_SIGNER_URL` or `--signer-url` |
-| Auto-open browser | enabled | `compass daemon start --no-open` |
-| Approval timeout | 5 minutes | n/a |
-| Display metadata | none | `--meta key=value` (repeatable, shown in the approval prompt) |
-
-The HTTP server binds to `127.0.0.1` and rejects non-loopback connections — the daemon cannot be reached over the network.
-
 ## Common Pitfalls
 
 These are real footguns surfaced during prod testing. AI coding agents should read this section before writing CLI invocations — most of these errors are not obvious from the per-command help text.
 
 ### Some optional flags require JSON-quoted values
 
-Flags whose help text reads as a regular string but that are implemented as JSON-encoded query parameters require **JSON-quoted** values. Affected today (commands × flags):
+Flags whose help text reads as a regular string but that are implemented as JSON-encoded query parameters require **JSON-quoted** values. Only **optional string-typed** query params are affected; optional numeric flags (e.g., `--min-tvl-usd`, `--limit`) work plain because the JSON parser accepts bare numbers. Affected today:
 
-| Command | Flag | Wrong | Right |
-|---------|------|-------|-------|
-| `earn earn-vaults` | `--chain`, `--asset-symbol` | `--chain base` | `--chain '"base"'` |
-| `earn earn-aave-markets` | `--chain` | `--chain base` | `--chain '"base"'` |
-| `earn earn-pendle-markets` | `--chain` | `--chain base` | `--chain '"base"'` |
-| `tokenized-assets tokenized-assets-markets` | `--search` | `--search USDC` | `--search '"USDC"'` |
+| Command | Flag(s) |
+|---------|---------|
+| `earn earn-vaults` | `--chain`, `--asset-symbol` |
+| `earn earn-aave-markets` | `--chain` |
+| `earn earn-pendle-markets` | `--chain`, `--underlying-symbol` |
+| `tokenized-assets tokenized-assets-markets` | `--category`, `--search` |
+| `tokenized-assets tokenized-assets-markets-symbol` | `--interval`, `--range` |
+| `traditional-investing traditional-investing-opportunities` | `--category` |
+| `traditional-investing traditional-investing-positions` | `--asset` |
+
+Example:
+
+```bash
+# Wrong: --chain base       → invalid character 'b' looking for beginning of value
+# Right: --chain '"base"'
+```
 
 **Symptom:** an error like `invalid value for --chain: error unmarshalling json response body: invalid character 'b' looking for beginning of value`. The phrase "response body" is misleading — this is flag parsing, not an HTTP error.
 

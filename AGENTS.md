@@ -58,18 +58,33 @@ Or run `compass <group> <command> --help` if the binary is installed.
 
 ### Rule 1 — JSON-quote values for some optional flags
 
-Some optional flags expect **JSON-encoded** input even when the help text shows them as plain strings. Pass `'"value"'` in zsh/bash, not `value`.
+Optional **string-typed** query-param flags expect JSON-encoded input even when the help text shows them as plain strings. Pass `'"value"'` in zsh/bash, not `value`. (Optional numeric flags like `--min-tvl-usd`, `--limit`, etc. work plain — only strings are affected.)
 
-| Command | Flag | Wrong | Right |
-|---------|------|-------|-------|
-| `earn earn-vaults` | `--chain`, `--asset-symbol` | `--chain base` | `--chain '"base"'` |
-| `earn earn-aave-markets` | `--chain` | `--chain base` | `--chain '"base"'` |
-| `earn earn-pendle-markets` | `--chain` | `--chain base` | `--chain '"base"'` |
-| `tokenized-assets tokenized-assets-markets` | `--search` | `--search USDC` | `--search '"USDC"'` |
+Currently affected:
 
-**Symptom**: `invalid value for --chain: error unmarshalling json response body: invalid character 'b' looking for beginning of value`. The phrase "response body" is misleading — this is flag parsing, not an HTTP error.
+| Command | Flag(s) |
+|---------|---------|
+| `earn earn-vaults` | `--chain`, `--asset-symbol` |
+| `earn earn-aave-markets` | `--chain` |
+| `earn earn-pendle-markets` | `--chain`, `--underlying-symbol` |
+| `tokenized-assets tokenized-assets-markets` | `--category`, `--search` |
+| `tokenized-assets tokenized-assets-markets-symbol` | `--interval`, `--range` |
+| `traditional-investing traditional-investing-opportunities` | `--category` |
+| `traditional-investing traditional-investing-positions` | `--asset` |
 
-**Recovery heuristic**: if you see `invalid character 'X' looking for beginning of value` on an optional flag, retry with `'"X"'` quoting. Do NOT add quotes to required `--chain` flags on commands like `earn-manage` / `earn-bundle` / any `credit-*` / any `gas-sponsorship-*` — those use a different parser and accept plain values.
+Example:
+
+```bash
+# Wrong: compass earn earn-vaults --order-by tvl_usd --chain base
+#   → invalid value for --chain: ... invalid character 'b' looking for beginning of value
+
+# Right:
+compass earn earn-vaults --order-by tvl_usd --chain '"base"'
+```
+
+**Symptom**: `invalid value for --<flag>: error unmarshalling json response body: invalid character 'X' looking for beginning of value`. The phrase "response body" is misleading — this is flag parsing, not an HTTP error.
+
+**Recovery heuristic**: if you see `invalid character 'X' looking for beginning of value` on an optional flag, retry with `'"X"'` quoting. Do NOT add quotes to required `--chain` flags on commands like `earn-manage` / `earn-bundle` / any `credit-*` / any `gas-sponsorship-*` — those use a different parser (`FlagKindEnum`) and accept plain values.
 
 If a flag is optional and you don't strictly need it, just **drop it** to avoid the bug.
 
@@ -85,7 +100,16 @@ compass earn earn-vaults --order-by tvl_usd -o table
 compass earn earn-vaults --order-by tvl_usd --jq '.vaults'
 ```
 
-For `compass <command>` returning an envelope, the array key matches the resource (`.vaults`, `.aaveMarkets`, `.markets`, etc.). When in doubt, run with `-o json` first to see the shape. A table render of a nested array is not supported in one command today — `--jq` always emits JSON.
+For `compass <command>` returning an envelope, the inner key is the resource name, but the type varies:
+
+| Command | Inner key | Type |
+|---------|-----------|------|
+| `earn earn-vaults` | `.vaults` | array |
+| `earn earn-aave-markets` | `.markets` | **object map keyed by token symbol** — use `.markets \| keys` to list symbols |
+| `earn earn-pendle-markets` | `.markets` | array |
+| `tokenized-assets tokenized-assets-markets` | `.markets` | array |
+
+When in doubt, run with `-o json` first to see the shape. A table render of a nested array is not supported in one command today — `--jq` always emits JSON.
 
 ### Rule 3 — Use `--dry-run` for safe exploration
 
@@ -225,41 +249,6 @@ compass earn earn-bundle \
 | Render an envelope as a table | `--output-format table` (accepts the envelope; nested arrays not supported in one shot) |
 | Compact result for your own context | `--output-format toon` (or rely on agent-mode default) |
 | Stream a paginated list | `--all` (with `--output-format json` for NDJSON or `toon` for blocks) |
-
----
-
-## Wallet integration
-
-The CLI never touches private keys. To sign unsigned txs or EIP-712 typed data, use the embedded **signer daemon** that ships with the binary:
-
-```bash
-# 1. In one terminal: start the daemon. Opens http://127.0.0.1:3030 in the
-#    user's browser. They click "Connect wallet" and pick their browser
-#    wallet (MetaMask, Rabby, Coinbase Wallet, Frame, etc.).
-compass daemon start
-
-# 2. In another terminal: pipe any signing-shaped output through `compass sign`
-compass earn earn-manage \
-  --venue.vault.vault-address 0x... \
-  --action DEPOSIT --amount 100 --owner 0x... --chain base \
-  --output-format json --jq '.unsigned_tx' \
-  | compass sign --meta command=earn-manage --meta amount=100
-# Browser shows an approval prompt with the meta + payload preview.
-# On approve: wallet signs/broadcasts and the tx hash is printed to stdout.
-```
-
-The daemon serves a self-contained page embedded in the `compass` binary — no separate install, no monorepo, no Node. Bound to `127.0.0.1` only.
-
-| Setting | Default | Override |
-|---------|---------|----------|
-| Port | 3030 | `compass daemon start --port <n>` |
-| Signer URL | `http://127.0.0.1:3030/api/sign` | `$COMPASS_SIGNER_URL` or `compass sign --signer-url` |
-| Auto-open browser | yes | `compass daemon start --no-open` |
-| Display metadata | none | `compass sign --meta key=value` (repeatable) |
-
-If `compass sign` is run without the daemon running, it errors with `connect: connection refused (run \`compass daemon start\` in another terminal first)` — that's the recovery instruction.
-
-The CLI itself never accepts a private key.
 
 ---
 
