@@ -2,6 +2,9 @@
 version: 2
 
 # Tag convention: `vX.Y.Z` (workflow triggers on `v*`).
+# `project_name` controls archive prefix (e.g. compass_Darwin_x86_64.tar.gz)
+# and decouples it from the repo name (CompassLabs/cli).
+project_name: compass
 
 before:
   hooks:
