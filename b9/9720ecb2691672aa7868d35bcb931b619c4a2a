@@ -1,0 +1,19 @@
+.github/workflows/release.yaml
+  s_fe29c3e2b5625c::t_86f3b0ae5c058d 32,35-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "b99720ecb2691672aa7868d35bcb931b619c4a2a",
+  "prompts": {},
+  "sessions": {
+    "s_fe29c3e2b5625c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f22c2820-c4cb-4710-8a89-92fd4a5ce1a9",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "bekanay <bekanay@Kanays-MacBook-Air.local>"
+    }
+  }
+}
