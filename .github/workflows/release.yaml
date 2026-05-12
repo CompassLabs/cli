@@ -29,7 +29,10 @@ jobs:
         with:
           distribution: goreleaser
           version: "~> v2"
-          args: release --clean
+          # --current-tag forces goreleaser to use the workflow-triggering tag
+          # (github.ref_name). Without this, `git describe` is ambiguous when
+          # multiple tags collocate on the same commit.
+          args: release --clean --current-tag=${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
