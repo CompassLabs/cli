@@ -38,6 +38,7 @@ compass global-markets-perps [flags]
 ### SEE ALSO
 
 * [compass](compass.md)	 - Compass API: Compass Labs DeFi API
+* [compass global-markets-perps global-markets-perps-activity](compass_global-markets-perps_global-markets-perps-activity.md)	 - Aggregated Hyperliquid activity for a user
 * [compass global-markets-perps global-markets-perps-approve-builder-fee](compass_global-markets-perps_global-markets-perps-approve-builder-fee.md)	 - Approve builder fee
 * [compass global-markets-perps global-markets-perps-cancel-order](compass_global-markets-perps_global-markets-perps-cancel-order.md)	 - Cancel order
 * [compass global-markets-perps global-markets-perps-deposit](compass_global-markets-perps_global-markets-perps-deposit.md)	 - Deposit USDC to global markets perps account

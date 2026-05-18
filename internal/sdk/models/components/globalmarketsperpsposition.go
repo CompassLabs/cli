@@ -6,20 +6,20 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 )
 
-// Side - Position side: 'long' or 'short'
-type Side string
+// GlobalMarketsPerpsPositionSide - Position side: 'long' or 'short'
+type GlobalMarketsPerpsPositionSide string
 
 const (
-	SideLong  Side = "long"
-	SideShort Side = "short"
+	GlobalMarketsPerpsPositionSideLong  GlobalMarketsPerpsPositionSide = "long"
+	GlobalMarketsPerpsPositionSideShort GlobalMarketsPerpsPositionSide = "short"
 )
 
-func (e Side) ToPointer() *Side {
+func (e GlobalMarketsPerpsPositionSide) ToPointer() *GlobalMarketsPerpsPositionSide {
 	return &e
 }
 
 // IsExact returns true if the value matches a known enum value, false otherwise.
-func (e *Side) IsExact() bool {
+func (e *GlobalMarketsPerpsPositionSide) IsExact() bool {
 	if e != nil {
 		switch *e {
 		case "long", "short":
@@ -36,7 +36,7 @@ type GlobalMarketsPerpsPosition struct {
 	// Hyperliquid asset index
 	AssetID int64 `json:"asset_id"`
 	// Position side: 'long' or 'short'
-	Side Side `json:"side"`
+	Side GlobalMarketsPerpsPositionSide `json:"side"`
 	// Position size in contracts
 	Size string `json:"size"`
 	// Average entry price
@@ -69,9 +69,9 @@ func (g *GlobalMarketsPerpsPosition) GetAssetID() int64 {
 	return g.AssetID
 }
 
-func (g *GlobalMarketsPerpsPosition) GetSide() Side {
+func (g *GlobalMarketsPerpsPosition) GetSide() GlobalMarketsPerpsPositionSide {
 	if g == nil {
-		return Side("")
+		return GlobalMarketsPerpsPositionSide("")
 	}
 	return g.Side
 }

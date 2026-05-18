@@ -4,6 +4,7 @@ package components
 
 import (
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
+	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
 // GlobalMarketsPerpsLimitOrderRequest - Request to place a limit order on a global markets perps market.
@@ -24,6 +25,19 @@ type GlobalMarketsPerpsLimitOrderRequest struct {
 	ReduceOnly *bool `json:"reduce_only,omitzero"`
 	// Optional client order ID for idempotency (uint128)
 	ClientOrderID optionalnullable.OptionalNullable[int64] `json:"client_order_id,omitzero"`
+	// Optional builder fee. When provided, the order action carries the builder address and fee — the end-user must have already approved this builder via /approve_builder_fee up to at least this rate. Omit (or pass null) to place the order with no builder fee.
+	Builder optionalnullable.OptionalNullable[Builder] `json:"builder,omitzero"`
+}
+
+func (g GlobalMarketsPerpsLimitOrderRequest) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(g, "", false)
+}
+
+func (g *GlobalMarketsPerpsLimitOrderRequest) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &g, "", false, nil); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (g *GlobalMarketsPerpsLimitOrderRequest) GetOwner() string {
@@ -80,4 +94,11 @@ func (g *GlobalMarketsPerpsLimitOrderRequest) GetClientOrderID() optionalnullabl
 		return nil
 	}
 	return g.ClientOrderID
+}
+
+func (g *GlobalMarketsPerpsLimitOrderRequest) GetBuilder() optionalnullable.OptionalNullable[Builder] {
+	if g == nil {
+		return nil
+	}
+	return g.Builder
 }

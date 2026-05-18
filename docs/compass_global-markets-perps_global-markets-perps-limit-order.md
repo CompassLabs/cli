@@ -24,6 +24,7 @@ compass global-markets-perps global-markets-perps-limit-order [flags]
 ```
   -a, --asset string             Asset ticker symbol (e.g. AAPL, GOLD, EUR) [required]
       --body string              Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -b, --builder string           Optional builder fee. When provided, the order action carries the builder address and fee — the end-user must have already approved this builder via /approve_builder_fee up to at least this rate. Omit (or pass null) to place the order with no builder fee.
   -c, --client-order-id string   Optional client order ID for idempotency (uint128)
   -h, --help                     help for global-markets-perps-limit-order
       --owner string             Owner of the global markets perps product account [required]

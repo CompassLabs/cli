@@ -17,6 +17,7 @@ import (
 
 var globalMarketsPerpsApproveBuilderFeeCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "User's EOA address [required]"},
+	{FlagName: "builder", Shorthand: "b", FieldPath: "Builder", Kind: flagutil.FlagKindJSON, Required: true, Annotations: `json:"builder"`, Description: "Builder address + max fee rate the end-user authorizes. [required]"},
 }
 
 // initGlobalMarketsPerpsApproveBuilderFeeCmd initializes the global-markets-perps-approve-builder-fee command.
@@ -25,7 +26,7 @@ func initGlobalMarketsPerpsApproveBuilderFeeCmd(parent *cobra.Command) error {
 		Use:     "global-markets-perps-approve-builder-fee",
 		Short:   "Approve builder fee",
 		Long:    "Prepare builder fee approval for the global markets perps DEX.\n\nThis is a one-time action required before placing the first trade.\nReturns EIP-712 typed data for the user to sign. After signing, submit\nthe signature via the /execute endpoint.",
-		Example: "  compass global-markets-perps global-markets-perps-approve-builder-fee --owner <value>",
+		Example: "  compass global-markets-perps global-markets-perps-approve-builder-fee --owner 0x01E62835dd7F52173546A325294762143eE4a882 --builder '{\"address\":\"0x88806A71D74AD0a510B350545C9AE490912F0888\",\"max_fee_rate\":\"0.01%\"}'",
 		RunE:    runGlobalMarketsPerpsApproveBuilderFeeCmd,
 		Aliases: []string{"gmpabf"},
 	}

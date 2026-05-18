@@ -10,6 +10,9 @@ Accepts the signature from any prepare endpoint (market_order, limit_order,
 cancel_order, withdraw, approve_builder_fee) and POSTs it to the Hyperliquid
 exchange API.
 
+The caller must have already hit a prepare endpoint, so no compass_account
+registration is performed here.
+
 ```
 compass global-markets-perps global-markets-perps-execute [flags]
 ```

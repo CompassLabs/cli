@@ -198,6 +198,7 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 
 * [`global-markets-perps-opportunities`](docs/compass_global-markets-perps_global-markets-perps-opportunities.md) - List global markets perps markets
 * [`global-markets-perps-positions`](docs/compass_global-markets-perps_global-markets-perps-positions.md) - List global markets perps positions
+* [`global-markets-perps-activity`](docs/compass_global-markets-perps_global-markets-perps-activity.md) - Aggregated Hyperliquid activity for a user
 * [`global-markets-perps-deposit`](docs/compass_global-markets-perps_global-markets-perps-deposit.md) - Deposit USDC to global markets perps account
 * [`global-markets-perps-withdraw`](docs/compass_global-markets-perps_global-markets-perps-withdraw.md) - Withdraw USDC from global markets perps account
 * [`global-markets-perps-market-order`](docs/compass_global-markets-perps_global-markets-perps-market-order.md) - Place market order

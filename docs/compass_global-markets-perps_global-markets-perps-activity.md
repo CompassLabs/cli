@@ -1,32 +1,37 @@
-## compass global-markets-perps global-markets-perps-approve-builder-fee
+## compass global-markets-perps global-markets-perps-activity
 
-Approve builder fee
+Aggregated Hyperliquid activity for a user
 
 ### Synopsis
 
-Prepare builder fee approval for the global markets perps DEX.
+Return positions, fills, open orders, and (optionally) builder approval
+state for an end-user in one normalized payload.
 
-This is a one-time action required before placing the first trade.
-Returns EIP-712 typed data for the user to sign. After signing, submit
-the signature via the /execute endpoint.
+Each section is fetched in parallel from the Hyperliquid `info` API.
+If a single upstream call fails the corresponding section returns ``null``
+and an entry is added to ``partial_errors``; if every section fails the
+endpoint responds with 502.
+
+Pass ``builder`` to additionally include the user's current approved max
+fee rate for that builder (used by dashboards to decide whether to prompt
+the user to sign an `approveBuilderFee` action).
 
 ```
-compass global-markets-perps global-markets-perps-approve-builder-fee [flags]
+compass global-markets-perps global-markets-perps-activity [flags]
 ```
 
 ### Examples
 
 ```
-  compass global-markets-perps global-markets-perps-approve-builder-fee --owner 0x01E62835dd7F52173546A325294762143eE4a882 --builder '{"address":"0x88806A71D74AD0a510B350545C9AE490912F0888","max_fee_rate":"0.01%"}'
+  compass global-markets-perps global-markets-perps-activity --owner 0x01E62835dd7F52173546A325294762143eE4a882
 ```
 
 ### Options
 
 ```
-      --body string      Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -b, --builder string   Builder address + max fee rate the end-user authorizes. [required]
-  -h, --help             help for global-markets-perps-approve-builder-fee
-      --owner string     User's EOA address [required]
+  -b, --builder string   Optional builder address. When provided, the response includes the current builder-fee approval state for this (owner, builder) pair.
+  -h, --help             help for global-markets-perps-activity
+      --owner string     End-user EOA whose activity should be fetched. [required]
 ```
 
 ### Options inherited from parent commands

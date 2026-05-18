@@ -22,6 +22,7 @@ var globalMarketsPerpsMarketOrderCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "size", FieldPath: "Size", Kind: flagutil.FlagKindString, Required: true, Description: "Number of contracts (human-readable) [required]"},
 	{FlagName: "slippage-percent", FieldPath: "SlippagePercent", Kind: flagutil.FlagKindFloat64, Optional: true, Description: "Max slippage percentage for price protection"},
 	{FlagName: "reduce-only", Shorthand: "r", FieldPath: "ReduceOnly", Kind: flagutil.FlagKindBool, Optional: true, Description: "If true, order can only reduce an existing position"},
+	{FlagName: "builder", Shorthand: "b", FieldPath: "Builder", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"builder,omitempty"`, Description: "Optional builder fee. When provided, the order action carries the builder address and fee — the end-user must have already approved this builder via /approve_builder_fee up to at least this rate. Omit (or pass null) to place the order with no builder fee."},
 }
 
 // initGlobalMarketsPerpsMarketOrderCmd initializes the global-markets-perps-market-order command.

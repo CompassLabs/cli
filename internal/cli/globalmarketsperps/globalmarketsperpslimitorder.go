@@ -24,6 +24,7 @@ var globalMarketsPerpsLimitOrderCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "time-in-force", Shorthand: "t", FieldPath: "TimeInForce", Kind: flagutil.FlagKindString, Optional: true, Description: "Time-in-force: 'gtc' (good til cancel) or 'alo' (add liquidity only)"},
 	{FlagName: "reduce-only", Shorthand: "r", FieldPath: "ReduceOnly", Kind: flagutil.FlagKindBool, Optional: true, Description: "If true, order can only reduce an existing position"},
 	{FlagName: "client-order-id", Shorthand: "c", FieldPath: "ClientOrderID", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"client_order_id,omitempty"`, Description: "Optional client order ID for idempotency (uint128)"},
+	{FlagName: "builder", Shorthand: "b", FieldPath: "Builder", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"builder,omitempty"`, Description: "Optional builder fee. When provided, the order action carries the builder address and fee — the end-user must have already approved this builder via /approve_builder_fee up to at least this rate. Omit (or pass null) to place the order with no builder fee."},
 }
 
 // initGlobalMarketsPerpsLimitOrderCmd initializes the global-markets-perps-limit-order command.

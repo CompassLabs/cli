@@ -25,6 +25,7 @@ compass global-markets-perps global-markets-perps-market-order [flags]
 ```
   -a, --asset string             Asset ticker symbol (e.g. AAPL, GOLD, EUR) [required]
       --body string              Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -b, --builder string           Optional builder fee. When provided, the order action carries the builder address and fee — the end-user must have already approved this builder via /approve_builder_fee up to at least this rate. Omit (or pass null) to place the order with no builder fee.
   -h, --help                     help for global-markets-perps-market-order
       --owner string             Owner of the global markets perps product account [required]
   -r, --reduce-only              If true, order can only reduce an existing position

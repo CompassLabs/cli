@@ -27,7 +27,7 @@ func initGlobalMarketsPerpsExecuteCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "global-markets-perps-execute",
 		Short:   "Execute signed action",
-		Long:    "Submit a signed Hyperliquid action for execution.\n\nAccepts the signature from any prepare endpoint (market_order, limit_order,\ncancel_order, withdraw, approve_builder_fee) and POSTs it to the Hyperliquid\nexchange API.",
+		Long:    "Submit a signed Hyperliquid action for execution.\n\nAccepts the signature from any prepare endpoint (market_order, limit_order,\ncancel_order, withdraw, approve_builder_fee) and POSTs it to the Hyperliquid\nexchange API.\n\nThe caller must have already hit a prepare endpoint, so no compass_account\nregistration is performed here.",
 		Example: "  compass global-markets-perps global-markets-perps-execute --action '{\"key\":\"<value>\",\"key1\":\"<value>\"}' --nonce 511479 --signature <value>",
 		RunE:    runGlobalMarketsPerpsExecuteCmd,
 		Aliases: []string{"gmpe"},

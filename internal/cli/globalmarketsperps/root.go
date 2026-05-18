@@ -29,6 +29,10 @@ func InitGlobalMarketsPerpsRoot(parent *cobra.Command) error {
 		return err
 	}
 
+	if err := initGlobalMarketsPerpsActivityCmd(GlobalMarketsPerpsCmd); err != nil {
+		return err
+	}
+
 	if err := initGlobalMarketsPerpsDepositCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}

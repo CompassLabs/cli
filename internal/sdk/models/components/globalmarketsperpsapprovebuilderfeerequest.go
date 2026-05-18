@@ -6,6 +6,8 @@ package components
 type GlobalMarketsPerpsApproveBuilderFeeRequest struct {
 	// User's EOA address
 	Owner string `json:"owner"`
+	// Builder address + max fee rate the end-user authorizes.
+	Builder Builder `json:"builder"`
 }
 
 func (g *GlobalMarketsPerpsApproveBuilderFeeRequest) GetOwner() string {
@@ -13,4 +15,11 @@ func (g *GlobalMarketsPerpsApproveBuilderFeeRequest) GetOwner() string {
 		return ""
 	}
 	return g.Owner
+}
+
+func (g *GlobalMarketsPerpsApproveBuilderFeeRequest) GetBuilder() Builder {
+	if g == nil {
+		return Builder{}
+	}
+	return g.Builder
 }
