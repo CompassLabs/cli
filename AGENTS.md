@@ -223,6 +223,12 @@ compass earn earn-bundle \
   ]'
 ```
 
+### Recipe 6 — Compute risk metrics from existing data
+
+Agents asked about portfolio risk, vault correlation, cross-protocol exposure, or "what breaks at -X%" can answer those questions from the existing `earn-vaults` / `earn-aave-markets` / `earn-pendle-markets` endpoints — no specialized risk command needed. The math mirrors the dashboard at <https://compasslabs.ai/risk>: borrower exposure (JTD), LLTV cascade stress test, vault correlation matrix, yield decomposition, withdrawable share of TVL.
+
+See [`internal/cli/risk/RISK_RECIPES.md`](internal/cli/risk/RISK_RECIPES.md) for the formulas, jq snippets, and worked example recipes. Or — if you only have the installed binary and no repo/web access — run `compass risk-recipes` to print the same doc to stdout (it's embedded at compile time). The one piece worth reading carefully is the **LLTV cascade** — Morpho ships LLTV as a uint256 scaled by 1e18, and the bad-debt formula is continuous (`1 − 1/newLtv`), not a binary trip-flag. Getting either of those wrong gives plausible-looking numbers that are off by a lot.
+
 ---
 
 ## Error-recovery cheat sheet

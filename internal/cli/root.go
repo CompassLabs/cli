@@ -7,6 +7,7 @@ import (
 	"github.com/CompassLabs/cli/internal/cli/credit"
 	"github.com/CompassLabs/cli/internal/cli/earn"
 	"github.com/CompassLabs/cli/internal/cli/gassponsorship"
+	"github.com/CompassLabs/cli/internal/cli/risk"
 	"github.com/CompassLabs/cli/internal/cli/globalmarketsperps"
 	"github.com/CompassLabs/cli/internal/cli/tokenizedassets"
 	"github.com/CompassLabs/cli/internal/config"
@@ -78,6 +79,10 @@ func NewRootCommand() (*cobra.Command, error) {
 		return nil, fmt.Errorf("init auth: %w", err)
 	}
 	initExploreCmd(rootCmd)
+
+	if err := risk.InitRiskRoot(rootCmd); err != nil {
+		return nil, fmt.Errorf("init risk: %w", err)
+	}
 
 	// Global output format flag
 	rootCmd.PersistentFlags().StringP("output-format", "o", "pretty", "Specify the output format. Options: pretty, json, yaml, table, toon.")
