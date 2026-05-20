@@ -11,6 +11,8 @@ import (
 type V2EarnAaveMarketsRequest struct {
 	// Optional chain filter. If not provided, returns rates for all chains.
 	Chain optionalnullable.OptionalNullable[components.Chain] `queryParam:"style=form,explode=true,name=chain"`
+	// Window in days used to compute `supply_apy_avg` / `borrow_apy_avg`. Mirrors the `days` parameter of the v1 `/v1/aave/avg_rate` endpoint.
+	Days *int64 `queryParam:"style=form,explode=true,name=days"`
 }
 
 func (v *V2EarnAaveMarketsRequest) GetChain() optionalnullable.OptionalNullable[components.Chain] {
@@ -18,6 +20,13 @@ func (v *V2EarnAaveMarketsRequest) GetChain() optionalnullable.OptionalNullable[
 		return nil
 	}
 	return v.Chain
+}
+
+func (v *V2EarnAaveMarketsRequest) GetDays() *int64 {
+	if v == nil {
+		return nil
+	}
+	return v.Days
 }
 
 // #region class-body-v2earnaavemarketsrequest

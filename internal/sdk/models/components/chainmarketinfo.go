@@ -12,6 +12,10 @@ type ChainMarketInfo struct {
 	SupplyApy string `json:"supply_apy"`
 	// Variable rate APY for loans, in percentage (e.g., 6.2 means 6.2%).
 	BorrowApy string `json:"borrow_apy"`
+	// Variable rate APY for deposits averaged over the `days` window in the request (default 30 days), in percentage. Computed the same way as the v1 `/v1/aave/avg_rate` endpoint.
+	SupplyApyAvg string `json:"supply_apy_avg"`
+	// Variable rate APY for loans averaged over the `days` window in the request (default 30 days), in percentage. Computed the same way as the v1 `/v1/aave/avg_rate` endpoint.
+	BorrowApyAvg string `json:"borrow_apy_avg"`
 	// Total amount currently borrowed from this market, in token units (e.g., 1234567.89 USDC).
 	TotalBorrowed string `json:"total_borrowed"`
 	// Amount of tokens available to borrow, in token units. Equals total supplied minus total borrowed.
@@ -46,6 +50,20 @@ func (c *ChainMarketInfo) GetBorrowApy() string {
 		return ""
 	}
 	return c.BorrowApy
+}
+
+func (c *ChainMarketInfo) GetSupplyApyAvg() string {
+	if c == nil {
+		return ""
+	}
+	return c.SupplyApyAvg
+}
+
+func (c *ChainMarketInfo) GetBorrowApyAvg() string {
+	if c == nil {
+		return ""
+	}
+	return c.BorrowApyAvg
 }
 
 func (c *ChainMarketInfo) GetTotalBorrowed() string {
