@@ -4,25 +4,16 @@ package components
 
 // TokenizedAssetsBuildOrderRequest - Build a buy or sell order for a tokenized equity.
 type TokenizedAssetsBuildOrderRequest struct {
-	// The chain to use.
-	Chain Chain `json:"chain"`
 	// Token the sender is paying. Either an on-chain symbol (e.g. `TSLAon`), the literal `USDC`, or a 0x-prefixed token address.
 	FromToken string `json:"from_token"`
 	// Token the sender is receiving. Same accepted forms as `from_token`.
 	ToToken string `json:"to_token"`
 	// Human-readable amount of `from_token` to swap (decimal string). Decimals are applied server-side.
 	Amount string `json:"amount"`
-	// Wallet that owns the Tokenized Assets Account. The product account address is derived deterministically from this owner. The owner signs the EIP-712 payloads returned by this endpoint (the optional approval and the order itself).
+	// Wallet that owns the Tokenized Equities Account. The product account address is derived deterministically from this owner. The owner signs the EIP-712 payloads returned by this endpoint (the optional approval and the order itself).
 	Owner string `json:"owner"`
 	// Max acceptable slippage in basis points (1 bp = 0.01%). Range 1-5000 (0.01%-50%); defaults to 50 (0.5%). The upper bound is intentionally wide so callers can clear the wide auction floors quoted for thinly-traded tokenized stocks.
 	SlippageBps *int64 `json:"slippage_bps,omitzero"`
-}
-
-func (t *TokenizedAssetsBuildOrderRequest) GetChain() Chain {
-	if t == nil {
-		return Chain("")
-	}
-	return t.Chain
 }
 
 func (t *TokenizedAssetsBuildOrderRequest) GetFromToken() string {

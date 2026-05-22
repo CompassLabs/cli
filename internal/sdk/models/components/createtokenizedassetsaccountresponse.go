@@ -2,11 +2,11 @@
 
 package components
 
-// CreateTokenizedAssetsAccountResponse - Response containing unsigned transaction to create compass tokenized assets account.
+// CreateTokenizedAssetsAccountResponse - Response containing unsigned transaction to create compass Tokenized Equities Account.
 type CreateTokenizedAssetsAccountResponse struct {
-	// Transaction to create compass tokenized assets account
+	// Transaction to create compass Tokenized Equities Account
 	Transaction *UnsignedTransaction `json:"transaction"`
-	// Predicted address of the compass tokenized assets account that will be deployed
+	// Predicted address of the compass Tokenized Equities Account that will be deployed
 	TokenizedAssetsAccountAddress string `json:"tokenized_assets_account_address"`
 }
 

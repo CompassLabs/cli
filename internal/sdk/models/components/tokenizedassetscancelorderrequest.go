@@ -3,7 +3,7 @@
 package components
 
 type TokenizedAssetsCancelOrderRequest struct {
-	// Wallet that owns the Tokenized Assets Account. The account address derived from this owner must match the order's on-chain maker; the API rejects otherwise (only the order's maker can cancel it).
+	// Wallet that owns the Tokenized Equities Account. The account address derived from this owner must match the order's on-chain maker; the API rejects otherwise (only the order's maker can cancel it).
 	Owner string `json:"owner"`
 }
 

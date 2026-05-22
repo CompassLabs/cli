@@ -3,35 +3,9 @@
 package components
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
-
-// MarketDetailChain - Chain on which the contract is deployed.
-type MarketDetailChain string
-
-const (
-	MarketDetailChainEthereum MarketDetailChain = "ethereum"
-)
-
-func (e MarketDetailChain) ToPointer() *MarketDetailChain {
-	return &e
-}
-func (e *MarketDetailChain) UnmarshalJSON(data []byte) error {
-	var v string
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-	switch v {
-	case "ethereum":
-		*e = MarketDetailChain(v)
-		return nil
-	default:
-		return fmt.Errorf("invalid value for MarketDetailChain: %v", v)
-	}
-}
 
 // MarketDetail - Extended market view returned when fetching a single market.
 type MarketDetail struct {
@@ -41,8 +15,6 @@ type MarketDetail struct {
 	UnderlyingTicker string `json:"underlying_ticker"`
 	// Underlying equity full name (e.g. 'Tesla, Inc. Common Stock').
 	Name string `json:"name"`
-	// Chain on which the contract is deployed.
-	Chain *MarketDetailChain `json:"chain,omitzero"`
 	// Ethereum mainnet ERC-20 address for this token.
 	ContractAddress string `json:"contract_address"`
 	// ERC-20 decimals for this token.
@@ -111,13 +83,6 @@ func (m *MarketDetail) GetName() string {
 		return ""
 	}
 	return m.Name
-}
-
-func (m *MarketDetail) GetChain() *MarketDetailChain {
-	if m == nil {
-		return nil
-	}
-	return m.Chain
 }
 
 func (m *MarketDetail) GetContractAddress() string {

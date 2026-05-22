@@ -211,17 +211,17 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`global-markets-perps-enable-unified-account`](docs/compass_global-markets-perps_global-markets-perps-enable-unified-account.md) - Enable unified account mode
 * [`global-markets-perps-ensure-leverage`](docs/compass_global-markets-perps_global-markets-perps-ensure-leverage.md) - Ensure 1x cross leverage
 
-### [tokenized-assets](docs/compass_tokenized-assets.md)
+### [tokenized-equities](docs/compass_tokenized-equities.md)
 
-* [`tokenized-assets-markets`](docs/compass_tokenized-assets_tokenized-assets-markets.md) - List tokenized equity markets
-* [`tokenized-assets-markets-symbol`](docs/compass_tokenized-assets_tokenized-assets-markets-symbol.md) - Get a single market
-* [`tokenized-assets-positions`](docs/compass_tokenized-assets_tokenized-assets-positions.md) - Get tokenized-asset positions for a wallet
-* [`tokenized-assets-order-order-hash`](docs/compass_tokenized-assets_tokenized-assets-order-order-hash.md) - Get order status
-* [`tokenized-assets-create-account`](docs/compass_tokenized-assets_tokenized-assets-create-account.md) - Create a Tokenized Assets Account
-* [`tokenized-assets-quote`](docs/compass_tokenized-assets_tokenized-assets-quote.md) - Preview a buy/sell quote
-* [`tokenized-assets-order`](docs/compass_tokenized-assets_tokenized-assets-order.md) - Build a buy/sell order
-* [`tokenized-assets-order-submit`](docs/compass_tokenized-assets_tokenized-assets-order-submit.md) - Submit a signed order
-* [`tokenized-assets-order-order-hash-cancel`](docs/compass_tokenized-assets_tokenized-assets-order-order-hash-cancel.md) - Cancel an unfilled order
+* [`tokenized-assets-markets`](docs/compass_tokenized-equities_tokenized-assets-markets.md) - List tokenized equity markets
+* [`tokenized-assets-markets-symbol`](docs/compass_tokenized-equities_tokenized-assets-markets-symbol.md) - Get a single market
+* [`tokenized-assets-positions`](docs/compass_tokenized-equities_tokenized-assets-positions.md) - Get tokenized-asset positions for an owner
+* [`tokenized-assets-order-order-hash`](docs/compass_tokenized-equities_tokenized-assets-order-order-hash.md) - Get order status
+* [`tokenized-assets-create-account`](docs/compass_tokenized-equities_tokenized-assets-create-account.md) - Create a Tokenized Equities Account
+* [`tokenized-assets-quote`](docs/compass_tokenized-equities_tokenized-assets-quote.md) - Preview a buy/sell quote
+* [`tokenized-assets-order`](docs/compass_tokenized-equities_tokenized-assets-order.md) - Build a buy/sell order
+* [`tokenized-assets-order-submit`](docs/compass_tokenized-equities_tokenized-assets-order-submit.md) - Submit a signed order
+* [`tokenized-assets-order-order-hash-cancel`](docs/compass_tokenized-equities_tokenized-assets-order-order-hash-cancel.md) - Cancel an unfilled order
 
 </details>
 <!-- End Available Commands [operations] -->

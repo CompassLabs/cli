@@ -3,41 +3,13 @@
 package components
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
-// TokenizedAssetsPositionsResponseChain - Chain on which the balances were read.
-type TokenizedAssetsPositionsResponseChain string
-
-const (
-	TokenizedAssetsPositionsResponseChainEthereum TokenizedAssetsPositionsResponseChain = "ethereum"
-)
-
-func (e TokenizedAssetsPositionsResponseChain) ToPointer() *TokenizedAssetsPositionsResponseChain {
-	return &e
-}
-func (e *TokenizedAssetsPositionsResponseChain) UnmarshalJSON(data []byte) error {
-	var v string
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-	switch v {
-	case "ethereum":
-		*e = TokenizedAssetsPositionsResponseChain(v)
-		return nil
-	default:
-		return fmt.Errorf("invalid value for TokenizedAssetsPositionsResponseChain: %v", v)
-	}
-}
-
-// TokenizedAssetsPositionsResponse - Wallet's on-chain tokenized-asset holdings.
+// TokenizedAssetsPositionsResponse - On-chain tokenized-asset holdings for an owner's Tokenized Equities Account.
 type TokenizedAssetsPositionsResponse struct {
-	// Queried wallet.
-	Wallet string `json:"wallet"`
-	// Chain on which the balances were read.
-	Chain *TokenizedAssetsPositionsResponseChain `json:"chain,omitzero"`
+	// Owner address from the request. Balances are read from the Tokenized Equities Account address derived from this owner.
+	Owner string `json:"owner"`
 	// Non-zero positions only; tokens with a zero balance are omitted.
 	Positions []CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition `json:"positions,omitzero"`
 	// Sum of `balance_usd` across positions where the price is known.
@@ -55,18 +27,11 @@ func (t *TokenizedAssetsPositionsResponse) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (t *TokenizedAssetsPositionsResponse) GetWallet() string {
+func (t *TokenizedAssetsPositionsResponse) GetOwner() string {
 	if t == nil {
 		return ""
 	}
-	return t.Wallet
-}
-
-func (t *TokenizedAssetsPositionsResponse) GetChain() *TokenizedAssetsPositionsResponseChain {
-	if t == nil {
-		return nil
-	}
-	return t.Chain
+	return t.Owner
 }
 
 func (t *TokenizedAssetsPositionsResponse) GetPositions() []CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition {

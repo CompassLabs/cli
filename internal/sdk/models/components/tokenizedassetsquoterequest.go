@@ -10,23 +10,14 @@ package components
 // the same body (plus “slippage_bps“) to “POST /tokenized_assets/order“
 // when they do.
 type TokenizedAssetsQuoteRequest struct {
-	// The chain to use.
-	Chain Chain `json:"chain"`
 	// Token the sender is paying. Either an on-chain symbol (e.g. `TSLAon`), the literal `USDC`, or a 0x-prefixed token address.
 	FromToken string `json:"from_token"`
 	// Token the sender is receiving. Same accepted forms as `from_token`.
 	ToToken string `json:"to_token"`
 	// Human-readable amount of `from_token` to swap (decimal string). Decimals are applied server-side.
 	Amount string `json:"amount"`
-	// Wallet that owns the Tokenized Assets Account. Used to verify the account is deployed before quoting; the account address is derived deterministically from this owner.
+	// Wallet that owns the Tokenized Equities Account. Used to verify the account is deployed before quoting; the account address is derived deterministically from this owner.
 	Owner string `json:"owner"`
-}
-
-func (t *TokenizedAssetsQuoteRequest) GetChain() Chain {
-	if t == nil {
-		return Chain("")
-	}
-	return t.Chain
 }
 
 func (t *TokenizedAssetsQuoteRequest) GetFromToken() string {

@@ -1,16 +1,48 @@
-## compass
+## compass tokenized-equities tokenized-assets-create-account
 
-Compass API: Compass Labs DeFi API
+Create a Tokenized Equities Account
 
 ### Synopsis
 
-Compass API: Compass Labs DeFi API
+Create a Tokenized Equities Account for a wallet address.
+
+Before placing orders, the owner must create a Tokenized Equities Account.
+Each wallet address has one Tokenized Equities Account, isolated from the
+owner's Earn, Credit, and other product accounts.
+
+The account address is deterministic. If it already exists, the
+response returns `transaction: null` and you can skip straight to
+building orders.
+
+Returns an unsigned transaction to create the account. The `sender`
+signs and broadcasts this transaction.
+
+**If owner pays gas:** Set `sender` to the owner's address.
+
+**If someone else pays gas:** Set `sender` to the wallet that will
+sign and broadcast the transaction on behalf of the owner.
 
 ```
-compass [flags]
+compass tokenized-equities tokenized-assets-create-account [flags]
+```
+
+### Examples
+
+```
+  compass tokenized-equities tokenized-assets-create-account --sender 0x18b42407AbC163f595410Ffe773BB98Db40B48F7 --owner 0x18b42407AbC163f595410Ffe773BB98Db40B48F7
 ```
 
 ### Options
+
+```
+      --body string     Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -e, --estimate-gas    Determines whether to estimate gas costs for transactions, also verifying that the transaction can be successfully executed.
+  -h, --help            help for tokenized-assets-create-account
+      --owner string    The address that will own and control the compass Tokenized Equities Account [required]
+  -s, --sender string   The address of the transaction sender. [required]
+```
+
+### Options inherited from parent commands
 
 ```
       --agent-mode             Enable structured errors and default TOON output for AI coding agents. Automatically enabled when a known agent environment is detected (CLAUDE_CODE, CURSOR_AGENT, etc.). Use --agent-mode=false to disable.
@@ -19,7 +51,6 @@ compass [flags]
   -d, --debug                  Log request and response diagnostics to stderr
       --dry-run                Preview the request that would be sent without executing it (output to stderr)
   -H, --header stringArray     Set a custom HTTP request header (format: "Key: Value"). Can be specified multiple times.
-  -h, --help                   help for compass
       --include-headers        Include HTTP response headers in the output
   -q, --jq string              Filter and transform output using a jq expression (e.g., '.name', '.items[] | .id')
       --no-interactive         Disable all interactive features (auto-prompting, explorer auto-launch, TUI forms)
@@ -32,13 +63,4 @@ compass [flags]
 
 ### SEE ALSO
 
-* [compass auth](compass_auth.md)	 - Manage authentication credentials
-* [compass configure](compass_configure.md)	 - Configure authentication credentials and preferences
-* [compass credit](compass_credit.md)	 - Operations for credit
-* [compass earn](compass_earn.md)	 - Operations for earn
-* [compass explore](compass_explore.md)	 - Interactively browse and run commands
-* [compass gas-sponsorship](compass_gas-sponsorship.md)	 - Operations for gas-sponsorship
-* [compass global-markets-perps](compass_global-markets-perps.md)	 - Operations for global-markets-perps
 * [compass tokenized-equities](compass_tokenized-equities.md)	 - Operations for tokenized-equities
-* [compass version](compass_version.md)	 - Print the CLI version
-* [compass whoami](compass_whoami.md)	 - Display current authentication configuration

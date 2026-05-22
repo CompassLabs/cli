@@ -9,12 +9,12 @@ import (
 // TokenizedAssetsSubmitOrderRequest - Submit an owner-signed order to the resolver network.
 //
 // The shape echoes what `POST /order` returned plus the owner's
-// EIP-712 signature. The maker is the Tokenized Assets Account, so the
+// EIP-712 signature. The maker is the Tokenized Equities Account, so the
 // signature is validated against the product account at fill time.
 type TokenizedAssetsSubmitOrderRequest struct {
-	// The order struct returned by `/order` (`order.order_message`). `maker` is the Tokenized Assets Account, not the owner's wallet — pass this dict back to the API verbatim.
+	// The order struct returned by `/order` (`order.order_message`). `maker` is the Tokenized Equities Account, not the owner's wallet — pass this dict back to the API verbatim.
 	SignedOrder map[string]any `json:"signed_order"`
-	// Owner's EIP-712 signature over `order.safe_message_eip712` from the `/order` response. The signature is validated against the Tokenized Assets Account at fill time, so it must be a signature over the typed-data hash, not the raw order hash.
+	// Owner's EIP-712 signature over `order.safe_message_eip712` from the `/order` response. The signature is validated against the Tokenized Equities Account at fill time, so it must be a signature over the typed-data hash, not the raw order hash.
 	Signature string `json:"signature"`
 	// Opaque hex blob from the `/order` response — pass back unchanged.
 	Extension string `json:"extension"`

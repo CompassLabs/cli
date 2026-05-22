@@ -55,7 +55,7 @@ type CompassCLI struct {
 	Earn               *Earn
 	Credit             *Credit
 	GlobalMarketsPerps *GlobalMarketsPerps
-	TokenizedAssets    *TokenizedAssets
+	TokenizedEquities  *TokenizedEquities
 
 	sdkConfiguration config.SDKConfiguration
 	hooks            *hooks.Hooks
@@ -153,7 +153,7 @@ func New(opts ...SDKOption) *CompassCLI {
 	sdk.Earn = newEarn(sdk, sdk.sdkConfiguration, sdk.hooks)
 	sdk.Credit = newCredit(sdk, sdk.sdkConfiguration, sdk.hooks)
 	sdk.GlobalMarketsPerps = newGlobalMarketsPerps(sdk, sdk.sdkConfiguration, sdk.hooks)
-	sdk.TokenizedAssets = newTokenizedAssets(sdk, sdk.sdkConfiguration, sdk.hooks)
+	sdk.TokenizedEquities = newTokenizedEquities(sdk, sdk.sdkConfiguration, sdk.hooks)
 
 	return sdk
 }

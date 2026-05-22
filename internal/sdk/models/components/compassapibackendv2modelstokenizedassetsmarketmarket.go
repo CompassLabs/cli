@@ -3,35 +3,9 @@
 package components
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
-
-// CompassAPIBackendV2ModelsTokenizedAssetsMarketMarketChain - Chain on which the contract is deployed.
-type CompassAPIBackendV2ModelsTokenizedAssetsMarketMarketChain string
-
-const (
-	CompassAPIBackendV2ModelsTokenizedAssetsMarketMarketChainEthereum CompassAPIBackendV2ModelsTokenizedAssetsMarketMarketChain = "ethereum"
-)
-
-func (e CompassAPIBackendV2ModelsTokenizedAssetsMarketMarketChain) ToPointer() *CompassAPIBackendV2ModelsTokenizedAssetsMarketMarketChain {
-	return &e
-}
-func (e *CompassAPIBackendV2ModelsTokenizedAssetsMarketMarketChain) UnmarshalJSON(data []byte) error {
-	var v string
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-	switch v {
-	case "ethereum":
-		*e = CompassAPIBackendV2ModelsTokenizedAssetsMarketMarketChain(v)
-		return nil
-	default:
-		return fmt.Errorf("invalid value for CompassAPIBackendV2ModelsTokenizedAssetsMarketMarketChain: %v", v)
-	}
-}
 
 // CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket - Compact market entry returned in list responses.
 type CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket struct {
@@ -41,8 +15,6 @@ type CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket struct {
 	UnderlyingTicker string `json:"underlying_ticker"`
 	// Underlying equity full name (e.g. 'Tesla, Inc. Common Stock').
 	Name string `json:"name"`
-	// Chain on which the contract is deployed.
-	Chain *CompassAPIBackendV2ModelsTokenizedAssetsMarketMarketChain `json:"chain,omitzero"`
 	// Ethereum mainnet ERC-20 address for this token.
 	ContractAddress string `json:"contract_address"`
 	// ERC-20 decimals for this token.
@@ -89,13 +61,6 @@ func (c *CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket) GetName() string 
 		return ""
 	}
 	return c.Name
-}
-
-func (c *CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket) GetChain() *CompassAPIBackendV2ModelsTokenizedAssetsMarketMarketChain {
-	if c == nil {
-		return nil
-	}
-	return c.Chain
 }
 
 func (c *CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket) GetContractAddress() string {

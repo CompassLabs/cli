@@ -11,14 +11,14 @@ import (
 type TokenizedAssetsBuildOrderResponse struct {
 	// Quote preview returned alongside an order.
 	Quote Quote `json:"quote"`
-	// EIP-712 payload that authorizes a one-time max-approve of `from_token` to the settlement contract. Populated when the Tokenized Assets Account's existing allowance is below `amount`. The owner signs it, then it is broadcast via `POST /v2/gas_sponsorship/prepare` (or directly by the owner) to set the allowance on-chain. `null` when the allowance is already sufficient.
+	// EIP-712 payload that authorizes a one-time max-approve of `from_token` to the settlement contract. Populated when the Tokenized Equities Account's existing allowance is below `amount`. The owner signs it, then it is broadcast via `POST /v2/gas_sponsorship/prepare` (or directly by the owner) to set the allowance on-chain. `null` when the allowance is already sufficient.
 	ApprovalSafeTxEip712 optionalnullable.OptionalNullable[BatchedSafeOperationsResponseOutput] `json:"approval_safe_tx_eip712,omitzero"`
 	// Order metadata plus the EIP-712 payload the owner signs to authorize it.
 	//
 	// The owner signs ``safe_message_eip712`` off-chain. At submit time the
 	// signature is sent back to ``/order/submit`` together with
 	// ``order_message``, ``extension``, and ``quote_id``; resolvers validate
-	// the signature against the Tokenized Assets Account at fill time.
+	// the signature against the Tokenized Equities Account at fill time.
 	Order OrderToSign `json:"order"`
 }
 

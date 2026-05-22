@@ -2,50 +2,14 @@
 
 package components
 
-import (
-	"encoding/json"
-	"fmt"
-)
-
-type CreateTokenizedAssetsAccountRequestChain string
-
-const (
-	CreateTokenizedAssetsAccountRequestChainEthereum CreateTokenizedAssetsAccountRequestChain = "ethereum"
-)
-
-func (e CreateTokenizedAssetsAccountRequestChain) ToPointer() *CreateTokenizedAssetsAccountRequestChain {
-	return &e
-}
-func (e *CreateTokenizedAssetsAccountRequestChain) UnmarshalJSON(data []byte) error {
-	var v string
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
-	}
-	switch v {
-	case "ethereum":
-		*e = CreateTokenizedAssetsAccountRequestChain(v)
-		return nil
-	default:
-		return fmt.Errorf("invalid value for CreateTokenizedAssetsAccountRequestChain: %v", v)
-	}
-}
-
-// CreateTokenizedAssetsAccountRequest - Request to create a compass tokenized assets account.
+// CreateTokenizedAssetsAccountRequest - Request to create a compass Tokenized Equities Account.
 type CreateTokenizedAssetsAccountRequest struct {
-	Chain CreateTokenizedAssetsAccountRequestChain `json:"chain"`
 	// The address of the transaction sender.
 	Sender string `json:"sender"`
+	// The address that will own and control the compass Tokenized Equities Account
+	Owner string `json:"owner"`
 	// Determines whether to estimate gas costs for transactions, also verifying that the transaction can be successfully executed.
 	EstimateGas *bool `json:"estimate_gas,omitzero"`
-	// The address that will own and control the compass tokenized assets account
-	Owner string `json:"owner"`
-}
-
-func (c *CreateTokenizedAssetsAccountRequest) GetChain() CreateTokenizedAssetsAccountRequestChain {
-	if c == nil {
-		return CreateTokenizedAssetsAccountRequestChain("")
-	}
-	return c.Chain
 }
 
 func (c *CreateTokenizedAssetsAccountRequest) GetSender() string {
@@ -55,16 +19,16 @@ func (c *CreateTokenizedAssetsAccountRequest) GetSender() string {
 	return c.Sender
 }
 
-func (c *CreateTokenizedAssetsAccountRequest) GetEstimateGas() *bool {
-	if c == nil {
-		return nil
-	}
-	return c.EstimateGas
-}
-
 func (c *CreateTokenizedAssetsAccountRequest) GetOwner() string {
 	if c == nil {
 		return ""
 	}
 	return c.Owner
+}
+
+func (c *CreateTokenizedAssetsAccountRequest) GetEstimateGas() *bool {
+	if c == nil {
+		return nil
+	}
+	return c.EstimateGas
 }

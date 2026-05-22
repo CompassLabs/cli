@@ -8,15 +8,15 @@ import (
 )
 
 type V2TokenizedAssetsPositionsRequest struct {
-	// Wallet address to read on-chain ERC-20 balances for.
-	Wallet string `queryParam:"style=form,explode=true,name=wallet"`
+	// The address of the owner of the Tokenized Equities Account to get positions for. The account address is derived deterministically from this owner; balances are read from the derived account.
+	Owner string `queryParam:"style=form,explode=true,name=owner"`
 }
 
-func (v *V2TokenizedAssetsPositionsRequest) GetWallet() string {
+func (v *V2TokenizedAssetsPositionsRequest) GetOwner() string {
 	if v == nil {
 		return ""
 	}
-	return v.Wallet
+	return v.Owner
 }
 
 // #region class-body-v2tokenizedassetspositionsrequest
