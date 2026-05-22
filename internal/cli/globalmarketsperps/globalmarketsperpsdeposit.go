@@ -25,7 +25,7 @@ func initGlobalMarketsPerpsDepositCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "global-markets-perps-deposit",
 		Short:   "Deposit USDC to global markets perps account",
-		Long:    "Prepare a USDC deposit from Arbitrum via EIP-2612 Permit.\n\nReturns EIP-712 typed data for the user to sign off-chain (no gas needed).\nAfter signing, send the permit signature to the deposit/execute endpoint,\nwhere a gas sponsor calls batchedDepositWithPermit on the HL Bridge2.",
+		Long:    "Prepare a USDC deposit from Arbitrum via EIP-2612 Permit.\n\nReturns EIP-712 typed data for the user to sign off-chain (no gas needed).\nCompass does NOT broadcast the bridge tx — the integrator's own sponsor\nwallet calls batchedDepositWithPermit on the HL Bridge2 contract on\nArbitrum after the user signs. See api_docs/v2/Products/Global-Markets.mdx\n\"Deposit USDC\" section for the bridge-broadcast code.",
 		Example: "  compass global-markets-perps global-markets-perps-deposit --owner 0x01E62835dd7F52173546A325294762143eE4a882 --amount 100.0",
 		RunE:    runGlobalMarketsPerpsDepositCmd,
 		Aliases: []string{"gmpd"},

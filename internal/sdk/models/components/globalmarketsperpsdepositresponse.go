@@ -2,16 +2,17 @@
 
 package components
 
-// GlobalMarketsPerpsDepositResponse - EIP-2612 permit data for the user to sign, plus deposit metadata.
+// GlobalMarketsPerpsDepositResponse - EIP-2612 permit data the user signs to authorize a USDC bridge deposit.
 //
-// After the user signs the permit, the gas sponsor calls
-// batchedDepositWithPermit on the Hyperliquid Bridge2 contract.
+// After signing, submit the signature to /v2/global_markets_perps/deposit/sponsor_prepare
+// to get a ready-to-broadcast Arbitrum tx that calls Bridge2.batchedDepositWithPermit.
+// The integrator's sponsor wallet broadcasts that tx — Compass does not broadcast.
 type GlobalMarketsPerpsDepositResponse struct {
 	// Response containing EIP-712 typed data for ERC-20 Permit signing.
 	Permit PermitTypedDataResponseOutput `json:"permit"`
-	// USDC amount in raw units (6 decimals)
+	// USDC amount in raw 6-decimal units. Pass this and the signature to /deposit/sponsor_prepare.
 	AmountRaw int64 `json:"amount_raw"`
-	// Global Markets Perps Safe address on HyperEVM that receives the deposit on HyperCore
+	// Address that will be credited on Hyperliquid (equals the deposit owner EOA — HL keys accounts by EVM address).
 	Destination string `json:"destination"`
 }
 

@@ -1,34 +1,36 @@
-## compass global-markets-perps global-markets-perps-deposit
+## compass global-markets-perps global-markets-perps-deposit-sponsor-prepare
 
-Deposit USDC to global markets perps account
+Build the Bridge2 deposit tx from a signed permit
 
 ### Synopsis
 
-Prepare a USDC deposit from Arbitrum via EIP-2612 Permit.
+Build the Arbitrum tx that completes a USDC deposit to HL.
 
-Returns EIP-712 typed data for the user to sign off-chain (no gas needed).
-Compass does NOT broadcast the bridge tx — the integrator's own sponsor
-wallet calls batchedDepositWithPermit on the HL Bridge2 contract on
-Arbitrum after the user signs. See api_docs/v2/Products/Global-Markets.mdx
-"Deposit USDC" section for the bridge-broadcast code.
+Takes the EIP-2612 permit signature returned by /deposit and returns
+a fully-encoded `Bridge2.batchedDepositWithPermit` call. The integrator's
+sponsor wallet (`sender`) broadcasts the returned tx — Compass does not
+broadcast and does not hold gas keys.
 
 ```
-compass global-markets-perps global-markets-perps-deposit [flags]
+compass global-markets-perps global-markets-perps-deposit-sponsor-prepare [flags]
 ```
 
 ### Examples
 
 ```
-  compass global-markets-perps global-markets-perps-deposit --owner 0x01E62835dd7F52173546A325294762143eE4a882 --amount 100.0
+  compass global-markets-perps global-markets-perps-deposit-sponsor-prepare --owner 0x01E62835dd7F52173546A325294762143eE4a882 --amount-raw 100000000 --deadline 1747097383 --signature 0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 --sender 0x4A83b4413CF41C3244027e1590E35a0F48403F0c
 ```
 
 ### Options
 
 ```
-  -a, --amount string   USDC amount to deposit (human-readable, e.g. '1000.0') [required]
-      --body string     Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -h, --help            help for global-markets-perps-deposit
-      --owner string    The user's EOA address on Arbitrum [required]
+  -a, --amount-raw int     USDC amount in raw 6-decimal units, as returned by /deposit. [required]
+      --body string        Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+      --deadline int       Permit deadline (unix seconds), as returned in the permit.message from /deposit. [required]
+  -h, --help               help for global-markets-perps-deposit-sponsor-prepare
+      --owner string       The user's EOA address on Arbitrum (the permit signer). [required]
+      --sender from        Sponsor wallet address that will broadcast the returned tx (used for from and nonce). [required]
+      --signature string   The user's EIP-2612 permit signature (65-byte hex, 0x-prefixed or raw). [required]
 ```
 
 ### Options inherited from parent commands

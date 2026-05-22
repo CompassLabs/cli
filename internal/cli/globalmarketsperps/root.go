@@ -41,6 +41,10 @@ func InitGlobalMarketsPerpsRoot(parent *cobra.Command) error {
 		return err
 	}
 
+	if err := initGlobalMarketsPerpsDepositSponsorPrepareCmd(GlobalMarketsPerpsCmd); err != nil {
+		return err
+	}
+
 	if err := initGlobalMarketsPerpsWithdrawCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}

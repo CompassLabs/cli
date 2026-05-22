@@ -43,6 +43,7 @@ compass global-markets-perps [flags]
 * [compass global-markets-perps global-markets-perps-cancel-order](compass_global-markets-perps_global-markets-perps-cancel-order.md)	 - Cancel order
 * [compass global-markets-perps global-markets-perps-candles](compass_global-markets-perps_global-markets-perps-candles.md)	 - Get OHLCV candles
 * [compass global-markets-perps global-markets-perps-deposit](compass_global-markets-perps_global-markets-perps-deposit.md)	 - Deposit USDC to global markets perps account
+* [compass global-markets-perps global-markets-perps-deposit-sponsor-prepare](compass_global-markets-perps_global-markets-perps-deposit-sponsor-prepare.md)	 - Build the Bridge2 deposit tx from a signed permit
 * [compass global-markets-perps global-markets-perps-enable-unified-account](compass_global-markets-perps_global-markets-perps-enable-unified-account.md)	 - Enable unified account mode
 * [compass global-markets-perps global-markets-perps-ensure-leverage](compass_global-markets-perps_global-markets-perps-ensure-leverage.md)	 - Ensure 1x cross leverage
 * [compass global-markets-perps global-markets-perps-execute](compass_global-markets-perps_global-markets-perps-execute.md)	 - Execute signed action
