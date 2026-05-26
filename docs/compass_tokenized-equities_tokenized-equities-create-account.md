@@ -1,19 +1,45 @@
-## compass tokenized-equities
+## compass tokenized-equities tokenized-equities-create-account
 
-Operations for tokenized-equities
+Create a Tokenized Equities Account
 
 ### Synopsis
 
-Operations for tokenized-equities
+Create a Tokenized Equities Account for a wallet address.
+
+Before placing orders, the owner must create a Tokenized Equities Account.
+Each wallet address has one Tokenized Equities Account, isolated from the
+owner's Earn, Credit, and other product accounts.
+
+The account address is deterministic. If it already exists, the
+response returns `transaction: null` and you can skip straight to
+building orders.
+
+Returns an unsigned transaction to create the account. The `sender`
+signs and broadcasts this transaction.
+
+**If owner pays gas:** Set `sender` to the owner's address.
+
+**If someone else pays gas:** Set `sender` to the wallet that will
+sign and broadcast the transaction on behalf of the owner.
 
 ```
-compass tokenized-equities [flags]
+compass tokenized-equities tokenized-equities-create-account [flags]
+```
+
+### Examples
+
+```
+  compass tokenized-equities tokenized-equities-create-account --sender 0x000E009dF7AD7f37421C73AE619Bc208bC71BEFC --owner 0x000E009dF7AD7f37421C73AE619Bc208bC71BEFC
 ```
 
 ### Options
 
 ```
-  -h, --help   help for tokenized-equities
+      --body string     Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -e, --estimate-gas    Determines whether to estimate gas costs for transactions, also verifying that the transaction can be successfully executed.
+  -h, --help            help for tokenized-equities-create-account
+      --owner string    The address that will own and control the compass Tokenized Equities Account [required]
+  -s, --sender string   The address of the transaction sender. [required]
 ```
 
 ### Options inherited from parent commands
@@ -37,13 +63,4 @@ compass tokenized-equities [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
-* [compass tokenized-equities tokenized-equities-create-account](compass_tokenized-equities_tokenized-equities-create-account.md)	 - Create a Tokenized Equities Account
-* [compass tokenized-equities tokenized-equities-markets](compass_tokenized-equities_tokenized-equities-markets.md)	 - List tokenized equity markets
-* [compass tokenized-equities tokenized-equities-markets-symbol](compass_tokenized-equities_tokenized-equities-markets-symbol.md)	 - Get a single market
-* [compass tokenized-equities tokenized-equities-order](compass_tokenized-equities_tokenized-equities-order.md)	 - Build a buy/sell order
-* [compass tokenized-equities tokenized-equities-order-order-hash](compass_tokenized-equities_tokenized-equities-order-order-hash.md)	 - Get order status
-* [compass tokenized-equities tokenized-equities-order-order-hash-cancel](compass_tokenized-equities_tokenized-equities-order-order-hash-cancel.md)	 - Cancel an unfilled order
-* [compass tokenized-equities tokenized-equities-order-submit](compass_tokenized-equities_tokenized-equities-order-submit.md)	 - Submit a signed order
-* [compass tokenized-equities tokenized-equities-positions](compass_tokenized-equities_tokenized-equities-positions.md)	 - Get tokenized-equity positions for an owner
-* [compass tokenized-equities tokenized-equities-quote](compass_tokenized-equities_tokenized-equities-quote.md)	 - Preview a buy/sell quote
+* [compass tokenized-equities](compass_tokenized-equities.md)	 - Operations for tokenized-equities

@@ -1,19 +1,34 @@
-## compass tokenized-equities
+## compass tokenized-equities tokenized-equities-order-order-hash
 
-Operations for tokenized-equities
+Get order status
 
 ### Synopsis
 
-Operations for tokenized-equities
+Get the lifecycle state of a submitted order.
+
+The `status` field is one of `pending`, `filled`, `expired`, or
+`cancelled`. Partial fills stay in `pending` while `filled_amount` is
+populated as fills come in; once an order fully fills, `fill_tx_hash`
+is also returned.
+
+Upstream protocol states beyond these four (e.g. `partially-filled`,
+`refunded`) are mapped onto this set.
 
 ```
-compass tokenized-equities [flags]
+compass tokenized-equities tokenized-equities-order-order-hash [flags]
+```
+
+### Examples
+
+```
+  compass tokenized-equities tokenized-equities-order-order-hash --order-hash <value>
 ```
 
 ### Options
 
 ```
-  -h, --help   help for tokenized-equities
+  -h, --help                help for tokenized-equities-order-order-hash
+      --order-hash string   [required]
 ```
 
 ### Options inherited from parent commands
@@ -37,13 +52,4 @@ compass tokenized-equities [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
-* [compass tokenized-equities tokenized-equities-create-account](compass_tokenized-equities_tokenized-equities-create-account.md)	 - Create a Tokenized Equities Account
-* [compass tokenized-equities tokenized-equities-markets](compass_tokenized-equities_tokenized-equities-markets.md)	 - List tokenized equity markets
-* [compass tokenized-equities tokenized-equities-markets-symbol](compass_tokenized-equities_tokenized-equities-markets-symbol.md)	 - Get a single market
-* [compass tokenized-equities tokenized-equities-order](compass_tokenized-equities_tokenized-equities-order.md)	 - Build a buy/sell order
-* [compass tokenized-equities tokenized-equities-order-order-hash](compass_tokenized-equities_tokenized-equities-order-order-hash.md)	 - Get order status
-* [compass tokenized-equities tokenized-equities-order-order-hash-cancel](compass_tokenized-equities_tokenized-equities-order-order-hash-cancel.md)	 - Cancel an unfilled order
-* [compass tokenized-equities tokenized-equities-order-submit](compass_tokenized-equities_tokenized-equities-order-submit.md)	 - Submit a signed order
-* [compass tokenized-equities tokenized-equities-positions](compass_tokenized-equities_tokenized-equities-positions.md)	 - Get tokenized-equity positions for an owner
-* [compass tokenized-equities tokenized-equities-quote](compass_tokenized-equities_tokenized-equities-quote.md)	 - Preview a buy/sell quote
+* [compass tokenized-equities](compass_tokenized-equities.md)	 - Operations for tokenized-equities

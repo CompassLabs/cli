@@ -30,7 +30,7 @@ func newTokenizedEquities(rootSDK *CompassCLI, sdkConfig config.SDKConfiguration
 	}
 }
 
-// TokenizedAssetsMarkets - List tokenized equity markets
+// TokenizedEquitiesMarkets - List tokenized equity markets
 // List the tokenized US equities available on Ethereum.
 //
 // Each entry includes the symbol, the underlying ticker, the on-chain
@@ -40,7 +40,7 @@ func newTokenizedEquities(rootSDK *CompassCLI, sdkConfig config.SDKConfiguration
 //
 // Only Ethereum-deployed tokens are returned; assets that exist only on
 // other chains are omitted.
-func (s *TokenizedEquities) TokenizedAssetsMarkets(ctx context.Context, request *operations.V2TokenizedAssetsMarketsRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsMarketsResponse, error) {
+func (s *TokenizedEquities) TokenizedEquitiesMarkets(ctx context.Context, request *operations.V2TokenizedEquitiesMarketsRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesMarketsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -59,7 +59,7 @@ func (s *TokenizedEquities) TokenizedAssetsMarkets(ctx context.Context, request 
 	} else {
 		baseURL = *o.ServerURL
 	}
-	opURL, err := url.JoinPath(baseURL, "/v2/tokenized_assets/markets")
+	opURL, err := url.JoinPath(baseURL, "/v2/tokenized_equities/markets")
 	if err != nil {
 		return nil, fmt.Errorf("error generating URL: %w", err)
 	}
@@ -69,7 +69,7 @@ func (s *TokenizedEquities) TokenizedAssetsMarkets(ctx context.Context, request 
 		SDKConfiguration: s.sdkConfiguration,
 		BaseURL:          baseURL,
 		Context:          ctx,
-		OperationID:      "v2_tokenized_assets_markets",
+		OperationID:      "v2_tokenized_equities_markets",
 		SecuritySource:   s.sdkConfiguration.Security,
 	}
 
@@ -132,7 +132,7 @@ func (s *TokenizedEquities) TokenizedAssetsMarkets(ctx context.Context, request 
 		}
 	}
 
-	res := &operations.V2TokenizedAssetsMarketsResponse{
+	res := &operations.V2TokenizedEquitiesMarketsResponse{
 		HTTPMeta: components.HTTPMetadata{
 			Request:  req,
 			Response: httpRes,
@@ -149,12 +149,12 @@ func (s *TokenizedEquities) TokenizedAssetsMarkets(ctx context.Context, request 
 					return nil, err
 				}
 
-				var out components.TokenizedAssetsMarketsListResponse
+				var out components.TokenizedEquitiesMarketsListResponse
 				if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 					return nil, err
 				}
 
-				res.TokenizedAssetsMarketsListResponse = &out
+				res.TokenizedEquitiesMarketsListResponse = &out
 			}
 		default:
 			rawBody, err := utils.ConsumeRawBody(httpRes)
@@ -196,7 +196,7 @@ func (s *TokenizedEquities) TokenizedAssetsMarkets(ctx context.Context, request 
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -237,7 +237,7 @@ func (s *TokenizedEquities) TokenizedAssetsMarkets(ctx context.Context, request 
 
 }
 
-// TokenizedAssetsMarketsSymbol - Get a single market
+// TokenizedEquitiesMarketsSymbol - Get a single market
 // Get extended detail for a single tokenized equity (e.g. `TSLAon`).
 //
 // Includes 52-week range, volume, market cap, holder count, and tradable
@@ -253,7 +253,7 @@ func (s *TokenizedEquities) TokenizedAssetsMarkets(ctx context.Context, request 
 // - `1day` with `range=3month` / `6month` / `1year` / `all`
 //
 // Omitting both returns the market detail without `candles`.
-func (s *TokenizedEquities) TokenizedAssetsMarketsSymbol(ctx context.Context, request operations.V2TokenizedAssetsMarketsSymbolRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsMarketsSymbolResponse, error) {
+func (s *TokenizedEquities) TokenizedEquitiesMarketsSymbol(ctx context.Context, request operations.V2TokenizedEquitiesMarketsSymbolRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesMarketsSymbolResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -272,7 +272,7 @@ func (s *TokenizedEquities) TokenizedAssetsMarketsSymbol(ctx context.Context, re
 	} else {
 		baseURL = *o.ServerURL
 	}
-	opURL, err := utils.GenerateURL(ctx, baseURL, "/v2/tokenized_assets/markets/{symbol}", request, nil)
+	opURL, err := utils.GenerateURL(ctx, baseURL, "/v2/tokenized_equities/markets/{symbol}", request, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error generating URL: %w", err)
 	}
@@ -282,7 +282,7 @@ func (s *TokenizedEquities) TokenizedAssetsMarketsSymbol(ctx context.Context, re
 		SDKConfiguration: s.sdkConfiguration,
 		BaseURL:          baseURL,
 		Context:          ctx,
-		OperationID:      "v2_tokenized_assets_markets_{symbol}",
+		OperationID:      "v2_tokenized_equities_markets_{symbol}",
 		SecuritySource:   s.sdkConfiguration.Security,
 	}
 
@@ -345,7 +345,7 @@ func (s *TokenizedEquities) TokenizedAssetsMarketsSymbol(ctx context.Context, re
 		}
 	}
 
-	res := &operations.V2TokenizedAssetsMarketsSymbolResponse{
+	res := &operations.V2TokenizedEquitiesMarketsSymbolResponse{
 		HTTPMeta: components.HTTPMetadata{
 			Request:  req,
 			Response: httpRes,
@@ -386,7 +386,7 @@ func (s *TokenizedEquities) TokenizedAssetsMarketsSymbol(ctx context.Context, re
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -436,7 +436,7 @@ func (s *TokenizedEquities) TokenizedAssetsMarketsSymbol(ctx context.Context, re
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -477,8 +477,8 @@ func (s *TokenizedEquities) TokenizedAssetsMarketsSymbol(ctx context.Context, re
 
 }
 
-// TokenizedAssetsPositions - Get tokenized-asset positions for an owner
-// Get the tokenized-asset holdings for an owner.
+// TokenizedEquitiesPositions - Get tokenized-equity positions for an owner
+// Get the tokenized-equity holdings for an owner.
 //
 // The owner's Tokenized Equities Account address is derived deterministically
 // from the `owner` query param; balances are read from that account (proceeds
@@ -489,7 +489,7 @@ func (s *TokenizedEquities) TokenizedAssetsMarketsSymbol(ctx context.Context, re
 //
 // Returns 400 `ACCOUNT_NOT_DEPLOYED` if the owner has no Tokenized Equities
 // Account deployed yet — create one via `/create_account` first.
-func (s *TokenizedEquities) TokenizedAssetsPositions(ctx context.Context, request operations.V2TokenizedAssetsPositionsRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsPositionsResponse, error) {
+func (s *TokenizedEquities) TokenizedEquitiesPositions(ctx context.Context, request operations.V2TokenizedEquitiesPositionsRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesPositionsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -508,7 +508,7 @@ func (s *TokenizedEquities) TokenizedAssetsPositions(ctx context.Context, reques
 	} else {
 		baseURL = *o.ServerURL
 	}
-	opURL, err := url.JoinPath(baseURL, "/v2/tokenized_assets/positions")
+	opURL, err := url.JoinPath(baseURL, "/v2/tokenized_equities/positions")
 	if err != nil {
 		return nil, fmt.Errorf("error generating URL: %w", err)
 	}
@@ -518,7 +518,7 @@ func (s *TokenizedEquities) TokenizedAssetsPositions(ctx context.Context, reques
 		SDKConfiguration: s.sdkConfiguration,
 		BaseURL:          baseURL,
 		Context:          ctx,
-		OperationID:      "v2_tokenized_assets_positions",
+		OperationID:      "v2_tokenized_equities_positions",
 		SecuritySource:   s.sdkConfiguration.Security,
 	}
 
@@ -581,7 +581,7 @@ func (s *TokenizedEquities) TokenizedAssetsPositions(ctx context.Context, reques
 		}
 	}
 
-	res := &operations.V2TokenizedAssetsPositionsResponse{
+	res := &operations.V2TokenizedEquitiesPositionsResponse{
 		HTTPMeta: components.HTTPMetadata{
 			Request:  req,
 			Response: httpRes,
@@ -598,12 +598,12 @@ func (s *TokenizedEquities) TokenizedAssetsPositions(ctx context.Context, reques
 					return nil, err
 				}
 
-				var out components.TokenizedAssetsPositionsResponse
+				var out components.TokenizedEquitiesPositionsResponse
 				if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 					return nil, err
 				}
 
-				res.TokenizedAssetsPositionsResponse = &out
+				res.TokenizedEquitiesPositionsResponse = &out
 			}
 		default:
 			rawBody, err := utils.ConsumeRawBody(httpRes)
@@ -620,7 +620,7 @@ func (s *TokenizedEquities) TokenizedAssetsPositions(ctx context.Context, reques
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -670,7 +670,7 @@ func (s *TokenizedEquities) TokenizedAssetsPositions(ctx context.Context, reques
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -711,7 +711,7 @@ func (s *TokenizedEquities) TokenizedAssetsPositions(ctx context.Context, reques
 
 }
 
-// TokenizedAssetsOrderOrderHash - Get order status
+// TokenizedEquitiesOrderOrderHash - Get order status
 // Get the lifecycle state of a submitted order.
 //
 // The `status` field is one of `pending`, `filled`, `expired`, or
@@ -721,7 +721,7 @@ func (s *TokenizedEquities) TokenizedAssetsPositions(ctx context.Context, reques
 //
 // Upstream protocol states beyond these four (e.g. `partially-filled`,
 // `refunded`) are mapped onto this set.
-func (s *TokenizedEquities) TokenizedAssetsOrderOrderHash(ctx context.Context, request operations.V2TokenizedAssetsOrderOrderHashRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsOrderOrderHashResponse, error) {
+func (s *TokenizedEquities) TokenizedEquitiesOrderOrderHash(ctx context.Context, request operations.V2TokenizedEquitiesOrderOrderHashRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesOrderOrderHashResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -740,7 +740,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderOrderHash(ctx context.Context, r
 	} else {
 		baseURL = *o.ServerURL
 	}
-	opURL, err := utils.GenerateURL(ctx, baseURL, "/v2/tokenized_assets/order/{order_hash}", request, nil)
+	opURL, err := utils.GenerateURL(ctx, baseURL, "/v2/tokenized_equities/order/{order_hash}", request, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error generating URL: %w", err)
 	}
@@ -750,7 +750,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderOrderHash(ctx context.Context, r
 		SDKConfiguration: s.sdkConfiguration,
 		BaseURL:          baseURL,
 		Context:          ctx,
-		OperationID:      "v2_tokenized_assets_order_{order_hash}",
+		OperationID:      "v2_tokenized_equities_order_{order_hash}",
 		SecuritySource:   s.sdkConfiguration.Security,
 	}
 
@@ -809,7 +809,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderOrderHash(ctx context.Context, r
 		}
 	}
 
-	res := &operations.V2TokenizedAssetsOrderOrderHashResponse{
+	res := &operations.V2TokenizedEquitiesOrderOrderHashResponse{
 		HTTPMeta: components.HTTPMetadata{
 			Request:  req,
 			Response: httpRes,
@@ -850,7 +850,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderOrderHash(ctx context.Context, r
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -900,7 +900,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderOrderHash(ctx context.Context, r
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -941,7 +941,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderOrderHash(ctx context.Context, r
 
 }
 
-// TokenizedAssetsCreateAccount - Create a Tokenized Equities Account
+// TokenizedEquitiesCreateAccount - Create a Tokenized Equities Account
 // Create a Tokenized Equities Account for a wallet address.
 //
 // Before placing orders, the owner must create a Tokenized Equities Account.
@@ -959,7 +959,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderOrderHash(ctx context.Context, r
 //
 // **If someone else pays gas:** Set `sender` to the wallet that will
 // sign and broadcast the transaction on behalf of the owner.
-func (s *TokenizedEquities) TokenizedAssetsCreateAccount(ctx context.Context, request components.CreateTokenizedAssetsAccountRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsCreateAccountResponse, error) {
+func (s *TokenizedEquities) TokenizedEquitiesCreateAccount(ctx context.Context, request components.CreateTokenizedEquitiesAccountRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesCreateAccountResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -978,7 +978,7 @@ func (s *TokenizedEquities) TokenizedAssetsCreateAccount(ctx context.Context, re
 	} else {
 		baseURL = *o.ServerURL
 	}
-	opURL, err := url.JoinPath(baseURL, "/v2/tokenized_assets/create_account")
+	opURL, err := url.JoinPath(baseURL, "/v2/tokenized_equities/create_account")
 	if err != nil {
 		return nil, fmt.Errorf("error generating URL: %w", err)
 	}
@@ -988,7 +988,7 @@ func (s *TokenizedEquities) TokenizedAssetsCreateAccount(ctx context.Context, re
 		SDKConfiguration: s.sdkConfiguration,
 		BaseURL:          baseURL,
 		Context:          ctx,
-		OperationID:      "v2_tokenized_assets_create_account",
+		OperationID:      "v2_tokenized_equities_create_account",
 		SecuritySource:   s.sdkConfiguration.Security,
 	}
 	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, false, false, "Request", "json", `request:"mediaType=application/json"`)
@@ -1054,7 +1054,7 @@ func (s *TokenizedEquities) TokenizedAssetsCreateAccount(ctx context.Context, re
 		}
 	}
 
-	res := &operations.V2TokenizedAssetsCreateAccountResponse{
+	res := &operations.V2TokenizedEquitiesCreateAccountResponse{
 		HTTPMeta: components.HTTPMetadata{
 			Request:  req,
 			Response: httpRes,
@@ -1071,12 +1071,12 @@ func (s *TokenizedEquities) TokenizedAssetsCreateAccount(ctx context.Context, re
 					return nil, err
 				}
 
-				var out components.CreateTokenizedAssetsAccountResponse
+				var out components.CreateTokenizedEquitiesAccountResponse
 				if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 					return nil, err
 				}
 
-				res.CreateTokenizedAssetsAccountResponse = &out
+				res.CreateTokenizedEquitiesAccountResponse = &out
 			}
 		default:
 			rawBody, err := utils.ConsumeRawBody(httpRes)
@@ -1134,7 +1134,7 @@ func (s *TokenizedEquities) TokenizedAssetsCreateAccount(ctx context.Context, re
 
 }
 
-// TokenizedAssetsQuote - Preview a buy/sell quote
+// TokenizedEquitiesQuote - Preview a buy/sell quote
 // Preview the input/output amounts, fees, and slippage tolerance for an order.
 //
 // Read-only relative to Fusion: hits “/quote/receive“ only and does not
@@ -1153,7 +1153,7 @@ func (s *TokenizedEquities) TokenizedAssetsCreateAccount(ctx context.Context, re
 //   - **`auction_range_bps`** — worst-case bps gap between the auction
 //     end amount and the reference quote amount. Use to surface a
 //     thin-liquidity warning to the user.
-func (s *TokenizedEquities) TokenizedAssetsQuote(ctx context.Context, request components.TokenizedAssetsQuoteRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsQuoteResponse, error) {
+func (s *TokenizedEquities) TokenizedEquitiesQuote(ctx context.Context, request components.TokenizedEquitiesQuoteRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesQuoteResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1172,7 +1172,7 @@ func (s *TokenizedEquities) TokenizedAssetsQuote(ctx context.Context, request co
 	} else {
 		baseURL = *o.ServerURL
 	}
-	opURL, err := url.JoinPath(baseURL, "/v2/tokenized_assets/quote")
+	opURL, err := url.JoinPath(baseURL, "/v2/tokenized_equities/quote")
 	if err != nil {
 		return nil, fmt.Errorf("error generating URL: %w", err)
 	}
@@ -1182,7 +1182,7 @@ func (s *TokenizedEquities) TokenizedAssetsQuote(ctx context.Context, request co
 		SDKConfiguration: s.sdkConfiguration,
 		BaseURL:          baseURL,
 		Context:          ctx,
-		OperationID:      "v2_tokenized_assets_quote",
+		OperationID:      "v2_tokenized_equities_quote",
 		SecuritySource:   s.sdkConfiguration.Security,
 	}
 	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, false, false, "Request", "json", `request:"mediaType=application/json"`)
@@ -1248,7 +1248,7 @@ func (s *TokenizedEquities) TokenizedAssetsQuote(ctx context.Context, request co
 		}
 	}
 
-	res := &operations.V2TokenizedAssetsQuoteResponse{
+	res := &operations.V2TokenizedEquitiesQuoteResponse{
 		HTTPMeta: components.HTTPMetadata{
 			Request:  req,
 			Response: httpRes,
@@ -1265,12 +1265,12 @@ func (s *TokenizedEquities) TokenizedAssetsQuote(ctx context.Context, request co
 					return nil, err
 				}
 
-				var out components.TokenizedAssetsQuoteResponse
+				var out components.TokenizedEquitiesQuoteResponse
 				if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 					return nil, err
 				}
 
-				res.TokenizedAssetsQuoteResponse = &out
+				res.TokenizedEquitiesQuoteResponse = &out
 			}
 		default:
 			rawBody, err := utils.ConsumeRawBody(httpRes)
@@ -1291,7 +1291,7 @@ func (s *TokenizedEquities) TokenizedAssetsQuote(ctx context.Context, request co
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -1341,7 +1341,7 @@ func (s *TokenizedEquities) TokenizedAssetsQuote(ctx context.Context, request co
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -1382,7 +1382,7 @@ func (s *TokenizedEquities) TokenizedAssetsQuote(ctx context.Context, request co
 
 }
 
-// TokenizedAssetsOrder - Build a buy/sell order
+// TokenizedEquitiesOrder - Build a buy/sell order
 // Build a buy or sell order whose maker is the Tokenized Equities Account.
 //
 // Returns up to three pieces in a single round-trip:
@@ -1402,7 +1402,7 @@ func (s *TokenizedEquities) TokenizedAssetsQuote(ctx context.Context, request co
 //
 // The owner never broadcasts the order itself — only the (one-time)
 // approval transaction ever hits the chain.
-func (s *TokenizedEquities) TokenizedAssetsOrder(ctx context.Context, request components.TokenizedAssetsBuildOrderRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsOrderResponse, error) {
+func (s *TokenizedEquities) TokenizedEquitiesOrder(ctx context.Context, request components.TokenizedEquitiesBuildOrderRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesOrderResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1421,7 +1421,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrder(ctx context.Context, request co
 	} else {
 		baseURL = *o.ServerURL
 	}
-	opURL, err := url.JoinPath(baseURL, "/v2/tokenized_assets/order")
+	opURL, err := url.JoinPath(baseURL, "/v2/tokenized_equities/order")
 	if err != nil {
 		return nil, fmt.Errorf("error generating URL: %w", err)
 	}
@@ -1431,7 +1431,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrder(ctx context.Context, request co
 		SDKConfiguration: s.sdkConfiguration,
 		BaseURL:          baseURL,
 		Context:          ctx,
-		OperationID:      "v2_tokenized_assets_order",
+		OperationID:      "v2_tokenized_equities_order",
 		SecuritySource:   s.sdkConfiguration.Security,
 	}
 	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, false, false, "Request", "json", `request:"mediaType=application/json"`)
@@ -1497,7 +1497,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrder(ctx context.Context, request co
 		}
 	}
 
-	res := &operations.V2TokenizedAssetsOrderResponse{
+	res := &operations.V2TokenizedEquitiesOrderResponse{
 		HTTPMeta: components.HTTPMetadata{
 			Request:  req,
 			Response: httpRes,
@@ -1514,12 +1514,12 @@ func (s *TokenizedEquities) TokenizedAssetsOrder(ctx context.Context, request co
 					return nil, err
 				}
 
-				var out components.TokenizedAssetsBuildOrderResponse
+				var out components.TokenizedEquitiesBuildOrderResponse
 				if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 					return nil, err
 				}
 
-				res.TokenizedAssetsBuildOrderResponse = &out
+				res.TokenizedEquitiesBuildOrderResponse = &out
 			}
 		default:
 			rawBody, err := utils.ConsumeRawBody(httpRes)
@@ -1544,7 +1544,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrder(ctx context.Context, request co
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -1569,7 +1569,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrder(ctx context.Context, request co
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -1610,7 +1610,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrder(ctx context.Context, request co
 
 }
 
-// TokenizedAssetsOrderSubmit - Submit a signed order
+// TokenizedEquitiesOrderSubmit - Submit a signed order
 // Submit a signed order to the resolver network.
 //
 // The body echoes the `order` fields from `/order` (`signed_order`,
@@ -1622,7 +1622,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrder(ctx context.Context, request co
 // Returns the order hash and a server-side ISO 8601 timestamp.
 // Subsequent calls to `GET /order/{order_hash}` track the lifecycle
 // (`pending` → `filled` / `expired` / `cancelled`).
-func (s *TokenizedEquities) TokenizedAssetsOrderSubmit(ctx context.Context, request components.TokenizedAssetsSubmitOrderRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsOrderSubmitResponse, error) {
+func (s *TokenizedEquities) TokenizedEquitiesOrderSubmit(ctx context.Context, request components.TokenizedEquitiesSubmitOrderRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesOrderSubmitResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1641,7 +1641,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderSubmit(ctx context.Context, requ
 	} else {
 		baseURL = *o.ServerURL
 	}
-	opURL, err := url.JoinPath(baseURL, "/v2/tokenized_assets/order/submit")
+	opURL, err := url.JoinPath(baseURL, "/v2/tokenized_equities/order/submit")
 	if err != nil {
 		return nil, fmt.Errorf("error generating URL: %w", err)
 	}
@@ -1651,7 +1651,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderSubmit(ctx context.Context, requ
 		SDKConfiguration: s.sdkConfiguration,
 		BaseURL:          baseURL,
 		Context:          ctx,
-		OperationID:      "v2_tokenized_assets_order_submit",
+		OperationID:      "v2_tokenized_equities_order_submit",
 		SecuritySource:   s.sdkConfiguration.Security,
 	}
 	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, false, false, "Request", "json", `request:"mediaType=application/json"`)
@@ -1717,7 +1717,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderSubmit(ctx context.Context, requ
 		}
 	}
 
-	res := &operations.V2TokenizedAssetsOrderSubmitResponse{
+	res := &operations.V2TokenizedEquitiesOrderSubmitResponse{
 		HTTPMeta: components.HTTPMetadata{
 			Request:  req,
 			Response: httpRes,
@@ -1734,12 +1734,12 @@ func (s *TokenizedEquities) TokenizedAssetsOrderSubmit(ctx context.Context, requ
 					return nil, err
 				}
 
-				var out components.TokenizedAssetsSubmitOrderResponse
+				var out components.TokenizedEquitiesSubmitOrderResponse
 				if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 					return nil, err
 				}
 
-				res.TokenizedAssetsSubmitOrderResponse = &out
+				res.TokenizedEquitiesSubmitOrderResponse = &out
 			}
 		default:
 			rawBody, err := utils.ConsumeRawBody(httpRes)
@@ -1758,7 +1758,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderSubmit(ctx context.Context, requ
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -1808,7 +1808,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderSubmit(ctx context.Context, requ
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -1849,7 +1849,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderSubmit(ctx context.Context, requ
 
 }
 
-// TokenizedAssetsOrderOrderHashCancel - Cancel an unfilled order
+// TokenizedEquitiesOrderOrderHashCancel - Cancel an unfilled order
 // Build the EIP-712 payload to cancel an unfilled order on-chain.
 //
 // Returns “cancel_safe_tx_eip712“, an EIP-712 payload that authorizes
@@ -1861,7 +1861,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderSubmit(ctx context.Context, requ
 //
 // Cancellation works on `pending` and `expired` orders only. Only the
 // Tokenized Equities Account that placed the order can cancel it.
-func (s *TokenizedEquities) TokenizedAssetsOrderOrderHashCancel(ctx context.Context, request operations.V2TokenizedAssetsOrderOrderHashCancelRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsOrderOrderHashCancelResponse, error) {
+func (s *TokenizedEquities) TokenizedEquitiesOrderOrderHashCancel(ctx context.Context, request operations.V2TokenizedEquitiesOrderOrderHashCancelRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesOrderOrderHashCancelResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1880,7 +1880,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderOrderHashCancel(ctx context.Cont
 	} else {
 		baseURL = *o.ServerURL
 	}
-	opURL, err := utils.GenerateURL(ctx, baseURL, "/v2/tokenized_assets/order/{order_hash}/cancel", request, nil)
+	opURL, err := utils.GenerateURL(ctx, baseURL, "/v2/tokenized_equities/order/{order_hash}/cancel", request, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error generating URL: %w", err)
 	}
@@ -1890,7 +1890,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderOrderHashCancel(ctx context.Cont
 		SDKConfiguration: s.sdkConfiguration,
 		BaseURL:          baseURL,
 		Context:          ctx,
-		OperationID:      "v2_tokenized_assets_order_{order_hash}_cancel",
+		OperationID:      "v2_tokenized_equities_order_{order_hash}_cancel",
 		SecuritySource:   s.sdkConfiguration.Security,
 	}
 	bodyReader, reqContentType, err := utils.SerializeRequestBody(ctx, request, false, false, "Body", "json", `request:"mediaType=application/json"`)
@@ -1956,7 +1956,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderOrderHashCancel(ctx context.Cont
 		}
 	}
 
-	res := &operations.V2TokenizedAssetsOrderOrderHashCancelResponse{
+	res := &operations.V2TokenizedEquitiesOrderOrderHashCancelResponse{
 		HTTPMeta: components.HTTPMetadata{
 			Request:  req,
 			Response: httpRes,
@@ -1973,12 +1973,12 @@ func (s *TokenizedEquities) TokenizedAssetsOrderOrderHashCancel(ctx context.Cont
 					return nil, err
 				}
 
-				var out components.TokenizedAssetsCancelOrderResponse
+				var out components.TokenizedEquitiesCancelOrderResponse
 				if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 					return nil, err
 				}
 
-				res.TokenizedAssetsCancelOrderResponse = &out
+				res.TokenizedEquitiesCancelOrderResponse = &out
 			}
 		default:
 			rawBody, err := utils.ConsumeRawBody(httpRes)
@@ -2001,7 +2001,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderOrderHashCancel(ctx context.Cont
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -2051,7 +2051,7 @@ func (s *TokenizedEquities) TokenizedAssetsOrderOrderHashCancel(ctx context.Cont
 				return nil, err
 			}
 
-			var out sdkerrors.TokenizedAssetsErrorResponse
+			var out sdkerrors.TokenizedEquitiesErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}

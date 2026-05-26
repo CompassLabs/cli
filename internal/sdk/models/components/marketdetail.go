@@ -43,7 +43,7 @@ type MarketDetail struct {
 	SharesOutstanding optionalnullable.OptionalNullable[string] `json:"shares_outstanding,omitzero"`
 	// Market cap of the underlying equity (USD).
 	MarketCap optionalnullable.OptionalNullable[string] `json:"market_cap,omitzero"`
-	// On-chain holder count for the tokenized asset.
+	// On-chain holder count for the tokenized equity.
 	TotalHolders optionalnullable.OptionalNullable[int64] `json:"total_holders,omitzero"`
 	// Sessions in which the token can be traded (e.g. 'regular', 'premarket').
 	TradableSessions []string `json:"tradable_sessions,omitzero"`

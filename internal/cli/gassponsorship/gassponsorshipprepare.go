@@ -18,7 +18,7 @@ import (
 var gasSponsorshipPrepareCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The wallet address that owns the Product Account. [required]"},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm) [required]"},
-	{FlagName: "product", Shorthand: "p", FieldPath: "Product", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"earn", "credit", "tokenized_assets"}, Description: "Which product the gas sponsorship is for. Determines which Product Account (Safe) address to use. (options: earn, credit, tokenized_assets)"},
+	{FlagName: "product", Shorthand: "p", FieldPath: "Product", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"earn", "credit", "tokenized_equities"}, Description: "Which product the gas sponsorship is for. Determines which Product Account (Safe) address to use. (options: earn, credit, tokenized_equities)"},
 	{FlagName: "eip-712", Shorthand: "e", FieldPath: "Eip712", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, TypeDescription: "JSON value (one of: { domain: object, types: object, message: object } | { types: object, domain: object, message: object })"}},
 	{FlagName: "signature", FieldPath: "Signature", Kind: flagutil.FlagKindString, Required: true, Description: "The EIP-712 signed typed data signature. [required]"},
 	{FlagName: "sender", FieldPath: "Sender", Kind: flagutil.FlagKindString, Required: true, Description: "The address of the wallet which will send the transaction. [required]"},

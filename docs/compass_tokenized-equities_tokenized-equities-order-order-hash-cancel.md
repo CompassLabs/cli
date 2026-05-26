@@ -1,19 +1,38 @@
-## compass tokenized-equities
+## compass tokenized-equities tokenized-equities-order-order-hash-cancel
 
-Operations for tokenized-equities
+Cancel an unfilled order
 
 ### Synopsis
 
-Operations for tokenized-equities
+Build the EIP-712 payload to cancel an unfilled order on-chain.
+
+Returns ``cancel_safe_tx_eip712``, an EIP-712 payload that authorizes
+the on-chain cancellation. Sign with the Tokenized Equities Account's
+owner via ``wallet.signTypedData(...)`` and relay via
+``POST /v2/gas_sponsorship/prepare`` so the sponsor broadcasts the
+cancellation on the product account. The owner can also broadcast
+the resulting transaction directly without using gas sponsorship.
+
+Cancellation works on `pending` and `expired` orders only. Only the
+Tokenized Equities Account that placed the order can cancel it.
 
 ```
-compass tokenized-equities [flags]
+compass tokenized-equities tokenized-equities-order-order-hash-cancel [flags]
+```
+
+### Examples
+
+```
+  compass tokenized-equities tokenized-equities-order-order-hash-cancel --order-hash <value> --owner <value>
 ```
 
 ### Options
 
 ```
-  -h, --help   help for tokenized-equities
+      --body string         Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -h, --help                help for tokenized-equities-order-order-hash-cancel
+      --order-hash string   [required]
+      --owner string        Wallet that owns the Tokenized Equities Account. The account address derived from this owner must match the order's on-chain maker; the API rejects otherwise (only the order's maker can cancel it). [required]
 ```
 
 ### Options inherited from parent commands
@@ -37,13 +56,4 @@ compass tokenized-equities [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
-* [compass tokenized-equities tokenized-equities-create-account](compass_tokenized-equities_tokenized-equities-create-account.md)	 - Create a Tokenized Equities Account
-* [compass tokenized-equities tokenized-equities-markets](compass_tokenized-equities_tokenized-equities-markets.md)	 - List tokenized equity markets
-* [compass tokenized-equities tokenized-equities-markets-symbol](compass_tokenized-equities_tokenized-equities-markets-symbol.md)	 - Get a single market
-* [compass tokenized-equities tokenized-equities-order](compass_tokenized-equities_tokenized-equities-order.md)	 - Build a buy/sell order
-* [compass tokenized-equities tokenized-equities-order-order-hash](compass_tokenized-equities_tokenized-equities-order-order-hash.md)	 - Get order status
-* [compass tokenized-equities tokenized-equities-order-order-hash-cancel](compass_tokenized-equities_tokenized-equities-order-order-hash-cancel.md)	 - Cancel an unfilled order
-* [compass tokenized-equities tokenized-equities-order-submit](compass_tokenized-equities_tokenized-equities-order-submit.md)	 - Submit a signed order
-* [compass tokenized-equities tokenized-equities-positions](compass_tokenized-equities_tokenized-equities-positions.md)	 - Get tokenized-equity positions for an owner
-* [compass tokenized-equities tokenized-equities-quote](compass_tokenized-equities_tokenized-equities-quote.md)	 - Preview a buy/sell quote
+* [compass tokenized-equities](compass_tokenized-equities.md)	 - Operations for tokenized-equities

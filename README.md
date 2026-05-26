@@ -213,15 +213,15 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 
 ### [tokenized-equities](docs/compass_tokenized-equities.md)
 
-* [`tokenized-assets-markets`](docs/compass_tokenized-equities_tokenized-assets-markets.md) - List tokenized equity markets
-* [`tokenized-assets-markets-symbol`](docs/compass_tokenized-equities_tokenized-assets-markets-symbol.md) - Get a single market
-* [`tokenized-assets-positions`](docs/compass_tokenized-equities_tokenized-assets-positions.md) - Get tokenized-asset positions for an owner
-* [`tokenized-assets-order-order-hash`](docs/compass_tokenized-equities_tokenized-assets-order-order-hash.md) - Get order status
-* [`tokenized-assets-create-account`](docs/compass_tokenized-equities_tokenized-assets-create-account.md) - Create a Tokenized Equities Account
-* [`tokenized-assets-quote`](docs/compass_tokenized-equities_tokenized-assets-quote.md) - Preview a buy/sell quote
-* [`tokenized-assets-order`](docs/compass_tokenized-equities_tokenized-assets-order.md) - Build a buy/sell order
-* [`tokenized-assets-order-submit`](docs/compass_tokenized-equities_tokenized-assets-order-submit.md) - Submit a signed order
-* [`tokenized-assets-order-order-hash-cancel`](docs/compass_tokenized-equities_tokenized-assets-order-order-hash-cancel.md) - Cancel an unfilled order
+* [`tokenized-equities-markets`](docs/compass_tokenized-equities_tokenized-equities-markets.md) - List tokenized equity markets
+* [`tokenized-equities-markets-symbol`](docs/compass_tokenized-equities_tokenized-equities-markets-symbol.md) - Get a single market
+* [`tokenized-equities-positions`](docs/compass_tokenized-equities_tokenized-equities-positions.md) - Get tokenized-equity positions for an owner
+* [`tokenized-equities-order-order-hash`](docs/compass_tokenized-equities_tokenized-equities-order-order-hash.md) - Get order status
+* [`tokenized-equities-create-account`](docs/compass_tokenized-equities_tokenized-equities-create-account.md) - Create a Tokenized Equities Account
+* [`tokenized-equities-quote`](docs/compass_tokenized-equities_tokenized-equities-quote.md) - Preview a buy/sell quote
+* [`tokenized-equities-order`](docs/compass_tokenized-equities_tokenized-equities-order.md) - Build a buy/sell order
+* [`tokenized-equities-order-submit`](docs/compass_tokenized-equities_tokenized-equities-order-submit.md) - Submit a signed order
+* [`tokenized-equities-order-order-hash-cancel`](docs/compass_tokenized-equities_tokenized-equities-order-order-hash-cancel.md) - Cancel an unfilled order
 
 </details>
 <!-- End Available Commands [operations] -->

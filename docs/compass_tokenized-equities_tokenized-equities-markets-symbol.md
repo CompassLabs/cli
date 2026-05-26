@@ -1,19 +1,42 @@
-## compass tokenized-equities
+## compass tokenized-equities tokenized-equities-markets-symbol
 
-Operations for tokenized-equities
+Get a single market
 
 ### Synopsis
 
-Operations for tokenized-equities
+Get extended detail for a single tokenized equity (e.g. `TSLAon`).
+
+Includes 52-week range, volume, market cap, holder count, and tradable
+sessions in addition to the fields returned by `/markets`.
+
+**OHLC candles** are opt-in: pass both `interval` and `range` query
+params to include a `candles` array in the response. They must be
+provided together and must form one of the supported pairs:
+
+- `1min` / `5min` / `15min` with `range=1day`
+- `1hour` / `4hour` with `range=1month`
+- `12hour` with `range=3month`
+- `1day` with `range=3month` / `6month` / `1year` / `all`
+
+Omitting both returns the market detail without `candles`.
 
 ```
-compass tokenized-equities [flags]
+compass tokenized-equities tokenized-equities-markets-symbol [flags]
+```
+
+### Examples
+
+```
+  compass tokenized-equities tokenized-equities-markets-symbol --symbol <value>
 ```
 
 ### Options
 
 ```
-  -h, --help   help for tokenized-equities
+  -h, --help             help for tokenized-equities-markets-symbol
+  -i, --interval range   Optional candle interval. Must be paired with range and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1min, 5min, 15min, 1hour, 4hour, 12hour, 1day)
+  -r, --range interval   Optional lookback window. Must be paired with interval and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1day, 1month, 3month, 6month, 1year, all)
+  -s, --symbol string    [required]
 ```
 
 ### Options inherited from parent commands
@@ -37,13 +60,4 @@ compass tokenized-equities [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
-* [compass tokenized-equities tokenized-equities-create-account](compass_tokenized-equities_tokenized-equities-create-account.md)	 - Create a Tokenized Equities Account
-* [compass tokenized-equities tokenized-equities-markets](compass_tokenized-equities_tokenized-equities-markets.md)	 - List tokenized equity markets
-* [compass tokenized-equities tokenized-equities-markets-symbol](compass_tokenized-equities_tokenized-equities-markets-symbol.md)	 - Get a single market
-* [compass tokenized-equities tokenized-equities-order](compass_tokenized-equities_tokenized-equities-order.md)	 - Build a buy/sell order
-* [compass tokenized-equities tokenized-equities-order-order-hash](compass_tokenized-equities_tokenized-equities-order-order-hash.md)	 - Get order status
-* [compass tokenized-equities tokenized-equities-order-order-hash-cancel](compass_tokenized-equities_tokenized-equities-order-order-hash-cancel.md)	 - Cancel an unfilled order
-* [compass tokenized-equities tokenized-equities-order-submit](compass_tokenized-equities_tokenized-equities-order-submit.md)	 - Submit a signed order
-* [compass tokenized-equities tokenized-equities-positions](compass_tokenized-equities_tokenized-equities-positions.md)	 - Get tokenized-equity positions for an owner
-* [compass tokenized-equities tokenized-equities-quote](compass_tokenized-equities_tokenized-equities-quote.md)	 - Preview a buy/sell quote
+* [compass tokenized-equities](compass_tokenized-equities.md)	 - Operations for tokenized-equities
