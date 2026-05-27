@@ -13,7 +13,17 @@ import (
 // prettyPrint writes content in a human-readable key-value format.
 // For objects it produces aligned "key: value" pairs; for arrays of objects
 // it prints numbered entries. Nested structures use 2-space indentation.
+//
+// For list/envelope responses (slice-of-struct content, or struct envelopes
+// containing slice-of-struct fields), prettyPrint delegates to printTable so
+// the default output is a compact, scannable summary rather than a multi-page
+// nested key:value dump. Users who want the full nested view can request
+// `-o yaml` or `-o json`.
 func prettyPrint(w io.Writer, content interface{}, colorize bool) error {
+	if shouldRenderAsTable(content) {
+		return printTable(w, content)
+	}
+
 	// First marshal to JSON, then parse into generic types so we have a
 	// uniform representation regardless of the concrete Go struct.
 	data, err := marshalJSON(content)

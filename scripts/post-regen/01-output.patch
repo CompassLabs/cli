@@ -1,0 +1,385 @@
+diff --git a/cli-sdk/internal/output/output.go b/cli-sdk/internal/output/output.go
+index 4007726..4788c65 100644
+--- a/cli-sdk/internal/output/output.go
++++ b/cli-sdk/internal/output/output.go
+@@ -4,6 +4,7 @@
+ package output
+ 
+ import (
++	"bytes"
+ 	"encoding/json"
+ 	"fmt"
+ 	"io"
+@@ -33,6 +34,15 @@ func formatErrorBody(body string) string {
+ 	if err := json.Unmarshal([]byte(body), &parsed); err != nil {
+ 		return body
+ 	}
++	// FastAPI returns validation errors as
++	//   {"detail":[{"loc":["query","owner"],"msg":"...","type":"value_error"}, ...]}
++	// which is ugly and noisy in a terminal — and de-duped because the
++	// same field error can appear twice. Detect that shape and render as
++	//   - query.owner: Addresses must start with 0x
++	// (one line per unique loc+msg).
++	if pretty, ok := formatFastAPIDetail(parsed); ok {
++		return pretty
++	}
+ 	indented, err := json.MarshalIndent(parsed, "", "  ")
+ 	if err != nil {
+ 		return body
+@@ -72,6 +82,16 @@ func marshalJSON(content interface{}) ([]byte, error) {
+ 	return data, nil
+ }
+ 
++// indentJSONIfValid re-emits the JSON body with two-space indentation, preserving
++// the original key order. Returns the input unchanged if it isn't valid JSON.
++func indentJSONIfValid(body []byte) []byte {
++	var buf bytes.Buffer
++	if err := json.Indent(&buf, body, "", "  "); err != nil {
++		return body
++	}
++	return buf.Bytes()
++}
++
+ // printJSON colorizes (if requested) and prints JSON data followed by a newline.
+ func printJSON(out io.Writer, data []byte, colorize bool) {
+ 	if colorize {
+@@ -205,7 +225,7 @@ func Result(cmd *cobra.Command, res interface{}) error {
+ 			if jqExpr != "" {
+ 				return applyJqToRawJSON(out, rawBody, jqExpr, colorize)
+ 			}
+-			printJSON(out, rawBody, colorize)
++			printJSON(out, indentJSONIfValid(rawBody), colorize)
+ 			return nil
+ 		}
+ 		// Fall through: body was empty (normal deser happened for non-JSON response)
+@@ -247,7 +267,21 @@ func Result(cmd *cobra.Command, res interface{}) error {
+ 		}
+ 		printJSON(out, data, colorize)
+ 	case "yaml":
+-		data, err := yaml.Marshal(content)
++		// gopkg.in/yaml.v3 inspects raw struct tags and reflection, which
++		// produces broken output for Speakeasy-generated types:
++		//   - struct tag option ",omitzero" leaks into key names
++		//   - OptionalNullable[T] (a map[bool]*T under the hood) renders as
++		//     `name: {true: "..."}` instead of unwrapping to the value
++		// Routing the content through normalizeForEncoding (in overrides.go)
++		// re-marshals via the Speakeasy custom JSON marshaller first, then
++		// feeds plain map[string]any/slices into yaml.Marshal. This is
++		// preserved across Speakeasy regen by the surrounding #region marker
++		// (enableCustomCodeRegions: true in .speakeasy/gen.yaml).
++		normalized, err := normalizeForEncoding(content)
++		if err != nil {
++			return fmt.Errorf("failed to normalize response for YAML: %w", err)
++		}
++		data, err := yaml.Marshal(normalized)
+ 		if err != nil {
+ 			return fmt.Errorf("failed to marshal response as YAML: %w", err)
+ 		}
+@@ -257,7 +291,14 @@ func Result(cmd *cobra.Command, res interface{}) error {
+ 			return err
+ 		}
+ 	case "toon":
+-		toonStr, err := gotoon.Encode(content)
++		// Same reason as the YAML case above: gotoon walks struct tags and
++		// emits `"apy_30d,omitzero": null` instead of `apy_30d: 4.19`.
++		// Round-tripping through JSON gives gotoon a plain any to encode.
++		normalized, err := normalizeForEncoding(content)
++		if err != nil {
++			return fmt.Errorf("failed to normalize response for TOON: %w", err)
++		}
++		toonStr, err := gotoon.Encode(normalized)
+ 		if err != nil {
+ 			return fmt.Errorf("failed to encode response as TOON: %w", err)
+ 		}
+@@ -298,6 +339,22 @@ func Error(cmd *cobra.Command, err error) error {
+ 				printResponseHeadersPretty(out, headers, colorize)
+ 			}
+ 		}
++		// Speakeasy emits typed error structs for some error responses
++		// (e.g. HTTPValidationError for FastAPI 422s) that don't have
++		// .Body / .StatusCode reflection fields — extractErrorBody returns
++		// "". The Error() method on those types serializes the struct as
++		// JSON, so use err.Error() as the body when the reflection-based
++		// extractors come up empty. statusCode reuses the same fallback.
++		if body == "" {
++			if msg := err.Error(); msg != "" && isValidJSON(msg) {
++				body = msg
++			}
++		}
++		if statusCode == 0 {
++			if sc := errorStatusCodeFromHTTPMeta(err); sc != 0 {
++				statusCode = sc
++			}
++		}
+ 
+ 		// Surface the error so the user can see what went wrong.
+ 		if body != "" && statusCode != 0 {
+@@ -314,8 +371,11 @@ func Error(cmd *cobra.Command, err error) error {
+ 		if statusCode == 401 || statusCode == 403 {
+ 			fmt.Fprintf(cmd.ErrOrStderr(), "\nHint: run '%s configure' to set up or update your credentials.\n", cliName)
+ 		}
+-
+-		return err
++		// Wrap in AlreadyPrinted so cmd/compass/main.go skips its default
++		// `fmt.Fprintln(os.Stderr, err)`. Without this wrap, every API error
++		// is printed 2-3 times: this friendly block, plus the SDK's raw
++		// "API error occurred: Status NNN\n{body}" via err.Error().
++		return AlreadyPrinted(err)
+ 	}
+ 
+ 	out := cmd.ErrOrStderr()
+@@ -383,7 +443,7 @@ func Error(cmd *cobra.Command, err error) error {
+ 		var marshalErr error
+ 		jsonData, marshalErr = json.MarshalIndent(envelope, "", "  ")
+ 		if marshalErr != nil {
+-			return err
++			return AlreadyPrinted(err)
+ 		}
+ 	}
+ 
+@@ -402,8 +462,7 @@ func Error(cmd *cobra.Command, err error) error {
+ 	}
+ 
+ 	printJSON(out, jsonData, colorize)
+-
+-	return err
++	return AlreadyPrinted(err)
+ }
+ 
+ // tryReadRawBody attempts to read the raw HTTP response body from the response
+@@ -753,6 +812,11 @@ func applyJqToTyped(out io.Writer, content interface{}, jqExpr string, colorize
+ // For slices/arrays of structs, each struct becomes a row with struct fields as columns.
+ // For single structs, outputs a vertical key-value table.
+ // Complex nested fields are skipped.
++//
++// Paginated list envelopes ({total, offset, limit, items[]}) and multi-list
++// responses are unwrapped: the slice fields are rendered as tables, and any
++// remaining scalar fields are surfaced as a header line above the table so the
++// caller still sees pagination metadata.
+ func printTable(out io.Writer, content any) error {
+ 	v := reflect.ValueOf(content)
+ 	for v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
+@@ -766,6 +830,9 @@ func printTable(out io.Writer, content any) error {
+ 	case reflect.Slice, reflect.Array:
+ 		return printTableRows(out, v)
+ 	case reflect.Struct:
++		if sliceFields := structOfStructSliceFields(v); len(sliceFields) > 0 {
++			return printTableUnwrapped(out, v, sliceFields)
++		}
+ 		return printTableSingle(out, v)
+ 	case reflect.Map:
+ 		return printTableMap(out, v)
+@@ -776,6 +843,147 @@ func printTable(out io.Writer, content any) error {
+ 	}
+ }
+ 
++// shouldRenderAsTable reports whether content is a list-shaped response —
++// either a slice of structs (e.g. []Position) or a struct envelope that
++// contains one or more slice-of-struct fields (e.g. {total, offset, vaults[]}
++// or {aave[], vaults[], pendle_pt[]}). These are the shapes where a table
++// view is dramatically more readable than verbose key:value output.
++//
++// The slice branch checks the element TYPE, not the first value, so empty
++// slice-of-struct responses still take the table path and render as "(empty)"
++// — consistent with how the envelope path handles empty inner slices.
++func shouldRenderAsTable(content any) bool {
++	if content == nil {
++		return false
++	}
++	v := reflect.ValueOf(content)
++	for v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
++		if v.IsNil() {
++			return false
++		}
++		v = v.Elem()
++	}
++	switch v.Kind() {
++	case reflect.Slice, reflect.Array:
++		elemType := v.Type().Elem()
++		for elemType.Kind() == reflect.Ptr {
++			elemType = elemType.Elem()
++		}
++		return elemType.Kind() == reflect.Struct
++	case reflect.Struct:
++		return len(structOfStructSliceFields(v)) > 0
++	}
++	return false
++}
++
++// structSliceField identifies a slice-of-struct field on a parent struct.
++type structSliceField struct {
++	name  string // json tag if present, else the Go field name
++	index int    // index into the parent struct
++}
++
++// structOfStructSliceFields returns the slice-of-struct fields of v in
++// declaration order. These are the fields a table view should unwrap when
++// rendering an envelope or multi-list response.
++func structOfStructSliceFields(v reflect.Value) []structSliceField {
++	t := v.Type()
++	var out []structSliceField
++	for i := 0; i < t.NumField(); i++ {
++		f := t.Field(i)
++		if !f.IsExported() {
++			continue
++		}
++		ft := f.Type
++		for ft.Kind() == reflect.Ptr {
++			ft = ft.Elem()
++		}
++		if ft.Kind() != reflect.Slice && ft.Kind() != reflect.Array {
++			continue
++		}
++		elem := ft.Elem()
++		for elem.Kind() == reflect.Ptr {
++			elem = elem.Elem()
++		}
++		if elem.Kind() != reflect.Struct {
++			continue
++		}
++		out = append(out, structSliceField{name: fieldDisplayName(f), index: i})
++	}
++	return out
++}
++
++// fieldDisplayName returns the JSON tag name when set, else the Go field name.
++func fieldDisplayName(f reflect.StructField) string {
++	if tag := f.Tag.Get("json"); tag != "" {
++		if name := strings.Split(tag, ",")[0]; name != "" && name != "-" {
++			return name
++		}
++	}
++	return f.Name
++}
++
++// printTableUnwrapped renders an envelope or multi-list response. Scalar
++// metadata is shown once at the top; each slice-of-struct field is rendered
++// as its own table, with a section header for multi-list responses.
++func printTableUnwrapped(out io.Writer, v reflect.Value, sliceFields []structSliceField) error {
++	if header := formatEnvelopeHeader(v, sliceFields); header != "" {
++		fmt.Fprintln(out, header)
++	}
++
++	showSectionHeader := len(sliceFields) > 1
++	for _, sf := range sliceFields {
++		if showSectionHeader {
++			fmt.Fprintf(out, "\n%s:\n", strings.ToUpper(sf.name))
++		}
++		if err := printTableRows(out, v.Field(sf.index)); err != nil {
++			return err
++		}
++	}
++	return nil
++}
++
++// formatEnvelopeHeader summarizes the scalar (non-slice, non-struct) fields of
++// an envelope on a single line. Returns "" if there are no scalars to show.
++func formatEnvelopeHeader(v reflect.Value, sliceFields []structSliceField) string {
++	skip := make(map[int]struct{}, len(sliceFields))
++	for _, sf := range sliceFields {
++		skip[sf.index] = struct{}{}
++	}
++
++	t := v.Type()
++	var parts []string
++	for i := 0; i < t.NumField(); i++ {
++		if _, ok := skip[i]; ok {
++			continue
++		}
++		f := t.Field(i)
++		if !f.IsExported() {
++			continue
++		}
++		ft := f.Type
++		for ft.Kind() == reflect.Ptr {
++			ft = ft.Elem()
++		}
++		switch ft.Kind() {
++		case reflect.Map:
++			if !isOptionalNullableType(ft) {
++				continue
++			}
++		case reflect.Struct, reflect.Slice, reflect.Array, reflect.Func, reflect.Chan:
++			continue
++		}
++		cell := formatTableCell(v.Field(i))
++		if cell == "" {
++			continue
++		}
++		parts = append(parts, fmt.Sprintf("%s=%s", strings.ToUpper(fieldDisplayName(f)), cell))
++	}
++	if len(parts) == 0 {
++		return ""
++	}
++	return strings.Join(parts, "  ")
++}
++
+ // printTableRows renders a slice of structs as a multi-row table.
+ func printTableRows(out io.Writer, v reflect.Value) error {
+ 	if v.Len() == 0 {
+@@ -875,13 +1083,19 @@ func collectTableColumns(t reflect.Type) []tableColumn {
+ 		if !f.IsExported() {
+ 			continue
+ 		}
+-		// Skip complex types: structs, slices-of-structs, maps, funcs, chans
++		// Skip complex types: structs, slices-of-structs, maps, funcs, chans.
++		// OptionalNullable[T] is a map[bool]*T under the hood; we treat it as
++		// its underlying scalar type for display purposes.
+ 		ft := f.Type
+ 		for ft.Kind() == reflect.Ptr {
+ 			ft = ft.Elem()
+ 		}
+ 		switch ft.Kind() {
+-		case reflect.Struct, reflect.Map, reflect.Func, reflect.Chan:
++		case reflect.Map:
++			if !isOptionalNullableType(ft) {
++				continue
++			}
++		case reflect.Struct, reflect.Func, reflect.Chan:
+ 			continue
+ 		case reflect.Slice, reflect.Array:
+ 			// Allow slices of primitives (e.g., []string), skip slices of structs
+@@ -907,6 +1121,29 @@ func collectTableColumns(t reflect.Type) []tableColumn {
+ 	return cols
+ }
+ 
++// isOptionalNullableType reports whether t matches the
++// optionalnullable.OptionalNullable[T] shape (map[bool]*T). We match on shape
++// rather than importing the package to avoid a cycle and to stay tolerant if
++// the package moves.
++func isOptionalNullableType(t reflect.Type) bool {
++	return t.Kind() == reflect.Map &&
++		t.Key().Kind() == reflect.Bool &&
++		t.Elem().Kind() == reflect.Ptr
++}
++
++// unwrapOptionalNullable returns (underlying value, true) when v holds an
++// OptionalNullable[T] set to a non-nil value. Otherwise returns (zero, false).
++func unwrapOptionalNullable(v reflect.Value) (reflect.Value, bool) {
++	if !isOptionalNullableType(v.Type()) {
++		return reflect.Value{}, false
++	}
++	inner := v.MapIndex(reflect.ValueOf(true))
++	if !inner.IsValid() || inner.IsNil() {
++		return reflect.Value{}, false
++	}
++	return inner.Elem(), true
++}
++
+ // formatTableCell converts a reflect.Value to a string for table display.
+ func formatTableCell(v reflect.Value) string {
+ 	for v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
+@@ -916,6 +1153,13 @@ func formatTableCell(v reflect.Value) string {
+ 		v = v.Elem()
+ 	}
+ 
++	if v.Kind() == reflect.Map && isOptionalNullableType(v.Type()) {
++		if inner, ok := unwrapOptionalNullable(v); ok {
++			return formatTableCell(inner)
++		}
++		return ""
++	}
++
+ 	switch v.Kind() {
+ 	case reflect.Slice, reflect.Array:
+ 		if v.Len() == 0 {

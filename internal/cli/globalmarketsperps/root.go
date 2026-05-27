@@ -21,59 +21,59 @@ func InitGlobalMarketsPerpsRoot(parent *cobra.Command) error {
 		Aliases: []string{"gmp"},
 	}
 
-	if err := initGlobalMarketsPerpsOpportunitiesCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initOpportunitiesCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 
-	if err := initGlobalMarketsPerpsPositionsCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initPositionsCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 
-	if err := initGlobalMarketsPerpsCandlesCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initCandlesCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 
-	if err := initGlobalMarketsPerpsActivityCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initActivityCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 
-	if err := initGlobalMarketsPerpsDepositCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initDepositCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 
-	if err := initGlobalMarketsPerpsDepositSponsorPrepareCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initDepositSponsorPrepareCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 
-	if err := initGlobalMarketsPerpsWithdrawCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initWithdrawCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 
-	if err := initGlobalMarketsPerpsMarketOrderCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initMarketOrderCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 
-	if err := initGlobalMarketsPerpsLimitOrderCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initLimitOrderCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 
-	if err := initGlobalMarketsPerpsCancelOrderCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initCancelOrderCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 
-	if err := initGlobalMarketsPerpsExecuteCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initExecuteCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 
-	if err := initGlobalMarketsPerpsApproveBuilderFeeCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initApproveBuilderFeeCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 
-	if err := initGlobalMarketsPerpsEnableUnifiedAccountCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initEnableUnifiedAccountCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 
-	if err := initGlobalMarketsPerpsEnsureLeverageCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initEnsureLeverageCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 

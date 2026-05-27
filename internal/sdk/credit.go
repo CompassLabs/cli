@@ -30,12 +30,12 @@ func newCredit(rootSDK *CompassCLI, sdkConfig config.SDKConfiguration, hooks *ho
 	}
 }
 
-// CreditPositions - List credit positions
+// Positions - List credit positions
 // List all Credit positions for a given owner.
 //
 // Returns a unified list of positions (collateral and debt) and an account summary
 // with health factor and LTV. Each position includes event history.
-func (s *Credit) CreditPositions(ctx context.Context, request operations.V2CreditPositionsRequest, opts ...operations.Option) (*operations.V2CreditPositionsResponse, error) {
+func (s *Credit) Positions(ctx context.Context, request operations.V2CreditPositionsRequest, opts ...operations.Option) (*operations.V2CreditPositionsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -207,12 +207,12 @@ func (s *Credit) CreditPositions(ctx context.Context, request operations.V2Credi
 
 }
 
-// CreditBalances - Get credit account token balances
+// Balances - Get credit account token balances
 // Get token balances and transfer history for a credit account.
 //
 // Returns all token balances held by the credit account derived from the owner address,
 // along with complete transfer history and USD valuations.
-func (s *Credit) CreditBalances(ctx context.Context, request operations.V2CreditBalancesRequest, opts ...operations.Option) (*operations.V2CreditBalancesResponse, error) {
+func (s *Credit) Balances(ctx context.Context, request operations.V2CreditBalancesRequest, opts ...operations.Option) (*operations.V2CreditBalancesResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -384,7 +384,7 @@ func (s *Credit) CreditBalances(ctx context.Context, request operations.V2Credit
 
 }
 
-// CreditCreateAccount - Create credit account
+// CreateAccount - Create credit account
 // Create a Credit Account for a wallet address.
 //
 // Before using credit features, the owner must create a Credit Account. Each wallet address has one Credit Account per chain.
@@ -394,7 +394,7 @@ func (s *Credit) CreditBalances(ctx context.Context, request operations.V2Credit
 // **If owner pays gas:** Set `sender` to the owner's address.
 //
 // **If someone else pays gas:** Set `sender` to the wallet that will sign and broadcast the transaction on behalf of the owner.
-func (s *Credit) CreditCreateAccount(ctx context.Context, request components.CreateCreditAccountRequest, opts ...operations.Option) (*operations.V2CreditCreateAccountResponse, error) {
+func (s *Credit) CreateAccount(ctx context.Context, request components.CreateCreditAccountRequest, opts ...operations.Option) (*operations.V2CreditCreateAccountResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -569,7 +569,7 @@ func (s *Credit) CreditCreateAccount(ctx context.Context, request components.Cre
 
 }
 
-// CreditBorrow - Borrow against collateral
+// Borrow against collateral
 // Borrow an asset from Aave using a Credit Account.
 //
 // Bundles an optional swap, collateral supply, and borrow into a single atomic Safe transaction.
@@ -578,7 +578,7 @@ func (s *Credit) CreditCreateAccount(ctx context.Context, request components.Cre
 // - If `token_in` differs from `collateral_token`, a swap is performed first via 1inch.
 //
 // The Credit Account must already be created via `/v2/credit/create_account` and funded with `token_in`.
-func (s *Credit) CreditBorrow(ctx context.Context, request components.CreditBorrowRequest, opts ...operations.Option) (*operations.V2CreditBorrowResponse, error) {
+func (s *Credit) Borrow(ctx context.Context, request components.CreditBorrowRequest, opts ...operations.Option) (*operations.V2CreditBorrowResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -753,7 +753,7 @@ func (s *Credit) CreditBorrow(ctx context.Context, request components.CreditBorr
 
 }
 
-// CreditTransfer - Transfer tokens to/from Credit Account
+// Transfer tokens to/from Credit Account
 // Transfer tokens between the owner's EOA and their Credit Account.
 //
 // **DEPOSIT** (EOA → Credit Account):
@@ -765,7 +765,7 @@ func (s *Credit) CreditBorrow(ctx context.Context, request components.CreditBorr
 //   - With `gas_sponsorship=true`: returns SafeTx EIP-712 typed data to sign. The gas sponsor
 //     broadcasts the `execTransaction` (1 signature).
 //   - With `gas_sponsorship=false`: returns an unsigned `execTransaction`.
-func (s *Credit) CreditTransfer(ctx context.Context, request components.CreditTransferRequest, opts ...operations.Option) (*operations.V2CreditTransferResponse, error) {
+func (s *Credit) Transfer(ctx context.Context, request components.CreditTransferRequest, opts ...operations.Option) (*operations.V2CreditTransferResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -940,7 +940,7 @@ func (s *Credit) CreditTransfer(ctx context.Context, request components.CreditTr
 
 }
 
-// CreditRepay - Repay debt and withdraw collateral
+// Repay debt and withdraw collateral
 // Repay an Aave debt and withdraw collateral from a Credit Account.
 //
 // Bundles repayment, collateral withdrawal, and an optional swap into a single atomic Safe transaction.
@@ -950,7 +950,7 @@ func (s *Credit) CreditTransfer(ctx context.Context, request components.CreditTr
 //
 // The Credit Account must already have a borrow position created via `/v2/credit/borrow`.
 // The repay_token must be available in the Credit Account (or pulled from EOA via Permit2).
-func (s *Credit) CreditRepay(ctx context.Context, request components.CreditRepayRequest, opts ...operations.Option) (*operations.V2CreditRepayResponse, error) {
+func (s *Credit) Repay(ctx context.Context, request components.CreditRepayRequest, opts ...operations.Option) (*operations.V2CreditRepayResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1125,12 +1125,12 @@ func (s *Credit) CreditRepay(ctx context.Context, request components.CreditRepay
 
 }
 
-// CreditBundle - Execute multiple credit actions
+// Bundle - Execute multiple credit actions
 // Compose individual credit operations (supply, withdraw, borrow, repay, swap, transfer)
 // into a single atomic Safe transaction.
 //
 // The Credit Account must already be created via `/v2/credit/create_account`.
-func (s *Credit) CreditBundle(ctx context.Context, request components.CreditBundleRequest, opts ...operations.Option) (*operations.V2CreditBundleResponse, error) {
+func (s *Credit) Bundle(ctx context.Context, request components.CreditBundleRequest, opts ...operations.Option) (*operations.V2CreditBundleResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,

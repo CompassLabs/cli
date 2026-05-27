@@ -38,12 +38,12 @@ compass tokenized-equities [flags]
 ### SEE ALSO
 
 * [compass](compass.md)	 - Compass API: Compass Labs DeFi API
-* [compass tokenized-equities tokenized-equities-create-account](compass_tokenized-equities_tokenized-equities-create-account.md)	 - Create a Tokenized Equities Account
-* [compass tokenized-equities tokenized-equities-markets](compass_tokenized-equities_tokenized-equities-markets.md)	 - List tokenized equity markets
-* [compass tokenized-equities tokenized-equities-markets-symbol](compass_tokenized-equities_tokenized-equities-markets-symbol.md)	 - Get a single market
-* [compass tokenized-equities tokenized-equities-order](compass_tokenized-equities_tokenized-equities-order.md)	 - Build a buy/sell order
-* [compass tokenized-equities tokenized-equities-order-order-hash](compass_tokenized-equities_tokenized-equities-order-order-hash.md)	 - Get order status
-* [compass tokenized-equities tokenized-equities-order-order-hash-cancel](compass_tokenized-equities_tokenized-equities-order-order-hash-cancel.md)	 - Cancel an unfilled order
-* [compass tokenized-equities tokenized-equities-order-submit](compass_tokenized-equities_tokenized-equities-order-submit.md)	 - Submit a signed order
-* [compass tokenized-equities tokenized-equities-positions](compass_tokenized-equities_tokenized-equities-positions.md)	 - Get tokenized-equity positions for an owner
-* [compass tokenized-equities tokenized-equities-quote](compass_tokenized-equities_tokenized-equities-quote.md)	 - Preview a buy/sell quote
+* [compass tokenized-equities create-account](compass_tokenized-equities_create-account.md)	 - Create a Tokenized Equities Account
+* [compass tokenized-equities market](compass_tokenized-equities_market.md)	 - Get a single market
+* [compass tokenized-equities markets](compass_tokenized-equities_markets.md)	 - List tokenized equity markets
+* [compass tokenized-equities order](compass_tokenized-equities_order.md)	 - Build a buy/sell order
+* [compass tokenized-equities order-cancel](compass_tokenized-equities_order-cancel.md)	 - Cancel an unfilled order
+* [compass tokenized-equities order-status](compass_tokenized-equities_order-status.md)	 - Get order status
+* [compass tokenized-equities order-submit](compass_tokenized-equities_order-submit.md)	 - Submit a signed order
+* [compass tokenized-equities positions](compass_tokenized-equities_positions.md)	 - Get tokenized-equity positions for an owner
+* [compass tokenized-equities quote](compass_tokenized-equities_quote.md)	 - Preview a buy/sell quote

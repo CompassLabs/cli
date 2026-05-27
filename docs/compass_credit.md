@@ -38,10 +38,10 @@ compass credit [flags]
 ### SEE ALSO
 
 * [compass](compass.md)	 - Compass API: Compass Labs DeFi API
-* [compass credit credit-balances](compass_credit_credit-balances.md)	 - Get credit account token balances
-* [compass credit credit-borrow](compass_credit_credit-borrow.md)	 - Borrow against collateral
-* [compass credit credit-bundle](compass_credit_credit-bundle.md)	 - Execute multiple credit actions
-* [compass credit credit-create-account](compass_credit_credit-create-account.md)	 - Create credit account
-* [compass credit credit-positions](compass_credit_credit-positions.md)	 - List credit positions
-* [compass credit credit-repay](compass_credit_credit-repay.md)	 - Repay debt and withdraw collateral
-* [compass credit credit-transfer](compass_credit_credit-transfer.md)	 - Transfer tokens to/from Credit Account
+* [compass credit balances](compass_credit_balances.md)	 - Get credit account token balances
+* [compass credit borrow](compass_credit_borrow.md)	 - Borrow against collateral
+* [compass credit bundle](compass_credit_bundle.md)	 - Execute multiple credit actions
+* [compass credit create-account](compass_credit_create-account.md)	 - Create credit account
+* [compass credit positions](compass_credit_positions.md)	 - List credit positions
+* [compass credit repay](compass_credit_repay.md)	 - Repay debt and withdraw collateral
+* [compass credit transfer](compass_credit_transfer.md)	 - Transfer tokens to/from Credit Account

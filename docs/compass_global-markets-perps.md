@@ -38,17 +38,17 @@ compass global-markets-perps [flags]
 ### SEE ALSO
 
 * [compass](compass.md)	 - Compass API: Compass Labs DeFi API
-* [compass global-markets-perps global-markets-perps-activity](compass_global-markets-perps_global-markets-perps-activity.md)	 - Aggregated Hyperliquid activity for a user
-* [compass global-markets-perps global-markets-perps-approve-builder-fee](compass_global-markets-perps_global-markets-perps-approve-builder-fee.md)	 - Approve builder fee
-* [compass global-markets-perps global-markets-perps-cancel-order](compass_global-markets-perps_global-markets-perps-cancel-order.md)	 - Cancel order
-* [compass global-markets-perps global-markets-perps-candles](compass_global-markets-perps_global-markets-perps-candles.md)	 - Get OHLCV candles
-* [compass global-markets-perps global-markets-perps-deposit](compass_global-markets-perps_global-markets-perps-deposit.md)	 - Deposit USDC to global markets perps account
-* [compass global-markets-perps global-markets-perps-deposit-sponsor-prepare](compass_global-markets-perps_global-markets-perps-deposit-sponsor-prepare.md)	 - Build the Bridge2 deposit tx from a signed permit
-* [compass global-markets-perps global-markets-perps-enable-unified-account](compass_global-markets-perps_global-markets-perps-enable-unified-account.md)	 - Enable unified account mode
-* [compass global-markets-perps global-markets-perps-ensure-leverage](compass_global-markets-perps_global-markets-perps-ensure-leverage.md)	 - Ensure 1x cross leverage
-* [compass global-markets-perps global-markets-perps-execute](compass_global-markets-perps_global-markets-perps-execute.md)	 - Execute signed action
-* [compass global-markets-perps global-markets-perps-limit-order](compass_global-markets-perps_global-markets-perps-limit-order.md)	 - Place limit order
-* [compass global-markets-perps global-markets-perps-market-order](compass_global-markets-perps_global-markets-perps-market-order.md)	 - Place market order
-* [compass global-markets-perps global-markets-perps-opportunities](compass_global-markets-perps_global-markets-perps-opportunities.md)	 - List global markets perps markets
-* [compass global-markets-perps global-markets-perps-positions](compass_global-markets-perps_global-markets-perps-positions.md)	 - List global markets perps positions
-* [compass global-markets-perps global-markets-perps-withdraw](compass_global-markets-perps_global-markets-perps-withdraw.md)	 - Withdraw USDC from global markets perps account
+* [compass global-markets-perps activity](compass_global-markets-perps_activity.md)	 - Aggregated Hyperliquid activity for a user
+* [compass global-markets-perps approve-builder-fee](compass_global-markets-perps_approve-builder-fee.md)	 - Approve builder fee
+* [compass global-markets-perps cancel-order](compass_global-markets-perps_cancel-order.md)	 - Cancel order
+* [compass global-markets-perps candles](compass_global-markets-perps_candles.md)	 - Get OHLCV candles
+* [compass global-markets-perps deposit](compass_global-markets-perps_deposit.md)	 - Deposit USDC to global markets perps account
+* [compass global-markets-perps deposit-sponsor-prepare](compass_global-markets-perps_deposit-sponsor-prepare.md)	 - Build the Bridge2 deposit tx from a signed permit
+* [compass global-markets-perps enable-unified-account](compass_global-markets-perps_enable-unified-account.md)	 - Enable unified account mode
+* [compass global-markets-perps ensure-leverage](compass_global-markets-perps_ensure-leverage.md)	 - Ensure 1x cross leverage
+* [compass global-markets-perps execute](compass_global-markets-perps_execute.md)	 - Execute signed action
+* [compass global-markets-perps limit-order](compass_global-markets-perps_limit-order.md)	 - Place limit order
+* [compass global-markets-perps market-order](compass_global-markets-perps_market-order.md)	 - Place market order
+* [compass global-markets-perps opportunities](compass_global-markets-perps_opportunities.md)	 - List global markets perps markets
+* [compass global-markets-perps positions](compass_global-markets-perps_positions.md)	 - List global markets perps positions
+* [compass global-markets-perps withdraw](compass_global-markets-perps_withdraw.md)	 - Withdraw USDC from global markets perps account

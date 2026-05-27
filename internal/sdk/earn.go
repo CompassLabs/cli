@@ -30,7 +30,7 @@ func newEarn(rootSDK *CompassCLI, sdkConfig config.SDKConfiguration, hooks *hook
 	}
 }
 
-// EarnPositions - List earn positions
+// Positions - List earn positions
 // List all Earn positions for a given owner with PnL tracking.
 //
 // Returns position data including current balance, cost basis, and profit and loss.
@@ -39,7 +39,7 @@ func newEarn(rootSDK *CompassCLI, sdkConfig config.SDKConfiguration, hooks *hook
 //
 // Positions are tracked across all venue types (vaults and Aave markets). Each
 // position includes the venue address, deposited amount, and performance metrics.
-func (s *Earn) EarnPositions(ctx context.Context, request operations.V2EarnPositionsRequest, opts ...operations.Option) (*operations.V2EarnPositionsResponse, error) {
+func (s *Earn) Positions(ctx context.Context, request operations.V2EarnPositionsRequest, opts ...operations.Option) (*operations.V2EarnPositionsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -211,7 +211,7 @@ func (s *Earn) EarnPositions(ctx context.Context, request operations.V2EarnPosit
 
 }
 
-// EarnPositionsAll - List earn positions across all chains
+// PositionsAll - List earn positions across all chains
 // List all Earn positions across all supported chains (Ethereum, Base, Arbitrum).
 //
 // Returns positions grouped by chain, with per-chain and total USD values.
@@ -220,7 +220,7 @@ func (s *Earn) EarnPositions(ctx context.Context, request operations.V2EarnPosit
 //
 // Use this endpoint for a cross-chain portfolio overview instead of making
 // separate calls per chain to /positions.
-func (s *Earn) EarnPositionsAll(ctx context.Context, request operations.V2EarnPositionsAllRequest, opts ...operations.Option) (*operations.V2EarnPositionsAllResponse, error) {
+func (s *Earn) PositionsAll(ctx context.Context, request operations.V2EarnPositionsAllRequest, opts ...operations.Option) (*operations.V2EarnPositionsAllResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -392,7 +392,7 @@ func (s *Earn) EarnPositionsAll(ctx context.Context, request operations.V2EarnPo
 
 }
 
-// EarnVaults - List vaults
+// Vaults - List vaults
 // List ERC-4626 yield vaults across DeFi venues.
 //
 // Returns vault data including APY, TVL, and underlying asset information. Use this endpoint to discover yield opportunities, compare rates across venues, or build vault selection interfaces.
@@ -400,7 +400,7 @@ func (s *Earn) EarnPositionsAll(ctx context.Context, request operations.V2EarnPo
 // Supports dozens of vaults and markets like Morpho and other ERC-4626 compatible yield venues.
 //
 // To deposit into a vault, use the [manage endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/manage-earn-position) with `venue_type=VAULTS`.
-func (s *Earn) EarnVaults(ctx context.Context, request operations.V2EarnVaultsRequest, opts ...operations.Option) (*operations.V2EarnVaultsResponse, error) {
+func (s *Earn) Vaults(ctx context.Context, request operations.V2EarnVaultsRequest, opts ...operations.Option) (*operations.V2EarnVaultsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -572,7 +572,7 @@ func (s *Earn) EarnVaults(ctx context.Context, request operations.V2EarnVaultsRe
 
 }
 
-// EarnAaveMarkets - List aave markets
+// AaveMarkets - List aave markets
 // List Aave lending markets with supply and borrow rates.
 //
 // Returns rates organized by token symbol, with chain-specific data for each token. Each token includes rates for all chains where it's available, plus information about which chain offers the highest supply APY.
@@ -580,7 +580,7 @@ func (s *Earn) EarnVaults(ctx context.Context, request operations.V2EarnVaultsRe
 // APY values are returned in percentage format (e.g., 4.5 means 4.5%). Tokens with zero APY on both supply and borrow are excluded.
 //
 // To deposit into an Aave market, use the [manage endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/manage-earn-position) with `venue_type=AAVE`.
-func (s *Earn) EarnAaveMarkets(ctx context.Context, request *operations.V2EarnAaveMarketsRequest, opts ...operations.Option) (*operations.V2EarnAaveMarketsResponse, error) {
+func (s *Earn) AaveMarkets(ctx context.Context, request *operations.V2EarnAaveMarketsRequest, opts ...operations.Option) (*operations.V2EarnAaveMarketsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -752,7 +752,7 @@ func (s *Earn) EarnAaveMarkets(ctx context.Context, request *operations.V2EarnAa
 
 }
 
-// EarnPendleMarkets - List pendle markets
+// PendleMarkets - List pendle markets
 // List Pendle yield trading markets with TVL and implied APY.
 //
 // Returns Pendle market data including Principal Token (PT), Standardized Yield (SY),
@@ -763,7 +763,7 @@ func (s *Earn) EarnAaveMarkets(ctx context.Context, request *operations.V2EarnAa
 //
 // APY values are returned in percentage format (e.g., 5.25 means 5.25%). Markets
 // without complete metadata or statistics are excluded.
-func (s *Earn) EarnPendleMarkets(ctx context.Context, request operations.V2EarnPendleMarketsRequest, opts ...operations.Option) (*operations.V2EarnPendleMarketsResponse, error) {
+func (s *Earn) PendleMarkets(ctx context.Context, request operations.V2EarnPendleMarketsRequest, opts ...operations.Option) (*operations.V2EarnPendleMarketsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -935,7 +935,7 @@ func (s *Earn) EarnPendleMarkets(ctx context.Context, request operations.V2EarnP
 
 }
 
-// EarnBalances - Get token balances
+// Balances - Get token balances
 // Get token balances and transfer history for an earn account.
 //
 // Returns on-chain token balances for all tokens the earn account has interacted with,
@@ -944,7 +944,7 @@ func (s *Earn) EarnPendleMarkets(ctx context.Context, request operations.V2EarnP
 //
 // Use this endpoint to display account balances, track token movements, or build
 // transaction history interfaces.
-func (s *Earn) EarnBalances(ctx context.Context, request operations.V2EarnBalancesRequest, opts ...operations.Option) (*operations.V2EarnBalancesResponse, error) {
+func (s *Earn) Balances(ctx context.Context, request operations.V2EarnBalancesRequest, opts ...operations.Option) (*operations.V2EarnBalancesResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1116,7 +1116,7 @@ func (s *Earn) EarnBalances(ctx context.Context, request operations.V2EarnBalanc
 
 }
 
-// EarnCreateAccount - Create earn account
+// CreateAccount - Create earn account
 // Create an Earn Account for a wallet address.
 //
 // Before depositing into venues or managing positions, the owner must create an Earn Account. Each wallet address has one Earn Account per chain.
@@ -1126,7 +1126,7 @@ func (s *Earn) EarnBalances(ctx context.Context, request operations.V2EarnBalanc
 // **If owner pays gas:** Set `sender` to the owner's address.
 //
 // **If someone else pays gas:** Set `sender` to the wallet that will sign and broadcast the transaction on behalf of the owner.
-func (s *Earn) EarnCreateAccount(ctx context.Context, request components.CreateAccountRequest, opts ...operations.Option) (*operations.V2EarnCreateAccountResponse, error) {
+func (s *Earn) CreateAccount(ctx context.Context, request components.CreateAccountRequest, opts ...operations.Option) (*operations.V2EarnCreateAccountResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1301,7 +1301,7 @@ func (s *Earn) EarnCreateAccount(ctx context.Context, request components.CreateA
 
 }
 
-// EarnTransfer - Transfer tokens to/from account
+// Transfer tokens to/from account
 // Transfer tokens between an owner's wallet and their Earn Account.
 //
 // Use `DEPOSIT` to move tokens from the owner's wallet into their Earn Account. Use `WITHDRAW` to move tokens from the Earn Account back to the owner's wallet.
@@ -1319,7 +1319,7 @@ func (s *Earn) EarnCreateAccount(ctx context.Context, request components.CreateA
 // 3. Submit signature + typed data to [/gas_sponsorship/prepare](https://docs.compasslabs.ai/v2/api-reference/gas-sponsorship/prepare-gas-sponsored-transaction)
 //
 // **Note:** This endpoint moves tokens to/from the Earn Account itself—not into yield venues. To deposit into a vault or Aave market, use the [manage endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/manage-earn-position).
-func (s *Earn) EarnTransfer(ctx context.Context, request components.EarnTransferRequest, opts ...operations.Option) (*operations.V2EarnTransferResponse, error) {
+func (s *Earn) Transfer(ctx context.Context, request components.EarnTransferRequest, opts ...operations.Option) (*operations.V2EarnTransferResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1494,7 +1494,7 @@ func (s *Earn) EarnTransfer(ctx context.Context, request components.EarnTransfer
 
 }
 
-// EarnManage - Manage earn position
+// Manage earn position
 // Deposit into or withdraw from a yield venue.
 //
 // Use `DEPOSIT` to move tokens from the Earn Account into a vault, Aave market, or Pendle PT position. Use `WITHDRAW` to move tokens back from a venue into the Earn Account.
@@ -1510,7 +1510,7 @@ func (s *Earn) EarnTransfer(ctx context.Context, request components.EarnTransfer
 // - `PERFORMANCE`: A percentage of realized profit (withdrawals only)
 //
 // **Gas sponsorship:** Set `gas_sponsorship=true` to receive EIP-712 typed data. Owner signs the typed data, then submit to [/gas_sponsorship/prepare](https://docs.compasslabs.ai/v2/api-reference/gas-sponsorship/prepare-gas-sponsored-transaction).
-func (s *Earn) EarnManage(ctx context.Context, request components.EarnManageRequest, opts ...operations.Option) (*operations.V2EarnManageResponse, error) {
+func (s *Earn) Manage(ctx context.Context, request components.EarnManageRequest, opts ...operations.Option) (*operations.V2EarnManageResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1685,7 +1685,7 @@ func (s *Earn) EarnManage(ctx context.Context, request components.EarnManageRequ
 
 }
 
-// EarnSwap - Swap tokens within Earn Account
+// Swap tokens within Earn Account
 // Swap tokens within an Earn Account.
 //
 // Use this endpoint to exchange one token for another without transferring funds out of the Earn Account.
@@ -1693,7 +1693,7 @@ func (s *Earn) EarnManage(ctx context.Context, request components.EarnManageRequ
 // The swap executes atomically within the Earn Account and can be combined with other actions using the [bundle endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/execute-multiple-earn-actions). For example, swap ETH to USDC, then deposit USDC into a vault—all in one transaction.
 //
 // Returns either an unsigned transaction (when `gas_sponsorship=false`) or EIP-712 typed data for off-chain signing (when `gas_sponsorship=true`). For gas-sponsored swaps, submit the signed typed data to `/gas_sponsorship/prepare`.
-func (s *Earn) EarnSwap(ctx context.Context, request components.EarnSwapRequest, opts ...operations.Option) (*operations.V2EarnSwapResponse, error) {
+func (s *Earn) Swap(ctx context.Context, request components.EarnSwapRequest, opts ...operations.Option) (*operations.V2EarnSwapResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1868,7 +1868,7 @@ func (s *Earn) EarnSwap(ctx context.Context, request components.EarnSwapRequest,
 
 }
 
-// EarnBundle - Execute multiple earn actions
+// Bundle - Execute multiple earn actions
 // Combine multiple actions into a single atomic transaction.
 //
 // Bundle swaps and venue deposits/withdrawals into one transaction executed through the Earn Account. This saves gas compared to executing actions separately and ensures all actions succeed or fail together.
@@ -1878,7 +1878,7 @@ func (s *Earn) EarnSwap(ctx context.Context, request components.EarnSwapRequest,
 // **Fees:** Manage actions (deposits/withdrawals) support optional fee configuration, same as the standalone manage endpoint.
 //
 // **Gas sponsorship:** Set `gas_sponsorship=true` to receive EIP-712 typed data. Owner signs the typed data, then submit to [/gas_sponsorship/prepare](https://docs.compasslabs.ai/v2/api-reference/gas-sponsorship/prepare-gas-sponsored-transaction).
-func (s *Earn) EarnBundle(ctx context.Context, request components.V2BundleRequest, opts ...operations.Option) (*operations.V2EarnBundleResponse, error) {
+func (s *Earn) Bundle(ctx context.Context, request components.V2BundleRequest, opts ...operations.Option) (*operations.V2EarnBundleResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,

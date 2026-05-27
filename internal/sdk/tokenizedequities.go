@@ -30,7 +30,7 @@ func newTokenizedEquities(rootSDK *CompassCLI, sdkConfig config.SDKConfiguration
 	}
 }
 
-// TokenizedEquitiesMarkets - List tokenized equity markets
+// Markets - List tokenized equity markets
 // List the tokenized US equities available on Ethereum.
 //
 // Each entry includes the symbol, the underlying ticker, the on-chain
@@ -40,7 +40,7 @@ func newTokenizedEquities(rootSDK *CompassCLI, sdkConfig config.SDKConfiguration
 //
 // Only Ethereum-deployed tokens are returned; assets that exist only on
 // other chains are omitted.
-func (s *TokenizedEquities) TokenizedEquitiesMarkets(ctx context.Context, request *operations.V2TokenizedEquitiesMarketsRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesMarketsResponse, error) {
+func (s *TokenizedEquities) Markets(ctx context.Context, request *operations.V2TokenizedEquitiesMarketsRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesMarketsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -237,7 +237,7 @@ func (s *TokenizedEquities) TokenizedEquitiesMarkets(ctx context.Context, reques
 
 }
 
-// TokenizedEquitiesMarketsSymbol - Get a single market
+// Market - Get a single market
 // Get extended detail for a single tokenized equity (e.g. `TSLAon`).
 //
 // Includes 52-week range, volume, market cap, holder count, and tradable
@@ -253,7 +253,7 @@ func (s *TokenizedEquities) TokenizedEquitiesMarkets(ctx context.Context, reques
 // - `1day` with `range=3month` / `6month` / `1year` / `all`
 //
 // Omitting both returns the market detail without `candles`.
-func (s *TokenizedEquities) TokenizedEquitiesMarketsSymbol(ctx context.Context, request operations.V2TokenizedEquitiesMarketsSymbolRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesMarketsSymbolResponse, error) {
+func (s *TokenizedEquities) Market(ctx context.Context, request operations.V2TokenizedEquitiesMarketsSymbolRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesMarketsSymbolResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -477,7 +477,7 @@ func (s *TokenizedEquities) TokenizedEquitiesMarketsSymbol(ctx context.Context, 
 
 }
 
-// TokenizedEquitiesPositions - Get tokenized-equity positions for an owner
+// Positions - Get tokenized-equity positions for an owner
 // Get the tokenized-equity holdings for an owner.
 //
 // The owner's Tokenized Equities Account address is derived deterministically
@@ -489,7 +489,7 @@ func (s *TokenizedEquities) TokenizedEquitiesMarketsSymbol(ctx context.Context, 
 //
 // Returns 400 `ACCOUNT_NOT_DEPLOYED` if the owner has no Tokenized Equities
 // Account deployed yet — create one via `/create_account` first.
-func (s *TokenizedEquities) TokenizedEquitiesPositions(ctx context.Context, request operations.V2TokenizedEquitiesPositionsRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesPositionsResponse, error) {
+func (s *TokenizedEquities) Positions(ctx context.Context, request operations.V2TokenizedEquitiesPositionsRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesPositionsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -711,7 +711,7 @@ func (s *TokenizedEquities) TokenizedEquitiesPositions(ctx context.Context, requ
 
 }
 
-// TokenizedEquitiesOrderOrderHash - Get order status
+// OrderStatus - Get order status
 // Get the lifecycle state of a submitted order.
 //
 // The `status` field is one of `pending`, `filled`, `expired`, or
@@ -721,7 +721,7 @@ func (s *TokenizedEquities) TokenizedEquitiesPositions(ctx context.Context, requ
 //
 // Upstream protocol states beyond these four (e.g. `partially-filled`,
 // `refunded`) are mapped onto this set.
-func (s *TokenizedEquities) TokenizedEquitiesOrderOrderHash(ctx context.Context, request operations.V2TokenizedEquitiesOrderOrderHashRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesOrderOrderHashResponse, error) {
+func (s *TokenizedEquities) OrderStatus(ctx context.Context, request operations.V2TokenizedEquitiesOrderOrderHashRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesOrderOrderHashResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -941,7 +941,7 @@ func (s *TokenizedEquities) TokenizedEquitiesOrderOrderHash(ctx context.Context,
 
 }
 
-// TokenizedEquitiesCreateAccount - Create a Tokenized Equities Account
+// CreateAccount - Create a Tokenized Equities Account
 // Create a Tokenized Equities Account for a wallet address.
 //
 // Before placing orders, the owner must create a Tokenized Equities Account.
@@ -959,7 +959,7 @@ func (s *TokenizedEquities) TokenizedEquitiesOrderOrderHash(ctx context.Context,
 //
 // **If someone else pays gas:** Set `sender` to the wallet that will
 // sign and broadcast the transaction on behalf of the owner.
-func (s *TokenizedEquities) TokenizedEquitiesCreateAccount(ctx context.Context, request components.CreateTokenizedEquitiesAccountRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesCreateAccountResponse, error) {
+func (s *TokenizedEquities) CreateAccount(ctx context.Context, request components.CreateTokenizedEquitiesAccountRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesCreateAccountResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1134,7 +1134,7 @@ func (s *TokenizedEquities) TokenizedEquitiesCreateAccount(ctx context.Context, 
 
 }
 
-// TokenizedEquitiesQuote - Preview a buy/sell quote
+// Quote - Preview a buy/sell quote
 // Preview the input/output amounts, fees, and slippage tolerance for an order.
 //
 // Read-only relative to Fusion: hits “/quote/receive“ only and does not
@@ -1153,7 +1153,7 @@ func (s *TokenizedEquities) TokenizedEquitiesCreateAccount(ctx context.Context, 
 //   - **`auction_range_bps`** — worst-case bps gap between the auction
 //     end amount and the reference quote amount. Use to surface a
 //     thin-liquidity warning to the user.
-func (s *TokenizedEquities) TokenizedEquitiesQuote(ctx context.Context, request components.TokenizedEquitiesQuoteRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesQuoteResponse, error) {
+func (s *TokenizedEquities) Quote(ctx context.Context, request components.TokenizedEquitiesQuoteRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesQuoteResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1382,7 +1382,7 @@ func (s *TokenizedEquities) TokenizedEquitiesQuote(ctx context.Context, request 
 
 }
 
-// TokenizedEquitiesOrder - Build a buy/sell order
+// Order - Build a buy/sell order
 // Build a buy or sell order whose maker is the Tokenized Equities Account.
 //
 // Returns up to three pieces in a single round-trip:
@@ -1402,7 +1402,7 @@ func (s *TokenizedEquities) TokenizedEquitiesQuote(ctx context.Context, request 
 //
 // The owner never broadcasts the order itself — only the (one-time)
 // approval transaction ever hits the chain.
-func (s *TokenizedEquities) TokenizedEquitiesOrder(ctx context.Context, request components.TokenizedEquitiesBuildOrderRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesOrderResponse, error) {
+func (s *TokenizedEquities) Order(ctx context.Context, request components.TokenizedEquitiesBuildOrderRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesOrderResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1610,7 +1610,7 @@ func (s *TokenizedEquities) TokenizedEquitiesOrder(ctx context.Context, request 
 
 }
 
-// TokenizedEquitiesOrderSubmit - Submit a signed order
+// OrderSubmit - Submit a signed order
 // Submit a signed order to the resolver network.
 //
 // The body echoes the `order` fields from `/order` (`signed_order`,
@@ -1622,7 +1622,7 @@ func (s *TokenizedEquities) TokenizedEquitiesOrder(ctx context.Context, request 
 // Returns the order hash and a server-side ISO 8601 timestamp.
 // Subsequent calls to `GET /order/{order_hash}` track the lifecycle
 // (`pending` → `filled` / `expired` / `cancelled`).
-func (s *TokenizedEquities) TokenizedEquitiesOrderSubmit(ctx context.Context, request components.TokenizedEquitiesSubmitOrderRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesOrderSubmitResponse, error) {
+func (s *TokenizedEquities) OrderSubmit(ctx context.Context, request components.TokenizedEquitiesSubmitOrderRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesOrderSubmitResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1849,7 +1849,7 @@ func (s *TokenizedEquities) TokenizedEquitiesOrderSubmit(ctx context.Context, re
 
 }
 
-// TokenizedEquitiesOrderOrderHashCancel - Cancel an unfilled order
+// OrderCancel - Cancel an unfilled order
 // Build the EIP-712 payload to cancel an unfilled order on-chain.
 //
 // Returns “cancel_safe_tx_eip712“, an EIP-712 payload that authorizes
@@ -1861,7 +1861,7 @@ func (s *TokenizedEquities) TokenizedEquitiesOrderSubmit(ctx context.Context, re
 //
 // Cancellation works on `pending` and `expired` orders only. Only the
 // Tokenized Equities Account that placed the order can cancel it.
-func (s *TokenizedEquities) TokenizedEquitiesOrderOrderHashCancel(ctx context.Context, request operations.V2TokenizedEquitiesOrderOrderHashCancelRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesOrderOrderHashCancelResponse, error) {
+func (s *TokenizedEquities) OrderCancel(ctx context.Context, request operations.V2TokenizedEquitiesOrderOrderHashCancelRequest, opts ...operations.Option) (*operations.V2TokenizedEquitiesOrderOrderHashCancelResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,

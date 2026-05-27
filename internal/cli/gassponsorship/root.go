@@ -21,11 +21,11 @@ func InitGasSponsorshipRoot(parent *cobra.Command) error {
 		Aliases: []string{"gs"},
 	}
 
-	if err := initGasSponsorshipPrepareCmd(GasSponsorshipCmd); err != nil {
+	if err := initPrepareCmd(GasSponsorshipCmd); err != nil {
 		return err
 	}
 
-	if err := initGasSponsorshipApproveTransferCmd(GasSponsorshipCmd); err != nil {
+	if err := initApproveTransferCmd(GasSponsorshipCmd); err != nil {
 		return err
 	}
 

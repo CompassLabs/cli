@@ -107,7 +107,7 @@ compass completion powershell | Out-String | Invoke-Expression
 ### Example
 
 ```bash
-compass gas-sponsorship gas-sponsorship-prepare --api-key-auth test_api_key --owner 0xCE1A77F0abff993d6d3D04d44b70831c6924fb40 --chain arbitrum --eip-712 '{"domain":{"name":"USD Coin","version":"2","chainId":42161,"verifyingContract":"0xaf88d065e77c8cC2239327C5EDb3A432268e5831"},"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","message":{"owner":"0xCE1A77F0abff993d6d3D04d44b70831c6924fb40","spender":"0x000000000022D473030F116dDEE9F6B43aC78BA3","value":"115792089237316195423570985008687907853269984665640564039457584007913129639935","nonce":"0","deadline":"1762269774"\x7d\x7d' --signature 0x160d2709ae195f591daa33ad6ab1fb18b8762a39d8c4466c4cbe95cf6881fc3d54d469710ef0e7fd64ecff47c1ba5741d7254903bfaebdacea5aa8289f81ba9a1c --sender 0x02122Ac49b0Be2e0eAD957F2D080805A0127Aa9d
+compass gas-sponsorship prepare --api-key-auth test_api_key --owner 0xCE1A77F0abff993d6d3D04d44b70831c6924fb40 --chain arbitrum --eip-712 '{"domain":{"name":"USD Coin","version":"2","chainId":42161,"verifyingContract":"0xaf88d065e77c8cC2239327C5EDb3A432268e5831"},"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"primaryType":"Permit","message":{"owner":"0xCE1A77F0abff993d6d3D04d44b70831c6924fb40","spender":"0x000000000022D473030F116dDEE9F6B43aC78BA3","value":"115792089237316195423570985008687907853269984665640564039457584007913129639935","nonce":"0","deadline":"1762269774"\x7d\x7d' --signature 0x160d2709ae195f591daa33ad6ab1fb18b8762a39d8c4466c4cbe95cf6881fc3d54d469710ef0e7fd64ecff47c1ba5741d7254903bfaebdacea5aa8289f81ba9a1c --sender 0x02122Ac49b0Be2e0eAD957F2D080805A0127Aa9d
 
 ```
 <!-- End CLI Example Usage [usage] -->
@@ -167,61 +167,61 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 
 ### [gas-sponsorship](docs/compass_gas-sponsorship.md)
 
-* [`gas-sponsorship-prepare`](docs/compass_gas-sponsorship_gas-sponsorship-prepare.md) - Prepare gas-sponsored transaction
-* [`gas-sponsorship-approve-transfer`](docs/compass_gas-sponsorship_gas-sponsorship-approve-transfer.md) - Approve token transfer
+* [`prepare`](docs/compass_gas-sponsorship_prepare.md) - Prepare gas-sponsored transaction
+* [`approve-transfer`](docs/compass_gas-sponsorship_approve-transfer.md) - Approve token transfer
 
 ### [earn](docs/compass_earn.md)
 
-* [`earn-positions`](docs/compass_earn_earn-positions.md) - List earn positions
-* [`earn-positions-all`](docs/compass_earn_earn-positions-all.md) - List earn positions across all chains
-* [`earn-vaults`](docs/compass_earn_earn-vaults.md) - List vaults
-* [`earn-aave-markets`](docs/compass_earn_earn-aave-markets.md) - List aave markets
-* [`earn-pendle-markets`](docs/compass_earn_earn-pendle-markets.md) - List pendle markets
-* [`earn-balances`](docs/compass_earn_earn-balances.md) - Get token balances
-* [`earn-create-account`](docs/compass_earn_earn-create-account.md) - Create earn account
-* [`earn-transfer`](docs/compass_earn_earn-transfer.md) - Transfer tokens to/from account
-* [`earn-manage`](docs/compass_earn_earn-manage.md) - Manage earn position
-* [`earn-swap`](docs/compass_earn_earn-swap.md) - Swap tokens within Earn Account
-* [`earn-bundle`](docs/compass_earn_earn-bundle.md) - Execute multiple earn actions
+* [`positions`](docs/compass_earn_positions.md) - List earn positions
+* [`positions-all`](docs/compass_earn_positions-all.md) - List earn positions across all chains
+* [`vaults`](docs/compass_earn_vaults.md) - List vaults
+* [`aave-markets`](docs/compass_earn_aave-markets.md) - List aave markets
+* [`pendle-markets`](docs/compass_earn_pendle-markets.md) - List pendle markets
+* [`balances`](docs/compass_earn_balances.md) - Get token balances
+* [`create-account`](docs/compass_earn_create-account.md) - Create earn account
+* [`transfer`](docs/compass_earn_transfer.md) - Transfer tokens to/from account
+* [`manage`](docs/compass_earn_manage.md) - Manage earn position
+* [`swap`](docs/compass_earn_swap.md) - Swap tokens within Earn Account
+* [`bundle`](docs/compass_earn_bundle.md) - Execute multiple earn actions
 
 ### [credit](docs/compass_credit.md)
 
-* [`credit-positions`](docs/compass_credit_credit-positions.md) - List credit positions
-* [`credit-balances`](docs/compass_credit_credit-balances.md) - Get credit account token balances
-* [`credit-create-account`](docs/compass_credit_credit-create-account.md) - Create credit account
-* [`credit-borrow`](docs/compass_credit_credit-borrow.md) - Borrow against collateral
-* [`credit-transfer`](docs/compass_credit_credit-transfer.md) - Transfer tokens to/from Credit Account
-* [`credit-repay`](docs/compass_credit_credit-repay.md) - Repay debt and withdraw collateral
-* [`credit-bundle`](docs/compass_credit_credit-bundle.md) - Execute multiple credit actions
+* [`positions`](docs/compass_credit_positions.md) - List credit positions
+* [`balances`](docs/compass_credit_balances.md) - Get credit account token balances
+* [`create-account`](docs/compass_credit_create-account.md) - Create credit account
+* [`borrow`](docs/compass_credit_borrow.md) - Borrow against collateral
+* [`transfer`](docs/compass_credit_transfer.md) - Transfer tokens to/from Credit Account
+* [`repay`](docs/compass_credit_repay.md) - Repay debt and withdraw collateral
+* [`bundle`](docs/compass_credit_bundle.md) - Execute multiple credit actions
 
 ### [global-markets-perps](docs/compass_global-markets-perps.md)
 
-* [`global-markets-perps-opportunities`](docs/compass_global-markets-perps_global-markets-perps-opportunities.md) - List global markets perps markets
-* [`global-markets-perps-positions`](docs/compass_global-markets-perps_global-markets-perps-positions.md) - List global markets perps positions
-* [`global-markets-perps-candles`](docs/compass_global-markets-perps_global-markets-perps-candles.md) - Get OHLCV candles
-* [`global-markets-perps-activity`](docs/compass_global-markets-perps_global-markets-perps-activity.md) - Aggregated Hyperliquid activity for a user
-* [`global-markets-perps-deposit`](docs/compass_global-markets-perps_global-markets-perps-deposit.md) - Deposit USDC to global markets perps account
-* [`global-markets-perps-deposit-sponsor-prepare`](docs/compass_global-markets-perps_global-markets-perps-deposit-sponsor-prepare.md) - Build the Bridge2 deposit tx from a signed permit
-* [`global-markets-perps-withdraw`](docs/compass_global-markets-perps_global-markets-perps-withdraw.md) - Withdraw USDC from global markets perps account
-* [`global-markets-perps-market-order`](docs/compass_global-markets-perps_global-markets-perps-market-order.md) - Place market order
-* [`global-markets-perps-limit-order`](docs/compass_global-markets-perps_global-markets-perps-limit-order.md) - Place limit order
-* [`global-markets-perps-cancel-order`](docs/compass_global-markets-perps_global-markets-perps-cancel-order.md) - Cancel order
-* [`global-markets-perps-execute`](docs/compass_global-markets-perps_global-markets-perps-execute.md) - Execute signed action
-* [`global-markets-perps-approve-builder-fee`](docs/compass_global-markets-perps_global-markets-perps-approve-builder-fee.md) - Approve builder fee
-* [`global-markets-perps-enable-unified-account`](docs/compass_global-markets-perps_global-markets-perps-enable-unified-account.md) - Enable unified account mode
-* [`global-markets-perps-ensure-leverage`](docs/compass_global-markets-perps_global-markets-perps-ensure-leverage.md) - Ensure 1x cross leverage
+* [`opportunities`](docs/compass_global-markets-perps_opportunities.md) - List global markets perps markets
+* [`positions`](docs/compass_global-markets-perps_positions.md) - List global markets perps positions
+* [`candles`](docs/compass_global-markets-perps_candles.md) - Get OHLCV candles
+* [`activity`](docs/compass_global-markets-perps_activity.md) - Aggregated Hyperliquid activity for a user
+* [`deposit`](docs/compass_global-markets-perps_deposit.md) - Deposit USDC to global markets perps account
+* [`deposit-sponsor-prepare`](docs/compass_global-markets-perps_deposit-sponsor-prepare.md) - Build the Bridge2 deposit tx from a signed permit
+* [`withdraw`](docs/compass_global-markets-perps_withdraw.md) - Withdraw USDC from global markets perps account
+* [`market-order`](docs/compass_global-markets-perps_market-order.md) - Place market order
+* [`limit-order`](docs/compass_global-markets-perps_limit-order.md) - Place limit order
+* [`cancel-order`](docs/compass_global-markets-perps_cancel-order.md) - Cancel order
+* [`execute`](docs/compass_global-markets-perps_execute.md) - Execute signed action
+* [`approve-builder-fee`](docs/compass_global-markets-perps_approve-builder-fee.md) - Approve builder fee
+* [`enable-unified-account`](docs/compass_global-markets-perps_enable-unified-account.md) - Enable unified account mode
+* [`ensure-leverage`](docs/compass_global-markets-perps_ensure-leverage.md) - Ensure 1x cross leverage
 
 ### [tokenized-equities](docs/compass_tokenized-equities.md)
 
-* [`tokenized-equities-markets`](docs/compass_tokenized-equities_tokenized-equities-markets.md) - List tokenized equity markets
-* [`tokenized-equities-markets-symbol`](docs/compass_tokenized-equities_tokenized-equities-markets-symbol.md) - Get a single market
-* [`tokenized-equities-positions`](docs/compass_tokenized-equities_tokenized-equities-positions.md) - Get tokenized-equity positions for an owner
-* [`tokenized-equities-order-order-hash`](docs/compass_tokenized-equities_tokenized-equities-order-order-hash.md) - Get order status
-* [`tokenized-equities-create-account`](docs/compass_tokenized-equities_tokenized-equities-create-account.md) - Create a Tokenized Equities Account
-* [`tokenized-equities-quote`](docs/compass_tokenized-equities_tokenized-equities-quote.md) - Preview a buy/sell quote
-* [`tokenized-equities-order`](docs/compass_tokenized-equities_tokenized-equities-order.md) - Build a buy/sell order
-* [`tokenized-equities-order-submit`](docs/compass_tokenized-equities_tokenized-equities-order-submit.md) - Submit a signed order
-* [`tokenized-equities-order-order-hash-cancel`](docs/compass_tokenized-equities_tokenized-equities-order-order-hash-cancel.md) - Cancel an unfilled order
+* [`markets`](docs/compass_tokenized-equities_markets.md) - List tokenized equity markets
+* [`market`](docs/compass_tokenized-equities_market.md) - Get a single market
+* [`positions`](docs/compass_tokenized-equities_positions.md) - Get tokenized-equity positions for an owner
+* [`order-status`](docs/compass_tokenized-equities_order-status.md) - Get order status
+* [`create-account`](docs/compass_tokenized-equities_create-account.md) - Create a Tokenized Equities Account
+* [`quote`](docs/compass_tokenized-equities_quote.md) - Preview a buy/sell quote
+* [`order`](docs/compass_tokenized-equities_order.md) - Build a buy/sell order
+* [`order-submit`](docs/compass_tokenized-equities_order-submit.md) - Submit a signed order
+* [`order-cancel`](docs/compass_tokenized-equities_order-cancel.md) - Cancel an unfilled order
 
 </details>
 <!-- End Available Commands [operations] -->

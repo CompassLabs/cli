@@ -20,47 +20,47 @@ func InitEarnRoot(parent *cobra.Command) error {
 		},
 	}
 
-	if err := initEarnPositionsCmd(EarnCmd); err != nil {
+	if err := initPositionsCmd(EarnCmd); err != nil {
 		return err
 	}
 
-	if err := initEarnPositionsAllCmd(EarnCmd); err != nil {
+	if err := initPositionsAllCmd(EarnCmd); err != nil {
 		return err
 	}
 
-	if err := initEarnVaultsCmd(EarnCmd); err != nil {
+	if err := initVaultsCmd(EarnCmd); err != nil {
 		return err
 	}
 
-	if err := initEarnAaveMarketsCmd(EarnCmd); err != nil {
+	if err := initAaveMarketsCmd(EarnCmd); err != nil {
 		return err
 	}
 
-	if err := initEarnPendleMarketsCmd(EarnCmd); err != nil {
+	if err := initPendleMarketsCmd(EarnCmd); err != nil {
 		return err
 	}
 
-	if err := initEarnBalancesCmd(EarnCmd); err != nil {
+	if err := initBalancesCmd(EarnCmd); err != nil {
 		return err
 	}
 
-	if err := initEarnCreateAccountCmd(EarnCmd); err != nil {
+	if err := initCreateAccountCmd(EarnCmd); err != nil {
 		return err
 	}
 
-	if err := initEarnTransferCmd(EarnCmd); err != nil {
+	if err := initTransferCmd(EarnCmd); err != nil {
 		return err
 	}
 
-	if err := initEarnManageCmd(EarnCmd); err != nil {
+	if err := initManageCmd(EarnCmd); err != nil {
 		return err
 	}
 
-	if err := initEarnSwapCmd(EarnCmd); err != nil {
+	if err := initSwapCmd(EarnCmd); err != nil {
 		return err
 	}
 
-	if err := initEarnBundleCmd(EarnCmd); err != nil {
+	if err := initBundleCmd(EarnCmd); err != nil {
 		return err
 	}
 

@@ -30,7 +30,7 @@ func newGlobalMarketsPerps(rootSDK *CompassCLI, sdkConfig config.SDKConfiguratio
 	}
 }
 
-// GlobalMarketsPerpsOpportunities - List global markets perps markets
+// Opportunities - List global markets perps markets
 // List available global markets perps markets with key metrics.
 //
 // Returns perp markets (stocks, commodities, forex) with open interest,
@@ -38,7 +38,7 @@ func newGlobalMarketsPerps(rootSDK *CompassCLI, sdkConfig config.SDKConfiguratio
 // minimum OI/volume, and sorting.
 //
 // Only global markets perps assets are returned — crypto perps are excluded.
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsOpportunities(ctx context.Context, request *operations.V2GlobalMarketsPerpsOpportunitiesRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsOpportunitiesResponse, error) {
+func (s *GlobalMarketsPerps) Opportunities(ctx context.Context, request *operations.V2GlobalMarketsPerpsOpportunitiesRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsOpportunitiesResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -210,13 +210,13 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsOpportunities(ctx context.Context
 
 }
 
-// GlobalMarketsPerpsPositions - List global markets perps positions
+// Positions - List global markets perps positions
 // List open perpetual futures positions for a user.
 //
 // Returns position data including size, entry price, mark price, PnL, liquidation price,
 // leverage, and cumulative funding. Optionally filter by asset ticker.
 // Returns an empty list if no positions are open.
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsPositions(ctx context.Context, request operations.V2GlobalMarketsPerpsPositionsRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsPositionsResponse, error) {
+func (s *GlobalMarketsPerps) Positions(ctx context.Context, request operations.V2GlobalMarketsPerpsPositionsRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsPositionsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -388,14 +388,14 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsPositions(ctx context.Context, re
 
 }
 
-// GlobalMarketsPerpsCandles - Get OHLCV candles
+// Candles - Get OHLCV candles
 // Return OHLCV candles for a single asset and interval.
 //
 // Wraps Hyperliquid's “candleSnapshot“ info type and adds the xyz: HIP-3 DEX
 // prefix server-side so the SDK only needs the bare ticker (e.g. “AAPL“).
 // Candle “time“ is returned in unix seconds, ready for TradingView
 // lightweight-charts. Cached for 15 seconds per (symbol, interval, window).
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsCandles(ctx context.Context, request operations.V2GlobalMarketsPerpsCandlesRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsCandlesResponse, error) {
+func (s *GlobalMarketsPerps) Candles(ctx context.Context, request operations.V2GlobalMarketsPerpsCandlesRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsCandlesResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -567,7 +567,7 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsCandles(ctx context.Context, requ
 
 }
 
-// GlobalMarketsPerpsActivity - Aggregated Hyperliquid activity for a user
+// Activity - Aggregated Hyperliquid activity for a user
 // Return positions, fills, open orders, and (optionally) builder approval
 // state for an end-user in one normalized payload.
 //
@@ -579,7 +579,7 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsCandles(ctx context.Context, requ
 // Pass “builder“ to additionally include the user's current approved max
 // fee rate for that builder (used by dashboards to decide whether to prompt
 // the user to sign an `approveBuilderFee` action).
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsActivity(ctx context.Context, request operations.V2GlobalMarketsPerpsActivityRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsActivityResponse, error) {
+func (s *GlobalMarketsPerps) Activity(ctx context.Context, request operations.V2GlobalMarketsPerpsActivityRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsActivityResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -751,7 +751,7 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsActivity(ctx context.Context, req
 
 }
 
-// GlobalMarketsPerpsDeposit - Deposit USDC to global markets perps account
+// Deposit USDC to global markets perps account
 // Prepare a USDC deposit from Arbitrum via EIP-2612 Permit.
 //
 // Returns EIP-712 typed data for the user to sign off-chain (no gas needed).
@@ -759,7 +759,7 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsActivity(ctx context.Context, req
 // wallet calls batchedDepositWithPermit on the HL Bridge2 contract on
 // Arbitrum after the user signs. See api_docs/v2/Products/Global-Markets.mdx
 // "Deposit USDC" section for the bridge-broadcast code.
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsDeposit(ctx context.Context, request components.GlobalMarketsPerpsDepositRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsDepositResponse, error) {
+func (s *GlobalMarketsPerps) Deposit(ctx context.Context, request components.GlobalMarketsPerpsDepositRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsDepositResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -934,14 +934,14 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsDeposit(ctx context.Context, requ
 
 }
 
-// GlobalMarketsPerpsDepositSponsorPrepare - Build the Bridge2 deposit tx from a signed permit
+// DepositSponsorPrepare - Build the Bridge2 deposit tx from a signed permit
 // Build the Arbitrum tx that completes a USDC deposit to HL.
 //
 // Takes the EIP-2612 permit signature returned by /deposit and returns
 // a fully-encoded `Bridge2.batchedDepositWithPermit` call. The integrator's
 // sponsor wallet (`sender`) broadcasts the returned tx — Compass does not
 // broadcast and does not hold gas keys.
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsDepositSponsorPrepare(ctx context.Context, request components.GlobalMarketsPerpsDepositSponsorPrepareRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsDepositSponsorPrepareResponse, error) {
+func (s *GlobalMarketsPerps) DepositSponsorPrepare(ctx context.Context, request components.GlobalMarketsPerpsDepositSponsorPrepareRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsDepositSponsorPrepareResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1116,13 +1116,13 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsDepositSponsorPrepare(ctx context
 
 }
 
-// GlobalMarketsPerpsWithdraw - Withdraw USDC from global markets perps account
+// Withdraw USDC from global markets perps account
 // Prepare a USDC withdrawal from Hyperliquid to Arbitrum.
 //
 // Returns EIP-712 typed data for the user to sign. After signing, submit
 // the signature via the /execute endpoint. Withdrawal processing takes
 // minutes to hours depending on bridge conditions.
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsWithdraw(ctx context.Context, request components.GlobalMarketsPerpsWithdrawRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsWithdrawResponse, error) {
+func (s *GlobalMarketsPerps) Withdraw(ctx context.Context, request components.GlobalMarketsPerpsWithdrawRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsWithdrawResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1297,13 +1297,13 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsWithdraw(ctx context.Context, req
 
 }
 
-// GlobalMarketsPerpsMarketOrder - Place market order
+// MarketOrder - Place market order
 // Prepare a market order on a global markets perps market.
 //
 // Returns EIP-712 typed data for the user to sign. After signing, submit
 // the signature via the /execute endpoint. Executes as an IOC order at the
 // current mark price with slippage protection.
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsMarketOrder(ctx context.Context, request components.GlobalMarketsPerpsMarketOrderRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsMarketOrderResponse, error) {
+func (s *GlobalMarketsPerps) MarketOrder(ctx context.Context, request components.GlobalMarketsPerpsMarketOrderRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsMarketOrderResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1478,12 +1478,12 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsMarketOrder(ctx context.Context, 
 
 }
 
-// GlobalMarketsPerpsLimitOrder - Place limit order
+// LimitOrder - Place limit order
 // Prepare a limit order on a global markets perps market.
 //
 // Returns EIP-712 typed data for the user to sign. After signing, submit
 // the signature via the /execute endpoint. Supports GTC and ALO time-in-force.
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsLimitOrder(ctx context.Context, request components.GlobalMarketsPerpsLimitOrderRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsLimitOrderResponse, error) {
+func (s *GlobalMarketsPerps) LimitOrder(ctx context.Context, request components.GlobalMarketsPerpsLimitOrderRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsLimitOrderResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1658,12 +1658,12 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsLimitOrder(ctx context.Context, r
 
 }
 
-// GlobalMarketsPerpsCancelOrder - Cancel order
+// CancelOrder - Cancel order
 // Prepare an order cancellation.
 //
 // Returns EIP-712 typed data for the user to sign. After signing, submit
 // the signature via the /execute endpoint.
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsCancelOrder(ctx context.Context, request components.GlobalMarketsPerpsCancelOrderRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsCancelOrderResponse, error) {
+func (s *GlobalMarketsPerps) CancelOrder(ctx context.Context, request components.GlobalMarketsPerpsCancelOrderRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsCancelOrderResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1838,7 +1838,7 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsCancelOrder(ctx context.Context, 
 
 }
 
-// GlobalMarketsPerpsExecute - Execute signed action
+// Execute signed action
 // Submit a signed Hyperliquid action for execution.
 //
 // Accepts the signature from any prepare endpoint (market_order, limit_order,
@@ -1847,7 +1847,7 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsCancelOrder(ctx context.Context, 
 //
 // The caller must have already hit a prepare endpoint, so no compass_account
 // registration is performed here.
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsExecute(ctx context.Context, request components.GlobalMarketsPerpsExecuteRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsExecuteResponse, error) {
+func (s *GlobalMarketsPerps) Execute(ctx context.Context, request components.GlobalMarketsPerpsExecuteRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsExecuteResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -2022,13 +2022,13 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsExecute(ctx context.Context, requ
 
 }
 
-// GlobalMarketsPerpsApproveBuilderFee - Approve builder fee
+// ApproveBuilderFee - Approve builder fee
 // Prepare builder fee approval for the global markets perps DEX.
 //
 // This is a one-time action required before placing the first trade.
 // Returns EIP-712 typed data for the user to sign. After signing, submit
 // the signature via the /execute endpoint.
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsApproveBuilderFee(ctx context.Context, request components.GlobalMarketsPerpsApproveBuilderFeeRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsApproveBuilderFeeResponse, error) {
+func (s *GlobalMarketsPerps) ApproveBuilderFee(ctx context.Context, request components.GlobalMarketsPerpsApproveBuilderFeeRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsApproveBuilderFeeResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -2203,14 +2203,14 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsApproveBuilderFee(ctx context.Con
 
 }
 
-// GlobalMarketsPerpsEnableUnifiedAccount - Enable unified account mode
+// EnableUnifiedAccount - Enable unified account mode
 // Check account mode and prepare the enable-unified-account action if needed.
 //
 // If the account is already in unified mode (or portfolio margin), returns
 // the current mode with null typed_data — no signing needed. Otherwise,
 // returns EIP-712 typed data for the user to sign. After signing, submit
 // the signature via the /execute endpoint.
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsEnableUnifiedAccount(ctx context.Context, request components.GlobalMarketsPerpsEnableUnifiedAccountRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsEnableUnifiedAccountResponse, error) {
+func (s *GlobalMarketsPerps) EnableUnifiedAccount(ctx context.Context, request components.GlobalMarketsPerpsEnableUnifiedAccountRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsEnableUnifiedAccountResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -2385,14 +2385,14 @@ func (s *GlobalMarketsPerps) GlobalMarketsPerpsEnableUnifiedAccount(ctx context.
 
 }
 
-// GlobalMarketsPerpsEnsureLeverage - Ensure 1x cross leverage
+// EnsureLeverage - Ensure 1x cross leverage
 // Check leverage and prepare an updateLeverage action if not 1x cross.
 //
 // If the asset is already at 1x cross leverage, returns leverage_ok=true
 // with null typed_data — no signing needed. Otherwise, returns EIP-712
 // typed data for the user to sign. After signing, submit the signature
 // via the /execute endpoint.
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsEnsureLeverage(ctx context.Context, request components.GlobalMarketsPerpsEnsureLeverageRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsEnsureLeverageResponse, error) {
+func (s *GlobalMarketsPerps) EnsureLeverage(ctx context.Context, request components.GlobalMarketsPerpsEnsureLeverageRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsEnsureLeverageResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,

@@ -20,31 +20,31 @@ func InitCreditRoot(parent *cobra.Command) error {
 		},
 	}
 
-	if err := initCreditPositionsCmd(CreditCmd); err != nil {
+	if err := initPositionsCmd(CreditCmd); err != nil {
 		return err
 	}
 
-	if err := initCreditBalancesCmd(CreditCmd); err != nil {
+	if err := initBalancesCmd(CreditCmd); err != nil {
 		return err
 	}
 
-	if err := initCreditCreateAccountCmd(CreditCmd); err != nil {
+	if err := initCreateAccountCmd(CreditCmd); err != nil {
 		return err
 	}
 
-	if err := initCreditBorrowCmd(CreditCmd); err != nil {
+	if err := initBorrowCmd(CreditCmd); err != nil {
 		return err
 	}
 
-	if err := initCreditTransferCmd(CreditCmd); err != nil {
+	if err := initTransferCmd(CreditCmd); err != nil {
 		return err
 	}
 
-	if err := initCreditRepayCmd(CreditCmd); err != nil {
+	if err := initRepayCmd(CreditCmd); err != nil {
 		return err
 	}
 
-	if err := initCreditBundleCmd(CreditCmd); err != nil {
+	if err := initBundleCmd(CreditCmd); err != nil {
 		return err
 	}
 

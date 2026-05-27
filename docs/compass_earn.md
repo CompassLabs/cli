@@ -38,14 +38,14 @@ compass earn [flags]
 ### SEE ALSO
 
 * [compass](compass.md)	 - Compass API: Compass Labs DeFi API
-* [compass earn earn-aave-markets](compass_earn_earn-aave-markets.md)	 - List aave markets
-* [compass earn earn-balances](compass_earn_earn-balances.md)	 - Get token balances
-* [compass earn earn-bundle](compass_earn_earn-bundle.md)	 - Execute multiple earn actions
-* [compass earn earn-create-account](compass_earn_earn-create-account.md)	 - Create earn account
-* [compass earn earn-manage](compass_earn_earn-manage.md)	 - Manage earn position
-* [compass earn earn-pendle-markets](compass_earn_earn-pendle-markets.md)	 - List pendle markets
-* [compass earn earn-positions](compass_earn_earn-positions.md)	 - List earn positions
-* [compass earn earn-positions-all](compass_earn_earn-positions-all.md)	 - List earn positions across all chains
-* [compass earn earn-swap](compass_earn_earn-swap.md)	 - Swap tokens within Earn Account
-* [compass earn earn-transfer](compass_earn_earn-transfer.md)	 - Transfer tokens to/from account
-* [compass earn earn-vaults](compass_earn_earn-vaults.md)	 - List vaults
+* [compass earn aave-markets](compass_earn_aave-markets.md)	 - List aave markets
+* [compass earn balances](compass_earn_balances.md)	 - Get token balances
+* [compass earn bundle](compass_earn_bundle.md)	 - Execute multiple earn actions
+* [compass earn create-account](compass_earn_create-account.md)	 - Create earn account
+* [compass earn manage](compass_earn_manage.md)	 - Manage earn position
+* [compass earn pendle-markets](compass_earn_pendle-markets.md)	 - List pendle markets
+* [compass earn positions](compass_earn_positions.md)	 - List earn positions
+* [compass earn positions-all](compass_earn_positions-all.md)	 - List earn positions across all chains
+* [compass earn swap](compass_earn_swap.md)	 - Swap tokens within Earn Account
+* [compass earn transfer](compass_earn_transfer.md)	 - Transfer tokens to/from account
+* [compass earn vaults](compass_earn_vaults.md)	 - List vaults

@@ -21,39 +21,39 @@ func InitTokenizedEquitiesRoot(parent *cobra.Command) error {
 		Aliases: []string{"te"},
 	}
 
-	if err := initTokenizedEquitiesMarketsCmd(TokenizedEquitiesCmd); err != nil {
+	if err := initMarketsCmd(TokenizedEquitiesCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedEquitiesMarketsSymbolCmd(TokenizedEquitiesCmd); err != nil {
+	if err := initMarketCmd(TokenizedEquitiesCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedEquitiesPositionsCmd(TokenizedEquitiesCmd); err != nil {
+	if err := initPositionsCmd(TokenizedEquitiesCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedEquitiesOrderOrderHashCmd(TokenizedEquitiesCmd); err != nil {
+	if err := initOrderStatusCmd(TokenizedEquitiesCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedEquitiesCreateAccountCmd(TokenizedEquitiesCmd); err != nil {
+	if err := initCreateAccountCmd(TokenizedEquitiesCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedEquitiesQuoteCmd(TokenizedEquitiesCmd); err != nil {
+	if err := initQuoteCmd(TokenizedEquitiesCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedEquitiesOrderCmd(TokenizedEquitiesCmd); err != nil {
+	if err := initOrderCmd(TokenizedEquitiesCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedEquitiesOrderSubmitCmd(TokenizedEquitiesCmd); err != nil {
+	if err := initOrderSubmitCmd(TokenizedEquitiesCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedEquitiesOrderOrderHashCancelCmd(TokenizedEquitiesCmd); err != nil {
+	if err := initOrderCancelCmd(TokenizedEquitiesCmd); err != nil {
 		return err
 	}
 

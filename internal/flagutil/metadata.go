@@ -290,7 +290,32 @@ func BuildRequest[T any](cmd *cobra.Command, meta []FlagMeta, bodyFieldPath stri
 			}
 		}
 		if !anyChanged {
-			meta = relaxRequiredForBodyFields(meta, "")
+			// Original behavior: relax ALL required body fields when the user
+			// passed no flags. Intent was to support truly nullable bodies, but
+			// the side effect was that `compass <write-endpoint> --dry-run`
+			// (or even with no flags at all) silently produced an empty-body
+			// request — bypassing required-flag validation and emitting
+			// confusing internal SDK errors like
+			// "could not marshal union type ...: all fields are null".
+			//
+			// Only relax if the body has no required fields to begin with
+			// (i.e., it really is a nullable body). When at least one field
+			// is required, keep the per-field builders' "missing required
+			// flag: --X" errors as the actionable user-facing message.
+			anyRequired := false
+			for _, m := range meta {
+				if m.Required {
+					anyRequired = true
+					break
+				}
+				if m.Union != nil && !m.Union.Optional {
+					anyRequired = true
+					break
+				}
+			}
+			if !anyRequired {
+				meta = relaxRequiredForBodyFields(meta, "")
+			}
 		}
 	}
 
@@ -793,6 +818,21 @@ func buildJSONField(cmd *cobra.Command, v reflect.Value, m FlagMeta) error {
 	// number. Wrap bare numbers in JSON quotes for user convenience.
 	tag := reflect.StructTag(m.Annotations)
 	if (tag.Get("bigint") == "string" || tag.Get("decimal") == "string") && val != "" && val[0] != '"' && val[0] != '[' && val[0] != '{' {
+		val = `"` + val + `"`
+	}
+	// Speakeasy routes optional string query params through FlagKindJSON, so
+	// the raw value (e.g. `base`) is fed straight into json.Unmarshal —
+	// which fails with "invalid character 'b' looking for beginning of value".
+	// Auto-wrap bare string-targeted values in JSON quotes so users can write
+	// `--chain base` instead of having to remember `--chain '"base"'`. This
+	// mirrors the bigint/decimal handling immediately above. Skips values
+	// that already look JSON-typed (`"`, `[`, `{`) so explicit JSON still
+	// works for power users. Targets handled:
+	//   - bare string (`string` / named alias like `type Chain string`)
+	//   - bare string pointer (`*string`)
+	//   - OptionalNullable[T] where T's underlying kind is string (the
+	//     common Speakeasy shape for optional enum query params)
+	if val != "" && val[0] != '"' && val[0] != '[' && val[0] != '{' && targetsString(fieldType) {
 		val = `"` + val + `"`
 	}
 

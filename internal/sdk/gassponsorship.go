@@ -30,7 +30,7 @@ func newGasSponsorship(rootSDK *CompassCLI, sdkConfig config.SDKConfiguration, h
 	}
 }
 
-// GasSponsorshipPrepare - Prepare gas-sponsored transaction
+// Prepare gas-sponsored transaction
 // Prepare a gas-sponsored transaction from signed EIP-712 typed data.
 //
 // Submit the `owner`'s off-chain signature along with the EIP-712 typed data that was signed. Returns an unsigned transaction for the `sender` to sign and broadcast.
@@ -42,7 +42,7 @@ func newGasSponsorship(rootSDK *CompassCLI, sdkConfig config.SDKConfiguration, h
 // 4. Sender signs and broadcasts the returned transaction, paying gas on behalf of the owner
 //
 // **Note:** For gas-sponsored deposits via [/earn/transfer](https://docs.compasslabs.ai/v2/api-reference/earn/transfer-tokens-tofrom-account) or [/credit/transfer](https://docs.compasslabs.ai/v2/api-reference/credit/transfer-tokens-tofrom-account), the owner must first set up a Permit2 allowance using [/approve_transfer](https://docs.compasslabs.ai/v2/api-reference/gas-sponsorship/approve-token-transfer) (once per token).
-func (s *GasSponsorship) GasSponsorshipPrepare(ctx context.Context, request components.SponsorGasRequest, opts ...operations.Option) (*operations.V2GasSponsorshipPrepareResponse, error) {
+func (s *GasSponsorship) Prepare(ctx context.Context, request components.SponsorGasRequest, opts ...operations.Option) (*operations.V2GasSponsorshipPrepareResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -217,7 +217,7 @@ func (s *GasSponsorship) GasSponsorshipPrepare(ctx context.Context, request comp
 
 }
 
-// GasSponsorshipApproveTransfer - Approve token transfer
+// ApproveTransfer - Approve token transfer
 // Set up a one-time Permit2 allowance for gas-sponsored token transfers.
 //
 // Required when using [/earn/transfer](https://docs.compasslabs.ai/v2/api-reference/earn/transfer-tokens-tofrom-account) or [/credit/transfer](https://docs.compasslabs.ai/v2/api-reference/credit/transfer-tokens-tofrom-account) with `gas_sponsorship=true`. This allowance only needs to be set up once per token.
@@ -228,7 +228,7 @@ func (s *GasSponsorship) GasSponsorshipPrepare(ctx context.Context, request comp
 // - Only works for tokens that support EIP-2612 permit (e.g., USDC)
 //
 // Some tokens, like USDT and WETH, do not support EIP-2612 permit. For these tokens, set `gas_sponsorship=false` to receive an unsigned transaction that the owner must sign, submit, and pay gas for.
-func (s *GasSponsorship) GasSponsorshipApproveTransfer(ctx context.Context, request components.ApproveTransferRequest, opts ...operations.Option) (*operations.V2GasSponsorshipApproveTransferResponse, error) {
+func (s *GasSponsorship) ApproveTransfer(ctx context.Context, request components.ApproveTransferRequest, opts ...operations.Option) (*operations.V2GasSponsorshipApproveTransferResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,

@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/CompassLabs/cli/internal/cli"
+	"github.com/CompassLabs/cli/internal/output"
 )
 
 // version and buildTime can be set at build time using Go linker flags:
@@ -24,7 +25,13 @@ func main() {
 	}
 
 	if err := cli.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		// output.Error() already prints a human-friendly version of API
+		// errors before returning. Without this guard, the raw err.Error()
+		// (e.g. "API error occurred: Status 400\n{json body}") is printed a
+		// second/third time below.
+		if !output.IsAlreadyPrinted(err) {
+			fmt.Fprintln(os.Stderr, err)
+		}
 		os.Exit(1)
 	}
 }

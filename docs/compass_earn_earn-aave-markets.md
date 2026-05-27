@@ -25,9 +25,8 @@ compass earn earn-aave-markets [flags]
 ### Options
 
 ```
-  -c, --chain string          Optional chain filter. If not provided, returns rates for all chains. (options: base, ethereum, arbitrum, hyperevm)
-      --days supply_apy_avg   Window in days used to compute supply_apy_avg / `borrow_apy_avg`. Mirrors the `days` parameter of the v1 `/v1/aave/avg_rate` endpoint.
-  -h, --help                  help for earn-aave-markets
+  -c, --chain string   Optional chain filter. If not provided, returns rates for all chains. (options: base, ethereum, arbitrum, hyperevm)
+  -h, --help           help for earn-aave-markets
 ```
 
 ### Options inherited from parent commands

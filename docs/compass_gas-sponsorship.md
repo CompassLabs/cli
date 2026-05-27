@@ -38,5 +38,5 @@ compass gas-sponsorship [flags]
 ### SEE ALSO
 
 * [compass](compass.md)	 - Compass API: Compass Labs DeFi API
-* [compass gas-sponsorship gas-sponsorship-approve-transfer](compass_gas-sponsorship_gas-sponsorship-approve-transfer.md)	 - Approve token transfer
-* [compass gas-sponsorship gas-sponsorship-prepare](compass_gas-sponsorship_gas-sponsorship-prepare.md)	 - Prepare gas-sponsored transaction
+* [compass gas-sponsorship approve-transfer](compass_gas-sponsorship_approve-transfer.md)	 - Approve token transfer
+* [compass gas-sponsorship prepare](compass_gas-sponsorship_prepare.md)	 - Prepare gas-sponsored transaction
