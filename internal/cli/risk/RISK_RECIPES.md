@@ -12,11 +12,9 @@ All risk metrics derive from these three endpoints. The CLI flags below match wh
 
 | Data | Command | Returns |
 |------|---------|---------|
-| Morpho vaults — TVL, APY, per-market allocations | `compass earn earn-vaults --order-by tvl_usd --chain '"base"' --jq '.vaults'` | Array of vaults. Each has `tvl_usd`, `apy_7d`, `apy_30d`, `apy_90d`, `liquidity_usd`, `factory_version`, and `markets[]` — per-market allocations with `collateral_token_symbol`, `loan_token_symbol`, `lltv` (wei-scaled 1e18), `allocation_pct`, `market_id`. |
-| Aave markets — for cross-protocol overlap + supply APY | `compass earn earn-aave-markets --chain '"base"' --jq '.markets'` | Object keyed by token symbol. Each entry has `chains.<chain>.supply_apy`, `chains.<chain>.borrow_apy` (already in percent-scale, e.g. `"3.4"` = 3.4%). |
-| Pendle markets — for yield decomposition | `compass earn earn-pendle-markets --chain '"base"' --jq '.markets'` | Array with `pt_symbol`, `implied_apy`, `tvl_usd`, `expiry`. |
-
-Reminder (Rule 1 in AGENTS.md): `--chain` on these three commands is JSON-quoted (`'"base"'`), not plain. Forgetting the quotes gives `invalid character 'b' looking for beginning of value`.
+| Morpho vaults — TVL, APY, per-market allocations | `compass earn vaults --order-by tvl_usd --chain base --jq '.vaults'` | Array of vaults. Each has `tvl_usd`, `apy_7d`, `apy_30d`, `apy_90d`, `liquidity_usd`, `factory_version`, and `markets[]` — per-market allocations with `collateral_token_symbol`, `loan_token_symbol`, `lltv` (wei-scaled 1e18), `allocation_pct`, `market_id`. |
+| Aave markets — for cross-protocol overlap + supply APY | `compass earn aave-markets --chain base --jq '.markets'` | Object keyed by token symbol. Each entry has `chains.<chain>.supply_apy`, `chains.<chain>.borrow_apy` (already in percent-scale, e.g. `"3.4"` = 3.4%). |
+| Pendle markets — for yield decomposition | `compass earn pendle-markets --chain base --jq '.markets'` | Array with `pt_symbol`, `implied_apy`, `tvl_usd`, `expiry`. |
 
 ---
 
@@ -36,7 +34,7 @@ Group by `collateral_token_symbol`. Per group: sum `exposure_usd`, count distinc
 **One-shot jq aggregate:**
 
 ```bash
-compass earn earn-vaults --order-by tvl_usd --chain '"base"' \
+compass earn vaults --order-by tvl_usd --chain base \
   --jq '
     .vaults
     | [.[]
@@ -156,7 +154,7 @@ A value of 100% means you can pull your entire deposit immediately; lower values
 
 ```bash
 # 1. Pull vault data once, cache it
-compass earn earn-vaults --order-by tvl_usd --chain '"base"' -o json > /tmp/vaults.json
+compass earn vaults --order-by tvl_usd --chain base -o json > /tmp/vaults.json
 
 # 2. Extract the cbBTC markets across all vaults with the fields the cascade needs
 jq '
@@ -179,7 +177,7 @@ Then apply Metric 2's cascade formula with `shock_pct = 0.30` and sum `hit_usd` 
 
 ```bash
 # 1. Pull both vaults' market allocations
-compass earn earn-vaults --order-by tvl_usd --chain '"base"' \
+compass earn vaults --order-by tvl_usd --chain base \
   --jq '.vaults[] | select(.name == "Steakhouse Prime USDC" or .name == "Gauntlet USDC Prime")
         | {name, tvl_usd, markets: [.markets[] | select((.allocation_pct // 0) > 0)
                                   | {sym: .collateral_token_symbol, alloc: .allocation_pct}]}'
@@ -191,7 +189,7 @@ Compute Metric 3's overlap between the two collateral-weight maps. Return the si
 
 ```bash
 # 1. JTD aggregation, filtered to USDC vaults
-compass earn earn-vaults --order-by tvl_usd --chain '"base"' --asset-symbol '"USDC"' \
+compass earn vaults --order-by tvl_usd --chain base --asset-symbol USDC \
   --jq '
     .vaults
     | (map(.tvl_usd | tonumber) | add) as $total

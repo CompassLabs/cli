@@ -56,79 +56,24 @@ Or run `compass <group> <command> --help` if the binary is installed.
 
 ## Critical rules — internalize these before issuing commands
 
-### Rule 1 — JSON-quote values for some optional flags
-
-Optional **string-typed** query-param flags expect JSON-encoded input even when the help text shows them as plain strings. Pass `'"value"'` in zsh/bash, not `value`. (Optional numeric flags like `--min-tvl-usd`, `--limit`, etc. work plain — only strings are affected.)
-
-Currently affected:
-
-| Command | Flag(s) |
-|---------|---------|
-| `earn earn-vaults` | `--chain`, `--asset-symbol` |
-| `earn earn-aave-markets` | `--chain` |
-| `earn earn-pendle-markets` | `--chain`, `--underlying-symbol` |
-| `tokenized-assets tokenized-assets-markets` | `--category`, `--search` |
-| `tokenized-assets tokenized-assets-markets-symbol` | `--interval`, `--range` |
-| `traditional-investing traditional-investing-opportunities` | `--category` |
-| `traditional-investing traditional-investing-positions` | `--asset` |
-
-Example:
-
-```bash
-# Wrong: compass earn earn-vaults --order-by tvl_usd --chain base
-#   → invalid value for --chain: ... invalid character 'b' looking for beginning of value
-
-# Right:
-compass earn earn-vaults --order-by tvl_usd --chain '"base"'
-```
-
-**Symptom**: `invalid value for --<flag>: error unmarshalling json response body: invalid character 'X' looking for beginning of value`. The phrase "response body" is misleading — this is flag parsing, not an HTTP error.
-
-**Recovery heuristic**: if you see `invalid character 'X' looking for beginning of value` on an optional flag, retry with `'"X"'` quoting. Do NOT add quotes to required `--chain` flags on commands like `earn-manage` / `earn-bundle` / any `credit-*` / any `gas-sponsorship-*` — those use a different parser (`FlagKindEnum`) and accept plain values.
-
-If a flag is optional and you don't strictly need it, just **drop it** to avoid the bug.
-
-### Rule 2 — `-o table` doesn't unwrap envelopes
-
-List endpoints return `{total, offset, limit, <items>: [...]}`. `--output-format table` renders the envelope, not the array. Use `--jq` to drill in (output is always JSON when `--jq` is set — it overrides `--output-format`):
-
-```bash
-# Wrong — renders {total, offset, limit, vaults} as a 4-row table
-compass earn earn-vaults --order-by tvl_usd -o table
-
-# Right — returns the vaults array as JSON
-compass earn earn-vaults --order-by tvl_usd --jq '.vaults'
-```
-
-For `compass <command>` returning an envelope, the inner key is the resource name, but the type varies:
-
-| Command | Inner key | Type |
-|---------|-----------|------|
-| `earn earn-vaults` | `.vaults` | array |
-| `earn earn-aave-markets` | `.markets` | **object map keyed by token symbol** — use `.markets \| keys` to list symbols |
-| `earn earn-pendle-markets` | `.markets` | array |
-| `tokenized-assets tokenized-assets-markets` | `.markets` | array |
-
-When in doubt, run with `-o json` first to see the shape. A table render of a nested array is not supported in one command today — `--jq` always emits JSON.
-
-### Rule 3 — Use `--dry-run` for safe exploration
+### Rule 1 — Use `--dry-run` for safe exploration
 
 `--dry-run` prints the request that would be sent (URL, headers, body) without contacting the API. Use this when you're constructing a command from user instructions and want to verify shape before spending an API call:
 
 ```bash
-compass earn earn-manage \
+compass earn manage \
   --venue.vault.vault-address 0x7BfA7C4f149E7415b73bdeDfe609237e29CBF34A \
   --action DEPOSIT --amount 0.01 --owner 0x... --chain base \
   --dry-run
 ```
 
-### Rule 4 — Prefer TOON output to save tokens
+### Rule 2 — Prefer TOON output to save tokens
 
 If the user is going to read the result, `--output-format pretty` is fine. If the result will go back into your context for another step, prefer `--output-format toon` (30–60% fewer tokens than JSON) or `--jq '.field'` to extract the precise field you need.
 
 In auto-detected agent mode, TOON is already the default — no flag needed.
 
-### Rule 5 — Trust the Description, ignore the metavar
+### Rule 3 — Trust the Description, ignore the metavar
 
 Some flag listings show metavars like `--action venue`, `--gas-sponsorship true`, `--amount from_token`, `--from-token TSLAon`. These are placeholders the generator inferred from OpenAPI examples; they are **not** part of the syntax. Always read the **Description** column for the actual semantics.
 
@@ -140,16 +85,16 @@ Some flag listings show metavars like `--action venue`, `--gas-sponsorship true`
 
 ```bash
 # Step 1: find candidates (note the JSON-quoted optional --chain)
-compass earn earn-vaults \
-  --chain '"base"' \
-  --asset-symbol '"USDC"' \
+compass earn vaults \
+  --chain base \
+  --asset-symbol USDC \
   --order-by tvl_usd \
   --direction desc \
   --limit 5 \
   --jq '.vaults[] | {name, vault_address, apy, tvl_usd}'
 
 # Step 2: pick a vault address from the output, then prepare the deposit
-compass earn earn-manage \
+compass earn manage \
   --venue.vault.vault-address 0x<chosen> \
   --action DEPOSIT \
   --amount 100 \
@@ -161,16 +106,16 @@ compass earn earn-manage \
 ### Recipe 2 — List a user's earn positions across all chains
 
 ```bash
-compass earn earn-positions-all --owner 0x<user-address>
+compass earn positions-all --owner 0x<user-address>
 ```
 
-(`earn-positions` requires `--chain`; `earn-positions-all` doesn't.)
+(`earn positions` requires `--chain`; `earn-positions-all` doesn't.)
 
 ### Recipe 3 — Gas-sponsored deposit (advanced)
 
 ```bash
 # Step 1: prepare with gas_sponsorship=true → returns EIP-712 typed data
-compass earn earn-manage \
+compass earn manage \
   --venue.vault.vault-address 0x<vault> \
   --action DEPOSIT --amount 100 --owner 0x<owner> --chain base \
   --gas-sponsorship true \
@@ -180,7 +125,7 @@ compass earn earn-manage \
 # Step 2: owner signs the typed data off-chain (in their wallet)
 
 # Step 3: submit signature + typed data to gas-sponsorship-prepare
-compass gas-sponsorship gas-sponsorship-prepare \
+compass gas-sponsorship prepare \
   --owner 0x<owner> --chain base --product earn \
   --eip-712 '<the typed data from step 1>' \
   --signature 0x<signature from step 2> \
@@ -192,12 +137,12 @@ compass gas-sponsorship gas-sponsorship-prepare \
 
 ```bash
 # Step 1: preview
-compass tokenized-assets tokenized-assets-quote \
+compass tokenized-equities quote \
   --chain base --owner 0x<owner> \
   --from-token USDC --to-token TSLAon --amount 100
 
 # Step 2: build the order (carry recommended_slippage_bps from quote)
-compass tokenized-assets tokenized-assets-order \
+compass tokenized-equities order \
   --chain base --owner 0x<owner> \
   --from-token USDC --to-token TSLAon --amount 100 \
   --slippage-bps <value-from-step-1>
@@ -205,7 +150,7 @@ compass tokenized-assets tokenized-assets-order \
 # Step 3: owner signs the returned order_message off-chain
 
 # Step 4: submit signed order
-compass tokenized-assets tokenized-assets-order-submit \
+compass tokenized-equities order-submit \
   --signed-order '<order_message from step 2>' \
   --order-hash '<order_hash from step 2>'
 ```
@@ -215,7 +160,7 @@ compass tokenized-assets tokenized-assets-order-submit \
 ```bash
 # Bundle a swap + deposit in one transaction. The --chain here is REQUIRED
 # (FlagKindEnum), so it accepts plain values without JSON quotes.
-compass earn earn-bundle \
+compass earn bundle \
   --owner 0x<owner> --chain ethereum \
   --actions '[
     {"body":{"action_type":"V2_SWAP","token_in":"USDC","token_out":"AUSD","amount_in":"100","slippage":"0.5"}},
@@ -235,7 +180,6 @@ See [`internal/cli/risk/RISK_RECIPES.md`](internal/cli/risk/RISK_RECIPES.md) for
 
 | Symptom | Diagnosis | Fix |
 |---------|-----------|-----|
-| `invalid character 'X' looking for beginning of value` on a flag | JSON-encoded optional flag (Rule 1) | Retry with `'"value"'`, or omit if optional |
 | `unknown flag: --foo` | Inferred flag name doesn't exist | Re-read `cli-sdk/docs/compass_<command>.md`, look for nested form (`--venue.vault.foo`) |
 | `missing required flag: --foo` | Required flag missing | Add it; check the doc for nested required flags |
 | `HTTP 401 ... API key missing or invalid` | Auth | `export COMPASS_API_KEY_AUTH=...` then re-run |
@@ -261,7 +205,7 @@ See [`internal/cli/risk/RISK_RECIPES.md`](internal/cli/risk/RISK_RECIPES.md) for
 ## What `compass` does NOT do
 
 - **Sign or broadcast transactions.** That's the wallet's job (or `gas-sponsorship-prepare` flow).
-- **Track positions over time.** It's a stateless API client. For positions, query `earn-positions`/`credit-positions`/`tokenized-assets-positions` each time.
+- **Track positions over time.** It's a stateless API client. For positions, query `earn positions`/`credit positions`/`tokenized-equities positions` each time.
 - **Manage on-chain approvals.** Allowance setup is the wallet's responsibility (or use Permit2 via gas-sponsorship `approve-transfer`).
 
 ---
