@@ -17,7 +17,7 @@ import (
 
 var repayCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address that owns the Credit Account. [required]"},
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm) [required]"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]"},
 	{FlagName: "repay-token", FieldPath: "RepayToken", Kind: flagutil.FlagKindString, Required: true, Description: "The borrowed asset to repay (e.g. WETH). Must match the debt position's token. [required]"},
 	{FlagName: "repay-amount", FieldPath: "RepayAmount", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "interest-rate-mode", Shorthand: "i", FieldPath: "InterestRateMode", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"stable", "variable"}, Description: "On AAVE there are 2 different interest modes.\n\nA stable (but typically higher rate), or a variable rate. (options: stable, variable)"},

@@ -24,7 +24,7 @@ compass credit bundle [flags]
 ```
   -a, --actions string    List of actions to bundle. Actions are executed in order. [required]
       --body string       Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -c, --chain string      The chain to use. (options: base, ethereum, arbitrum, hyperevm) [required]
+  -c, --chain string      The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
   -g, --gas-sponsorship   If true, returns EIP-712 typed data for gas-sponsored execution.
   -h, --help              help for bundle
       --owner string      The owner's wallet address that controls the Credit Account. [required]

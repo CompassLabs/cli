@@ -26,7 +26,7 @@ compass earn balances [flags]
 ### Options
 
 ```
-  -c, --chain string   options: arbitrum, base, ethereum [required]
+  -c, --chain string   options: arbitrum, base, ethereum, tempo [required]
   -h, --help           help for balances
       --owner string   The address of the owner of the earn account. [required]
 ```

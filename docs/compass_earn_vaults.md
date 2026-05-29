@@ -26,7 +26,7 @@ compass earn vaults [flags]
 
 ```
   -a, --asset-symbol string          Filter vaults by underlying asset symbol (e.g., 'USDC', 'WETH').
-  -c, --chain string                 Optional chain filter. If not provided, returns vaults for all chains. (options: base, ethereum, arbitrum, hyperevm)
+  -c, --chain string                 Optional chain filter. If not provided, returns vaults for all chains. (options: base, ethereum, arbitrum, hyperevm, tempo)
       --direction string             The direction to order the results by. (options: asc, desc)
   -h, --help                         help for vaults
   -l, --limit int                    The number of items to return.

@@ -15,7 +15,7 @@ import (
 )
 
 var balancesCmdMeta = []flagutil.FlagMeta{
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"arbitrum", "base", "ethereum"}, Description: "options: arbitrum, base, ethereum [required]"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"arbitrum", "base", "ethereum", "tempo"}, Description: "options: arbitrum, base, ethereum, tempo [required]"},
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address of the owner of the credit account. [required]"},
 }
 

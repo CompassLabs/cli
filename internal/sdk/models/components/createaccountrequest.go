@@ -13,6 +13,7 @@ const (
 	CreateAccountRequestChainArbitrum CreateAccountRequestChain = "arbitrum"
 	CreateAccountRequestChainBase     CreateAccountRequestChain = "base"
 	CreateAccountRequestChainEthereum CreateAccountRequestChain = "ethereum"
+	CreateAccountRequestChainTempo    CreateAccountRequestChain = "tempo"
 )
 
 func (e CreateAccountRequestChain) ToPointer() *CreateAccountRequestChain {
@@ -29,6 +30,8 @@ func (e *CreateAccountRequestChain) UnmarshalJSON(data []byte) error {
 	case "base":
 		fallthrough
 	case "ethereum":
+		fallthrough
+	case "tempo":
 		*e = CreateAccountRequestChain(v)
 		return nil
 	default:

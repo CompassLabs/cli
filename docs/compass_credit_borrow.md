@@ -30,7 +30,7 @@ compass credit borrow [flags]
       --body string                 Request body as JSON (alternative to individual flags). Can also be provided via stdin.
       --borrow-amount string        JSON value (one of: number | string)
       --borrow-token string         Asset to borrow from Aave. [required]
-      --chain string                The chain to use. (options: base, ethereum, arbitrum, hyperevm) [required]
+      --chain string                The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
       --collateral-token string     Aave reserve token to supply as collateral. Omit together with token_in and amount_in for borrow-only mode.
   -f, --fee string                  Optional fee configuration. If provided, a fee will be deducted from the borrowed amount and sent to the specified recipient address.
   -g, --gas-sponsorship             If true, returns EIP-712 signature data instead of an unsigned transaction.

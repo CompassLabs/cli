@@ -17,7 +17,7 @@ import (
 
 var borrowCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address that owns the Credit Account. [required]"},
-	{FlagName: "chain", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm) [required]"},
+	{FlagName: "chain", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]"},
 	{FlagName: "token-in", Shorthand: "t", FieldPath: "TokenIn", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"token_in,omitempty"`, Description: "Token currently held in the Credit Account to use as input. If the same as collateral_token, no swap is performed. Omit together with amount_in and collateral_token to borrow against existing collateral."},
 	{FlagName: "amount-in", Shorthand: "a", FieldPath: "AmountIn", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "collateral-token", FieldPath: "CollateralToken", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"collateral_token,omitempty"`, Description: "Aave reserve token to supply as collateral. Omit together with token_in and amount_in for borrow-only mode."},

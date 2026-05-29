@@ -28,7 +28,7 @@ compass credit repay [flags]
 
 ```
       --body string                 Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -c, --chain string                The chain to use. (options: base, ethereum, arbitrum, hyperevm) [required]
+  -c, --chain string                The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
   -g, --gas-sponsorship             If true, returns EIP-712 signature data instead of an unsigned transaction.
   -h, --help                        help for repay
   -i, --interest-rate-mode string   On AAVE there are 2 different interest modes.

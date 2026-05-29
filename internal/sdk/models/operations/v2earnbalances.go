@@ -15,6 +15,7 @@ const (
 	V2EarnBalancesChainArbitrum V2EarnBalancesChain = "arbitrum"
 	V2EarnBalancesChainBase     V2EarnBalancesChain = "base"
 	V2EarnBalancesChainEthereum V2EarnBalancesChain = "ethereum"
+	V2EarnBalancesChainTempo    V2EarnBalancesChain = "tempo"
 )
 
 func (e V2EarnBalancesChain) ToPointer() *V2EarnBalancesChain {
@@ -31,6 +32,8 @@ func (e *V2EarnBalancesChain) UnmarshalJSON(data []byte) error {
 	case "base":
 		fallthrough
 	case "ethereum":
+		fallthrough
+	case "tempo":
 		*e = V2EarnBalancesChain(v)
 		return nil
 	default:

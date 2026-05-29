@@ -15,6 +15,7 @@ const (
 	ChainEthereum Chain = "ethereum"
 	ChainArbitrum Chain = "arbitrum"
 	ChainHyperevm Chain = "hyperevm"
+	ChainTempo    Chain = "tempo"
 )
 
 func (e Chain) ToPointer() *Chain {
@@ -33,6 +34,8 @@ func (e *Chain) UnmarshalJSON(data []byte) error {
 	case "arbitrum":
 		fallthrough
 	case "hyperevm":
+		fallthrough
+	case "tempo":
 		*e = Chain(v)
 		return nil
 	default:

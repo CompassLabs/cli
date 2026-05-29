@@ -22,7 +22,7 @@ compass credit positions [flags]
 ### Options
 
 ```
-  -c, --chain string   options: arbitrum, base, ethereum [required]
+  -c, --chain string   options: arbitrum, base, ethereum, tempo [required]
   -h, --help           help for positions
       --owner string   The address of the owner of the credit account to get positions for. [required]
 ```

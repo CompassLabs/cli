@@ -16,7 +16,7 @@ import (
 )
 
 var createAccountCmdMeta = []flagutil.FlagMeta{
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"arbitrum", "base", "ethereum"}, Description: "options: arbitrum, base, ethereum [required]"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"arbitrum", "base", "ethereum", "tempo"}, Description: "options: arbitrum, base, ethereum, tempo [required]"},
 	{FlagName: "sender", Shorthand: "s", FieldPath: "Sender", Kind: flagutil.FlagKindString, Required: true, Description: "The address of the transaction sender. [required]"},
 	{FlagName: "estimate-gas", Shorthand: "e", FieldPath: "EstimateGas", Kind: flagutil.FlagKindBool, Optional: true, Description: "Determines whether to estimate gas costs for transactions, also verifying that the transaction can be successfully executed."},
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address that will own and control the compass account [required]"},
