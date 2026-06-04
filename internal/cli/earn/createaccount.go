@@ -28,7 +28,7 @@ func initCreateAccountCmd(parent *cobra.Command) error {
 		Use:     "create-account",
 		Short:   "Create earn account",
 		Long:    "Create an Earn Account for a wallet address.\n\nBefore depositing into venues or managing positions, the owner must create an Earn Account. Each wallet address has one Earn Account per chain.\n\nReturns an unsigned transaction to create the account. The `sender` signs and broadcasts this transaction.\n\n**If owner pays gas:** Set `sender` to the owner's address.\n\n**If someone else pays gas:** Set `sender` to the wallet that will sign and broadcast the transaction on behalf of the owner.",
-		Example: "  compass earn create-account --chain base --sender 0x01E62835dd7F52173546A325294762143eE4a882 --owner 0x01E62835dd7F52173546A325294762143eE4a882",
+		Example: "  compass earn create-account --chain base --sender 0x06A9aF046187895AcFc7258450B15397CAc67400 --owner 0x06A9aF046187895AcFc7258450B15397CAc67400",
 		RunE:    runCreateAccountCmd,
 		Aliases: []string{"ca"},
 	}

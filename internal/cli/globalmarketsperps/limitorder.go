@@ -33,7 +33,7 @@ func initLimitOrderCmd(parent *cobra.Command) error {
 		Use:     "limit-order",
 		Short:   "Place limit order",
 		Long:    "Prepare a limit order on a global markets perps market.\n\nReturns EIP-712 typed data for the user to sign. After signing, submit\nthe signature via the /execute endpoint. Supports GTC and ALO time-in-force.",
-		Example: "  compass global-markets-perps limit-order --owner 0x01E62835dd7F52173546A325294762143eE4a882 --asset AAPL --side buy --size 10.0 --price 190.00",
+		Example: "  compass global-markets-perps limit-order --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --asset AAPL --side buy --size 10.0 --price 190.00",
 		RunE:    runLimitOrderCmd,
 		Aliases: []string{"lo"},
 	}

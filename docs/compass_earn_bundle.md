@@ -21,7 +21,7 @@ compass earn bundle [flags]
 ### Examples
 
 ```
-  compass earn bundle --owner 0x01E62835dd7F52173546A325294762143eE4a882 --chain ethereum --actions '[{"body":{"action_type":"V2_TRANSFER_FROM_EOA","token":"USDC","amount":"100","permit2_signature":"0x...","permit2_nonce":1706000000,"permit2_deadline":1706001800} },{"body":{"action_type":"V2_SWAP","token_in":"USDC","token_out":"AUSD","amount_in":"100","slippage":"0.5"} },{"body":{"action_type":"V2_MANAGE","venue":{"type":"VAULT","vault_address":"0x1B4cd53a1A8e5F50aB6320EF34E5fB4D3df7B6f6"},"action":"DEPOSIT","amount":"100"} }]'
+  compass earn bundle --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --chain ethereum --actions '[{"body":{"action_type":"V2_TRANSFER_FROM_EOA","token":"USDC","amount":"100","permit2_signature":"0x...","permit2_nonce":1706000000,"permit2_deadline":1706001800} },{"body":{"action_type":"V2_SWAP","token_in":"USDC","token_out":"AUSD","amount_in":"100","slippage":"0.5"} },{"body":{"action_type":"V2_MANAGE","venue":{"type":"VAULT","vault_address":"0x1B4cd53a1A8e5F50aB6320EF34E5fB4D3df7B6f6"},"action":"DEPOSIT","amount":"100"} }]'
 ```
 
 ### Options

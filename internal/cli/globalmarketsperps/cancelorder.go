@@ -28,7 +28,7 @@ func initCancelOrderCmd(parent *cobra.Command) error {
 		Use:     "cancel-order",
 		Short:   "Cancel order",
 		Long:    "Prepare an order cancellation.\n\nReturns EIP-712 typed data for the user to sign. After signing, submit\nthe signature via the /execute endpoint.",
-		Example: "  compass global-markets-perps cancel-order --owner 0x01E62835dd7F52173546A325294762143eE4a882 --asset AAPL",
+		Example: "  compass global-markets-perps cancel-order --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --asset AAPL",
 		RunE:    runCancelOrderCmd,
 		Aliases: []string{"co"},
 	}

@@ -17,7 +17,7 @@ compass global-markets-perps approve-builder-fee [flags]
 ### Examples
 
 ```
-  compass global-markets-perps approve-builder-fee --owner 0x01E62835dd7F52173546A325294762143eE4a882 --builder '{"address":"0x88806A71D74AD0a510B350545C9AE490912F0888","max_fee_rate":"0.01%"}'
+  compass global-markets-perps approve-builder-fee --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --builder '{"address":"0x88806A71D74AD0a510B350545C9AE490912F0888","max_fee_rate":"0.01%"}'
 ```
 
 ### Options

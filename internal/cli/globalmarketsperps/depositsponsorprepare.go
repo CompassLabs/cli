@@ -29,7 +29,7 @@ func initDepositSponsorPrepareCmd(parent *cobra.Command) error {
 		Use:     "deposit-sponsor-prepare",
 		Short:   "Build the Bridge2 deposit tx from a signed permit",
 		Long:    "Build the Arbitrum tx that completes a USDC deposit to HL.\n\nTakes the EIP-2612 permit signature returned by /deposit and returns\na fully-encoded `Bridge2.batchedDepositWithPermit` call. The integrator's\nsponsor wallet (`sender`) broadcasts the returned tx — Compass does not\nbroadcast and does not hold gas keys.",
-		Example: "  compass global-markets-perps deposit-sponsor-prepare --owner 0x01E62835dd7F52173546A325294762143eE4a882 --amount-raw 100000000 --deadline 1747097383 --signature 0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 --sender 0x4A83b4413CF41C3244027e1590E35a0F48403F0c",
+		Example: "  compass global-markets-perps deposit-sponsor-prepare --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --amount-raw 100000000 --deadline 1747097383 --signature 0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 --sender 0x4A83b4413CF41C3244027e1590E35a0F48403F0c",
 		RunE:    runDepositSponsorPrepareCmd,
 		Aliases: []string{"dsp"},
 	}

@@ -27,7 +27,7 @@ compass earn manage [flags]
 ### Examples
 
 ```
-  compass earn manage --venue '{"type":"VAULT","vault_address":"0x7BfA7C4f149E7415b73bdeDfe609237e29CBF34A"}' --action DEPOSIT --amount 0.01 --owner 0x01E62835dd7F52173546A325294762143eE4a882 --chain base
+  compass earn manage --venue '{"type":"VAULT","vault_address":"0x7BfA7C4f149E7415b73bdeDfe609237e29CBF34A"}' --action DEPOSIT --amount 0.01 --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --chain base
 ```
 
 ### Options

@@ -19,7 +19,7 @@ compass earn swap [flags]
 ### Examples
 
 ```
-  compass earn swap --token-in USDC --token-out USDT --amount-in 0.01 --owner 0x01E62835dd7F52173546A325294762143eE4a882 --chain base
+  compass earn swap --token-in USDC --token-out USDT --amount-in 0.01 --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --chain base
 ```
 
 ### Options

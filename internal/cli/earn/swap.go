@@ -31,7 +31,7 @@ func initSwapCmd(parent *cobra.Command) error {
 		Use:     "swap",
 		Short:   "Swap tokens within Earn Account",
 		Long:    "Swap tokens within an Earn Account.\n\nUse this endpoint to exchange one token for another without transferring funds out of the Earn Account.\n\nThe swap executes atomically within the Earn Account and can be combined with other actions using the [bundle endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/execute-multiple-earn-actions). For example, swap ETH to USDC, then deposit USDC into a vault—all in one transaction.\n\nReturns either an unsigned transaction (when `gas_sponsorship=false`) or EIP-712 typed data for off-chain signing (when `gas_sponsorship=true`). For gas-sponsored swaps, submit the signed typed data to `/gas_sponsorship/prepare`.",
-		Example: "  compass earn swap --token-in USDC --token-out USDT --amount-in 0.01 --owner 0x01E62835dd7F52173546A325294762143eE4a882 --chain base",
+		Example: "  compass earn swap --token-in USDC --token-out USDT --amount-in 0.01 --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --chain base",
 		RunE:    runSwapCmd,
 	}
 	flagutil.RegisterFlags(cmd, swapCmdMeta)

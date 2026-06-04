@@ -28,7 +28,7 @@ func initApproveTransferCmd(parent *cobra.Command) error {
 		Use:     "approve-transfer",
 		Short:   "Approve token transfer",
 		Long:    "Set up a one-time Permit2 allowance for gas-sponsored token transfers.\n\nRequired when using [/earn/transfer](https://docs.compasslabs.ai/v2/api-reference/earn/transfer-tokens-tofrom-account) or [/credit/transfer](https://docs.compasslabs.ai/v2/api-reference/credit/transfer-tokens-tofrom-account) with `gas_sponsorship=true`. This allowance only needs to be set up once per token.\n\n**With gas sponsorship (`gas_sponsorship=true`):**\n- Returns EIP-712 typed data for the owner to sign off-chain\n- Submit signature + typed data to [/prepare](https://docs.compasslabs.ai/v2/api-reference/gas-sponsorship/prepare-gas-sponsored-transaction)\n- Only works for tokens that support EIP-2612 permit (e.g., USDC)\n\nSome tokens, like USDT and WETH, do not support EIP-2612 permit. For these tokens, set `gas_sponsorship=false` to receive an unsigned transaction that the owner must sign, submit, and pay gas for.",
-		Example: "  compass gas-sponsorship approve-transfer --owner 0x01E62835dd7F52173546A325294762143eE4a882 --chain base --token USDT",
+		Example: "  compass gas-sponsorship approve-transfer --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --chain base --token USDT",
 		RunE:    runApproveTransferCmd,
 		Aliases: []string{"at"},
 	}

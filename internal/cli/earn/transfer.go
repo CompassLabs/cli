@@ -32,7 +32,7 @@ func initTransferCmd(parent *cobra.Command) error {
 		Use:     "transfer",
 		Short:   "Transfer tokens to/from account",
 		Long:    "Transfer tokens between an owner's wallet and their Earn Account.\n\nUse `DEPOSIT` to move tokens from the owner's wallet into their Earn Account. Use `WITHDRAW` to move tokens from the Earn Account back to the owner's wallet.\n\n**Gas-sponsored deposits** require two steps:\n\n**Step 1 (once per token):** Set up Permit2 allowance\n1. Call [/gas_sponsorship/approve_transfer](https://docs.compasslabs.ai/v2/api-reference/gas-sponsorship/approve-token-transfer) to get EIP-712 typed data\n2. Owner signs the typed data\n3. Submit signature + typed data to [/gas_sponsorship/prepare](https://docs.compasslabs.ai/v2/api-reference/gas-sponsorship/prepare-gas-sponsored-transaction)\n\n**Step 2 (each transfer):** Execute the gas-sponsored transfer\n1. Call this endpoint with `gas_sponsorship=true` to get EIP-712 typed data\n2. Owner signs the typed data\n3. Submit signature + typed data to [/gas_sponsorship/prepare](https://docs.compasslabs.ai/v2/api-reference/gas-sponsorship/prepare-gas-sponsored-transaction)\n\n**Note:** This endpoint moves tokens to/from the Earn Account itself—not into yield venues. To deposit into a vault or Aave market, use the [manage endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/manage-earn-position).",
-		Example: "  compass earn transfer --owner 0x01E62835dd7F52173546A325294762143eE4a882 --chain base --token USDC --amount 0.01 --action DEPOSIT",
+		Example: "  compass earn transfer --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --chain base --token USDC --amount 0.01 --action DEPOSIT",
 		RunE:    runTransferCmd,
 	}
 	flagutil.RegisterFlags(cmd, transferCmdMeta)

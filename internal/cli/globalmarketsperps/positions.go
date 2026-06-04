@@ -25,7 +25,7 @@ func initPositionsCmd(parent *cobra.Command) error {
 		Use:     "positions",
 		Short:   "List global markets perps positions",
 		Long:    "List open perpetual futures positions for a user.\n\nReturns position data including size, entry price, mark price, PnL, liquidation price,\nleverage, and cumulative funding. Optionally filter by asset ticker.\nReturns an empty list if no positions are open.",
-		Example: "  compass global-markets-perps positions --owner 0x01E62835dd7F52173546A325294762143eE4a882",
+		Example: "  compass global-markets-perps positions --owner 0x06A9aF046187895AcFc7258450B15397CAc67400",
 		RunE:    runPositionsCmd,
 	}
 	flagutil.RegisterFlags(cmd, positionsCmdMeta)

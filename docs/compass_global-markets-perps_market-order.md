@@ -17,7 +17,7 @@ compass global-markets-perps market-order [flags]
 ### Examples
 
 ```
-  compass global-markets-perps market-order --owner 0x01E62835dd7F52173546A325294762143eE4a882 --asset AAPL --side buy --size 10.0
+  compass global-markets-perps market-order --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --asset AAPL --side buy --size 10.0
 ```
 
 ### Options

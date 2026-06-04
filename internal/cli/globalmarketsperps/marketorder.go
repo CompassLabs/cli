@@ -31,7 +31,7 @@ func initMarketOrderCmd(parent *cobra.Command) error {
 		Use:     "market-order",
 		Short:   "Place market order",
 		Long:    "Prepare a market order on a global markets perps market.\n\nReturns EIP-712 typed data for the user to sign. After signing, submit\nthe signature via the /execute endpoint. Executes as an IOC order at the\ncurrent mark price with slippage protection.",
-		Example: "  compass global-markets-perps market-order --owner 0x01E62835dd7F52173546A325294762143eE4a882 --asset AAPL --side buy --size 10.0",
+		Example: "  compass global-markets-perps market-order --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --asset AAPL --side buy --size 10.0",
 		RunE:    runMarketOrderCmd,
 		Aliases: []string{"mo"},
 	}

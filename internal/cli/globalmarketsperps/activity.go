@@ -25,7 +25,7 @@ func initActivityCmd(parent *cobra.Command) error {
 		Use:     "activity",
 		Short:   "Aggregated Hyperliquid activity for a user",
 		Long:    "Return positions, fills, open orders, and (optionally) builder approval\nstate for an end-user in one normalized payload.\n\nEach section is fetched in parallel from the Hyperliquid `info` API.\nIf a single upstream call fails the corresponding section returns ``null``\nand an entry is added to ``partial_errors``; if every section fails the\nendpoint responds with 502.\n\nPass ``builder`` to additionally include the user's current approved max\nfee rate for that builder (used by dashboards to decide whether to prompt\nthe user to sign an `approveBuilderFee` action).",
-		Example: "  compass global-markets-perps activity --owner 0x01E62835dd7F52173546A325294762143eE4a882",
+		Example: "  compass global-markets-perps activity --owner 0x06A9aF046187895AcFc7258450B15397CAc67400",
 		RunE:    runActivityCmd,
 	}
 	flagutil.RegisterFlags(cmd, activityCmdMeta)

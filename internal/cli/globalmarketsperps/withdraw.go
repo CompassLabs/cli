@@ -27,7 +27,7 @@ func initWithdrawCmd(parent *cobra.Command) error {
 		Use:     "withdraw",
 		Short:   "Withdraw USDC from global markets perps account",
 		Long:    "Prepare a USDC withdrawal from Hyperliquid to Arbitrum.\n\nReturns EIP-712 typed data for the user to sign. After signing, submit\nthe signature via the /execute endpoint. Withdrawal processing takes\nminutes to hours depending on bridge conditions.",
-		Example: "  compass global-markets-perps withdraw --owner 0x01E62835dd7F52173546A325294762143eE4a882 --amount 100.0",
+		Example: "  compass global-markets-perps withdraw --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --amount 100.0",
 		RunE:    runWithdrawCmd,
 	}
 	flagutil.RegisterFlags(cmd, withdrawCmdMeta)

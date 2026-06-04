@@ -29,7 +29,7 @@ compass earn transfer [flags]
 ### Examples
 
 ```
-  compass earn transfer --owner 0x01E62835dd7F52173546A325294762143eE4a882 --chain base --token USDC --amount 0.01 --action DEPOSIT
+  compass earn transfer --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --chain base --token USDC --amount 0.01 --action DEPOSIT
 ```
 
 ### Options

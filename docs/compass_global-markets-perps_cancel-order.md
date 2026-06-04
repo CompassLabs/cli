@@ -16,7 +16,7 @@ compass global-markets-perps cancel-order [flags]
 ### Examples
 
 ```
-  compass global-markets-perps cancel-order --owner 0x01E62835dd7F52173546A325294762143eE4a882 --asset AAPL
+  compass global-markets-perps cancel-order --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --asset AAPL
 ```
 
 ### Options
