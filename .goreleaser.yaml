@@ -40,6 +40,18 @@ archives:
       - README.md
       - LICENSE*
 
+brews:
+  - name: compass
+    repository:
+      owner: CompassLabs
+      name: homebrew-tap
+      branch: main
+    token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    homepage: "https://github.com/CompassLabs/cli"
+    description: "Compass API: Compass Labs DeFi API"
+    install: |
+      bin.install "compass"
+
 release:
   github:
     owner: CompassLabs
@@ -50,5 +62,16 @@ release:
 
 checksum:
   name_template: "checksums.txt"
+
+signs:
+  - artifacts: checksum
+    args:
+      - "--batch"
+      - "--local-user"
+      - "{{ .Env.GPG_FINGERPRINT }}"
+      - "--output"
+      - "${signature}"
+      - "--detach-sign"
+      - "${artifact}"
 
 project_name: compass

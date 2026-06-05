@@ -46,6 +46,11 @@ curl -fsSL https://raw.githubusercontent.com/CompassLabs/cli/main/scripts/instal
 ```powershell
 iwr -useb https://raw.githubusercontent.com/CompassLabs/cli/main/scripts/install.ps1 | iex
 ```
+### Homebrew (macOS/Linux)
+
+```bash
+brew install CompassLabs/tap/compass
+```
 
 ### Go Install
 
