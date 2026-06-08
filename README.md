@@ -451,13 +451,13 @@ Flags whose help text reads as a regular string but that are implemented as JSON
 
 | Command | Flag(s) |
 |---------|---------|
-| `earn earn-vaults` | `--chain`, `--asset-symbol` |
-| `earn earn-aave-markets` | `--chain` |
-| `earn earn-pendle-markets` | `--chain`, `--underlying-symbol` |
-| `tokenized-assets tokenized-assets-markets` | `--category`, `--search` |
-| `tokenized-assets tokenized-assets-markets-symbol` | `--interval`, `--range` |
-| `traditional-investing traditional-investing-opportunities` | `--category` |
-| `traditional-investing traditional-investing-positions` | `--asset` |
+| `earn vaults` | `--chain`, `--asset-symbol` |
+| `earn aave-markets` | `--chain` |
+| `earn pendle-markets` | `--chain`, `--underlying-symbol` |
+| `tokenized-equities markets` | `--category`, `--search` |
+| `tokenized-equities market` | `--interval`, `--range` |
+| `global-markets-perps opportunities` | `--category` |
+| `global-markets-perps positions` | `--asset` |
 
 Example:
 
@@ -474,17 +474,17 @@ Example:
 
 ### `-o table` does not unwrap response envelopes
 
-Endpoints that return paginated lists wrap the array in an envelope, e.g. `earn-vaults` returns `{ total, offset, limit, vaults: [...] }`. `--output-format table` renders the envelope, not the array.
+Endpoints that return paginated lists wrap the array in an envelope, e.g. `earn vaults` returns `{ total, offset, limit, vaults: [...] }`. `--output-format table` renders the envelope, not the array.
 
 ```bash
 # Tiny scalar table — not what you want
-compass earn earn-vaults --order-by tvl_usd -o table
+compass earn vaults --order-by tvl_usd -o table
 
 # Drill into the array (output is JSON; --jq forces JSON regardless of -o)
-compass earn earn-vaults --order-by tvl_usd --jq '.vaults'
+compass earn vaults --order-by tvl_usd --jq '.vaults'
 ```
 
-The same pattern applies to other list endpoints (`earn-aave-markets`, `tokenized-assets-markets`, etc.). If you want a table of the inner array specifically, that's not supported in a single command today — pipe the JSON result through another tool, or just consume the JSON.
+The same pattern applies to other list endpoints (`earn aave-markets`, `tokenized-equities markets`, etc.). If you want a table of the inner array specifically, that's not supported in a single command today — pipe the JSON result through another tool, or just consume the JSON.
 
 ### Flag metavars can be misleading
 
@@ -499,10 +499,6 @@ Some flags display unusual metavars in `--help` listings — these are placehold
 ```
 
 Trust the **Description** column over the metavar.
-
-### Command names contain "stutter"
-
-Several commands repeat their group name: `compass earn earn-vaults`, `compass credit credit-transfer`, etc. This is by current design (the OpenAPI tag and operationId both include the domain word). When piping `--help` output or relying on tab completion, expect the duplicated prefix. The full command tree is in `docs/compass.md`.
 
 ### Other quirks
 
