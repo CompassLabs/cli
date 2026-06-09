@@ -1,19 +1,39 @@
-## compass earn
+## compass earn earn-swap-quote
 
-Operations for earn
+Quote a swap (read-only)
 
 ### Synopsis
 
-Operations for earn
+Estimate the output of a swap without building a transaction.
+
+Returns the expected amount of `token_out` received for selling `amount_in`
+of `token_in`, routed via 1inch. This is read-only: it does not build a
+transaction, require an account, or check balances.
+
+Use it to gauge exit liquidity and price impact for a token before entering
+a position — for example, to warn when a market's underlying asset cannot be
+swapped back to a stablecoin without large slippage.
 
 ```
-compass earn [flags]
+compass earn earn-swap-quote [flags]
+```
+
+### Examples
+
+```
+  compass earn earn-swap-quote --chain base --token-in WETH --amount-in 1
 ```
 
 ### Options
 
 ```
-  -h, --help   help for earn
+  -a, --amount-in string      JSON value (one of: number | string)
+  -c, --chain string          Target blockchain network. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
+  -h, --help                  help for earn-swap-quote
+      --slippage string       JSON value (one of: number | string)
+      --sy-address token_in   Optional Pendle SY (Standardized Yield) address. When provided, token_in is overridden with the token the PT actually redeems into on withdrawal (the SY asset if it is a valid token-out, else the SY yield token) — use this to gauge a Pendle position's real exit liquidity rather than the reported underlying.
+      --token-in string       Token to sell (input). A token symbol (e.g. 'WETH') or any token address. [required]
+      --token-out string      Token to buy (output). A token symbol (e.g. 'USDC') or any token address.
 ```
 
 ### Options inherited from parent commands
@@ -37,16 +57,4 @@ compass earn [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
-* [compass earn aave-markets](compass_earn_aave-markets.md)	 - List aave markets
-* [compass earn balances](compass_earn_balances.md)	 - Get token balances
-* [compass earn bundle](compass_earn_bundle.md)	 - Execute multiple earn actions
-* [compass earn create-account](compass_earn_create-account.md)	 - Create earn account
-* [compass earn earn-swap-quote](compass_earn_earn-swap-quote.md)	 - Quote a swap (read-only)
-* [compass earn manage](compass_earn_manage.md)	 - Manage earn position
-* [compass earn pendle-markets](compass_earn_pendle-markets.md)	 - List pendle markets
-* [compass earn positions](compass_earn_positions.md)	 - List earn positions
-* [compass earn positions-all](compass_earn_positions-all.md)	 - List earn positions across all chains
-* [compass earn swap](compass_earn_swap.md)	 - Swap tokens within Earn Account
-* [compass earn transfer](compass_earn_transfer.md)	 - Transfer tokens to/from account
-* [compass earn vaults](compass_earn_vaults.md)	 - List vaults
+* [compass earn](compass_earn.md)	 - Operations for earn

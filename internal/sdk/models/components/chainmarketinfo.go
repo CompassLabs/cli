@@ -2,9 +2,18 @@
 
 package components
 
+import (
+	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
+)
+
 // ChainMarketInfo - Rate information for a token on a specific chain.
+//
+// The top-level fields describe the canonical (highest-liquidity) reserve for this
+// token on this chain, preserving the original single-reserve shape. `reserves`
+// lists every reserve for the token on this chain so clients can disambiguate
+// cases like native USDC vs bridged USDC.e on Arbitrum.
 type ChainMarketInfo struct {
-	// Token contract address on this chain.
+	// Underlying token (reserve) contract address on this chain. This is Aave's canonical per-reserve identifier.
 	Address string `json:"address"`
 	// Aave aToken contract address on this chain. This is the interest-bearing token that represents the supply position.
 	ATokenAddress string `json:"a_token_address"`
@@ -22,6 +31,19 @@ type ChainMarketInfo struct {
 	AvailableLiquidity string `json:"available_liquidity"`
 	// Percentage of supplied tokens that are currently borrowed (e.g., 85.0 means 85%).
 	UtilizationRate string `json:"utilization_rate"`
+	// Every Aave reserve for this token on this chain, ordered by liquidity (highest first). Identified by underlying `address`. For most tokens this has a single entry equal to the canonical reserve above; where a chain has multiple reserves for one symbol (e.g. Arbitrum native USDC and bridged USDC.e), all are listed with their individual rates.
+	Reserves []ReserveInfo `json:"reserves,omitzero"`
+}
+
+func (c ChainMarketInfo) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(c, "", false)
+}
+
+func (c *ChainMarketInfo) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &c, "", false, nil); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *ChainMarketInfo) GetAddress() string {
@@ -85,4 +107,11 @@ func (c *ChainMarketInfo) GetUtilizationRate() string {
 		return ""
 	}
 	return c.UtilizationRate
+}
+
+func (c *ChainMarketInfo) GetReserves() []ReserveInfo {
+	if c == nil {
+		return nil
+	}
+	return c.Reserves
 }
