@@ -49,3 +49,4 @@ compass tokenized-assets [flags]
 * [compass tokenized-assets tokenized-assets-quote](compass_tokenized-assets_tokenized-assets-quote.md)	 - Preview a buy/sell quote
 * [compass tokenized-assets tokenized-assets-transact-buy](compass_tokenized-assets_tokenized-assets-transact-buy.md)	 - Buy a swap-traded tokenized asset
 * [compass tokenized-assets tokenized-assets-transact-sell](compass_tokenized-assets_tokenized-assets-transact-sell.md)	 - Sell a swap-traded tokenized asset
+* [compass tokenized-assets tokenized-assets-transfer](compass_tokenized-assets_tokenized-assets-transfer.md)	 - Deposit to / withdraw from a Tokenized Assets Account

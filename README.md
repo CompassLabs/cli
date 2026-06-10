@@ -224,6 +224,7 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`tokenized-assets-positions`](docs/compass_tokenized-assets_tokenized-assets-positions.md) - Get tokenized-asset positions for an owner
 * [`tokenized-assets-order-order-hash`](docs/compass_tokenized-assets_tokenized-assets-order-order-hash.md) - Get order status
 * [`tokenized-assets-create-account`](docs/compass_tokenized-assets_tokenized-assets-create-account.md) - Create a Tokenized Assets Account
+* [`tokenized-assets-transfer`](docs/compass_tokenized-assets_tokenized-assets-transfer.md) - Deposit to / withdraw from a Tokenized Assets Account
 * [`tokenized-assets-quote`](docs/compass_tokenized-assets_tokenized-assets-quote.md) - Preview a buy/sell quote
 * [`tokenized-assets-order`](docs/compass_tokenized-assets_tokenized-assets-order.md) - Build a buy/sell order
 * [`tokenized-assets-order-submit`](docs/compass_tokenized-assets_tokenized-assets-order-submit.md) - Submit a signed order

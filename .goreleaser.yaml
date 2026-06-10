@@ -42,6 +42,7 @@ archives:
 
 brews:
   - name: compass
+    skip_upload: auto
     repository:
       owner: CompassLabs
       name: homebrew-tap

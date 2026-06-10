@@ -41,6 +41,10 @@ func InitTokenizedAssetsRoot(parent *cobra.Command) error {
 		return err
 	}
 
+	if err := initTokenizedAssetsTransferCmd(TokenizedAssetsCmd); err != nil {
+		return err
+	}
+
 	if err := initTokenizedAssetsQuoteCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}
