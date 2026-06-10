@@ -1,4 +1,4 @@
-## compass tokenized-assets tokenized-assets-transact-sell
+## compass tokenized-assets sell
 
 Sell a swap-traded tokenized asset
 
@@ -12,13 +12,13 @@ Returns an unsigned transaction for the owner to sign, or an EIP-712
 payload when `gas_sponsorship` is true.
 
 ```
-compass tokenized-assets tokenized-assets-transact-sell [flags]
+compass tokenized-assets sell [flags]
 ```
 
 ### Examples
 
 ```
-  compass tokenized-assets tokenized-assets-transact-sell --token-in <value> --token-out <value> --amount-in 8512.47 --owner <value> --chain ethereum
+  compass tokenized-assets sell --token-in <value> --token-out <value> --amount-in 8512.47 --owner <value> --chain ethereum
 ```
 
 ### Options
@@ -28,7 +28,7 @@ compass tokenized-assets tokenized-assets-transact-sell [flags]
       --body string        Request body as JSON (alternative to individual flags). Can also be provided via stdin.
   -c, --chain string       The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
   -g, --gas-sponsorship    When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction.
-  -h, --help               help for tokenized-assets-transact-sell
+  -h, --help               help for sell
       --owner string       The owner's wallet address. [required]
   -s, --slippage string    JSON value (one of: number | string)
       --token-in string    Token to spend. For a buy this is any supported token (e.g. 'USDC'); for a sell it must be a swap-traded tokenized asset (e.g. 'mTBILL'). [required]

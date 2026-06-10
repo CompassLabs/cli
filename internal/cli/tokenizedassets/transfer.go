@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tokenizedAssetsTransferCmdMeta = []flagutil.FlagMeta{
+var transferCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The owner's wallet address (EOA). [required]"},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo)"},
 	{FlagName: "token", Shorthand: "t", FieldPath: "Token", Kind: flagutil.FlagKindString, Required: true, Description: "The token to transfer. Tokenized-asset orders settle in USDC. [required]"},
@@ -25,36 +25,35 @@ var tokenizedAssetsTransferCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "spender", Shorthand: "s", FieldPath: "Spender", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"spender,omitempty"`, Description: "The address that will call Permit2's permitTransferFrom to execute the transfer. When `action` is 'DEPOSIT' and `gas_sponsorship` is `true`: - If provided, the signature will authorize this address (typically a gas sponsor) to pull tokens. - If not provided, defaults to the Tokenized Assets Account (Safe) address, allowing the transfer to be included in a bundle transaction where the Safe pulls the tokens itself."},
 }
 
-// initTokenizedAssetsTransferCmd initializes the tokenized-assets-transfer command.
-func initTokenizedAssetsTransferCmd(parent *cobra.Command) error {
+// initTransferCmd initializes the transfer command.
+func initTransferCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "tokenized-assets-transfer",
+		Use:     "transfer",
 		Short:   "Deposit to / withdraw from a Tokenized Assets Account",
 		Long:    "Move tokens between the owner's wallet and their Tokenized Assets Account.\n\nUse `DEPOSIT` to fund the account from the owner's wallet, or `WITHDRAW` to\nsend tokens from the account back to the owner. Equity orders settle in\nUSDC; RWA yield assets trade against USDC on Ethereum and Base.\n\nWith `gas_sponsorship=true` the response is EIP-712 typed data the owner\nsigns off-chain, then submits to `POST /v2/gas_sponsorship/prepare` so the\nsponsor broadcasts and pays the gas:\n\n- **DEPOSIT** returns a Permit2 `PermitTransferFrom`. The owner must first\n  grant a one-time token->Permit2 allowance (gaslessly via\n  `POST /v2/gas_sponsorship/approve_transfer`).\n- **WITHDRAW** returns a Safe transaction the account executes.\n\nWith `gas_sponsorship=false` a DEPOSIT returns an unsigned ERC-20 transfer\nthe owner broadcasts directly, and a WITHDRAW returns an unsigned Safe\n`execTransaction` the owner signs and broadcasts.",
-		Example: "  compass tokenized-assets tokenized-assets-transfer --owner 0x9bDC45AA15FdFFc52E103EA05c260c494A5638f7 --token USDC --amount 100 --action DEPOSIT",
-		RunE:    runTokenizedAssetsTransferCmd,
-		Aliases: []string{"tat"},
+		Example: "  compass tokenized-assets transfer --owner 0x9bDC45AA15FdFFc52E103EA05c260c494A5638f7 --token USDC --amount 100 --action DEPOSIT",
+		RunE:    runTransferCmd,
 	}
-	flagutil.RegisterFlags(cmd, tokenizedAssetsTransferCmdMeta)
-	if err := flagutil.ValidateMeta[components.TokenizedAssetsTransferRequest](tokenizedAssetsTransferCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for tokenized-assets-transfer: %w", err)
+	flagutil.RegisterFlags(cmd, transferCmdMeta)
+	if err := flagutil.ValidateMeta[components.TokenizedAssetsTransferRequest](transferCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for transfer: %w", err)
 	}
 	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runTokenizedAssetsTransferCmd executes the tokenized-assets-transfer command.
-func runTokenizedAssetsTransferCmd(cmd *cobra.Command, args []string) error {
+// runTransferCmd executes the transfer command.
+func runTransferCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, tokenizedAssetsTransferCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, tokenizedAssetsTransferCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, transferCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, transferCmdMeta); err != nil {
 			return err
 		}
 	}
-	request, err := flagutil.BuildRequest[components.TokenizedAssetsTransferRequest](cmd, tokenizedAssetsTransferCmdMeta, "", "body")
+	request, err := flagutil.BuildRequest[components.TokenizedAssetsTransferRequest](cmd, transferCmdMeta, "", "body")
 	if err != nil {
 		return err
 	}
@@ -77,7 +76,7 @@ func runTokenizedAssetsTransferCmd(cmd *cobra.Command, args []string) error {
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.TokenizedAssets.TokenizedAssetsTransfer(cmd.Context(), *request, sdkOpts...)
+	res, err := s.TokenizedAssets.Transfer(cmd.Context(), *request, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

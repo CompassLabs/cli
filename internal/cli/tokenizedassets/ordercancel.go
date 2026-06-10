@@ -14,41 +14,41 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tokenizedAssetsOrderOrderHashCancelCmdMeta = []flagutil.FlagMeta{
+var orderCancelCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "order-hash", FieldPath: "OrderHash", Kind: flagutil.FlagKindString, Required: true, Description: "[required]"},
 	{FlagName: "owner", FieldPath: "Body.Owner", Kind: flagutil.FlagKindString, Required: true, Description: "Wallet that owns the Tokenized Assets Account. The account address derived from this owner must match the order's on-chain maker; the API rejects otherwise (only the order's maker can cancel it). [required]"},
 }
 
-// initTokenizedAssetsOrderOrderHashCancelCmd initializes the tokenized-assets-order-order-hash-cancel command.
-func initTokenizedAssetsOrderOrderHashCancelCmd(parent *cobra.Command) error {
+// initOrderCancelCmd initializes the order-cancel command.
+func initOrderCancelCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "tokenized-assets-order-order-hash-cancel",
+		Use:     "order-cancel",
 		Short:   "Cancel an unfilled order",
 		Long:    "Build the EIP-712 payload to cancel an unfilled order on-chain.\n\nReturns ``cancel_safe_tx_eip712``, an EIP-712 payload that authorizes\nthe on-chain cancellation. Sign with the Tokenized Assets Account's\nowner via ``wallet.signTypedData(...)`` and relay via\n``POST /v2/gas_sponsorship/prepare`` so the sponsor broadcasts the\ncancellation on the product account. The owner can also broadcast\nthe resulting transaction directly without using gas sponsorship.\n\nCancellation works on `pending` and `expired` orders only. Only the\nTokenized Assets Account that placed the order can cancel it.",
-		Example: "  compass tokenized-assets tokenized-assets-order-order-hash-cancel --order-hash <value> --owner <value>",
-		RunE:    runTokenizedAssetsOrderOrderHashCancelCmd,
-		Aliases: []string{"taoohc"},
+		Example: "  compass tokenized-assets order-cancel --order-hash <value> --owner <value>",
+		RunE:    runOrderCancelCmd,
+		Aliases: []string{"oc"},
 	}
-	flagutil.RegisterFlags(cmd, tokenizedAssetsOrderOrderHashCancelCmdMeta)
-	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsOrderOrderHashCancelRequest](tokenizedAssetsOrderOrderHashCancelCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for tokenized-assets-order-order-hash-cancel: %w", err)
+	flagutil.RegisterFlags(cmd, orderCancelCmdMeta)
+	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsOrderOrderHashCancelRequest](orderCancelCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for order-cancel: %w", err)
 	}
 	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runTokenizedAssetsOrderOrderHashCancelCmd executes the tokenized-assets-order-order-hash-cancel command.
-func runTokenizedAssetsOrderOrderHashCancelCmd(cmd *cobra.Command, args []string) error {
+// runOrderCancelCmd executes the order-cancel command.
+func runOrderCancelCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, tokenizedAssetsOrderOrderHashCancelCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, tokenizedAssetsOrderOrderHashCancelCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, orderCancelCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, orderCancelCmdMeta); err != nil {
 			return err
 		}
 	}
-	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsOrderOrderHashCancelRequest](cmd, tokenizedAssetsOrderOrderHashCancelCmdMeta, "Body", "body")
+	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsOrderOrderHashCancelRequest](cmd, orderCancelCmdMeta, "Body", "body")
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func runTokenizedAssetsOrderOrderHashCancelCmd(cmd *cobra.Command, args []string
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.TokenizedAssets.TokenizedAssetsOrderOrderHashCancel(cmd.Context(), *req, sdkOpts...)
+	res, err := s.TokenizedAssets.OrderCancel(cmd.Context(), *req, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

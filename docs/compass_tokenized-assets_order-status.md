@@ -1,42 +1,34 @@
-## compass tokenized-assets tokenized-assets-markets-symbol
+## compass tokenized-assets order-status
 
-Get a single market
+Get order status
 
 ### Synopsis
 
-Get extended detail for a single tokenized equity (e.g. `TSLAon`).
+Get the lifecycle state of a submitted order.
 
-Includes 52-week range, volume, market cap, holder count, and tradable
-sessions in addition to the fields returned by `/markets`.
+The `status` field is one of `pending`, `filled`, `expired`, or
+`cancelled`. Partial fills stay in `pending` while `filled_amount` is
+populated as fills come in; once an order fully fills, `fill_tx_hash`
+is also returned.
 
-**OHLC candles** are opt-in: pass both `interval` and `range` query
-params to include a `candles` array in the response. They must be
-provided together and must form one of the supported pairs:
-
-- `1min` / `5min` / `15min` with `range=1day`
-- `1hour` / `4hour` with `range=1month`
-- `12hour` with `range=3month`
-- `1day` with `range=3month` / `6month` / `1year` / `all`
-
-Omitting both returns the market detail without `candles`.
+Upstream protocol states beyond these four (e.g. `partially-filled`,
+`refunded`) are mapped onto this set.
 
 ```
-compass tokenized-assets tokenized-assets-markets-symbol [flags]
+compass tokenized-assets order-status [flags]
 ```
 
 ### Examples
 
 ```
-  compass tokenized-assets tokenized-assets-markets-symbol --symbol <value>
+  compass tokenized-assets order-status --order-hash <value>
 ```
 
 ### Options
 
 ```
-  -h, --help             help for tokenized-assets-markets-symbol
-  -i, --interval range   Optional candle interval. Must be paired with range and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1min, 5min, 15min, 1hour, 4hour, 12hour, 1day)
-  -r, --range interval   Optional lookback window. Must be paired with interval and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1day, 1month, 3month, 6month, 1year, all)
-  -s, --symbol string    [required]
+  -h, --help                help for order-status
+      --order-hash string   [required]
 ```
 
 ### Options inherited from parent commands

@@ -1,4 +1,4 @@
-## compass tokenized-assets tokenized-assets-order-submit
+## compass tokenized-assets order-submit
 
 Submit a signed order
 
@@ -17,13 +17,13 @@ Subsequent calls to `GET /order/{order_hash}` track the lifecycle
 (`pending` → `filled` / `expired` / `cancelled`).
 
 ```
-compass tokenized-assets tokenized-assets-order-submit [flags]
+compass tokenized-assets order-submit [flags]
 ```
 
 ### Examples
 
 ```
-  compass tokenized-assets tokenized-assets-order-submit --signed-order '{"key":"<value>"}' --signature <value> --extension m2a --quote-id <id>
+  compass tokenized-assets order-submit --signed-order '{"key":"<value>"}' --signature <value> --extension m2a --quote-id <id>
 ```
 
 ### Options
@@ -31,7 +31,7 @@ compass tokenized-assets tokenized-assets-order-submit [flags]
 ```
       --body string                           Request body as JSON (alternative to individual flags). Can also be provided via stdin.
   -e, --extension /order                      Opaque hex blob from the /order response — pass back unchanged. [required]
-  -h, --help                                  help for tokenized-assets-order-submit
+  -h, --help                                  help for order-submit
       --order-hash order.order_hash           order.order_hash from the `/order` response. Optional but recommended: the upstream relayer occasionally returns a 2xx with an empty body, and supplying the hash lets the API still return a usable handle for status and cancel lookups instead of failing.
       --quote-id order.quote_id               order.quote_id from the `/order` response — pass back unchanged. [required]
       --signature order.safe_message_eip712   Owner's EIP-712 signature over order.safe_message_eip712 from the `/order` response. The signature is validated against the Tokenized Equities Account at fill time, so it must be a signature over the typed-data hash, not the raw order hash. [required]

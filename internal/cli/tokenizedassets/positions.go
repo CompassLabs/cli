@@ -14,40 +14,39 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tokenizedAssetsPositionsCmdMeta = []flagutil.FlagMeta{
+var positionsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address of the owner of the Tokenized Assets Account to get positions for. The account address is derived deterministically from this owner; balances are read from the derived account. [required]"},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "Network to read positions on (defaults to Ethereum). Equities exist on Ethereum only; RWA yield assets also exist on Base. (options: base, ethereum, arbitrum, hyperevm, tempo)"},
 }
 
-// initTokenizedAssetsPositionsCmd initializes the tokenized-assets-positions command.
-func initTokenizedAssetsPositionsCmd(parent *cobra.Command) error {
+// initPositionsCmd initializes the positions command.
+func initPositionsCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "tokenized-assets-positions",
+		Use:     "positions",
 		Short:   "Get tokenized-asset positions for an owner",
 		Long:    "Get the tokenized-equity holdings for an owner.\n\nThe owner's Tokenized Assets Account address is derived deterministically\nfrom the `owner` query param; balances are read from that account (proceeds\nfrom filled orders settle there). The response returns the balance of every\nlisted tokenized equity, plus the latest USD price and a USD-valued balance\nwhen pricing is available. Zero balances are omitted, and a `total_usd`\naggregate is returned across all priced positions.\n\nReturns 400 `ACCOUNT_NOT_DEPLOYED` if the owner has no Tokenized Assets\nAccount deployed yet — create one via `/create_account` first.",
-		Example: "  compass tokenized-assets tokenized-assets-positions --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B",
-		RunE:    runTokenizedAssetsPositionsCmd,
-		Aliases: []string{"tap"},
+		Example: "  compass tokenized-assets positions --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B",
+		RunE:    runPositionsCmd,
 	}
-	flagutil.RegisterFlags(cmd, tokenizedAssetsPositionsCmdMeta)
-	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsPositionsRequest](tokenizedAssetsPositionsCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for tokenized-assets-positions: %w", err)
+	flagutil.RegisterFlags(cmd, positionsCmdMeta)
+	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsPositionsRequest](positionsCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for positions: %w", err)
 	}
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runTokenizedAssetsPositionsCmd executes the tokenized-assets-positions command.
-func runTokenizedAssetsPositionsCmd(cmd *cobra.Command, args []string) error {
+// runPositionsCmd executes the positions command.
+func runPositionsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, tokenizedAssetsPositionsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, tokenizedAssetsPositionsCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, positionsCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, positionsCmdMeta); err != nil {
 			return err
 		}
 	}
-	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsPositionsRequest](cmd, tokenizedAssetsPositionsCmdMeta, "", "")
+	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsPositionsRequest](cmd, positionsCmdMeta, "", "")
 	if err != nil {
 		return err
 	}
@@ -70,7 +69,7 @@ func runTokenizedAssetsPositionsCmd(cmd *cobra.Command, args []string) error {
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.TokenizedAssets.TokenizedAssetsPositions(cmd.Context(), *req, sdkOpts...)
+	res, err := s.TokenizedAssets.Positions(cmd.Context(), *req, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

@@ -1,4 +1,4 @@
-## compass tokenized-assets tokenized-assets-order
+## compass tokenized-assets order
 
 Build a buy/sell order
 
@@ -25,13 +25,13 @@ The owner never broadcasts the order itself — only the (one-time)
 approval transaction ever hits the chain.
 
 ```
-compass tokenized-assets tokenized-assets-order [flags]
+compass tokenized-assets order [flags]
 ```
 
 ### Examples
 
 ```
-  compass tokenized-assets tokenized-assets-order --from-token <value> --to-token <value> --amount 853.30 --owner <value>
+  compass tokenized-assets order --from-token <value> --to-token <value> --amount 853.30 --owner <value>
 ```
 
 ### Options
@@ -40,7 +40,7 @@ compass tokenized-assets tokenized-assets-order [flags]
   -a, --amount from_token     Human-readable amount of from_token to swap (decimal string). Decimals are applied server-side. [required]
       --body string           Request body as JSON (alternative to individual flags). Can also be provided via stdin.
   -f, --from-token TSLAon     Token the sender is paying. Either an on-chain symbol (e.g. TSLAon), the literal `USDC`, or a 0x-prefixed token address. [required]
-  -h, --help                  help for tokenized-assets-order
+  -h, --help                  help for order
       --owner string          Wallet that owns the Tokenized Assets Account. The product account address is derived deterministically from this owner. The owner signs the EIP-712 payloads returned by this endpoint (the optional approval and the order itself). [required]
   -s, --slippage-bps int      Max acceptable slippage in basis points (1 bp = 0.01%). Range 1-5000 (0.01%-50%); defaults to 50 (0.5%). The upper bound is intentionally wide so callers can clear the wide auction floors quoted for thinly-traded tokenized stocks.
   -t, --to-token from_token   Token the sender is receiving. Same accepted forms as from_token. [required]

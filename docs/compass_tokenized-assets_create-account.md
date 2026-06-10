@@ -1,34 +1,46 @@
-## compass tokenized-assets tokenized-assets-order-order-hash
+## compass tokenized-assets create-account
 
-Get order status
+Create a Tokenized Assets Account
 
 ### Synopsis
 
-Get the lifecycle state of a submitted order.
+Create a Tokenized Assets Account for a wallet address.
 
-The `status` field is one of `pending`, `filled`, `expired`, or
-`cancelled`. Partial fills stay in `pending` while `filled_amount` is
-populated as fills come in; once an order fully fills, `fill_tx_hash`
-is also returned.
+Before placing orders, the owner must create a Tokenized Assets Account.
+Each wallet address has one Tokenized Assets Account, isolated from the
+owner's Earn, Credit, and other product accounts.
 
-Upstream protocol states beyond these four (e.g. `partially-filled`,
-`refunded`) are mapped onto this set.
+The account address is deterministic. If it already exists, the
+response returns `transaction: null` and you can skip straight to
+building orders.
+
+Returns an unsigned transaction to create the account. The `sender`
+signs and broadcasts this transaction.
+
+**If owner pays gas:** Set `sender` to the owner's address.
+
+**If someone else pays gas:** Set `sender` to the wallet that will
+sign and broadcast the transaction on behalf of the owner.
 
 ```
-compass tokenized-assets tokenized-assets-order-order-hash [flags]
+compass tokenized-assets create-account [flags]
 ```
 
 ### Examples
 
 ```
-  compass tokenized-assets tokenized-assets-order-order-hash --order-hash <value>
+  compass tokenized-assets create-account --sender 0x18b42407AbC163f595410Ffe773BB98Db40B48F7 --owner 0x18b42407AbC163f595410Ffe773BB98Db40B48F7
 ```
 
 ### Options
 
 ```
-  -h, --help                help for tokenized-assets-order-order-hash
-      --order-hash string   [required]
+      --body string     Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -c, --chain string    The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo)
+  -e, --estimate-gas    Determines whether to estimate gas costs for transactions, also verifying that the transaction can be successfully executed.
+  -h, --help            help for create-account
+      --owner string    The address that will own and control the compass Tokenized Assets Account [required]
+  -s, --sender string   The address of the transaction sender. [required]
 ```
 
 ### Options inherited from parent commands

@@ -1,46 +1,38 @@
-## compass tokenized-assets tokenized-assets-create-account
+## compass tokenized-assets order-cancel
 
-Create a Tokenized Assets Account
+Cancel an unfilled order
 
 ### Synopsis
 
-Create a Tokenized Assets Account for a wallet address.
+Build the EIP-712 payload to cancel an unfilled order on-chain.
 
-Before placing orders, the owner must create a Tokenized Assets Account.
-Each wallet address has one Tokenized Assets Account, isolated from the
-owner's Earn, Credit, and other product accounts.
+Returns ``cancel_safe_tx_eip712``, an EIP-712 payload that authorizes
+the on-chain cancellation. Sign with the Tokenized Assets Account's
+owner via ``wallet.signTypedData(...)`` and relay via
+``POST /v2/gas_sponsorship/prepare`` so the sponsor broadcasts the
+cancellation on the product account. The owner can also broadcast
+the resulting transaction directly without using gas sponsorship.
 
-The account address is deterministic. If it already exists, the
-response returns `transaction: null` and you can skip straight to
-building orders.
-
-Returns an unsigned transaction to create the account. The `sender`
-signs and broadcasts this transaction.
-
-**If owner pays gas:** Set `sender` to the owner's address.
-
-**If someone else pays gas:** Set `sender` to the wallet that will
-sign and broadcast the transaction on behalf of the owner.
+Cancellation works on `pending` and `expired` orders only. Only the
+Tokenized Assets Account that placed the order can cancel it.
 
 ```
-compass tokenized-assets tokenized-assets-create-account [flags]
+compass tokenized-assets order-cancel [flags]
 ```
 
 ### Examples
 
 ```
-  compass tokenized-assets tokenized-assets-create-account --sender 0x18b42407AbC163f595410Ffe773BB98Db40B48F7 --owner 0x18b42407AbC163f595410Ffe773BB98Db40B48F7
+  compass tokenized-assets order-cancel --order-hash <value> --owner <value>
 ```
 
 ### Options
 
 ```
-      --body string     Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -c, --chain string    The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo)
-  -e, --estimate-gas    Determines whether to estimate gas costs for transactions, also verifying that the transaction can be successfully executed.
-  -h, --help            help for tokenized-assets-create-account
-      --owner string    The address that will own and control the compass Tokenized Assets Account [required]
-  -s, --sender string   The address of the transaction sender. [required]
+      --body string         Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -h, --help                help for order-cancel
+      --order-hash string   [required]
+      --owner string        Wallet that owns the Tokenized Assets Account. The account address derived from this owner must match the order's on-chain maker; the API rejects otherwise (only the order's maker can cancel it). [required]
 ```
 
 ### Options inherited from parent commands

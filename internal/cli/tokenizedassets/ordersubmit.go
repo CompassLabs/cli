@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tokenizedAssetsOrderSubmitCmdMeta = []flagutil.FlagMeta{
+var orderSubmitCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "signed-order", FieldPath: "SignedOrder", Kind: flagutil.FlagKindJSON, Required: true, Annotations: `json:"signed_order"`, Description: "The order struct returned by `/order` (`order.order_message`). `maker` is the Tokenized Assets Account, not the owner's wallet — pass this dict back to the API verbatim. [required]"},
 	{FlagName: "signature", FieldPath: "Signature", Kind: flagutil.FlagKindString, Required: true, Description: "Owner's EIP-712 signature over `order.safe_message_eip712` from the `/order` response. The signature is validated against the Tokenized Equities Account at fill time, so it must be a signature over the typed-data hash, not the raw order hash. [required]"},
 	{FlagName: "extension", Shorthand: "e", FieldPath: "Extension", Kind: flagutil.FlagKindString, Required: true, Description: "Opaque hex blob from the `/order` response — pass back unchanged. [required]"},
@@ -23,36 +23,36 @@ var tokenizedAssetsOrderSubmitCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "order-hash", FieldPath: "OrderHash", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"order_hash,omitempty"`, Description: "`order.order_hash` from the `/order` response. Optional but recommended: the upstream relayer occasionally returns a 2xx with an empty body, and supplying the hash lets the API still return a usable handle for status and cancel lookups instead of failing."},
 }
 
-// initTokenizedAssetsOrderSubmitCmd initializes the tokenized-assets-order-submit command.
-func initTokenizedAssetsOrderSubmitCmd(parent *cobra.Command) error {
+// initOrderSubmitCmd initializes the order-submit command.
+func initOrderSubmitCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "tokenized-assets-order-submit",
+		Use:     "order-submit",
 		Short:   "Submit a signed order",
 		Long:    "Submit a signed order to the resolver network.\n\nThe body echoes the `order` fields from `/order` (`signed_order`,\n`extension`, `quote_id`, optionally `order_hash`) plus the owner's\nsignature over `order.safe_message_eip712`. The maker on the order\nstruct is the Tokenized Assets Account, not the owner's wallet —\npass `signed_order` back unchanged.\n\nReturns the order hash and a server-side ISO 8601 timestamp.\nSubsequent calls to `GET /order/{order_hash}` track the lifecycle\n(`pending` → `filled` / `expired` / `cancelled`).",
-		Example: "  compass tokenized-assets tokenized-assets-order-submit --signed-order '{\"key\":\"<value>\"}' --signature <value> --extension m2a --quote-id <id>",
-		RunE:    runTokenizedAssetsOrderSubmitCmd,
-		Aliases: []string{"taos"},
+		Example: "  compass tokenized-assets order-submit --signed-order '{\"key\":\"<value>\"}' --signature <value> --extension m2a --quote-id <id>",
+		RunE:    runOrderSubmitCmd,
+		Aliases: []string{"osu"},
 	}
-	flagutil.RegisterFlags(cmd, tokenizedAssetsOrderSubmitCmdMeta)
-	if err := flagutil.ValidateMeta[components.TokenizedAssetsSubmitOrderRequest](tokenizedAssetsOrderSubmitCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for tokenized-assets-order-submit: %w", err)
+	flagutil.RegisterFlags(cmd, orderSubmitCmdMeta)
+	if err := flagutil.ValidateMeta[components.TokenizedAssetsSubmitOrderRequest](orderSubmitCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for order-submit: %w", err)
 	}
 	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runTokenizedAssetsOrderSubmitCmd executes the tokenized-assets-order-submit command.
-func runTokenizedAssetsOrderSubmitCmd(cmd *cobra.Command, args []string) error {
+// runOrderSubmitCmd executes the order-submit command.
+func runOrderSubmitCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, tokenizedAssetsOrderSubmitCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, tokenizedAssetsOrderSubmitCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, orderSubmitCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, orderSubmitCmdMeta); err != nil {
 			return err
 		}
 	}
-	request, err := flagutil.BuildRequest[components.TokenizedAssetsSubmitOrderRequest](cmd, tokenizedAssetsOrderSubmitCmdMeta, "", "body")
+	request, err := flagutil.BuildRequest[components.TokenizedAssetsSubmitOrderRequest](cmd, orderSubmitCmdMeta, "", "body")
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func runTokenizedAssetsOrderSubmitCmd(cmd *cobra.Command, args []string) error {
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.TokenizedAssets.TokenizedAssetsOrderSubmit(cmd.Context(), *request, sdkOpts...)
+	res, err := s.TokenizedAssets.OrderSubmit(cmd.Context(), *request, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

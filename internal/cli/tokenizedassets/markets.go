@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tokenizedAssetsMarketsCmdMeta = []flagutil.FlagMeta{
+var marketsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "category", FieldPath: "Category", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=category"`, Description: "Filter markets by category (e.g. 'tech', 'finance')."},
 	{FlagName: "search", Shorthand: "s", FieldPath: "Search", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=search"`, Description: "Case-insensitive substring match against the on-chain symbol, underlying ticker, and underlying name."},
 	{FlagName: "provider", Shorthand: "p", FieldPath: "Provider", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=provider"`, Description: "Filter by issuer ('ondo' equities, 'midas' RWA yield). (options: ondo, midas)"},
@@ -22,35 +22,34 @@ var tokenizedAssetsMarketsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "chain", FieldPath: "Chain", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=chain"`, Description: "Filter by network. Equities are Ethereum-only; RWA yield assets exist on Ethereum and Base. (options: base, ethereum, arbitrum, hyperevm, tempo)"},
 }
 
-// initTokenizedAssetsMarketsCmd initializes the tokenized-assets-markets command.
-func initTokenizedAssetsMarketsCmd(parent *cobra.Command) error {
+// initMarketsCmd initializes the markets command.
+func initMarketsCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "tokenized-assets-markets",
+		Use:     "markets",
 		Short:   "List tokenized asset markets",
 		Long:    "List tokenized asset markets: Ondo equities and Midas RWA yield tokens.\n\nEach entry includes the symbol, the underlying ticker, the on-chain\ncontract address, the latest USD price, and 24h price change. Filter\nby `category` (sector tag) or `search` (substring match against symbol,\nticker, or name).\n\nOnly Ethereum-deployed tokens are returned; assets that exist only on\nother chains are omitted.",
-		Example: "  compass tokenized-assets tokenized-assets-markets",
-		RunE:    runTokenizedAssetsMarketsCmd,
-		Aliases: []string{"tam"},
+		Example: "  compass tokenized-assets markets",
+		RunE:    runMarketsCmd,
 	}
-	flagutil.RegisterFlags(cmd, tokenizedAssetsMarketsCmdMeta)
-	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsMarketsRequest](tokenizedAssetsMarketsCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for tokenized-assets-markets: %w", err)
+	flagutil.RegisterFlags(cmd, marketsCmdMeta)
+	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsMarketsRequest](marketsCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for markets: %w", err)
 	}
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runTokenizedAssetsMarketsCmd executes the tokenized-assets-markets command.
-func runTokenizedAssetsMarketsCmd(cmd *cobra.Command, args []string) error {
+// runMarketsCmd executes the markets command.
+func runMarketsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, tokenizedAssetsMarketsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, tokenizedAssetsMarketsCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, marketsCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, marketsCmdMeta); err != nil {
 			return err
 		}
 	}
-	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsMarketsRequest](cmd, tokenizedAssetsMarketsCmdMeta, "", "")
+	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsMarketsRequest](cmd, marketsCmdMeta, "", "")
 	if err != nil {
 		return err
 	}
@@ -73,7 +72,7 @@ func runTokenizedAssetsMarketsCmd(cmd *cobra.Command, args []string) error {
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.TokenizedAssets.TokenizedAssetsMarkets(cmd.Context(), req, sdkOpts...)
+	res, err := s.TokenizedAssets.Markets(cmd.Context(), req, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

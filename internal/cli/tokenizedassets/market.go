@@ -14,41 +14,40 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tokenizedAssetsMarketsSymbolCmdMeta = []flagutil.FlagMeta{
+var marketCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "symbol", Shorthand: "s", FieldPath: "Symbol", Kind: flagutil.FlagKindString, Required: true, Description: "[required]"},
 	{FlagName: "interval", Shorthand: "i", FieldPath: "Interval", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=interval"`, Description: "Optional candle interval. Must be paired with `range` and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1min, 5min, 15min, 1hour, 4hour, 12hour, 1day)"},
 	{FlagName: "range", Shorthand: "r", FieldPath: "Range", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=range"`, Description: "Optional lookback window. Must be paired with `interval` and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1day, 1month, 3month, 6month, 1year, all)"},
 }
 
-// initTokenizedAssetsMarketsSymbolCmd initializes the tokenized-assets-markets-symbol command.
-func initTokenizedAssetsMarketsSymbolCmd(parent *cobra.Command) error {
+// initMarketCmd initializes the market command.
+func initMarketCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "tokenized-assets-markets-symbol",
+		Use:     "market",
 		Short:   "Get a single market",
 		Long:    "Get extended detail for a single tokenized equity (e.g. `TSLAon`).\n\nIncludes 52-week range, volume, market cap, holder count, and tradable\nsessions in addition to the fields returned by `/markets`.\n\n**OHLC candles** are opt-in: pass both `interval` and `range` query\nparams to include a `candles` array in the response. They must be\nprovided together and must form one of the supported pairs:\n\n- `1min` / `5min` / `15min` with `range=1day`\n- `1hour` / `4hour` with `range=1month`\n- `12hour` with `range=3month`\n- `1day` with `range=3month` / `6month` / `1year` / `all`\n\nOmitting both returns the market detail without `candles`.",
-		Example: "  compass tokenized-assets tokenized-assets-markets-symbol --symbol <value>",
-		RunE:    runTokenizedAssetsMarketsSymbolCmd,
-		Aliases: []string{"tams"},
+		Example: "  compass tokenized-assets market --symbol <value>",
+		RunE:    runMarketCmd,
 	}
-	flagutil.RegisterFlags(cmd, tokenizedAssetsMarketsSymbolCmdMeta)
-	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsMarketsSymbolRequest](tokenizedAssetsMarketsSymbolCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for tokenized-assets-markets-symbol: %w", err)
+	flagutil.RegisterFlags(cmd, marketCmdMeta)
+	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsMarketsSymbolRequest](marketCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for market: %w", err)
 	}
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runTokenizedAssetsMarketsSymbolCmd executes the tokenized-assets-markets-symbol command.
-func runTokenizedAssetsMarketsSymbolCmd(cmd *cobra.Command, args []string) error {
+// runMarketCmd executes the market command.
+func runMarketCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, tokenizedAssetsMarketsSymbolCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, tokenizedAssetsMarketsSymbolCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, marketCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, marketCmdMeta); err != nil {
 			return err
 		}
 	}
-	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsMarketsSymbolRequest](cmd, tokenizedAssetsMarketsSymbolCmdMeta, "", "")
+	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsMarketsSymbolRequest](cmd, marketCmdMeta, "", "")
 	if err != nil {
 		return err
 	}
@@ -71,7 +70,7 @@ func runTokenizedAssetsMarketsSymbolCmd(cmd *cobra.Command, args []string) error
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.TokenizedAssets.TokenizedAssetsMarketsSymbol(cmd.Context(), *req, sdkOpts...)
+	res, err := s.TokenizedAssets.Market(cmd.Context(), *req, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

@@ -1,4 +1,4 @@
-## compass tokenized-assets tokenized-assets-transact-buy
+## compass tokenized-assets buy
 
 Buy a swap-traded tokenized asset
 
@@ -15,13 +15,13 @@ owner to sign, or an EIP-712 payload when `gas_sponsorship` is true.
 order endpoints (`/quote`, `/order`, `/order/submit`).
 
 ```
-compass tokenized-assets tokenized-assets-transact-buy [flags]
+compass tokenized-assets buy [flags]
 ```
 
 ### Examples
 
 ```
-  compass tokenized-assets tokenized-assets-transact-buy --token-in <value> --token-out <value> --amount-in 4533.23 --owner <value> --chain ethereum
+  compass tokenized-assets buy --token-in <value> --token-out <value> --amount-in 4533.23 --owner <value> --chain ethereum
 ```
 
 ### Options
@@ -31,7 +31,7 @@ compass tokenized-assets tokenized-assets-transact-buy [flags]
       --body string        Request body as JSON (alternative to individual flags). Can also be provided via stdin.
   -c, --chain string       The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
   -g, --gas-sponsorship    When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction.
-  -h, --help               help for tokenized-assets-transact-buy
+  -h, --help               help for buy
       --owner string       The owner's wallet address. [required]
   -s, --slippage string    JSON value (one of: number | string)
       --token-in string    Token to spend. For a buy this is any supported token (e.g. 'USDC'); for a sell it must be a swap-traded tokenized asset (e.g. 'mTBILL'). [required]

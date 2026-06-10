@@ -1,38 +1,37 @@
-## compass tokenized-assets tokenized-assets-markets
+## compass tokenized-assets positions
 
-List tokenized asset markets
+Get tokenized-asset positions for an owner
 
 ### Synopsis
 
-List tokenized asset markets: Ondo equities and Midas RWA yield tokens.
+Get the tokenized-equity holdings for an owner.
 
-Each entry includes the symbol, the underlying ticker, the on-chain
-contract address, the latest USD price, and 24h price change. Filter
-by `category` (sector tag) or `search` (substring match against symbol,
-ticker, or name).
+The owner's Tokenized Assets Account address is derived deterministically
+from the `owner` query param; balances are read from that account (proceeds
+from filled orders settle there). The response returns the balance of every
+listed tokenized equity, plus the latest USD price and a USD-valued balance
+when pricing is available. Zero balances are omitted, and a `total_usd`
+aggregate is returned across all priced positions.
 
-Only Ethereum-deployed tokens are returned; assets that exist only on
-other chains are omitted.
+Returns 400 `ACCOUNT_NOT_DEPLOYED` if the owner has no Tokenized Assets
+Account deployed yet — create one via `/create_account` first.
 
 ```
-compass tokenized-assets tokenized-assets-markets [flags]
+compass tokenized-assets positions [flags]
 ```
 
 ### Examples
 
 ```
-  compass tokenized-assets tokenized-assets-markets
+  compass tokenized-assets positions --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B
 ```
 
 ### Options
 
 ```
-  -a, --asset-class string   Filter by asset class (EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD). (options: EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD)
-      --category string      Filter markets by category (e.g. 'tech', 'finance').
-      --chain string         Filter by network. Equities are Ethereum-only; RWA yield assets exist on Ethereum and Base. (options: base, ethereum, arbitrum, hyperevm, tempo)
-  -h, --help                 help for tokenized-assets-markets
-  -p, --provider string      Filter by issuer ('ondo' equities, 'midas' RWA yield). (options: ondo, midas)
-  -s, --search string        Case-insensitive substring match against the on-chain symbol, underlying ticker, and underlying name.
+  -c, --chain string   Network to read positions on (defaults to Ethereum). Equities exist on Ethereum only; RWA yield assets also exist on Base. (options: base, ethereum, arbitrum, hyperevm, tempo)
+  -h, --help           help for positions
+      --owner string   The address of the owner of the Tokenized Assets Account to get positions for. The account address is derived deterministically from this owner; balances are read from the derived account. [required]
 ```
 
 ### Options inherited from parent commands

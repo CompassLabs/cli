@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tokenizedAssetsTransactSellCmdMeta = []flagutil.FlagMeta{
+var buyCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "token-in", FieldPath: "TokenIn", Kind: flagutil.FlagKindString, Required: true, Description: "Token to spend. For a buy this is any supported token (e.g. 'USDC'); for a sell it must be a swap-traded tokenized asset (e.g. 'mTBILL'). [required]"},
 	{FlagName: "token-out", FieldPath: "TokenOut", Kind: flagutil.FlagKindString, Required: true, Description: "Token to receive. For a buy this must be a swap-traded tokenized asset (e.g. 'mTBILL'); for a sell it is any supported token. [required]"},
 	{FlagName: "amount-in", Shorthand: "a", FieldPath: "AmountIn", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, TypeDescription: "JSON value (one of: number | string)"}},
@@ -25,36 +25,35 @@ var tokenizedAssetsTransactSellCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "gas-sponsorship", Shorthand: "g", FieldPath: "GasSponsorship", Kind: flagutil.FlagKindBool, Optional: true, Description: "When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction."},
 }
 
-// initTokenizedAssetsTransactSellCmd initializes the tokenized-assets-transact-sell command.
-func initTokenizedAssetsTransactSellCmd(parent *cobra.Command) error {
+// initBuyCmd initializes the buy command.
+func initBuyCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "tokenized-assets-transact-sell",
-		Short:   "Sell a swap-traded tokenized asset",
-		Long:    "Sell an RWA yield asset (e.g. `mTBILL`) inside the product account.\n\nSwaps `token_in` (a swap-traded tokenized asset held by the Tokenized\nAssets Account) into `token_out` via the 1inch Aggregation Router.\nReturns an unsigned transaction for the owner to sign, or an EIP-712\npayload when `gas_sponsorship` is true.",
-		Example: "  compass tokenized-assets tokenized-assets-transact-sell --token-in <value> --token-out <value> --amount-in 8512.47 --owner <value> --chain ethereum",
-		RunE:    runTokenizedAssetsTransactSellCmd,
-		Aliases: []string{"tats"},
+		Use:     "buy",
+		Short:   "Buy a swap-traded tokenized asset",
+		Long:    "Buy an RWA yield asset (e.g. `mTBILL`) inside the product account.\n\nSwaps `token_in` (already held by the Tokenized Assets Account — fund it\nwith a plain transfer first) into `token_out` via the 1inch Aggregation\nRouter, executed by the account. Returns an unsigned transaction for the\nowner to sign, or an EIP-712 payload when `gas_sponsorship` is true.\n\n`token_out` must be a swap-traded tokenized asset; equities trade via the\norder endpoints (`/quote`, `/order`, `/order/submit`).",
+		Example: "  compass tokenized-assets buy --token-in <value> --token-out <value> --amount-in 4533.23 --owner <value> --chain ethereum",
+		RunE:    runBuyCmd,
 	}
-	flagutil.RegisterFlags(cmd, tokenizedAssetsTransactSellCmdMeta)
-	if err := flagutil.ValidateMeta[components.TokenizedAssetsTradeRequest](tokenizedAssetsTransactSellCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for tokenized-assets-transact-sell: %w", err)
+	flagutil.RegisterFlags(cmd, buyCmdMeta)
+	if err := flagutil.ValidateMeta[components.TokenizedAssetsTradeRequest](buyCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for buy: %w", err)
 	}
 	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runTokenizedAssetsTransactSellCmd executes the tokenized-assets-transact-sell command.
-func runTokenizedAssetsTransactSellCmd(cmd *cobra.Command, args []string) error {
+// runBuyCmd executes the buy command.
+func runBuyCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, tokenizedAssetsTransactSellCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, tokenizedAssetsTransactSellCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, buyCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, buyCmdMeta); err != nil {
 			return err
 		}
 	}
-	request, err := flagutil.BuildRequest[components.TokenizedAssetsTradeRequest](cmd, tokenizedAssetsTransactSellCmdMeta, "", "body")
+	request, err := flagutil.BuildRequest[components.TokenizedAssetsTradeRequest](cmd, buyCmdMeta, "", "body")
 	if err != nil {
 		return err
 	}
@@ -77,7 +76,7 @@ func runTokenizedAssetsTransactSellCmd(cmd *cobra.Command, args []string) error 
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.TokenizedAssets.TokenizedAssetsTransactSell(cmd.Context(), *request, sdkOpts...)
+	res, err := s.TokenizedAssets.Buy(cmd.Context(), *request, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

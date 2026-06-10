@@ -1,4 +1,4 @@
-## compass tokenized-assets tokenized-assets-quote
+## compass tokenized-assets quote
 
 Preview a buy/sell quote
 
@@ -24,13 +24,13 @@ The response carries:
   thin-liquidity warning to the user.
 
 ```
-compass tokenized-assets tokenized-assets-quote [flags]
+compass tokenized-assets quote [flags]
 ```
 
 ### Examples
 
 ```
-  compass tokenized-assets tokenized-assets-quote --from-token <value> --to-token <value> --amount 226.42 --owner <value>
+  compass tokenized-assets quote --from-token <value> --to-token <value> --amount 226.42 --owner <value>
 ```
 
 ### Options
@@ -39,7 +39,7 @@ compass tokenized-assets tokenized-assets-quote [flags]
   -a, --amount from_token     Human-readable amount of from_token to swap (decimal string). Decimals are applied server-side. [required]
       --body string           Request body as JSON (alternative to individual flags). Can also be provided via stdin.
   -f, --from-token TSLAon     Token the sender is paying. Either an on-chain symbol (e.g. TSLAon), the literal `USDC`, or a 0x-prefixed token address. [required]
-  -h, --help                  help for tokenized-assets-quote
+  -h, --help                  help for quote
       --owner string          Wallet that owns the Tokenized Assets Account. Used to verify the account is deployed before quoting; the account address is derived deterministically from this owner. [required]
   -t, --to-token from_token   Token the sender is receiving. Same accepted forms as from_token. [required]
 ```

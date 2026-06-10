@@ -219,18 +219,18 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 
 ### [tokenized-assets](docs/compass_tokenized-assets.md)
 
-* [`tokenized-assets-markets`](docs/compass_tokenized-assets_tokenized-assets-markets.md) - List tokenized asset markets
-* [`tokenized-assets-markets-symbol`](docs/compass_tokenized-assets_tokenized-assets-markets-symbol.md) - Get a single market
-* [`tokenized-assets-positions`](docs/compass_tokenized-assets_tokenized-assets-positions.md) - Get tokenized-asset positions for an owner
-* [`tokenized-assets-order-order-hash`](docs/compass_tokenized-assets_tokenized-assets-order-order-hash.md) - Get order status
-* [`tokenized-assets-create-account`](docs/compass_tokenized-assets_tokenized-assets-create-account.md) - Create a Tokenized Assets Account
-* [`tokenized-assets-transfer`](docs/compass_tokenized-assets_tokenized-assets-transfer.md) - Deposit to / withdraw from a Tokenized Assets Account
-* [`tokenized-assets-quote`](docs/compass_tokenized-assets_tokenized-assets-quote.md) - Preview a buy/sell quote
-* [`tokenized-assets-order`](docs/compass_tokenized-assets_tokenized-assets-order.md) - Build a buy/sell order
-* [`tokenized-assets-order-submit`](docs/compass_tokenized-assets_tokenized-assets-order-submit.md) - Submit a signed order
-* [`tokenized-assets-order-order-hash-cancel`](docs/compass_tokenized-assets_tokenized-assets-order-order-hash-cancel.md) - Cancel an unfilled order
-* [`tokenized-assets-transact-buy`](docs/compass_tokenized-assets_tokenized-assets-transact-buy.md) - Buy a swap-traded tokenized asset
-* [`tokenized-assets-transact-sell`](docs/compass_tokenized-assets_tokenized-assets-transact-sell.md) - Sell a swap-traded tokenized asset
+* [`markets`](docs/compass_tokenized-assets_markets.md) - List tokenized asset markets
+* [`market`](docs/compass_tokenized-assets_market.md) - Get a single market
+* [`positions`](docs/compass_tokenized-assets_positions.md) - Get tokenized-asset positions for an owner
+* [`order-status`](docs/compass_tokenized-assets_order-status.md) - Get order status
+* [`create-account`](docs/compass_tokenized-assets_create-account.md) - Create a Tokenized Assets Account
+* [`transfer`](docs/compass_tokenized-assets_transfer.md) - Deposit to / withdraw from a Tokenized Assets Account
+* [`quote`](docs/compass_tokenized-assets_quote.md) - Preview a buy/sell quote
+* [`order`](docs/compass_tokenized-assets_order.md) - Build a buy/sell order
+* [`order-submit`](docs/compass_tokenized-assets_order-submit.md) - Submit a signed order
+* [`order-cancel`](docs/compass_tokenized-assets_order-cancel.md) - Cancel an unfilled order
+* [`buy`](docs/compass_tokenized-assets_buy.md) - Buy a swap-traded tokenized asset
+* [`sell`](docs/compass_tokenized-assets_sell.md) - Sell a swap-traded tokenized asset
 
 </details>
 <!-- End Available Commands [operations] -->

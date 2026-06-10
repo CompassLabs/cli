@@ -21,51 +21,51 @@ func InitTokenizedAssetsRoot(parent *cobra.Command) error {
 		Aliases: []string{"ta"},
 	}
 
-	if err := initTokenizedAssetsMarketsCmd(TokenizedAssetsCmd); err != nil {
+	if err := initMarketsCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedAssetsMarketsSymbolCmd(TokenizedAssetsCmd); err != nil {
+	if err := initMarketCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedAssetsPositionsCmd(TokenizedAssetsCmd); err != nil {
+	if err := initPositionsCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedAssetsOrderOrderHashCmd(TokenizedAssetsCmd); err != nil {
+	if err := initOrderStatusCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedAssetsCreateAccountCmd(TokenizedAssetsCmd); err != nil {
+	if err := initCreateAccountCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedAssetsTransferCmd(TokenizedAssetsCmd); err != nil {
+	if err := initTransferCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedAssetsQuoteCmd(TokenizedAssetsCmd); err != nil {
+	if err := initQuoteCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedAssetsOrderCmd(TokenizedAssetsCmd); err != nil {
+	if err := initOrderCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedAssetsOrderSubmitCmd(TokenizedAssetsCmd); err != nil {
+	if err := initOrderSubmitCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedAssetsOrderOrderHashCancelCmd(TokenizedAssetsCmd); err != nil {
+	if err := initOrderCancelCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedAssetsTransactBuyCmd(TokenizedAssetsCmd); err != nil {
+	if err := initBuyCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}
 
-	if err := initTokenizedAssetsTransactSellCmd(TokenizedAssetsCmd); err != nil {
+	if err := initSellCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}
 

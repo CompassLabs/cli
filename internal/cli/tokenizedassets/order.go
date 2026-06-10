@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tokenizedAssetsOrderCmdMeta = []flagutil.FlagMeta{
+var orderCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "from-token", Shorthand: "f", FieldPath: "FromToken", Kind: flagutil.FlagKindString, Required: true, Description: "Token the sender is paying. Either an on-chain symbol (e.g. `TSLAon`), the literal `USDC`, or a 0x-prefixed token address. [required]"},
 	{FlagName: "to-token", Shorthand: "t", FieldPath: "ToToken", Kind: flagutil.FlagKindString, Required: true, Description: "Token the sender is receiving. Same accepted forms as `from_token`. [required]"},
 	{FlagName: "amount", Shorthand: "a", FieldPath: "Amount", Kind: flagutil.FlagKindString, Required: true, Description: "Human-readable amount of `from_token` to swap (decimal string). Decimals are applied server-side. [required]"},
@@ -23,36 +23,35 @@ var tokenizedAssetsOrderCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "slippage-bps", Shorthand: "s", FieldPath: "SlippageBps", Kind: flagutil.FlagKindInt64, Optional: true, Description: "Max acceptable slippage in basis points (1 bp = 0.01%). Range 1-5000 (0.01%-50%); defaults to 50 (0.5%). The upper bound is intentionally wide so callers can clear the wide auction floors quoted for thinly-traded tokenized stocks."},
 }
 
-// initTokenizedAssetsOrderCmd initializes the tokenized-assets-order command.
-func initTokenizedAssetsOrderCmd(parent *cobra.Command) error {
+// initOrderCmd initializes the order command.
+func initOrderCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "tokenized-assets-order",
+		Use:     "order",
 		Short:   "Build a buy/sell order",
 		Long:    "Build a buy or sell order whose maker is the Tokenized Assets Account.\n\nReturns up to three pieces in a single round-trip:\n\n- **`quote`** — preview of the input/output amounts and fees.\n- **`approval_safe_tx_eip712`** — only present when the account's\n  allowance to the settlement contract is below `amount`. The owner\n  signs this EIP-712 payload, then it is broadcast via\n  `POST /v2/gas_sponsorship/prepare` (or the owner can broadcast\n  directly) to set the on-chain allowance. Wait for that transaction\n  to confirm before signing the order.\n- **`order`** — the order metadata (`order_hash`, `extension`,\n  `quote_id`, `order_message`) plus `safe_message_eip712`, an EIP-712\n  payload the owner signs off-chain to authorize the order. The\n  signature is submitted to `/order/submit` and is **never** broadcast\n  on-chain.\n\nThe owner never broadcasts the order itself — only the (one-time)\napproval transaction ever hits the chain.",
-		Example: "  compass tokenized-assets tokenized-assets-order --from-token <value> --to-token <value> --amount 853.30 --owner <value>",
-		RunE:    runTokenizedAssetsOrderCmd,
-		Aliases: []string{"tao"},
+		Example: "  compass tokenized-assets order --from-token <value> --to-token <value> --amount 853.30 --owner <value>",
+		RunE:    runOrderCmd,
 	}
-	flagutil.RegisterFlags(cmd, tokenizedAssetsOrderCmdMeta)
-	if err := flagutil.ValidateMeta[components.TokenizedAssetsBuildOrderRequest](tokenizedAssetsOrderCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for tokenized-assets-order: %w", err)
+	flagutil.RegisterFlags(cmd, orderCmdMeta)
+	if err := flagutil.ValidateMeta[components.TokenizedAssetsBuildOrderRequest](orderCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for order: %w", err)
 	}
 	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runTokenizedAssetsOrderCmd executes the tokenized-assets-order command.
-func runTokenizedAssetsOrderCmd(cmd *cobra.Command, args []string) error {
+// runOrderCmd executes the order command.
+func runOrderCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, tokenizedAssetsOrderCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, tokenizedAssetsOrderCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, orderCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, orderCmdMeta); err != nil {
 			return err
 		}
 	}
-	request, err := flagutil.BuildRequest[components.TokenizedAssetsBuildOrderRequest](cmd, tokenizedAssetsOrderCmdMeta, "", "body")
+	request, err := flagutil.BuildRequest[components.TokenizedAssetsBuildOrderRequest](cmd, orderCmdMeta, "", "body")
 	if err != nil {
 		return err
 	}
@@ -75,7 +74,7 @@ func runTokenizedAssetsOrderCmd(cmd *cobra.Command, args []string) error {
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.TokenizedAssets.TokenizedAssetsOrder(cmd.Context(), *request, sdkOpts...)
+	res, err := s.TokenizedAssets.Order(cmd.Context(), *request, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

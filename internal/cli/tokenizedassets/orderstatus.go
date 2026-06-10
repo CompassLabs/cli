@@ -14,39 +14,39 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tokenizedAssetsOrderOrderHashCmdMeta = []flagutil.FlagMeta{
+var orderStatusCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "order-hash", FieldPath: "OrderHash", Kind: flagutil.FlagKindString, Required: true, Description: "[required]"},
 }
 
-// initTokenizedAssetsOrderOrderHashCmd initializes the tokenized-assets-order-order-hash command.
-func initTokenizedAssetsOrderOrderHashCmd(parent *cobra.Command) error {
+// initOrderStatusCmd initializes the order-status command.
+func initOrderStatusCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "tokenized-assets-order-order-hash",
+		Use:     "order-status",
 		Short:   "Get order status",
 		Long:    "Get the lifecycle state of a submitted order.\n\nThe `status` field is one of `pending`, `filled`, `expired`, or\n`cancelled`. Partial fills stay in `pending` while `filled_amount` is\npopulated as fills come in; once an order fully fills, `fill_tx_hash`\nis also returned.\n\nUpstream protocol states beyond these four (e.g. `partially-filled`,\n`refunded`) are mapped onto this set.",
-		Example: "  compass tokenized-assets tokenized-assets-order-order-hash --order-hash <value>",
-		RunE:    runTokenizedAssetsOrderOrderHashCmd,
-		Aliases: []string{"taooh"},
+		Example: "  compass tokenized-assets order-status --order-hash <value>",
+		RunE:    runOrderStatusCmd,
+		Aliases: []string{"os"},
 	}
-	flagutil.RegisterFlags(cmd, tokenizedAssetsOrderOrderHashCmdMeta)
-	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsOrderOrderHashRequest](tokenizedAssetsOrderOrderHashCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for tokenized-assets-order-order-hash: %w", err)
+	flagutil.RegisterFlags(cmd, orderStatusCmdMeta)
+	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsOrderOrderHashRequest](orderStatusCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for order-status: %w", err)
 	}
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runTokenizedAssetsOrderOrderHashCmd executes the tokenized-assets-order-order-hash command.
-func runTokenizedAssetsOrderOrderHashCmd(cmd *cobra.Command, args []string) error {
+// runOrderStatusCmd executes the order-status command.
+func runOrderStatusCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, tokenizedAssetsOrderOrderHashCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, tokenizedAssetsOrderOrderHashCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, orderStatusCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, orderStatusCmdMeta); err != nil {
 			return err
 		}
 	}
-	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsOrderOrderHashRequest](cmd, tokenizedAssetsOrderOrderHashCmdMeta, "", "")
+	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsOrderOrderHashRequest](cmd, orderStatusCmdMeta, "", "")
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,7 @@ func runTokenizedAssetsOrderOrderHashCmd(cmd *cobra.Command, args []string) erro
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.TokenizedAssets.TokenizedAssetsOrderOrderHash(cmd.Context(), *req, sdkOpts...)
+	res, err := s.TokenizedAssets.OrderStatus(cmd.Context(), *req, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

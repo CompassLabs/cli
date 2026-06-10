@@ -1,38 +1,42 @@
-## compass tokenized-assets tokenized-assets-order-order-hash-cancel
+## compass tokenized-assets market
 
-Cancel an unfilled order
+Get a single market
 
 ### Synopsis
 
-Build the EIP-712 payload to cancel an unfilled order on-chain.
+Get extended detail for a single tokenized equity (e.g. `TSLAon`).
 
-Returns ``cancel_safe_tx_eip712``, an EIP-712 payload that authorizes
-the on-chain cancellation. Sign with the Tokenized Assets Account's
-owner via ``wallet.signTypedData(...)`` and relay via
-``POST /v2/gas_sponsorship/prepare`` so the sponsor broadcasts the
-cancellation on the product account. The owner can also broadcast
-the resulting transaction directly without using gas sponsorship.
+Includes 52-week range, volume, market cap, holder count, and tradable
+sessions in addition to the fields returned by `/markets`.
 
-Cancellation works on `pending` and `expired` orders only. Only the
-Tokenized Assets Account that placed the order can cancel it.
+**OHLC candles** are opt-in: pass both `interval` and `range` query
+params to include a `candles` array in the response. They must be
+provided together and must form one of the supported pairs:
+
+- `1min` / `5min` / `15min` with `range=1day`
+- `1hour` / `4hour` with `range=1month`
+- `12hour` with `range=3month`
+- `1day` with `range=3month` / `6month` / `1year` / `all`
+
+Omitting both returns the market detail without `candles`.
 
 ```
-compass tokenized-assets tokenized-assets-order-order-hash-cancel [flags]
+compass tokenized-assets market [flags]
 ```
 
 ### Examples
 
 ```
-  compass tokenized-assets tokenized-assets-order-order-hash-cancel --order-hash <value> --owner <value>
+  compass tokenized-assets market --symbol <value>
 ```
 
 ### Options
 
 ```
-      --body string         Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -h, --help                help for tokenized-assets-order-order-hash-cancel
-      --order-hash string   [required]
-      --owner string        Wallet that owns the Tokenized Assets Account. The account address derived from this owner must match the order's on-chain maker; the API rejects otherwise (only the order's maker can cancel it). [required]
+  -h, --help             help for market
+  -i, --interval range   Optional candle interval. Must be paired with range and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1min, 5min, 15min, 1hour, 4hour, 12hour, 1day)
+  -r, --range interval   Optional lookback window. Must be paired with interval and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1day, 1month, 3month, 6month, 1year, all)
+  -s, --symbol string    [required]
 ```
 
 ### Options inherited from parent commands

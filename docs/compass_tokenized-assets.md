@@ -38,15 +38,15 @@ compass tokenized-assets [flags]
 ### SEE ALSO
 
 * [compass](compass.md)	 - Compass API: Compass Labs DeFi API
-* [compass tokenized-assets tokenized-assets-create-account](compass_tokenized-assets_tokenized-assets-create-account.md)	 - Create a Tokenized Assets Account
-* [compass tokenized-assets tokenized-assets-markets](compass_tokenized-assets_tokenized-assets-markets.md)	 - List tokenized asset markets
-* [compass tokenized-assets tokenized-assets-markets-symbol](compass_tokenized-assets_tokenized-assets-markets-symbol.md)	 - Get a single market
-* [compass tokenized-assets tokenized-assets-order](compass_tokenized-assets_tokenized-assets-order.md)	 - Build a buy/sell order
-* [compass tokenized-assets tokenized-assets-order-order-hash](compass_tokenized-assets_tokenized-assets-order-order-hash.md)	 - Get order status
-* [compass tokenized-assets tokenized-assets-order-order-hash-cancel](compass_tokenized-assets_tokenized-assets-order-order-hash-cancel.md)	 - Cancel an unfilled order
-* [compass tokenized-assets tokenized-assets-order-submit](compass_tokenized-assets_tokenized-assets-order-submit.md)	 - Submit a signed order
-* [compass tokenized-assets tokenized-assets-positions](compass_tokenized-assets_tokenized-assets-positions.md)	 - Get tokenized-asset positions for an owner
-* [compass tokenized-assets tokenized-assets-quote](compass_tokenized-assets_tokenized-assets-quote.md)	 - Preview a buy/sell quote
-* [compass tokenized-assets tokenized-assets-transact-buy](compass_tokenized-assets_tokenized-assets-transact-buy.md)	 - Buy a swap-traded tokenized asset
-* [compass tokenized-assets tokenized-assets-transact-sell](compass_tokenized-assets_tokenized-assets-transact-sell.md)	 - Sell a swap-traded tokenized asset
-* [compass tokenized-assets tokenized-assets-transfer](compass_tokenized-assets_tokenized-assets-transfer.md)	 - Deposit to / withdraw from a Tokenized Assets Account
+* [compass tokenized-assets buy](compass_tokenized-assets_buy.md)	 - Buy a swap-traded tokenized asset
+* [compass tokenized-assets create-account](compass_tokenized-assets_create-account.md)	 - Create a Tokenized Assets Account
+* [compass tokenized-assets market](compass_tokenized-assets_market.md)	 - Get a single market
+* [compass tokenized-assets markets](compass_tokenized-assets_markets.md)	 - List tokenized asset markets
+* [compass tokenized-assets order](compass_tokenized-assets_order.md)	 - Build a buy/sell order
+* [compass tokenized-assets order-cancel](compass_tokenized-assets_order-cancel.md)	 - Cancel an unfilled order
+* [compass tokenized-assets order-status](compass_tokenized-assets_order-status.md)	 - Get order status
+* [compass tokenized-assets order-submit](compass_tokenized-assets_order-submit.md)	 - Submit a signed order
+* [compass tokenized-assets positions](compass_tokenized-assets_positions.md)	 - Get tokenized-asset positions for an owner
+* [compass tokenized-assets quote](compass_tokenized-assets_quote.md)	 - Preview a buy/sell quote
+* [compass tokenized-assets sell](compass_tokenized-assets_sell.md)	 - Sell a swap-traded tokenized asset
+* [compass tokenized-assets transfer](compass_tokenized-assets_transfer.md)	 - Deposit to / withdraw from a Tokenized Assets Account

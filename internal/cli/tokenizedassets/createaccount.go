@@ -15,43 +15,43 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tokenizedAssetsCreateAccountCmdMeta = []flagutil.FlagMeta{
+var createAccountCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "sender", Shorthand: "s", FieldPath: "Sender", Kind: flagutil.FlagKindString, Required: true, Description: "The address of the transaction sender. [required]"},
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address that will own and control the compass Tokenized Assets Account [required]"},
 	{FlagName: "estimate-gas", Shorthand: "e", FieldPath: "EstimateGas", Kind: flagutil.FlagKindBool, Optional: true, Description: "Determines whether to estimate gas costs for transactions, also verifying that the transaction can be successfully executed."},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo)"},
 }
 
-// initTokenizedAssetsCreateAccountCmd initializes the tokenized-assets-create-account command.
-func initTokenizedAssetsCreateAccountCmd(parent *cobra.Command) error {
+// initCreateAccountCmd initializes the create-account command.
+func initCreateAccountCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "tokenized-assets-create-account",
+		Use:     "create-account",
 		Short:   "Create a Tokenized Assets Account",
 		Long:    "Create a Tokenized Assets Account for a wallet address.\n\nBefore placing orders, the owner must create a Tokenized Assets Account.\nEach wallet address has one Tokenized Assets Account, isolated from the\nowner's Earn, Credit, and other product accounts.\n\nThe account address is deterministic. If it already exists, the\nresponse returns `transaction: null` and you can skip straight to\nbuilding orders.\n\nReturns an unsigned transaction to create the account. The `sender`\nsigns and broadcasts this transaction.\n\n**If owner pays gas:** Set `sender` to the owner's address.\n\n**If someone else pays gas:** Set `sender` to the wallet that will\nsign and broadcast the transaction on behalf of the owner.",
-		Example: "  compass tokenized-assets tokenized-assets-create-account --sender 0x18b42407AbC163f595410Ffe773BB98Db40B48F7 --owner 0x18b42407AbC163f595410Ffe773BB98Db40B48F7",
-		RunE:    runTokenizedAssetsCreateAccountCmd,
-		Aliases: []string{"taca"},
+		Example: "  compass tokenized-assets create-account --sender 0x18b42407AbC163f595410Ffe773BB98Db40B48F7 --owner 0x18b42407AbC163f595410Ffe773BB98Db40B48F7",
+		RunE:    runCreateAccountCmd,
+		Aliases: []string{"ca"},
 	}
-	flagutil.RegisterFlags(cmd, tokenizedAssetsCreateAccountCmdMeta)
-	if err := flagutil.ValidateMeta[components.CreateTokenizedAssetsAccountRequest](tokenizedAssetsCreateAccountCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for tokenized-assets-create-account: %w", err)
+	flagutil.RegisterFlags(cmd, createAccountCmdMeta)
+	if err := flagutil.ValidateMeta[components.CreateTokenizedAssetsAccountRequest](createAccountCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for create-account: %w", err)
 	}
 	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runTokenizedAssetsCreateAccountCmd executes the tokenized-assets-create-account command.
-func runTokenizedAssetsCreateAccountCmd(cmd *cobra.Command, args []string) error {
+// runCreateAccountCmd executes the create-account command.
+func runCreateAccountCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, tokenizedAssetsCreateAccountCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, tokenizedAssetsCreateAccountCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, createAccountCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, createAccountCmdMeta); err != nil {
 			return err
 		}
 	}
-	request, err := flagutil.BuildRequest[components.CreateTokenizedAssetsAccountRequest](cmd, tokenizedAssetsCreateAccountCmdMeta, "", "body")
+	request, err := flagutil.BuildRequest[components.CreateTokenizedAssetsAccountRequest](cmd, createAccountCmdMeta, "", "body")
 	if err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func runTokenizedAssetsCreateAccountCmd(cmd *cobra.Command, args []string) error
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.TokenizedAssets.TokenizedAssetsCreateAccount(cmd.Context(), *request, sdkOpts...)
+	res, err := s.TokenizedAssets.CreateAccount(cmd.Context(), *request, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

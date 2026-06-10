@@ -30,7 +30,7 @@ func newTokenizedAssets(rootSDK *CompassCLI, sdkConfig config.SDKConfiguration, 
 	}
 }
 
-// TokenizedAssetsMarkets - List tokenized asset markets
+// Markets - List tokenized asset markets
 // List tokenized asset markets: Ondo equities and Midas RWA yield tokens.
 //
 // Each entry includes the symbol, the underlying ticker, the on-chain
@@ -40,7 +40,7 @@ func newTokenizedAssets(rootSDK *CompassCLI, sdkConfig config.SDKConfiguration, 
 //
 // Only Ethereum-deployed tokens are returned; assets that exist only on
 // other chains are omitted.
-func (s *TokenizedAssets) TokenizedAssetsMarkets(ctx context.Context, request *operations.V2TokenizedAssetsMarketsRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsMarketsResponse, error) {
+func (s *TokenizedAssets) Markets(ctx context.Context, request *operations.V2TokenizedAssetsMarketsRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsMarketsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -237,7 +237,7 @@ func (s *TokenizedAssets) TokenizedAssetsMarkets(ctx context.Context, request *o
 
 }
 
-// TokenizedAssetsMarketsSymbol - Get a single market
+// Market - Get a single market
 // Get extended detail for a single tokenized equity (e.g. `TSLAon`).
 //
 // Includes 52-week range, volume, market cap, holder count, and tradable
@@ -253,7 +253,7 @@ func (s *TokenizedAssets) TokenizedAssetsMarkets(ctx context.Context, request *o
 // - `1day` with `range=3month` / `6month` / `1year` / `all`
 //
 // Omitting both returns the market detail without `candles`.
-func (s *TokenizedAssets) TokenizedAssetsMarketsSymbol(ctx context.Context, request operations.V2TokenizedAssetsMarketsSymbolRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsMarketsSymbolResponse, error) {
+func (s *TokenizedAssets) Market(ctx context.Context, request operations.V2TokenizedAssetsMarketsSymbolRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsMarketsSymbolResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -477,7 +477,7 @@ func (s *TokenizedAssets) TokenizedAssetsMarketsSymbol(ctx context.Context, requ
 
 }
 
-// TokenizedAssetsPositions - Get tokenized-asset positions for an owner
+// Positions - Get tokenized-asset positions for an owner
 // Get the tokenized-equity holdings for an owner.
 //
 // The owner's Tokenized Assets Account address is derived deterministically
@@ -489,7 +489,7 @@ func (s *TokenizedAssets) TokenizedAssetsMarketsSymbol(ctx context.Context, requ
 //
 // Returns 400 `ACCOUNT_NOT_DEPLOYED` if the owner has no Tokenized Assets
 // Account deployed yet — create one via `/create_account` first.
-func (s *TokenizedAssets) TokenizedAssetsPositions(ctx context.Context, request operations.V2TokenizedAssetsPositionsRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsPositionsResponse, error) {
+func (s *TokenizedAssets) Positions(ctx context.Context, request operations.V2TokenizedAssetsPositionsRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsPositionsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -711,7 +711,7 @@ func (s *TokenizedAssets) TokenizedAssetsPositions(ctx context.Context, request 
 
 }
 
-// TokenizedAssetsOrderOrderHash - Get order status
+// OrderStatus - Get order status
 // Get the lifecycle state of a submitted order.
 //
 // The `status` field is one of `pending`, `filled`, `expired`, or
@@ -721,7 +721,7 @@ func (s *TokenizedAssets) TokenizedAssetsPositions(ctx context.Context, request 
 //
 // Upstream protocol states beyond these four (e.g. `partially-filled`,
 // `refunded`) are mapped onto this set.
-func (s *TokenizedAssets) TokenizedAssetsOrderOrderHash(ctx context.Context, request operations.V2TokenizedAssetsOrderOrderHashRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsOrderOrderHashResponse, error) {
+func (s *TokenizedAssets) OrderStatus(ctx context.Context, request operations.V2TokenizedAssetsOrderOrderHashRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsOrderOrderHashResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -941,7 +941,7 @@ func (s *TokenizedAssets) TokenizedAssetsOrderOrderHash(ctx context.Context, req
 
 }
 
-// TokenizedAssetsCreateAccount - Create a Tokenized Assets Account
+// CreateAccount - Create a Tokenized Assets Account
 // Create a Tokenized Assets Account for a wallet address.
 //
 // Before placing orders, the owner must create a Tokenized Assets Account.
@@ -959,7 +959,7 @@ func (s *TokenizedAssets) TokenizedAssetsOrderOrderHash(ctx context.Context, req
 //
 // **If someone else pays gas:** Set `sender` to the wallet that will
 // sign and broadcast the transaction on behalf of the owner.
-func (s *TokenizedAssets) TokenizedAssetsCreateAccount(ctx context.Context, request components.CreateTokenizedAssetsAccountRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsCreateAccountResponse, error) {
+func (s *TokenizedAssets) CreateAccount(ctx context.Context, request components.CreateTokenizedAssetsAccountRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsCreateAccountResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1134,7 +1134,7 @@ func (s *TokenizedAssets) TokenizedAssetsCreateAccount(ctx context.Context, requ
 
 }
 
-// TokenizedAssetsTransfer - Deposit to / withdraw from a Tokenized Assets Account
+// Transfer - Deposit to / withdraw from a Tokenized Assets Account
 // Move tokens between the owner's wallet and their Tokenized Assets Account.
 //
 // Use `DEPOSIT` to fund the account from the owner's wallet, or `WITHDRAW` to
@@ -1153,7 +1153,7 @@ func (s *TokenizedAssets) TokenizedAssetsCreateAccount(ctx context.Context, requ
 // With `gas_sponsorship=false` a DEPOSIT returns an unsigned ERC-20 transfer
 // the owner broadcasts directly, and a WITHDRAW returns an unsigned Safe
 // `execTransaction` the owner signs and broadcasts.
-func (s *TokenizedAssets) TokenizedAssetsTransfer(ctx context.Context, request components.TokenizedAssetsTransferRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsTransferResponse, error) {
+func (s *TokenizedAssets) Transfer(ctx context.Context, request components.TokenizedAssetsTransferRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsTransferResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1353,7 +1353,7 @@ func (s *TokenizedAssets) TokenizedAssetsTransfer(ctx context.Context, request c
 
 }
 
-// TokenizedAssetsQuote - Preview a buy/sell quote
+// Quote - Preview a buy/sell quote
 // Preview the input/output amounts, fees, and slippage tolerance for an order.
 //
 // Read-only relative to Fusion: hits “/quote/receive“ only and does not
@@ -1372,7 +1372,7 @@ func (s *TokenizedAssets) TokenizedAssetsTransfer(ctx context.Context, request c
 //   - **`auction_range_bps`** — worst-case bps gap between the auction
 //     end amount and the reference quote amount. Use to surface a
 //     thin-liquidity warning to the user.
-func (s *TokenizedAssets) TokenizedAssetsQuote(ctx context.Context, request components.TokenizedAssetsQuoteRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsQuoteResponse, error) {
+func (s *TokenizedAssets) Quote(ctx context.Context, request components.TokenizedAssetsQuoteRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsQuoteResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1601,7 +1601,7 @@ func (s *TokenizedAssets) TokenizedAssetsQuote(ctx context.Context, request comp
 
 }
 
-// TokenizedAssetsOrder - Build a buy/sell order
+// Order - Build a buy/sell order
 // Build a buy or sell order whose maker is the Tokenized Assets Account.
 //
 // Returns up to three pieces in a single round-trip:
@@ -1621,7 +1621,7 @@ func (s *TokenizedAssets) TokenizedAssetsQuote(ctx context.Context, request comp
 //
 // The owner never broadcasts the order itself — only the (one-time)
 // approval transaction ever hits the chain.
-func (s *TokenizedAssets) TokenizedAssetsOrder(ctx context.Context, request components.TokenizedAssetsBuildOrderRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsOrderResponse, error) {
+func (s *TokenizedAssets) Order(ctx context.Context, request components.TokenizedAssetsBuildOrderRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsOrderResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1829,7 +1829,7 @@ func (s *TokenizedAssets) TokenizedAssetsOrder(ctx context.Context, request comp
 
 }
 
-// TokenizedAssetsOrderSubmit - Submit a signed order
+// OrderSubmit - Submit a signed order
 // Submit a signed order to the resolver network.
 //
 // The body echoes the `order` fields from `/order` (`signed_order`,
@@ -1841,7 +1841,7 @@ func (s *TokenizedAssets) TokenizedAssetsOrder(ctx context.Context, request comp
 // Returns the order hash and a server-side ISO 8601 timestamp.
 // Subsequent calls to `GET /order/{order_hash}` track the lifecycle
 // (`pending` → `filled` / `expired` / `cancelled`).
-func (s *TokenizedAssets) TokenizedAssetsOrderSubmit(ctx context.Context, request components.TokenizedAssetsSubmitOrderRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsOrderSubmitResponse, error) {
+func (s *TokenizedAssets) OrderSubmit(ctx context.Context, request components.TokenizedAssetsSubmitOrderRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsOrderSubmitResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -2068,7 +2068,7 @@ func (s *TokenizedAssets) TokenizedAssetsOrderSubmit(ctx context.Context, reques
 
 }
 
-// TokenizedAssetsOrderOrderHashCancel - Cancel an unfilled order
+// OrderCancel - Cancel an unfilled order
 // Build the EIP-712 payload to cancel an unfilled order on-chain.
 //
 // Returns “cancel_safe_tx_eip712“, an EIP-712 payload that authorizes
@@ -2080,7 +2080,7 @@ func (s *TokenizedAssets) TokenizedAssetsOrderSubmit(ctx context.Context, reques
 //
 // Cancellation works on `pending` and `expired` orders only. Only the
 // Tokenized Assets Account that placed the order can cancel it.
-func (s *TokenizedAssets) TokenizedAssetsOrderOrderHashCancel(ctx context.Context, request operations.V2TokenizedAssetsOrderOrderHashCancelRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsOrderOrderHashCancelResponse, error) {
+func (s *TokenizedAssets) OrderCancel(ctx context.Context, request operations.V2TokenizedAssetsOrderOrderHashCancelRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsOrderOrderHashCancelResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -2311,7 +2311,7 @@ func (s *TokenizedAssets) TokenizedAssetsOrderOrderHashCancel(ctx context.Contex
 
 }
 
-// TokenizedAssetsTransactBuy - Buy a swap-traded tokenized asset
+// Buy a swap-traded tokenized asset
 // Buy an RWA yield asset (e.g. `mTBILL`) inside the product account.
 //
 // Swaps `token_in` (already held by the Tokenized Assets Account — fund it
@@ -2321,7 +2321,7 @@ func (s *TokenizedAssets) TokenizedAssetsOrderOrderHashCancel(ctx context.Contex
 //
 // `token_out` must be a swap-traded tokenized asset; equities trade via the
 // order endpoints (`/quote`, `/order`, `/order/submit`).
-func (s *TokenizedAssets) TokenizedAssetsTransactBuy(ctx context.Context, request components.TokenizedAssetsTradeRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsTransactBuyResponse, error) {
+func (s *TokenizedAssets) Buy(ctx context.Context, request components.TokenizedAssetsTradeRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsTransactBuyResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -2496,14 +2496,14 @@ func (s *TokenizedAssets) TokenizedAssetsTransactBuy(ctx context.Context, reques
 
 }
 
-// TokenizedAssetsTransactSell - Sell a swap-traded tokenized asset
+// Sell a swap-traded tokenized asset
 // Sell an RWA yield asset (e.g. `mTBILL`) inside the product account.
 //
 // Swaps `token_in` (a swap-traded tokenized asset held by the Tokenized
 // Assets Account) into `token_out` via the 1inch Aggregation Router.
 // Returns an unsigned transaction for the owner to sign, or an EIP-712
 // payload when `gas_sponsorship` is true.
-func (s *TokenizedAssets) TokenizedAssetsTransactSell(ctx context.Context, request components.TokenizedAssetsTradeRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsTransactSellResponse, error) {
+func (s *TokenizedAssets) Sell(ctx context.Context, request components.TokenizedAssetsTradeRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsTransactSellResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,

@@ -1,4 +1,4 @@
-## compass tokenized-assets tokenized-assets-transfer
+## compass tokenized-assets transfer
 
 Deposit to / withdraw from a Tokenized Assets Account
 
@@ -24,13 +24,13 @@ the owner broadcasts directly, and a WITHDRAW returns an unsigned Safe
 `execTransaction` the owner signs and broadcasts.
 
 ```
-compass tokenized-assets tokenized-assets-transfer [flags]
+compass tokenized-assets transfer [flags]
 ```
 
 ### Examples
 
 ```
-  compass tokenized-assets tokenized-assets-transfer --owner 0x9bDC45AA15FdFFc52E103EA05c260c494A5638f7 --token USDC --amount 100 --action DEPOSIT
+  compass tokenized-assets transfer --owner 0x9bDC45AA15FdFFc52E103EA05c260c494A5638f7 --token USDC --amount 100 --action DEPOSIT
 ```
 
 ### Options
@@ -41,7 +41,7 @@ compass tokenized-assets tokenized-assets-transfer [flags]
       --body string            Request body as JSON (alternative to individual flags). Can also be provided via stdin.
   -c, --chain string           The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo)
   -g, --gas-sponsorship true   Optionally request gas sponsorship. If set to true, EIP-712 signature data will be returned that must be signed by the `owner` and submitted to the `/gas_sponsorship/prepare` endpoint.
-  -h, --help                   help for tokenized-assets-transfer
+  -h, --help                   help for transfer
       --owner string           The owner's wallet address (EOA). [required]
   -s, --spender action         The address that will call Permit2's permitTransferFrom to execute the transfer. When action is 'DEPOSIT' and `gas_sponsorship` is `true`: - If provided, the signature will authorize this address (typically a gas sponsor) to pull tokens. - If not provided, defaults to the Tokenized Assets Account (Safe) address, allowing the transfer to be included in a bundle transaction where the Safe pulls the tokens itself.
   -t, --token string           The token to transfer. Tokenized-asset orders settle in USDC. [required]
