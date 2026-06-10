@@ -7,7 +7,7 @@ package components
 // The owner signs “safe_message_eip712“ off-chain. At submit time the
 // signature is sent back to “/order/submit“ together with
 // “order_message“, “extension“, and “quote_id“; resolvers validate
-// the signature against the Tokenized Equities Account at fill time.
+// the signature against the Tokenized Assets Account at fill time.
 type OrderToSign struct {
 	// The on-chain order hash. Wrapped inside `safe_message_eip712.message.message` for the owner to sign; also passed back to `/order/submit` so the API can return a usable handle even if the upstream submit response omits the hash.
 	OrderHash string `json:"order_hash"`

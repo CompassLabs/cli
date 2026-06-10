@@ -2,11 +2,6 @@
 
 package components
 
-import (
-	"encoding/json"
-	"fmt"
-)
-
 // Chain - The chain to use.
 type Chain string
 
@@ -21,24 +16,14 @@ const (
 func (e Chain) ToPointer() *Chain {
 	return &e
 }
-func (e *Chain) UnmarshalJSON(data []byte) error {
-	var v string
-	if err := json.Unmarshal(data, &v); err != nil {
-		return err
+
+// IsExact returns true if the value matches a known enum value, false otherwise.
+func (e *Chain) IsExact() bool {
+	if e != nil {
+		switch *e {
+		case "base", "ethereum", "arbitrum", "hyperevm", "tempo":
+			return true
+		}
 	}
-	switch v {
-	case "base":
-		fallthrough
-	case "ethereum":
-		fallthrough
-	case "arbitrum":
-		fallthrough
-	case "hyperevm":
-		fallthrough
-	case "tempo":
-		*e = Chain(v)
-		return nil
-	default:
-		return fmt.Errorf("invalid value for Chain: %v", v)
-	}
+	return false
 }

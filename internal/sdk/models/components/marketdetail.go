@@ -29,6 +29,22 @@ type MarketDetail struct {
 	Sectors []string `json:"sectors,omitzero"`
 	// Regional market exposure tags (e.g. ['US']).
 	RegionExposure []string `json:"region_exposure,omitzero"`
+	// Issuer/provider of a tokenized asset.
+	Provider *TokenizedAssetProvider `json:"provider,omitzero"`
+	// Asset class of a tokenized asset.
+	//
+	// `EQUITY` trades via the order endpoints (build/submit/cancel); the RWA
+	// yield classes (`T_BILLS`, `BASIS_TRADE`, `BTC_YIELD`) trade via the
+	// swap-based `transact/buy` and `transact/sell` endpoints.
+	AssetClass *TokenizedAssetClass `json:"asset_class,omitzero"`
+	// The chain to use.
+	Chain *Chain `json:"chain,omitzero"`
+	// Trailing 7-day annualized NAV growth (decimal fraction string, e.g. '0.0512' = 5.12%). RWA yield assets only; null until enough NAV history exists.
+	Apy7d optionalnullable.OptionalNullable[string] `json:"apy_7d,omitzero"`
+	// Trailing 30-day annualized NAV growth (decimal fraction string). RWA yield assets only; null until enough NAV history exists.
+	Apy30d optionalnullable.OptionalNullable[string] `json:"apy_30d,omitzero"`
+	// Total value locked in USD (RWA yield assets only).
+	TvlUsd optionalnullable.OptionalNullable[string] `json:"tvl_usd,omitzero"`
 	// 24h price sparkline as `(timestamp, price)` samples in chronological order.
 	PriceHistory24h []PricePoint `json:"price_history_24h,omitzero"`
 	// 52-week high of the underlying equity (USD).
@@ -132,6 +148,48 @@ func (m *MarketDetail) GetRegionExposure() []string {
 		return nil
 	}
 	return m.RegionExposure
+}
+
+func (m *MarketDetail) GetProvider() *TokenizedAssetProvider {
+	if m == nil {
+		return nil
+	}
+	return m.Provider
+}
+
+func (m *MarketDetail) GetAssetClass() *TokenizedAssetClass {
+	if m == nil {
+		return nil
+	}
+	return m.AssetClass
+}
+
+func (m *MarketDetail) GetChain() *Chain {
+	if m == nil {
+		return nil
+	}
+	return m.Chain
+}
+
+func (m *MarketDetail) GetApy7d() optionalnullable.OptionalNullable[string] {
+	if m == nil {
+		return nil
+	}
+	return m.Apy7d
+}
+
+func (m *MarketDetail) GetApy30d() optionalnullable.OptionalNullable[string] {
+	if m == nil {
+		return nil
+	}
+	return m.Apy30d
+}
+
+func (m *MarketDetail) GetTvlUsd() optionalnullable.OptionalNullable[string] {
+	if m == nil {
+		return nil
+	}
+	return m.TvlUsd
 }
 
 func (m *MarketDetail) GetPriceHistory24h() []PricePoint {

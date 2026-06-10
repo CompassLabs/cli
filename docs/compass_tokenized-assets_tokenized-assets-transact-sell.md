@@ -1,16 +1,41 @@
-## compass
+## compass tokenized-assets tokenized-assets-transact-sell
 
-Compass API: Compass Labs DeFi API
+Sell a swap-traded tokenized asset
 
 ### Synopsis
 
-Compass API: Compass Labs DeFi API
+Sell an RWA yield asset (e.g. `mTBILL`) inside the product account.
+
+Swaps `token_in` (a swap-traded tokenized asset held by the Tokenized
+Assets Account) into `token_out` via the 1inch Aggregation Router.
+Returns an unsigned transaction for the owner to sign, or an EIP-712
+payload when `gas_sponsorship` is true.
 
 ```
-compass [flags]
+compass tokenized-assets tokenized-assets-transact-sell [flags]
+```
+
+### Examples
+
+```
+  compass tokenized-assets tokenized-assets-transact-sell --token-in <value> --token-out <value> --amount-in 8512.47 --owner <value> --chain ethereum
 ```
 
 ### Options
+
+```
+  -a, --amount-in string   JSON value (one of: number | string)
+      --body string        Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -c, --chain string       The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
+  -g, --gas-sponsorship    When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction.
+  -h, --help               help for tokenized-assets-transact-sell
+      --owner string       The owner's wallet address. [required]
+  -s, --slippage string    JSON value (one of: number | string)
+      --token-in string    Token to spend. For a buy this is any supported token (e.g. 'USDC'); for a sell it must be a swap-traded tokenized asset (e.g. 'mTBILL'). [required]
+      --token-out string   Token to receive. For a buy this must be a swap-traded tokenized asset (e.g. 'mTBILL'); for a sell it is any supported token. [required]
+```
+
+### Options inherited from parent commands
 
 ```
       --agent-mode             Enable structured errors and default TOON output for AI coding agents. Automatically enabled when a known agent environment is detected (CLAUDE_CODE, CURSOR_AGENT, etc.). Use --agent-mode=false to disable.
@@ -19,7 +44,6 @@ compass [flags]
   -d, --debug                  Log request and response diagnostics to stderr
       --dry-run                Preview the request that would be sent without executing it (output to stderr)
   -H, --header stringArray     Set a custom HTTP request header (format: "Key: Value"). Can be specified multiple times.
-  -h, --help                   help for compass
       --include-headers        Include HTTP response headers in the output
   -q, --jq string              Filter and transform output using a jq expression (e.g., '.name', '.items[] | .id')
       --no-interactive         Disable all interactive features (auto-prompting, explorer auto-launch, TUI forms)
@@ -32,13 +56,4 @@ compass [flags]
 
 ### SEE ALSO
 
-* [compass auth](compass_auth.md)	 - Manage authentication credentials
-* [compass configure](compass_configure.md)	 - Configure authentication credentials and preferences
-* [compass credit](compass_credit.md)	 - Operations for credit
-* [compass earn](compass_earn.md)	 - Operations for earn
-* [compass explore](compass_explore.md)	 - Interactively browse and run commands
-* [compass gas-sponsorship](compass_gas-sponsorship.md)	 - Operations for gas-sponsorship
-* [compass global-markets-perps](compass_global-markets-perps.md)	 - Operations for global-markets-perps
 * [compass tokenized-assets](compass_tokenized-assets.md)	 - Operations for tokenized-assets
-* [compass version](compass_version.md)	 - Print the CLI version
-* [compass whoami](compass_whoami.md)	 - Display current authentication configuration

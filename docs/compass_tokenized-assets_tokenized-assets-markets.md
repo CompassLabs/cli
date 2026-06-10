@@ -1,16 +1,41 @@
-## compass
+## compass tokenized-assets tokenized-assets-markets
 
-Compass API: Compass Labs DeFi API
+List tokenized asset markets
 
 ### Synopsis
 
-Compass API: Compass Labs DeFi API
+List tokenized asset markets: Ondo equities and Midas RWA yield tokens.
+
+Each entry includes the symbol, the underlying ticker, the on-chain
+contract address, the latest USD price, and 24h price change. Filter
+by `category` (sector tag) or `search` (substring match against symbol,
+ticker, or name).
+
+Only Ethereum-deployed tokens are returned; assets that exist only on
+other chains are omitted.
 
 ```
-compass [flags]
+compass tokenized-assets tokenized-assets-markets [flags]
+```
+
+### Examples
+
+```
+  compass tokenized-assets tokenized-assets-markets
 ```
 
 ### Options
+
+```
+  -a, --asset-class string   Filter by asset class (EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD). (options: EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD)
+      --category string      Filter markets by category (e.g. 'tech', 'finance').
+      --chain string         Filter by network. Equities are Ethereum-only; RWA yield assets exist on Ethereum and Base. (options: base, ethereum, arbitrum, hyperevm, tempo)
+  -h, --help                 help for tokenized-assets-markets
+  -p, --provider string      Filter by issuer ('ondo' equities, 'midas' RWA yield). (options: ondo, midas)
+  -s, --search string        Case-insensitive substring match against the on-chain symbol, underlying ticker, and underlying name.
+```
+
+### Options inherited from parent commands
 
 ```
       --agent-mode             Enable structured errors and default TOON output for AI coding agents. Automatically enabled when a known agent environment is detected (CLAUDE_CODE, CURSOR_AGENT, etc.). Use --agent-mode=false to disable.
@@ -19,7 +44,6 @@ compass [flags]
   -d, --debug                  Log request and response diagnostics to stderr
       --dry-run                Preview the request that would be sent without executing it (output to stderr)
   -H, --header stringArray     Set a custom HTTP request header (format: "Key: Value"). Can be specified multiple times.
-  -h, --help                   help for compass
       --include-headers        Include HTTP response headers in the output
   -q, --jq string              Filter and transform output using a jq expression (e.g., '.name', '.items[] | .id')
       --no-interactive         Disable all interactive features (auto-prompting, explorer auto-launch, TUI forms)
@@ -32,13 +56,4 @@ compass [flags]
 
 ### SEE ALSO
 
-* [compass auth](compass_auth.md)	 - Manage authentication credentials
-* [compass configure](compass_configure.md)	 - Configure authentication credentials and preferences
-* [compass credit](compass_credit.md)	 - Operations for credit
-* [compass earn](compass_earn.md)	 - Operations for earn
-* [compass explore](compass_explore.md)	 - Interactively browse and run commands
-* [compass gas-sponsorship](compass_gas-sponsorship.md)	 - Operations for gas-sponsorship
-* [compass global-markets-perps](compass_global-markets-perps.md)	 - Operations for global-markets-perps
 * [compass tokenized-assets](compass_tokenized-assets.md)	 - Operations for tokenized-assets
-* [compass version](compass_version.md)	 - Print the CLI version
-* [compass whoami](compass_whoami.md)	 - Display current authentication configuration

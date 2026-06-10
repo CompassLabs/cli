@@ -13,9 +13,9 @@ import (
 type Product string
 
 const (
-	ProductEarn              Product = "earn"
-	ProductCredit            Product = "credit"
-	ProductTokenizedEquities Product = "tokenized_equities"
+	ProductEarn            Product = "earn"
+	ProductCredit          Product = "credit"
+	ProductTokenizedAssets Product = "tokenized_assets"
 )
 
 func (e Product) ToPointer() *Product {
@@ -31,7 +31,7 @@ func (e *Product) UnmarshalJSON(data []byte) error {
 		fallthrough
 	case "credit":
 		fallthrough
-	case "tokenized_equities":
+	case "tokenized_assets":
 		*e = Product(v)
 		return nil
 	default:
