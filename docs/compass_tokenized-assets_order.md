@@ -1,10 +1,15 @@
 ## compass tokenized-assets order
 
-Build a buy/sell order
+Build a tokenized-equity buy/sell order (Ondo)
 
 ### Synopsis
 
-Build a buy or sell order whose maker is the Tokenized Assets Account.
+Build a tokenized-**equity** (Ondo) buy/sell order; maker is the product account.
+
+**Equities only.** RWA yield tokens (Midas — `mTBILL`, `mBASIS`, `mBTC`) are
+rejected with 422 `WRONG_TRADE_FLOW`; trade them via `/transact/buy` &
+`/transact/sell`. Equity orders are always USDC-paired (USDC→equity to buy,
+equity→USDC to sell) and settle through 1inch Fusion.
 
 Returns up to three pieces in a single round-trip:
 

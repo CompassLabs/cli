@@ -23,7 +23,7 @@ var orderCancelCmdMeta = []flagutil.FlagMeta{
 func initOrderCancelCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "order-cancel",
-		Short:   "Cancel an unfilled order",
+		Short:   "Cancel an unfilled tokenized-equity order (Ondo)",
 		Long:    "Build the EIP-712 payload to cancel an unfilled order on-chain.\n\nReturns ``cancel_safe_tx_eip712``, an EIP-712 payload that authorizes\nthe on-chain cancellation. Sign with the Tokenized Assets Account's\nowner via ``wallet.signTypedData(...)`` and relay via\n``POST /v2/gas_sponsorship/prepare`` so the sponsor broadcasts the\ncancellation on the product account. The owner can also broadcast\nthe resulting transaction directly without using gas sponsorship.\n\nCancellation works on `pending` and `expired` orders only. Only the\nTokenized Assets Account that placed the order can cancel it.",
 		Example: "  compass tokenized-assets order-cancel --order-hash <value> --owner <value>",
 		RunE:    runOrderCancelCmd,

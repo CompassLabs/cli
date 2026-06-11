@@ -222,15 +222,15 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`markets`](docs/compass_tokenized-assets_markets.md) - List tokenized asset markets
 * [`market`](docs/compass_tokenized-assets_market.md) - Get a single market
 * [`positions`](docs/compass_tokenized-assets_positions.md) - Get tokenized-asset positions for an owner
-* [`order-status`](docs/compass_tokenized-assets_order-status.md) - Get order status
+* [`order-status`](docs/compass_tokenized-assets_order-status.md) - Get tokenized-equity order status (Ondo)
 * [`create-account`](docs/compass_tokenized-assets_create-account.md) - Create a Tokenized Assets Account
 * [`transfer`](docs/compass_tokenized-assets_transfer.md) - Deposit to / withdraw from a Tokenized Assets Account
-* [`quote`](docs/compass_tokenized-assets_quote.md) - Preview a buy/sell quote
-* [`order`](docs/compass_tokenized-assets_order.md) - Build a buy/sell order
-* [`order-submit`](docs/compass_tokenized-assets_order-submit.md) - Submit a signed order
-* [`order-cancel`](docs/compass_tokenized-assets_order-cancel.md) - Cancel an unfilled order
-* [`buy`](docs/compass_tokenized-assets_buy.md) - Buy a swap-traded tokenized asset
-* [`sell`](docs/compass_tokenized-assets_sell.md) - Sell a swap-traded tokenized asset
+* [`quote`](docs/compass_tokenized-assets_quote.md) - Preview a tokenized-equity buy/sell quote (Ondo)
+* [`order`](docs/compass_tokenized-assets_order.md) - Build a tokenized-equity buy/sell order (Ondo)
+* [`order-submit`](docs/compass_tokenized-assets_order-submit.md) - Submit a signed tokenized-equity order (Ondo)
+* [`order-cancel`](docs/compass_tokenized-assets_order-cancel.md) - Cancel an unfilled tokenized-equity order (Ondo)
+* [`buy`](docs/compass_tokenized-assets_buy.md) - Buy an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
+* [`sell`](docs/compass_tokenized-assets_sell.md) - Sell an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
 
 </details>
 <!-- End Available Commands [operations] -->

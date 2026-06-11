@@ -24,7 +24,7 @@ func initPositionsCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "positions",
 		Short:   "Get tokenized-asset positions for an owner",
-		Long:    "Get the tokenized-equity holdings for an owner.\n\nThe owner's Tokenized Assets Account address is derived deterministically\nfrom the `owner` query param; balances are read from that account (proceeds\nfrom filled orders settle there). The response returns the balance of every\nlisted tokenized equity, plus the latest USD price and a USD-valued balance\nwhen pricing is available. Zero balances are omitted, and a `total_usd`\naggregate is returned across all priced positions.\n\nReturns 400 `ACCOUNT_NOT_DEPLOYED` if the owner has no Tokenized Assets\nAccount deployed yet — create one via `/create_account` first.",
+		Long:    "Get the tokenized-asset holdings for an owner.\n\nCovers **both** asset families held in the account — Ondo equities and\nMidas RWA yield tokens (`mTBILL`, `mBASIS`, `mBTC`). The Tokenized Assets\nAccount address is derived deterministically from the `owner` query param;\nbalances are read from that account (proceeds from equity orders and RWA\nswaps both settle there). Equity positions are priced from the Ondo feed;\nRWA positions are valued at the latest indexed NAV. Pass `chain=base` for\nBase holdings (equities are Ethereum-only). Zero balances are omitted, and\na `total_usd` aggregate is returned across all priced positions.\n\nReturns 400 `ACCOUNT_NOT_DEPLOYED` if the owner has no Tokenized Assets\nAccount deployed yet — create one via `/create_account` first.",
 		Example: "  compass tokenized-assets positions --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B",
 		RunE:    runPositionsCmd,
 	}

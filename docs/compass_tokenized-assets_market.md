@@ -4,14 +4,17 @@ Get a single market
 
 ### Synopsis
 
-Get extended detail for a single tokenized equity (e.g. `TSLAon`).
+Get extended detail for a single tokenized market.
 
-Includes 52-week range, volume, market cap, holder count, and tradable
-sessions in addition to the fields returned by `/markets`.
+Works for both asset families: an Ondo **equity** (e.g. `TSLAon`) or a
+Midas **RWA yield token** (e.g. `mTBILL`). Equities add 52-week range,
+volume, market cap, holder count, and tradable sessions on top of the
+`/markets` fields; RWA-yield entries instead carry `apy_7d`/`apy_30d` and
+`tvl_usd`.
 
-**OHLC candles** are opt-in: pass both `interval` and `range` query
-params to include a `candles` array in the response. They must be
-provided together and must form one of the supported pairs:
+**OHLC candles are an equities-only feature** — opt in by passing both
+`interval` and `range` query params to include a `candles` array. They
+must be provided together and must form one of the supported pairs:
 
 - `1min` / `5min` / `15min` with `range=1day`
 - `1hour` / `4hour` with `range=1month`
@@ -33,6 +36,7 @@ compass tokenized-assets market [flags]
 ### Options
 
 ```
+  -c, --chain string     Network the market is deployed on (defaults to Ethereum). A token deployed on multiple chains (e.g. Midas RWA on Ethereum and Base) is resolved per chain; 404 if the symbol isn't deployed there. Ondo equities are Ethereum-only. (options: base, ethereum, arbitrum, hyperevm, tempo)
   -h, --help             help for market
   -i, --interval range   Optional candle interval. Must be paired with range and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1min, 5min, 15min, 1hour, 4hour, 12hour, 1day)
   -r, --range interval   Optional lookback window. Must be paired with interval and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1day, 1month, 3month, 6month, 1year, all)

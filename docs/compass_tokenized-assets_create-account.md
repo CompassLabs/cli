@@ -6,7 +6,10 @@ Create a Tokenized Assets Account
 
 Create a Tokenized Assets Account for a wallet address.
 
-Before placing orders, the owner must create a Tokenized Assets Account.
+Required once before **either** trade flow — tokenized-equity orders
+(Ondo, via `/quote` + `/order`) and RWA-yield-token swaps (Midas, via
+`/transact/buy` + `/transact/sell`) both settle into this one account.
+
 Each wallet address has one Tokenized Assets Account, isolated from the
 owner's Earn, Credit, and other product accounts.
 

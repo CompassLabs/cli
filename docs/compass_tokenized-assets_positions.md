@@ -4,14 +4,16 @@ Get tokenized-asset positions for an owner
 
 ### Synopsis
 
-Get the tokenized-equity holdings for an owner.
+Get the tokenized-asset holdings for an owner.
 
-The owner's Tokenized Assets Account address is derived deterministically
-from the `owner` query param; balances are read from that account (proceeds
-from filled orders settle there). The response returns the balance of every
-listed tokenized equity, plus the latest USD price and a USD-valued balance
-when pricing is available. Zero balances are omitted, and a `total_usd`
-aggregate is returned across all priced positions.
+Covers **both** asset families held in the account — Ondo equities and
+Midas RWA yield tokens (`mTBILL`, `mBASIS`, `mBTC`). The Tokenized Assets
+Account address is derived deterministically from the `owner` query param;
+balances are read from that account (proceeds from equity orders and RWA
+swaps both settle there). Equity positions are priced from the Ondo feed;
+RWA positions are valued at the latest indexed NAV. Pass `chain=base` for
+Base holdings (equities are Ethereum-only). Zero balances are omitted, and
+a `total_usd` aggregate is returned across all priced positions.
 
 Returns 400 `ACCOUNT_NOT_DEPLOYED` if the owner has no Tokenized Assets
 Account deployed yet — create one via `/create_account` first.

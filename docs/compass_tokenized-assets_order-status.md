@@ -1,10 +1,14 @@
 ## compass tokenized-assets order-status
 
-Get order status
+Get tokenized-equity order status (Ondo)
 
 ### Synopsis
 
-Get the lifecycle state of a submitted order.
+Get the lifecycle state of a submitted tokenized-**equity** order (Ondo).
+
+Equity-order flow only: RWA-yield trades (`/transact/buy`, `/transact/sell`)
+are plain swaps that settle in a single transaction and have no order
+lifecycle to poll.
 
 The `status` field is one of `pending`, `filled`, `expired`, or
 `cancelled`. Partial fills stay in `pending` while `filled_amount` is

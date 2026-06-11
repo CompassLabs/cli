@@ -1,18 +1,20 @@
 ## compass tokenized-assets buy
 
-Buy a swap-traded tokenized asset
+Buy an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
 
 ### Synopsis
 
-Buy an RWA yield asset (e.g. `mTBILL`) inside the product account.
+Buy (mint) an RWA yield asset (e.g. `mTBILL`) inside the product account.
 
-Swaps `token_in` (already held by the Tokenized Assets Account — fund it
-with a plain transfer first) into `token_out` via the 1inch Aggregation
-Router, executed by the account. Returns an unsigned transaction for the
-owner to sign, or an EIP-712 payload when `gas_sponsorship` is true.
+Mints `token_out` directly from Midas with `token_in` (a stablecoin already
+held by the Tokenized Assets Account — fund it with a plain transfer first).
+`token_in` must be a payment token the Midas issuance vault accepts (USDC on
+every supported network; mBASIS also accepts USDT/DAI on Ethereum). Returns
+an unsigned transaction for the owner to sign, or an EIP-712 payload when
+`gas_sponsorship` is true.
 
-`token_out` must be a swap-traded tokenized asset; equities trade via the
-order endpoints (`/quote`, `/order`, `/order/submit`).
+`token_out` must be a Midas RWA asset; equities trade via the order
+endpoints (`/quote`, `/order`, `/order/submit`).
 
 ```
 compass tokenized-assets buy [flags]
@@ -34,8 +36,8 @@ compass tokenized-assets buy [flags]
   -h, --help               help for buy
       --owner string       The owner's wallet address. [required]
   -s, --slippage string    JSON value (one of: number | string)
-      --token-in string    Token to spend. For a buy this is any supported token (e.g. 'USDC'); for a sell it must be a swap-traded tokenized asset (e.g. 'mTBILL'). [required]
-      --token-out string   Token to receive. For a buy this must be a swap-traded tokenized asset (e.g. 'mTBILL'); for a sell it is any supported token. [required]
+      --token-in string    Token to spend. For a buy this must be a stablecoin the Midas issuance vault accepts (USDC on every supported network; mBASIS also accepts USDT/DAI on Ethereum). For a sell it is the Midas RWA asset to redeem (e.g. 'mTBILL'). [required]
+      --token-out string   Token to receive. For a buy this is the Midas RWA asset to mint (e.g. 'mTBILL'); for a sell it is the payout stablecoin (USDC). [required]
 ```
 
 ### Options inherited from parent commands

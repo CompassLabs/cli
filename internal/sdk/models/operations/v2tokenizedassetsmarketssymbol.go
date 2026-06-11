@@ -3,13 +3,53 @@
 package operations
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
+// V2TokenizedAssetsMarketsSymbolChain - The chain to use.
+type V2TokenizedAssetsMarketsSymbolChain string
+
+const (
+	V2TokenizedAssetsMarketsSymbolChainBase     V2TokenizedAssetsMarketsSymbolChain = "base"
+	V2TokenizedAssetsMarketsSymbolChainEthereum V2TokenizedAssetsMarketsSymbolChain = "ethereum"
+	V2TokenizedAssetsMarketsSymbolChainArbitrum V2TokenizedAssetsMarketsSymbolChain = "arbitrum"
+	V2TokenizedAssetsMarketsSymbolChainHyperevm V2TokenizedAssetsMarketsSymbolChain = "hyperevm"
+	V2TokenizedAssetsMarketsSymbolChainTempo    V2TokenizedAssetsMarketsSymbolChain = "tempo"
+)
+
+func (e V2TokenizedAssetsMarketsSymbolChain) ToPointer() *V2TokenizedAssetsMarketsSymbolChain {
+	return &e
+}
+func (e *V2TokenizedAssetsMarketsSymbolChain) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "base":
+		fallthrough
+	case "ethereum":
+		fallthrough
+	case "arbitrum":
+		fallthrough
+	case "hyperevm":
+		fallthrough
+	case "tempo":
+		*e = V2TokenizedAssetsMarketsSymbolChain(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for V2TokenizedAssetsMarketsSymbolChain: %v", v)
+	}
+}
+
 type V2TokenizedAssetsMarketsSymbolRequest struct {
 	Symbol string `pathParam:"style=simple,explode=false,name=symbol"`
+	// Network the market is deployed on (defaults to Ethereum). A token deployed on multiple chains (e.g. Midas RWA on Ethereum and Base) is resolved per chain; 404 if the symbol isn't deployed there. Ondo equities are Ethereum-only.
+	Chain *V2TokenizedAssetsMarketsSymbolChain `queryParam:"style=form,explode=true,name=chain"`
 	// Optional candle interval. Must be paired with `range` and form a valid `(interval, range)` pair to include OHLC candles in the response.
 	Interval optionalnullable.OptionalNullable[components.TokenizedAssetsOhlcInterval] `queryParam:"style=form,explode=true,name=interval"`
 	// Optional lookback window. Must be paired with `interval` and form a valid `(interval, range)` pair to include OHLC candles in the response.
@@ -21,6 +61,13 @@ func (v *V2TokenizedAssetsMarketsSymbolRequest) GetSymbol() string {
 		return ""
 	}
 	return v.Symbol
+}
+
+func (v *V2TokenizedAssetsMarketsSymbolRequest) GetChain() *V2TokenizedAssetsMarketsSymbolChain {
+	if v == nil {
+		return nil
+	}
+	return v.Chain
 }
 
 func (v *V2TokenizedAssetsMarketsSymbolRequest) GetInterval() optionalnullable.OptionalNullable[components.TokenizedAssetsOhlcInterval] {

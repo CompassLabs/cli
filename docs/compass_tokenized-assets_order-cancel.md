@@ -1,6 +1,6 @@
 ## compass tokenized-assets order-cancel
 
-Cancel an unfilled order
+Cancel an unfilled tokenized-equity order (Ondo)
 
 ### Synopsis
 

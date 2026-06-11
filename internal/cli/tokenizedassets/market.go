@@ -16,6 +16,7 @@ import (
 
 var marketCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "symbol", Shorthand: "s", FieldPath: "Symbol", Kind: flagutil.FlagKindString, Required: true, Description: "[required]"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "Network the market is deployed on (defaults to Ethereum). A token deployed on multiple chains (e.g. Midas RWA on Ethereum and Base) is resolved per chain; 404 if the symbol isn't deployed there. Ondo equities are Ethereum-only. (options: base, ethereum, arbitrum, hyperevm, tempo)"},
 	{FlagName: "interval", Shorthand: "i", FieldPath: "Interval", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=interval"`, Description: "Optional candle interval. Must be paired with `range` and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1min, 5min, 15min, 1hour, 4hour, 12hour, 1day)"},
 	{FlagName: "range", Shorthand: "r", FieldPath: "Range", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=range"`, Description: "Optional lookback window. Must be paired with `interval` and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1day, 1month, 3month, 6month, 1year, all)"},
 }
@@ -25,7 +26,7 @@ func initMarketCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "market",
 		Short:   "Get a single market",
-		Long:    "Get extended detail for a single tokenized equity (e.g. `TSLAon`).\n\nIncludes 52-week range, volume, market cap, holder count, and tradable\nsessions in addition to the fields returned by `/markets`.\n\n**OHLC candles** are opt-in: pass both `interval` and `range` query\nparams to include a `candles` array in the response. They must be\nprovided together and must form one of the supported pairs:\n\n- `1min` / `5min` / `15min` with `range=1day`\n- `1hour` / `4hour` with `range=1month`\n- `12hour` with `range=3month`\n- `1day` with `range=3month` / `6month` / `1year` / `all`\n\nOmitting both returns the market detail without `candles`.",
+		Long:    "Get extended detail for a single tokenized market.\n\nWorks for both asset families: an Ondo **equity** (e.g. `TSLAon`) or a\nMidas **RWA yield token** (e.g. `mTBILL`). Equities add 52-week range,\nvolume, market cap, holder count, and tradable sessions on top of the\n`/markets` fields; RWA-yield entries instead carry `apy_7d`/`apy_30d` and\n`tvl_usd`.\n\n**OHLC candles are an equities-only feature** — opt in by passing both\n`interval` and `range` query params to include a `candles` array. They\nmust be provided together and must form one of the supported pairs:\n\n- `1min` / `5min` / `15min` with `range=1day`\n- `1hour` / `4hour` with `range=1month`\n- `12hour` with `range=3month`\n- `1day` with `range=3month` / `6month` / `1year` / `all`\n\nOmitting both returns the market detail without `candles`.",
 		Example: "  compass tokenized-assets market --symbol <value>",
 		RunE:    runMarketCmd,
 	}

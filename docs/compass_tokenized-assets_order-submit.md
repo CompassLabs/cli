@@ -1,6 +1,6 @@
 ## compass tokenized-assets order-submit
 
-Submit a signed order
+Submit a signed tokenized-equity order (Ondo)
 
 ### Synopsis
 

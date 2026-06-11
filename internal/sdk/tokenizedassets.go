@@ -33,13 +33,16 @@ func newTokenizedAssets(rootSDK *CompassCLI, sdkConfig config.SDKConfiguration, 
 // Markets - List tokenized asset markets
 // List tokenized asset markets: Ondo equities and Midas RWA yield tokens.
 //
-// Each entry includes the symbol, the underlying ticker, the on-chain
-// contract address, the latest USD price, and 24h price change. Filter
-// by `category` (sector tag) or `search` (substring match against symbol,
-// ticker, or name).
+// Each entry carries `provider` (`ondo` | `midas`), `asset_class` (`EQUITY` |
+// `T_BILLS` | `BASIS_TRADE` | `BTC_YIELD`), `chain`, the symbol, underlying
+// ticker, contract address, latest USD price, and 24h change; RWA-yield entries
+// add `apy_7d`/`apy_30d` and `tvl_usd`. Filter with `provider`, `asset_class`,
+// and `chain`, plus `category` (sector tag — equities only) or `search`
+// (substring match against symbol, ticker, or name).
 //
-// Only Ethereum-deployed tokens are returned; assets that exist only on
-// other chains are omitted.
+// Equities are Ethereum-only; RWA yield tokens also list on Base — pass
+// `chain=base` to see them. How to trade each: `asset_class=EQUITY` →
+// `/quote` + `/order`; the RWA classes → `/transact/buy` + `/transact/sell`.
 func (s *TokenizedAssets) Markets(ctx context.Context, request *operations.V2TokenizedAssetsMarketsRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsMarketsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
@@ -238,14 +241,17 @@ func (s *TokenizedAssets) Markets(ctx context.Context, request *operations.V2Tok
 }
 
 // Market - Get a single market
-// Get extended detail for a single tokenized equity (e.g. `TSLAon`).
+// Get extended detail for a single tokenized market.
 //
-// Includes 52-week range, volume, market cap, holder count, and tradable
-// sessions in addition to the fields returned by `/markets`.
+// Works for both asset families: an Ondo **equity** (e.g. `TSLAon`) or a
+// Midas **RWA yield token** (e.g. `mTBILL`). Equities add 52-week range,
+// volume, market cap, holder count, and tradable sessions on top of the
+// `/markets` fields; RWA-yield entries instead carry `apy_7d`/`apy_30d` and
+// `tvl_usd`.
 //
-// **OHLC candles** are opt-in: pass both `interval` and `range` query
-// params to include a `candles` array in the response. They must be
-// provided together and must form one of the supported pairs:
+// **OHLC candles are an equities-only feature** — opt in by passing both
+// `interval` and `range` query params to include a `candles` array. They
+// must be provided together and must form one of the supported pairs:
 //
 // - `1min` / `5min` / `15min` with `range=1day`
 // - `1hour` / `4hour` with `range=1month`
@@ -478,14 +484,16 @@ func (s *TokenizedAssets) Market(ctx context.Context, request operations.V2Token
 }
 
 // Positions - Get tokenized-asset positions for an owner
-// Get the tokenized-equity holdings for an owner.
+// Get the tokenized-asset holdings for an owner.
 //
-// The owner's Tokenized Assets Account address is derived deterministically
-// from the `owner` query param; balances are read from that account (proceeds
-// from filled orders settle there). The response returns the balance of every
-// listed tokenized equity, plus the latest USD price and a USD-valued balance
-// when pricing is available. Zero balances are omitted, and a `total_usd`
-// aggregate is returned across all priced positions.
+// Covers **both** asset families held in the account — Ondo equities and
+// Midas RWA yield tokens (`mTBILL`, `mBASIS`, `mBTC`). The Tokenized Assets
+// Account address is derived deterministically from the `owner` query param;
+// balances are read from that account (proceeds from equity orders and RWA
+// swaps both settle there). Equity positions are priced from the Ondo feed;
+// RWA positions are valued at the latest indexed NAV. Pass `chain=base` for
+// Base holdings (equities are Ethereum-only). Zero balances are omitted, and
+// a `total_usd` aggregate is returned across all priced positions.
 //
 // Returns 400 `ACCOUNT_NOT_DEPLOYED` if the owner has no Tokenized Assets
 // Account deployed yet — create one via `/create_account` first.
@@ -711,8 +719,12 @@ func (s *TokenizedAssets) Positions(ctx context.Context, request operations.V2To
 
 }
 
-// OrderStatus - Get order status
-// Get the lifecycle state of a submitted order.
+// OrderStatus - Get tokenized-equity order status (Ondo)
+// Get the lifecycle state of a submitted tokenized-**equity** order (Ondo).
+//
+// Equity-order flow only: RWA-yield trades (`/transact/buy`, `/transact/sell`)
+// are plain swaps that settle in a single transaction and have no order
+// lifecycle to poll.
 //
 // The `status` field is one of `pending`, `filled`, `expired`, or
 // `cancelled`. Partial fills stay in `pending` while `filled_amount` is
@@ -944,7 +956,10 @@ func (s *TokenizedAssets) OrderStatus(ctx context.Context, request operations.V2
 // CreateAccount - Create a Tokenized Assets Account
 // Create a Tokenized Assets Account for a wallet address.
 //
-// Before placing orders, the owner must create a Tokenized Assets Account.
+// Required once before **either** trade flow — tokenized-equity orders
+// (Ondo, via `/quote` + `/order`) and RWA-yield-token swaps (Midas, via
+// `/transact/buy` + `/transact/sell`) both settle into this one account.
+//
 // Each wallet address has one Tokenized Assets Account, isolated from the
 // owner's Earn, Credit, and other product accounts.
 //
@@ -1353,8 +1368,14 @@ func (s *TokenizedAssets) Transfer(ctx context.Context, request components.Token
 
 }
 
-// Quote - Preview a buy/sell quote
-// Preview the input/output amounts, fees, and slippage tolerance for an order.
+// Quote - Preview a tokenized-equity buy/sell quote (Ondo)
+// Preview a buy/sell quote for a tokenized **equity** (Ondo, e.g. `TSLAon`).
+//
+// **Equities only.** RWA yield tokens (Midas — `mTBILL`, `mBASIS`, `mBTC`) are
+// rejected here with 422 `WRONG_TRADE_FLOW`; they have no auction/quote step —
+// buy/sell them directly via `/transact/buy` & `/transact/sell`.
+//
+// Returns the input/output amounts, fees, and slippage tolerance for an order.
 //
 // Read-only relative to Fusion: hits “/quote/receive“ only and does not
 // consume a “quote_id“ or commit an order. Pair with `POST /order`:
@@ -1503,30 +1524,7 @@ func (s *TokenizedAssets) Quote(ctx context.Context, request components.Tokenize
 	case httpRes.StatusCode == 404:
 		fallthrough
 	case httpRes.StatusCode == 409:
-		switch {
-		case utils.MatchContentType(httpRes.Header.Get("Content-Type"), `application/json`):
-			rawBody, err := utils.ConsumeRawBody(httpRes)
-			if err != nil {
-				return nil, err
-			}
-
-			var out sdkerrors.TokenizedAssetsErrorResponse
-			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
-				return nil, err
-			}
-
-			out.HTTPMeta = components.HTTPMetadata{
-				Request:  req,
-				Response: httpRes,
-			}
-			return nil, &out
-		default:
-			rawBody, err := utils.ConsumeRawBody(httpRes)
-			if err != nil {
-				return nil, err
-			}
-			return nil, sdkerrors.NewSDKDefaultError(fmt.Sprintf("unknown content-type received: %s", httpRes.Header.Get("Content-Type")), httpRes.StatusCode, string(rawBody), httpRes)
-		}
+		fallthrough
 	case httpRes.StatusCode == 422:
 		switch {
 		case utils.MatchContentType(httpRes.Header.Get("Content-Type"), `application/json`):
@@ -1535,7 +1533,7 @@ func (s *TokenizedAssets) Quote(ctx context.Context, request components.Tokenize
 				return nil, err
 			}
 
-			var out sdkerrors.HTTPValidationError
+			var out sdkerrors.TokenizedAssetsErrorResponse
 			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
 				return nil, err
 			}
@@ -1601,8 +1599,13 @@ func (s *TokenizedAssets) Quote(ctx context.Context, request components.Tokenize
 
 }
 
-// Order - Build a buy/sell order
-// Build a buy or sell order whose maker is the Tokenized Assets Account.
+// Order - Build a tokenized-equity buy/sell order (Ondo)
+// Build a tokenized-**equity** (Ondo) buy/sell order; maker is the product account.
+//
+// **Equities only.** RWA yield tokens (Midas — `mTBILL`, `mBASIS`, `mBTC`) are
+// rejected with 422 `WRONG_TRADE_FLOW`; trade them via `/transact/buy` &
+// `/transact/sell`. Equity orders are always USDC-paired (USDC→equity to buy,
+// equity→USDC to sell) and settle through 1inch Fusion.
 //
 // Returns up to three pieces in a single round-trip:
 //
@@ -1829,7 +1832,7 @@ func (s *TokenizedAssets) Order(ctx context.Context, request components.Tokenize
 
 }
 
-// OrderSubmit - Submit a signed order
+// OrderSubmit - Submit a signed tokenized-equity order (Ondo)
 // Submit a signed order to the resolver network.
 //
 // The body echoes the `order` fields from `/order` (`signed_order`,
@@ -2068,7 +2071,7 @@ func (s *TokenizedAssets) OrderSubmit(ctx context.Context, request components.To
 
 }
 
-// OrderCancel - Cancel an unfilled order
+// OrderCancel - Cancel an unfilled tokenized-equity order (Ondo)
 // Build the EIP-712 payload to cancel an unfilled order on-chain.
 //
 // Returns “cancel_safe_tx_eip712“, an EIP-712 payload that authorizes
@@ -2311,16 +2314,18 @@ func (s *TokenizedAssets) OrderCancel(ctx context.Context, request operations.V2
 
 }
 
-// Buy a swap-traded tokenized asset
-// Buy an RWA yield asset (e.g. `mTBILL`) inside the product account.
+// Buy an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
+// Buy (mint) an RWA yield asset (e.g. `mTBILL`) inside the product account.
 //
-// Swaps `token_in` (already held by the Tokenized Assets Account — fund it
-// with a plain transfer first) into `token_out` via the 1inch Aggregation
-// Router, executed by the account. Returns an unsigned transaction for the
-// owner to sign, or an EIP-712 payload when `gas_sponsorship` is true.
+// Mints `token_out` directly from Midas with `token_in` (a stablecoin already
+// held by the Tokenized Assets Account — fund it with a plain transfer first).
+// `token_in` must be a payment token the Midas issuance vault accepts (USDC on
+// every supported network; mBASIS also accepts USDT/DAI on Ethereum). Returns
+// an unsigned transaction for the owner to sign, or an EIP-712 payload when
+// `gas_sponsorship` is true.
 //
-// `token_out` must be a swap-traded tokenized asset; equities trade via the
-// order endpoints (`/quote`, `/order`, `/order/submit`).
+// `token_out` must be a Midas RWA asset; equities trade via the order
+// endpoints (`/quote`, `/order`, `/order/submit`).
 func (s *TokenizedAssets) Buy(ctx context.Context, request components.TokenizedAssetsTradeRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsTransactBuyResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
@@ -2496,13 +2501,15 @@ func (s *TokenizedAssets) Buy(ctx context.Context, request components.TokenizedA
 
 }
 
-// Sell a swap-traded tokenized asset
-// Sell an RWA yield asset (e.g. `mTBILL`) inside the product account.
+// Sell an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
+// Sell (redeem) an RWA yield asset (e.g. `mTBILL`) inside the product account.
 //
-// Swaps `token_in` (a swap-traded tokenized asset held by the Tokenized
-// Assets Account) into `token_out` via the 1inch Aggregation Router.
-// Returns an unsigned transaction for the owner to sign, or an EIP-712
-// payload when `gas_sponsorship` is true.
+// Redeems `token_in` (a Midas RWA asset held by the Tokenized Assets Account)
+// directly with Midas into `token_out` (USDC). Returns an unsigned transaction
+// for the owner to sign, or an EIP-712 payload when `gas_sponsorship` is true.
+//
+// Instant redemption draws on Midas's on-chain liquidity and is subject to a
+// small redemption fee and daily limit.
 func (s *TokenizedAssets) Sell(ctx context.Context, request components.TokenizedAssetsTradeRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsTransactSellResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{

@@ -16,8 +16,8 @@ import (
 )
 
 var sellCmdMeta = []flagutil.FlagMeta{
-	{FlagName: "token-in", FieldPath: "TokenIn", Kind: flagutil.FlagKindString, Required: true, Description: "Token to spend. For a buy this is any supported token (e.g. 'USDC'); for a sell it must be a swap-traded tokenized asset (e.g. 'mTBILL'). [required]"},
-	{FlagName: "token-out", FieldPath: "TokenOut", Kind: flagutil.FlagKindString, Required: true, Description: "Token to receive. For a buy this must be a swap-traded tokenized asset (e.g. 'mTBILL'); for a sell it is any supported token. [required]"},
+	{FlagName: "token-in", FieldPath: "TokenIn", Kind: flagutil.FlagKindString, Required: true, Description: "Token to spend. For a buy this must be a stablecoin the Midas issuance vault accepts (USDC on every supported network; mBASIS also accepts USDT/DAI on Ethereum). For a sell it is the Midas RWA asset to redeem (e.g. 'mTBILL'). [required]"},
+	{FlagName: "token-out", FieldPath: "TokenOut", Kind: flagutil.FlagKindString, Required: true, Description: "Token to receive. For a buy this is the Midas RWA asset to mint (e.g. 'mTBILL'); for a sell it is the payout stablecoin (USDC). [required]"},
 	{FlagName: "amount-in", Shorthand: "a", FieldPath: "AmountIn", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "slippage", Shorthand: "s", FieldPath: "Slippage", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The owner's wallet address. [required]"},
@@ -29,8 +29,8 @@ var sellCmdMeta = []flagutil.FlagMeta{
 func initSellCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "sell",
-		Short:   "Sell a swap-traded tokenized asset",
-		Long:    "Sell an RWA yield asset (e.g. `mTBILL`) inside the product account.\n\nSwaps `token_in` (a swap-traded tokenized asset held by the Tokenized\nAssets Account) into `token_out` via the 1inch Aggregation Router.\nReturns an unsigned transaction for the owner to sign, or an EIP-712\npayload when `gas_sponsorship` is true.",
+		Short:   "Sell an RWA yield token (Midas: mTBILL/mBASIS/mBTC)",
+		Long:    "Sell (redeem) an RWA yield asset (e.g. `mTBILL`) inside the product account.\n\nRedeems `token_in` (a Midas RWA asset held by the Tokenized Assets Account)\ndirectly with Midas into `token_out` (USDC). Returns an unsigned transaction\nfor the owner to sign, or an EIP-712 payload when `gas_sponsorship` is true.\n\nInstant redemption draws on Midas's on-chain liquidity and is subject to a\nsmall redemption fee and daily limit.",
 		Example: "  compass tokenized-assets sell --token-in <value> --token-out <value> --amount-in 8512.47 --owner <value> --chain ethereum",
 		RunE:    runSellCmd,
 	}

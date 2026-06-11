@@ -1,10 +1,16 @@
 ## compass tokenized-assets quote
 
-Preview a buy/sell quote
+Preview a tokenized-equity buy/sell quote (Ondo)
 
 ### Synopsis
 
-Preview the input/output amounts, fees, and slippage tolerance for an order.
+Preview a buy/sell quote for a tokenized **equity** (Ondo, e.g. `TSLAon`).
+
+**Equities only.** RWA yield tokens (Midas — `mTBILL`, `mBASIS`, `mBTC`) are
+rejected here with 422 `WRONG_TRADE_FLOW`; they have no auction/quote step —
+buy/sell them directly via `/transact/buy` & `/transact/sell`.
+
+Returns the input/output amounts, fees, and slippage tolerance for an order.
 
 Read-only relative to Fusion: hits ``/quote/receive`` only and does not
 consume a ``quote_id`` or commit an order. Pair with `POST /order`:

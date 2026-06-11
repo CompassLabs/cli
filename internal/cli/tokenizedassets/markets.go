@@ -27,7 +27,7 @@ func initMarketsCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "markets",
 		Short:   "List tokenized asset markets",
-		Long:    "List tokenized asset markets: Ondo equities and Midas RWA yield tokens.\n\nEach entry includes the symbol, the underlying ticker, the on-chain\ncontract address, the latest USD price, and 24h price change. Filter\nby `category` (sector tag) or `search` (substring match against symbol,\nticker, or name).\n\nOnly Ethereum-deployed tokens are returned; assets that exist only on\nother chains are omitted.",
+		Long:    "List tokenized asset markets: Ondo equities and Midas RWA yield tokens.\n\nEach entry carries `provider` (`ondo` | `midas`), `asset_class` (`EQUITY` |\n`T_BILLS` | `BASIS_TRADE` | `BTC_YIELD`), `chain`, the symbol, underlying\nticker, contract address, latest USD price, and 24h change; RWA-yield entries\nadd `apy_7d`/`apy_30d` and `tvl_usd`. Filter with `provider`, `asset_class`,\nand `chain`, plus `category` (sector tag — equities only) or `search`\n(substring match against symbol, ticker, or name).\n\nEquities are Ethereum-only; RWA yield tokens also list on Base — pass\n`chain=base` to see them. How to trade each: `asset_class=EQUITY` →\n`/quote` + `/order`; the RWA classes → `/transact/buy` + `/transact/sell`.",
 		Example: "  compass tokenized-assets markets",
 		RunE:    runMarketsCmd,
 	}

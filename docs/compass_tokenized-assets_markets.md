@@ -6,13 +6,16 @@ List tokenized asset markets
 
 List tokenized asset markets: Ondo equities and Midas RWA yield tokens.
 
-Each entry includes the symbol, the underlying ticker, the on-chain
-contract address, the latest USD price, and 24h price change. Filter
-by `category` (sector tag) or `search` (substring match against symbol,
-ticker, or name).
+Each entry carries `provider` (`ondo` | `midas`), `asset_class` (`EQUITY` |
+`T_BILLS` | `BASIS_TRADE` | `BTC_YIELD`), `chain`, the symbol, underlying
+ticker, contract address, latest USD price, and 24h change; RWA-yield entries
+add `apy_7d`/`apy_30d` and `tvl_usd`. Filter with `provider`, `asset_class`,
+and `chain`, plus `category` (sector tag — equities only) or `search`
+(substring match against symbol, ticker, or name).
 
-Only Ethereum-deployed tokens are returned; assets that exist only on
-other chains are omitted.
+Equities are Ethereum-only; RWA yield tokens also list on Base — pass
+`chain=base` to see them. How to trade each: `asset_class=EQUITY` →
+`/quote` + `/order`; the RWA classes → `/transact/buy` + `/transact/sell`.
 
 ```
 compass tokenized-assets markets [flags]

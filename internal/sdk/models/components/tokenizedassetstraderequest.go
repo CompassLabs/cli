@@ -193,9 +193,9 @@ func (u TokenizedAssetsTradeRequestSlippage) MarshalJSON() ([]byte, error) {
 // Applies to RWA yield assets (Midas mTokens). Equities trade via the
 // order endpoints instead.
 type TokenizedAssetsTradeRequest struct {
-	// Token to spend. For a buy this is any supported token (e.g. 'USDC'); for a sell it must be a swap-traded tokenized asset (e.g. 'mTBILL').
+	// Token to spend. For a buy this must be a stablecoin the Midas issuance vault accepts (USDC on every supported network; mBASIS also accepts USDT/DAI on Ethereum). For a sell it is the Midas RWA asset to redeem (e.g. 'mTBILL').
 	TokenIn string `json:"token_in"`
-	// Token to receive. For a buy this must be a swap-traded tokenized asset (e.g. 'mTBILL'); for a sell it is any supported token.
+	// Token to receive. For a buy this is the Midas RWA asset to mint (e.g. 'mTBILL'); for a sell it is the payout stablecoin (USDC).
 	TokenOut string `json:"token_out"`
 	// Human-readable amount of `token_in` to trade (token units, not wei).
 	AmountIn TokenizedAssetsTradeRequestAmountIn `json:"amount_in"`
