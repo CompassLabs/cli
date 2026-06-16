@@ -3,6 +3,7 @@
 package components
 
 import (
+	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
@@ -14,6 +15,8 @@ type TokenizedAssetsPositionsResponse struct {
 	Positions []CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition `json:"positions,omitzero"`
 	// Sum of `balance_usd` across positions where the price is known.
 	TotalUsd string `json:"total_usd"`
+	// Account-level PnL summed across positions that have a known PnL; `null` when no position can be priced.
+	Pnl optionalnullable.OptionalNullable[TokenizedAssetsPnl] `json:"pnl,omitzero"`
 }
 
 func (t TokenizedAssetsPositionsResponse) MarshalJSON() ([]byte, error) {
@@ -46,4 +49,11 @@ func (t *TokenizedAssetsPositionsResponse) GetTotalUsd() string {
 		return ""
 	}
 	return t.TotalUsd
+}
+
+func (t *TokenizedAssetsPositionsResponse) GetPnl() optionalnullable.OptionalNullable[TokenizedAssetsPnl] {
+	if t == nil {
+		return nil
+	}
+	return t.Pnl
 }

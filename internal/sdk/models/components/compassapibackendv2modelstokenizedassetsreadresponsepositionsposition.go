@@ -4,6 +4,7 @@ package components
 
 import (
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
+	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
 // CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition - One non-zero on-chain position in a tokenized equity.
@@ -34,6 +35,19 @@ type CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition struc
 	AssetClass *TokenizedAssetClass `json:"asset_class,omitzero"`
 	// The chain to use.
 	Chain *Chain `json:"chain,omitzero"`
+	// Realized + unrealized PnL for this position, or `null` when it cannot be priced (no current price, or externally-funded inventory with no on-chain cost basis).
+	Pnl optionalnullable.OptionalNullable[TokenizedAssetsPnl] `json:"pnl,omitzero"`
+}
+
+func (c CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(c, "", false)
+}
+
+func (c *CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &c, "", false, nil); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition) GetSymbol() string {
@@ -111,6 +125,13 @@ func (c *CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition) 
 		return nil
 	}
 	return c.Chain
+}
+
+func (c *CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition) GetPnl() optionalnullable.OptionalNullable[TokenizedAssetsPnl] {
+	if c == nil {
+		return nil
+	}
+	return c.Pnl
 }
 
 // #region class-body-compassapibackendv2modelstokenizedassetsreadresponsepositionsposition
