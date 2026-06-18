@@ -216,6 +216,7 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`approve-builder-fee`](docs/compass_global-markets-perps_approve-builder-fee.md) - Approve builder fee
 * [`enable-unified-account`](docs/compass_global-markets-perps_enable-unified-account.md) - Enable unified account mode
 * [`ensure-leverage`](docs/compass_global-markets-perps_ensure-leverage.md) - Ensure 1x cross leverage
+* [`global-markets-perps-set-leverage`](docs/compass_global-markets-perps_global-markets-perps-set-leverage.md) - Set leverage (defaults to market maximum)
 
 ### [tokenized-assets](docs/compass_tokenized-assets.md)
 
