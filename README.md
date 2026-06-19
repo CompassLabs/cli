@@ -223,6 +223,7 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`markets`](docs/compass_tokenized-assets_markets.md) - List tokenized asset markets
 * [`market`](docs/compass_tokenized-assets_market.md) - Get a single market
 * [`positions`](docs/compass_tokenized-assets_positions.md) - Get tokenized-asset positions for an owner
+* [`tokenized-assets-balances`](docs/compass_tokenized-assets_tokenized-assets-balances.md) - Get tokenized-asset account balances + transfer history
 * [`order-status`](docs/compass_tokenized-assets_order-status.md) - Get tokenized-equity order status (Ondo)
 * [`create-account`](docs/compass_tokenized-assets_create-account.md) - Create a Tokenized Assets Account
 * [`transfer`](docs/compass_tokenized-assets_transfer.md) - Deposit to / withdraw from a Tokenized Assets Account

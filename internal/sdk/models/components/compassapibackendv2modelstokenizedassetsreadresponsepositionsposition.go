@@ -37,6 +37,8 @@ type CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition struc
 	Chain *Chain `json:"chain,omitzero"`
 	// Realized + unrealized PnL for this position, or `null` when it cannot be priced (no current price, or externally-funded inventory with no on-chain cost basis).
 	Pnl optionalnullable.OptionalNullable[TokenizedAssetsPnl] `json:"pnl,omitzero"`
+	// Chronological activity for this position (buy / sell / transfer_in / transfer_out). Pure-USDC funding is excluded — it appears on the balances endpoint.
+	Events []TokenizedAssetsActivityEvent `json:"events,omitzero"`
 }
 
 func (c CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition) MarshalJSON() ([]byte, error) {
@@ -132,6 +134,13 @@ func (c *CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition) 
 		return nil
 	}
 	return c.Pnl
+}
+
+func (c *CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition) GetEvents() []TokenizedAssetsActivityEvent {
+	if c == nil {
+		return nil
+	}
+	return c.Events
 }
 
 // #region class-body-compassapibackendv2modelstokenizedassetsreadresponsepositionsposition

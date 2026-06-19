@@ -7,25 +7,25 @@ import (
 	"time"
 )
 
-// EventType - Type of credit event.
-type EventType string
+// CreditEventEventType - Type of credit event.
+type CreditEventEventType string
 
 const (
-	EventTypeSupply      EventType = "supply"
-	EventTypeWithdraw    EventType = "withdraw"
-	EventTypeBorrow      EventType = "borrow"
-	EventTypeRepay       EventType = "repay"
-	EventTypeLiquidation EventType = "liquidation"
-	EventTypeTransferIn  EventType = "transfer_in"
-	EventTypeTransferOut EventType = "transfer_out"
+	CreditEventEventTypeSupply      CreditEventEventType = "supply"
+	CreditEventEventTypeWithdraw    CreditEventEventType = "withdraw"
+	CreditEventEventTypeBorrow      CreditEventEventType = "borrow"
+	CreditEventEventTypeRepay       CreditEventEventType = "repay"
+	CreditEventEventTypeLiquidation CreditEventEventType = "liquidation"
+	CreditEventEventTypeTransferIn  CreditEventEventType = "transfer_in"
+	CreditEventEventTypeTransferOut CreditEventEventType = "transfer_out"
 )
 
-func (e EventType) ToPointer() *EventType {
+func (e CreditEventEventType) ToPointer() *CreditEventEventType {
 	return &e
 }
 
 // IsExact returns true if the value matches a known enum value, false otherwise.
-func (e *EventType) IsExact() bool {
+func (e *CreditEventEventType) IsExact() bool {
 	if e != nil {
 		switch *e {
 		case "supply", "withdraw", "borrow", "repay", "liquidation", "transfer_in", "transfer_out":
@@ -38,7 +38,7 @@ func (e *EventType) IsExact() bool {
 // CreditEvent - A single historical event in a credit position.
 type CreditEvent struct {
 	// Type of credit event.
-	EventType EventType `json:"event_type"`
+	EventType CreditEventEventType `json:"event_type"`
 	// Block number when the event occurred
 	BlockNumber int64 `json:"block_number"`
 	// Timestamp when the event occurred
@@ -62,9 +62,9 @@ func (c *CreditEvent) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (c *CreditEvent) GetEventType() EventType {
+func (c *CreditEvent) GetEventType() CreditEventEventType {
 	if c == nil {
-		return EventType("")
+		return CreditEventEventType("")
 	}
 	return c.EventType
 }

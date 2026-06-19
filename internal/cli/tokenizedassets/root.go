@@ -33,6 +33,10 @@ func InitTokenizedAssetsRoot(parent *cobra.Command) error {
 		return err
 	}
 
+	if err := initTokenizedAssetsBalancesCmd(TokenizedAssetsCmd); err != nil {
+		return err
+	}
+
 	if err := initOrderStatusCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}
