@@ -49,6 +49,6 @@ compass tokenized-assets [flags]
 * [compass tokenized-assets positions](compass_tokenized-assets_positions.md)	 - Get tokenized-asset positions for an owner
 * [compass tokenized-assets quote](compass_tokenized-assets_quote.md)	 - Preview a tokenized-equity buy/sell quote (Ondo)
 * [compass tokenized-assets sell](compass_tokenized-assets_sell.md)	 - Sell an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
-* [compass tokenized-assets tokenized-assets-balances](compass_tokenized-assets_tokenized-assets-balances.md)	 - Get tokenized-asset account balances + transfer history
+* [compass tokenized-assets tokenized-assets-balances](compass_tokenized-assets_tokenized-assets-balances.md)	 - Get account balances
 * [compass tokenized-assets tokenized-assets-order-order-hash-charge-fee](compass_tokenized-assets_tokenized-assets-order-order-hash-charge-fee.md)	 - Charge a partner fee on a filled sell order's USDC proceeds
 * [compass tokenized-assets transfer](compass_tokenized-assets_transfer.md)	 - Deposit to / withdraw from a Tokenized Assets Account

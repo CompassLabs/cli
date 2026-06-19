@@ -23,8 +23,8 @@ var tokenizedAssetsBalancesCmdMeta = []flagutil.FlagMeta{
 func initTokenizedAssetsBalancesCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "tokenized-assets-balances",
-		Short:   "Get tokenized-asset account balances + transfer history",
-		Long:    "Get the full token ledger for a Tokenized Assets Account.\n\nReturns every token the account has transferred — current balances plus\ncomplete transfer history — keyed by symbol. Unlike `/positions` (current\nequity holdings, priced), this includes **USDC funding** movements and\n**fully-sold positions** (zero balance), making it the account's cash +\nactivity ledger. Pass `chain=base` for Base holdings.",
+		Short:   "Get account balances",
+		Long:    "Get the token balances of a Tokenized Assets Account.\n\nReturns each token held in the account with its current balance, USD value,\nand transfer history. Pass `chain=base` for Base holdings.",
 		Example: "  compass tokenized-assets tokenized-assets-balances --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B",
 		RunE:    runTokenizedAssetsBalancesCmd,
 		Aliases: []string{"tab"},

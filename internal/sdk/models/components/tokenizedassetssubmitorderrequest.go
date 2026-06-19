@@ -6,7 +6,7 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 )
 
-// TokenizedAssetsSubmitOrderRequest - Submit an owner-signed order to the resolver network.
+// TokenizedAssetsSubmitOrderRequest - Submit an owner-signed order for settlement.
 //
 // The shape echoes what `POST /order` returned plus the owner's
 // EIP-712 signature. The maker is the Tokenized Assets Account, so the

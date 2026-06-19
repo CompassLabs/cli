@@ -12,7 +12,7 @@ import (
 // Surfaced in OpenAPI “responses“ declarations so SDK consumers can decode
 // failures uniformly without inspecting per-status-code shapes.
 type TokenizedAssetsErrorResponse struct {
-	// Stable machine-readable error code (e.g. `MARKET_NOT_FOUND`, `FUSION_NO_LIQUIDITY`, `ORDER_NOT_FOUND`).
+	// Short human-readable error label (e.g. `Market not found.`, `Insufficient liquidity`, `Order not found.`).
 	Error_ string `json:"error"`
 	// Human-readable explanation.
 	Message  string                  `json:"message"`

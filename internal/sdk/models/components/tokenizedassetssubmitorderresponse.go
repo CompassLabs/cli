@@ -2,7 +2,7 @@
 
 package components
 
-// TokenizedAssetsSubmitOrderResponse - Returned after the signed order is relayed to 1inch Fusion.
+// TokenizedAssetsSubmitOrderResponse - Returned after the signed order is submitted for settlement.
 type TokenizedAssetsSubmitOrderResponse struct {
 	// On-chain order hash for status / cancel lookups.
 	OrderHash string `json:"order_hash"`

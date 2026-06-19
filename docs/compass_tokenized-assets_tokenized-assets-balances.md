@@ -1,16 +1,13 @@
 ## compass tokenized-assets tokenized-assets-balances
 
-Get tokenized-asset account balances + transfer history
+Get account balances
 
 ### Synopsis
 
-Get the full token ledger for a Tokenized Assets Account.
+Get the token balances of a Tokenized Assets Account.
 
-Returns every token the account has transferred — current balances plus
-complete transfer history — keyed by symbol. Unlike `/positions` (current
-equity holdings, priced), this includes **USDC funding** movements and
-**fully-sold positions** (zero balance), making it the account's cash +
-activity ledger. Pass `chain=base` for Base holdings.
+Returns each token held in the account with its current balance, USD value,
+and transfer history. Pass `chain=base` for Base holdings.
 
 ```
 compass tokenized-assets tokenized-assets-balances [flags]

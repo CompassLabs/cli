@@ -4,7 +4,7 @@ package components
 
 // TokenizedAssetsChargeFeeRequest - Charge a partner fee on the USDC proceeds of a filled sell order.
 //
-// Equity orders fill off-chain via a third-party resolver, so the fee can't
+// Equity orders fill off-chain via a third-party venue, so the fee can't
 // ride inside the trade (unlike Midas/earn/credit). After the sell order
 // fills, call this with the order hash to build a USDC `transfer(recipient,
 // fee)` executed by the product account.

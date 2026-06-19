@@ -719,14 +719,11 @@ func (s *TokenizedAssets) Positions(ctx context.Context, request operations.V2To
 
 }
 
-// TokenizedAssetsBalances - Get tokenized-asset account balances + transfer history
-// Get the full token ledger for a Tokenized Assets Account.
+// TokenizedAssetsBalances - Get account balances
+// Get the token balances of a Tokenized Assets Account.
 //
-// Returns every token the account has transferred — current balances plus
-// complete transfer history — keyed by symbol. Unlike `/positions` (current
-// equity holdings, priced), this includes **USDC funding** movements and
-// **fully-sold positions** (zero balance), making it the account's cash +
-// activity ledger. Pass `chain=base` for Base holdings.
+// Returns each token held in the account with its current balance, USD value,
+// and transfer history. Pass `chain=base` for Base holdings.
 func (s *TokenizedAssets) TokenizedAssetsBalances(ctx context.Context, request operations.V2TokenizedAssetsBalancesRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsBalancesResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
@@ -1552,13 +1549,13 @@ func (s *TokenizedAssets) Transfer(ctx context.Context, request components.Token
 // Preview a buy/sell quote for a tokenized **equity** (Ondo, e.g. `TSLAon`).
 //
 // **Equities only.** RWA yield tokens (Midas — `mTBILL`, `mBASIS`, `mBTC`) are
-// rejected here with 422 `WRONG_TRADE_FLOW`; they have no auction/quote step —
+// rejected here with 422 `Wrong trade flow`; they have no auction/quote step —
 // buy/sell them directly via `/transact/buy` & `/transact/sell`.
 //
 // Returns the input/output amounts, fees, and slippage tolerance for an order.
 //
-// Read-only relative to Fusion: hits “/quote/receive“ only and does not
-// consume a “quote_id“ or commit an order. Pair with `POST /order`:
+// Read-only: previews the quote without consuming a “quote_id“ or
+// committing an order. Pair with `POST /order`:
 // surface this preview to the user, and on confirm pass the body plus
 // “recommended_slippage_bps“ to `/order`.
 //
@@ -1567,7 +1564,7 @@ func (s *TokenizedAssets) Transfer(ctx context.Context, request components.Token
 //   - **`quote`** — input/output token amounts, fees, and an
 //     “est_fill_seconds“ upper bound.
 //   - **`recommended_slippage_bps`** — system-derived slippage tolerance
-//     that clears Fusion's current auction floor; pass back as
+//     that clears the current auction floor; pass back as
 //     “slippage_bps“ on `/order` so the build call validates against the
 //     same floor the user was shown.
 //   - **`auction_range_bps`** — worst-case bps gap between the auction
@@ -1783,9 +1780,9 @@ func (s *TokenizedAssets) Quote(ctx context.Context, request components.Tokenize
 // Build a tokenized-**equity** (Ondo) buy/sell order; maker is the product account.
 //
 // **Equities only.** RWA yield tokens (Midas — `mTBILL`, `mBASIS`, `mBTC`) are
-// rejected with 422 `WRONG_TRADE_FLOW`; trade them via `/transact/buy` &
+// rejected with 422 `Wrong trade flow`; trade them via `/transact/buy` &
 // `/transact/sell`. Equity orders are always USDC-paired (USDC→equity to buy,
-// equity→USDC to sell) and settle through 1inch Fusion.
+// equity→USDC to sell) and settle on-chain.
 //
 // Returns up to three pieces in a single round-trip:
 //
@@ -2013,7 +2010,7 @@ func (s *TokenizedAssets) Order(ctx context.Context, request components.Tokenize
 }
 
 // OrderSubmit - Submit a signed tokenized-equity order (Ondo)
-// Submit a signed order to the resolver network.
+// Submit a signed order for settlement.
 //
 // The body echoes the `order` fields from `/order` (`signed_order`,
 // `extension`, `quote_id`, optionally `order_hash`) plus the owner's
@@ -2497,7 +2494,7 @@ func (s *TokenizedAssets) OrderCancel(ctx context.Context, request operations.V2
 // TokenizedAssetsOrderOrderHashChargeFee - Charge a partner fee on a filled sell order's USDC proceeds
 // Build a USDC fee transfer on a filled equity sell order's proceeds.
 //
-// Equity orders fill off-chain via a third-party resolver, so the fee can't be
+// Equity orders fill off-chain via a third-party venue, so the fee can't be
 // bundled into the trade. Once the sell order has filled, call this with the
 // order hash and your `fee` (recipient + percentage/fixed); it reads the actual
 // filled USDC proceeds and returns a `transfer(recipient, fee)` executed by the

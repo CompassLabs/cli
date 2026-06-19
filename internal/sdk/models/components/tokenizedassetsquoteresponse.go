@@ -6,7 +6,7 @@ package components
 type TokenizedAssetsQuoteResponse struct {
 	// Quote preview returned alongside an order.
 	Quote Quote `json:"quote"`
-	// Slippage tolerance in basis points (1 bp = 0.01%) the UI should echo back as `slippage_bps` on `POST /tokenized_assets/order`. Derived from Fusion's Dutch auction range (`auctionEndAmount` vs `toTokenAmount`) plus a small buffer; capped at 5000 bps.
+	// Slippage tolerance in basis points (1 bp = 0.01%) the UI should echo back as `slippage_bps` on `POST /tokenized_assets/order`. Derived from the on-chain auction range (`auctionEndAmount` vs `toTokenAmount`) plus a small buffer; capped at 5000 bps.
 	RecommendedSlippageBps int64 `json:"recommended_slippage_bps"`
 	// Worst-case basis-points gap between the auction's end amount and the reference quote amount. Surfaces as a thin-liquidity warning before the user signs.
 	AuctionRangeBps int64 `json:"auction_range_bps"`

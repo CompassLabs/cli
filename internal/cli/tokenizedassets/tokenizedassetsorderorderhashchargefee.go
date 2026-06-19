@@ -26,7 +26,7 @@ func initTokenizedAssetsOrderOrderHashChargeFeeCmd(parent *cobra.Command) error 
 	var cmd = &cobra.Command{
 		Use:     "tokenized-assets-order-order-hash-charge-fee",
 		Short:   "Charge a partner fee on a filled sell order's USDC proceeds",
-		Long:    "Build a USDC fee transfer on a filled equity sell order's proceeds.\n\nEquity orders fill off-chain via a third-party resolver, so the fee can't be\nbundled into the trade. Once the sell order has filled, call this with the\norder hash and your `fee` (recipient + percentage/fixed); it reads the actual\nfilled USDC proceeds and returns a `transfer(recipient, fee)` executed by the\nproduct account — an unsigned transaction the owner signs, or an EIP-712\npayload when `gas_sponsorship` is true.",
+		Long:    "Build a USDC fee transfer on a filled equity sell order's proceeds.\n\nEquity orders fill off-chain via a third-party venue, so the fee can't be\nbundled into the trade. Once the sell order has filled, call this with the\norder hash and your `fee` (recipient + percentage/fixed); it reads the actual\nfilled USDC proceeds and returns a `transfer(recipient, fee)` executed by the\nproduct account — an unsigned transaction the owner signs, or an EIP-712\npayload when `gas_sponsorship` is true.",
 		Example: "  compass tokenized-assets tokenized-assets-order-order-hash-charge-fee --order-hash <value> --owner <value> --fee '{\"recipient\":\"<value>\",\"amount\":8619.46,\"denomination\":\"PERCENTAGE\"}'",
 		RunE:    runTokenizedAssetsOrderOrderHashChargeFeeCmd,
 		Aliases: []string{"taoohcf"},

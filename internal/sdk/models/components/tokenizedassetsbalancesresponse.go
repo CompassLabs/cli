@@ -9,16 +9,13 @@ import (
 
 // TokenizedAssetsBalancesResponse - Token balances and transfer history for a Tokenized Assets Account.
 //
-// Unlike `/positions` (current equity holdings only, priced), this surfaces
-// every token the account has ever transferred — each with its full transfer
-// history — including **USDC funding** movements and **fully-sold positions**
-// (zero balance). It is the account's cash + activity ledger. Balances are keyed
-// by token symbol, reusing the same `TokenBalance`/`TokenTransfer` shape as the
-// earn and credit balances endpoints.
+// Each token held in the account is keyed by symbol with its current balance,
+// USD value, and transfer history. Uses the same `TokenBalance`/`TokenTransfer`
+// shape as the earn and credit balances endpoints.
 type TokenizedAssetsBalancesResponse struct {
 	// The derived Tokenized Assets Account address.
 	TokenizedAssetsAccountAddress string `json:"tokenized_assets_account_address"`
-	// Token balances keyed by token symbol, including USDC cash and fully-sold positions (zero balance). Each carries its transfer history.
+	// Token balances keyed by symbol. Each entry includes the current balance, its USD value, and transfer history.
 	Balances map[string]CompassAPIBackendV2ModelsBalancesTokenBalance `json:"balances,omitzero"`
 	// Total USD value of all priced balances.
 	TotalUsdValue optionalnullable.OptionalNullable[string] `json:"total_usd_value,omitzero"`

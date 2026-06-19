@@ -4,7 +4,7 @@ Submit a signed tokenized-equity order (Ondo)
 
 ### Synopsis
 
-Submit a signed order to the resolver network.
+Submit a signed order for settlement.
 
 The body echoes the `order` fields from `/order` (`signed_order`,
 `extension`, `quote_id`, optionally `order_hash`) plus the owner's

@@ -4,7 +4,7 @@ package components
 
 // SafeMessageMessage - Body of the “SafeMessage“ typed-data — a single “bytes message“.
 type SafeMessageMessage struct {
-	// Raw bytes the product account is signing under ERC-1271. For a 1inch Fusion order this is the 32-byte order hash.
+	// Raw bytes the product account is signing under ERC-1271. For a tokenized-asset order this is the 32-byte order hash.
 	Message string `json:"message"`
 }
 

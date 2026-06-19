@@ -4,9 +4,9 @@ package components
 
 // TokenizedAssetsQuoteRequest - Preview a buy or sell quote for a tokenized equity.
 //
-// Read-only relative to Fusion: this hits “/quote/receive“ only and does
-// not consume a “quote_id“ or commit an order. Use it to surface expected
-// output, fees, and a thin-liquidity warning before the user confirms; pass
+// Read-only: this previews a quote without consuming a “quote_id“ or
+// committing an order. Use it to surface expected output, fees, and a
+// thin-liquidity warning before the user confirms; pass
 // the same body (plus “slippage_bps“) to “POST /tokenized_assets/order“
 // when they do.
 type TokenizedAssetsQuoteRequest struct {
