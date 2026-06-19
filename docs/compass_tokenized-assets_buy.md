@@ -32,6 +32,7 @@ compass tokenized-assets buy [flags]
   -a, --amount-in string   JSON value (one of: number | string)
       --body string        Request body as JSON (alternative to individual flags). Can also be provided via stdin.
   -c, --chain string       The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
+  -f, --fee string         Optional partner fee charged when selling (exiting). It is taken from the payout-token (USDC) proceeds and sent to your fee recipient inside the same execution.
   -g, --gas-sponsorship    When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction.
   -h, --help               help for buy
       --owner string       The owner's wallet address. [required]

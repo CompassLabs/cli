@@ -65,6 +65,10 @@ func InitTokenizedAssetsRoot(parent *cobra.Command) error {
 		return err
 	}
 
+	if err := initTokenizedAssetsOrderOrderHashChargeFeeCmd(TokenizedAssetsCmd); err != nil {
+		return err
+	}
+
 	if err := initBuyCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}

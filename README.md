@@ -231,6 +231,7 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`order`](docs/compass_tokenized-assets_order.md) - Build a tokenized-equity buy/sell order (Ondo)
 * [`order-submit`](docs/compass_tokenized-assets_order-submit.md) - Submit a signed tokenized-equity order (Ondo)
 * [`order-cancel`](docs/compass_tokenized-assets_order-cancel.md) - Cancel an unfilled tokenized-equity order (Ondo)
+* [`tokenized-assets-order-order-hash-charge-fee`](docs/compass_tokenized-assets_tokenized-assets-order-order-hash-charge-fee.md) - Charge a partner fee on a filled sell order's USDC proceeds
 * [`buy`](docs/compass_tokenized-assets_buy.md) - Buy an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
 * [`sell`](docs/compass_tokenized-assets_sell.md) - Sell an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
 

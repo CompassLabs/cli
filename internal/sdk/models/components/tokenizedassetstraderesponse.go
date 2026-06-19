@@ -18,6 +18,8 @@ type TokenizedAssetsTradeResponse struct {
 	Eip712 optionalnullable.OptionalNullable[BatchedSafeOperationsResponseOutput] `json:"eip_712,omitzero"`
 	// Estimated amount of `token_out` received (human-readable units).
 	EstimatedAmountOut string `json:"estimated_amount_out"`
+	// Fee charged on the sell, in payout-token (USDC) units. Null when no fee was applied.
+	FeeAmount optionalnullable.OptionalNullable[string] `json:"fee_amount,omitzero"`
 }
 
 func (t TokenizedAssetsTradeResponse) MarshalJSON() ([]byte, error) {
@@ -50,4 +52,11 @@ func (t *TokenizedAssetsTradeResponse) GetEstimatedAmountOut() string {
 		return ""
 	}
 	return t.EstimatedAmountOut
+}
+
+func (t *TokenizedAssetsTradeResponse) GetFeeAmount() optionalnullable.OptionalNullable[string] {
+	if t == nil {
+		return nil
+	}
+	return t.FeeAmount
 }

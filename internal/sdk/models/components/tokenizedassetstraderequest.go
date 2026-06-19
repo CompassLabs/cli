@@ -5,6 +5,7 @@ package components
 import (
 	"errors"
 	"fmt"
+	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
@@ -207,6 +208,19 @@ type TokenizedAssetsTradeRequest struct {
 	Chain Chain `json:"chain"`
 	// When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
+	// Optional partner fee charged when selling (exiting). It is taken from the payout-token (USDC) proceeds and sent to your fee recipient inside the same execution.
+	Fee optionalnullable.OptionalNullable[TokenizedAssetsFee] `json:"fee,omitzero"`
+}
+
+func (t TokenizedAssetsTradeRequest) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(t, "", false)
+}
+
+func (t *TokenizedAssetsTradeRequest) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &t, "", false, nil); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (t *TokenizedAssetsTradeRequest) GetTokenIn() string {
@@ -256,4 +270,11 @@ func (t *TokenizedAssetsTradeRequest) GetGasSponsorship() *bool {
 		return nil
 	}
 	return t.GasSponsorship
+}
+
+func (t *TokenizedAssetsTradeRequest) GetFee() optionalnullable.OptionalNullable[TokenizedAssetsFee] {
+	if t == nil {
+		return nil
+	}
+	return t.Fee
 }
