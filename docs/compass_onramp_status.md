@@ -1,16 +1,41 @@
-## compass
+## compass onramp status
 
-Compass API: Compass Labs DeFi API
+Get the status of a fiat on-ramp payment
 
 ### Synopsis
 
-Compass API: Compass Labs DeFi API
+Get the current status of a fiat on-ramp payment.
+
+Poll this after `create` until `status` is `delivered`. The `status` field
+is one of:
+
+- `pending` — awaiting the card payment in the hosted checkout.
+- `processing` — payment received; bridging/swapping the proceeds to USDC.
+- `delivered` — USDC has been delivered to the destination wallet
+  (`delivery_tx_hash` and `output_amount_delivered` are populated).
+- `failed` — the payment failed, expired, or was refunded.
+
+State is re-read live from the on-ramp provider on every call — Compass
+stores nothing of its own.
 
 ```
-compass [flags]
+compass onramp status [flags]
+```
+
+### Examples
+
+```
+  compass onramp status --payment-id <id>
 ```
 
 ### Options
+
+```
+  -h, --help                    help for status
+  -p, --payment-id payment_id   The payment_id returned by `POST /v2/onramp/create`. [required]
+```
+
+### Options inherited from parent commands
 
 ```
       --agent-mode             Enable structured errors and default TOON output for AI coding agents. Automatically enabled when a known agent environment is detected (CLAUDE_CODE, CURSOR_AGENT, etc.). Use --agent-mode=false to disable.
@@ -19,7 +44,6 @@ compass [flags]
   -d, --debug                  Log request and response diagnostics to stderr
       --dry-run                Preview the request that would be sent without executing it (output to stderr)
   -H, --header stringArray     Set a custom HTTP request header (format: "Key: Value"). Can be specified multiple times.
-  -h, --help                   help for compass
       --include-headers        Include HTTP response headers in the output
   -q, --jq string              Filter and transform output using a jq expression (e.g., '.name', '.items[] | .id')
       --no-interactive         Disable all interactive features (auto-prompting, explorer auto-launch, TUI forms)
@@ -32,14 +56,4 @@ compass [flags]
 
 ### SEE ALSO
 
-* [compass auth](compass_auth.md)	 - Manage authentication credentials
-* [compass configure](compass_configure.md)	 - Configure authentication credentials and preferences
-* [compass credit](compass_credit.md)	 - Operations for credit
-* [compass earn](compass_earn.md)	 - Operations for earn
-* [compass explore](compass_explore.md)	 - Interactively browse and run commands
-* [compass gas-sponsorship](compass_gas-sponsorship.md)	 - Operations for gas-sponsorship
-* [compass global-markets-perps](compass_global-markets-perps.md)	 - Operations for global-markets-perps
 * [compass onramp](compass_onramp.md)	 - Operations for onramp
-* [compass tokenized-assets](compass_tokenized-assets.md)	 - Operations for tokenized-assets
-* [compass version](compass_version.md)	 - Print the CLI version
-* [compass whoami](compass_whoami.md)	 - Display current authentication configuration

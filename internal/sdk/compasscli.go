@@ -2,7 +2,7 @@
 
 package sdk
 
-// Generated from OpenAPI doc version 0.0.1 and generator version 2.911.3
+// Generated from OpenAPI doc version 0.0.1 and generator version 2.912.1
 
 import (
 	"context"
@@ -56,6 +56,7 @@ type CompassCLI struct {
 	Credit             *Credit
 	GlobalMarketsPerps *GlobalMarketsPerps
 	TokenizedAssets    *TokenizedAssets
+	Onramp             *Onramp
 
 	sdkConfiguration config.SDKConfiguration
 	hooks            *hooks.Hooks
@@ -133,7 +134,7 @@ func New(opts ...SDKOption) *CompassCLI {
 	sdk := &CompassCLI{
 		SDKVersion: "0.0.1",
 		sdkConfiguration: config.SDKConfiguration{
-			UserAgent:  "speakeasy-sdk/go 0.0.1 2.911.3 0.0.1 github.com/CompassLabs/cli/internal/sdk",
+			UserAgent:  "speakeasy-sdk/go 0.0.1 2.912.1 0.0.1 github.com/CompassLabs/cli/internal/sdk",
 			ServerList: ServerList,
 		},
 		hooks: hooks.New(),
@@ -154,6 +155,7 @@ func New(opts ...SDKOption) *CompassCLI {
 	sdk.Credit = newCredit(sdk, sdk.sdkConfiguration, sdk.hooks)
 	sdk.GlobalMarketsPerps = newGlobalMarketsPerps(sdk, sdk.sdkConfiguration, sdk.hooks)
 	sdk.TokenizedAssets = newTokenizedAssets(sdk, sdk.sdkConfiguration, sdk.hooks)
+	sdk.Onramp = newOnramp(sdk, sdk.sdkConfiguration, sdk.hooks)
 
 	return sdk
 }

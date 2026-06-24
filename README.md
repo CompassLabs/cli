@@ -235,6 +235,12 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`buy`](docs/compass_tokenized-assets_buy.md) - Buy an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
 * [`sell`](docs/compass_tokenized-assets_sell.md) - Sell an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
 
+### [onramp](docs/compass_onramp.md)
+
+* [`quote`](docs/compass_onramp_quote.md) - Get a fiat on-ramp quote (card -> USDC on Ethereum)
+* [`create`](docs/compass_onramp_create.md) - Create a fiat on-ramp payment + get the checkout link
+* [`status`](docs/compass_onramp_status.md) - Get the status of a fiat on-ramp payment
+
 </details>
 <!-- End Available Commands [operations] -->
 

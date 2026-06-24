@@ -6,22 +6,22 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 )
 
-// Status - Order lifecycle state. One of `pending`, `filled`, `expired`, or `cancelled`. Upstream protocol states beyond these four (e.g. `partially-filled`, `refunded`) are mapped onto this set.
-type Status string
+// OrderStatusStatus - Order lifecycle state. One of `pending`, `filled`, `expired`, or `cancelled`. Upstream protocol states beyond these four (e.g. `partially-filled`, `refunded`) are mapped onto this set.
+type OrderStatusStatus string
 
 const (
-	StatusPending   Status = "pending"
-	StatusFilled    Status = "filled"
-	StatusExpired   Status = "expired"
-	StatusCancelled Status = "cancelled"
+	OrderStatusStatusPending   OrderStatusStatus = "pending"
+	OrderStatusStatusFilled    OrderStatusStatus = "filled"
+	OrderStatusStatusExpired   OrderStatusStatus = "expired"
+	OrderStatusStatusCancelled OrderStatusStatus = "cancelled"
 )
 
-func (e Status) ToPointer() *Status {
+func (e OrderStatusStatus) ToPointer() *OrderStatusStatus {
 	return &e
 }
 
 // IsExact returns true if the value matches a known enum value, false otherwise.
-func (e *Status) IsExact() bool {
+func (e *OrderStatusStatus) IsExact() bool {
 	if e != nil {
 		switch *e {
 		case "pending", "filled", "expired", "cancelled":
@@ -36,7 +36,7 @@ type OrderStatus struct {
 	// On-chain order hash.
 	OrderHash string `json:"order_hash"`
 	// Order lifecycle state. One of `pending`, `filled`, `expired`, or `cancelled`. Upstream protocol states beyond these four (e.g. `partially-filled`, `refunded`) are mapped onto this set.
-	Status Status `json:"status"`
+	Status OrderStatusStatus `json:"status"`
 	// Transaction hash of the most recent fill. Populated for fully filled orders and for partial fills while `status` is still `pending`.
 	FillTxHash optionalnullable.OptionalNullable[string] `json:"fill_tx_hash,omitzero"`
 	// Implied USD execution rate per unit of the received token, derived from filled amounts and the input token's USD price. For USDC → equity buys, this is the USD paid per equity unit. Omitted when token decimals or pricing are not available.
@@ -56,9 +56,9 @@ func (o *OrderStatus) GetOrderHash() string {
 	return o.OrderHash
 }
 
-func (o *OrderStatus) GetStatus() Status {
+func (o *OrderStatus) GetStatus() OrderStatusStatus {
 	if o == nil {
-		return Status("")
+		return OrderStatusStatus("")
 	}
 	return o.Status
 }
