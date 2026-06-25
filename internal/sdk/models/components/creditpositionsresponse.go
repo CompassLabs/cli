@@ -13,8 +13,14 @@ type CreditPositionsResponse struct {
 	CollateralPositions []CollateralPosition `json:"collateral_positions,omitzero"`
 	// All debt positions, one per reserve.
 	DebtPositions []DebtPosition `json:"debt_positions,omitzero"`
-	// Aave account-level summary from getUserAccountData().
+	// Account-level summary for one lending protocol.
+	//
+	// Populated from Aave ``getUserAccountData()`` or, for Euler, from the
+	// controller vault's risk engine (``accountLiquidity``). The E-Mode fields are
+	// Aave-only and stay at their defaults for Euler.
 	AccountSummary AccountSummary `json:"account_summary"`
+	// Euler account-level summary (health factor, LTV, etc.), present only when the account holds Euler positions. Null for Aave-only accounts.
+	EulerAccountSummary optionalnullable.OptionalNullable[AccountSummary] `json:"euler_account_summary,omitzero"`
 	// All tokens available for borrowing with max amounts based on current collateral.
 	BorrowableTokens []BorrowableToken `json:"borrowable_tokens,omitzero"`
 	// Net position value in USD (total collateral - total debt). Null if prices unavailable.
@@ -51,6 +57,13 @@ func (c *CreditPositionsResponse) GetAccountSummary() AccountSummary {
 		return AccountSummary{}
 	}
 	return c.AccountSummary
+}
+
+func (c *CreditPositionsResponse) GetEulerAccountSummary() optionalnullable.OptionalNullable[AccountSummary] {
+	if c == nil {
+		return nil
+	}
+	return c.EulerAccountSummary
 }
 
 func (c *CreditPositionsResponse) GetBorrowableTokens() []BorrowableToken {

@@ -13,7 +13,15 @@ type DebtPosition struct {
 	Token string `json:"token"`
 	// Symbol of the borrow token (e.g. WETH).
 	Symbol string `json:"symbol"`
-	// Current on-chain variable debt balance.
+	// Which lending protocol a credit action targets.
+	//
+	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
+	// field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
+	// Euler V2 path, where the market is identified by EVK vault address(es).
+	Protocol *CreditProtocol `json:"protocol,omitzero"`
+	// Euler only: the EVK borrow vault this debt is owed to.
+	Vault optionalnullable.OptionalNullable[string] `json:"vault,omitzero"`
+	// Current on-chain debt balance (the vault's underlying asset for Euler).
 	AmountBorrowed *string `json:"amount_borrowed"`
 	// Debt value in USD.
 	UsdValue optionalnullable.OptionalNullable[string] `json:"usd_value,omitzero"`
@@ -52,6 +60,20 @@ func (d *DebtPosition) GetSymbol() string {
 		return ""
 	}
 	return d.Symbol
+}
+
+func (d *DebtPosition) GetProtocol() *CreditProtocol {
+	if d == nil {
+		return nil
+	}
+	return d.Protocol
+}
+
+func (d *DebtPosition) GetVault() optionalnullable.OptionalNullable[string] {
+	if d == nil {
+		return nil
+	}
+	return d.Vault
 }
 
 func (d *DebtPosition) GetAmountBorrowed() *string {

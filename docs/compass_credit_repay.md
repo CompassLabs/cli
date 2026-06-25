@@ -28,7 +28,9 @@ compass credit repay [flags]
 
 ```
       --body string                 Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -c, --chain string                The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
+  -b, --borrow-vault string         Euler only: the EVK vault the debt is owed to (repay target). Required when protocol=EULER.
+      --chain string                The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
+      --collateral-vault string     Euler only: the EVK collateral vault to withdraw from. Required when protocol=EULER and withdrawing collateral.
   -g, --gas-sponsorship             If true, returns EIP-712 signature data instead of an unsigned transaction.
   -h, --help                        help for repay
   -i, --interest-rate-mode string   On AAVE there are 2 different interest modes.
@@ -38,6 +40,11 @@ compass credit repay [flags]
       --permit2-deadline string     The deadline timestamp used in the Permit2 signature (from the signed typed data).
       --permit2-nonce string        The nonce used in the Permit2 signature (from the signed typed data).
       --permit2-signature string    The EOA owner's signature of the Permit2 PermitTransferFrom typed data. When provided, the repay bundle will first pull repay_token from the owner's EOA into the Credit Account via Permit2. Obtain by calling /v2/credit/transfer and signing the returned EIP-712 data.
+      --protocol                    Which lending protocol a credit action targets.
+                                    
+                                    AAVE`` is the default so existing callers (which never send a ``protocol``
+                                    field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
+                                    Euler V2 path, where the market is identified by EVK vault address(es). (options: AAVE, EULER)
       --repay-amount string         JSON value (one of: number | string)
       --repay-token string          The borrowed asset to repay (e.g. WETH). Must match the debt position's token. [required]
   -s, --slippage string             JSON value (one of: number | string)

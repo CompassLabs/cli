@@ -3,6 +3,7 @@
 package components
 
 import (
+	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
@@ -16,6 +17,14 @@ type CreditEnableCollateralParams struct {
 	actionType *string `const:"CREDIT_ENABLE_COLLATERAL" json:"action_type,omitzero"`
 	// The underlying reserve token to enable as collateral (e.g. USDC, not aUSDC).
 	Token string `json:"token"`
+	// Which lending protocol a credit action targets.
+	//
+	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
+	// field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
+	// Euler V2 path, where the market is identified by EVK vault address(es).
+	Protocol *CreditProtocol `json:"protocol,omitzero"`
+	// Euler only: the EVK collateral vault to enable. Required when protocol=EULER.
+	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
 }
 
 func (c CreditEnableCollateralParams) MarshalJSON() ([]byte, error) {
@@ -38,4 +47,18 @@ func (c *CreditEnableCollateralParams) GetToken() string {
 		return ""
 	}
 	return c.Token
+}
+
+func (c *CreditEnableCollateralParams) GetProtocol() *CreditProtocol {
+	if c == nil {
+		return nil
+	}
+	return c.Protocol
+}
+
+func (c *CreditEnableCollateralParams) GetCollateralVault() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.CollateralVault
 }

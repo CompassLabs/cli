@@ -5,6 +5,7 @@ package components
 import (
 	"errors"
 	"fmt"
+	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
@@ -103,10 +104,18 @@ func (u CreditWithdrawParamsAmount) MarshalJSON() ([]byte, error) {
 type CreditWithdrawParams struct {
 	//lint:ignore U1000 accessed via reflection for JSON marshaling
 	actionType *string `const:"CREDIT_WITHDRAW" json:"action_type,omitzero"`
-	// Collateral token to withdraw from Aave.
+	// Collateral token to withdraw.
 	Token string `json:"token"`
 	// Amount in token units to withdraw.
 	Amount CreditWithdrawParamsAmount `json:"amount"`
+	// Which lending protocol a credit action targets.
+	//
+	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
+	// field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
+	// Euler V2 path, where the market is identified by EVK vault address(es).
+	Protocol *CreditProtocol `json:"protocol,omitzero"`
+	// Euler only: the EVK collateral vault to withdraw from. Required when protocol=EULER.
+	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
 }
 
 func (c CreditWithdrawParams) MarshalJSON() ([]byte, error) {
@@ -136,4 +145,18 @@ func (c *CreditWithdrawParams) GetAmount() CreditWithdrawParamsAmount {
 		return CreditWithdrawParamsAmount{}
 	}
 	return c.Amount
+}
+
+func (c *CreditWithdrawParams) GetProtocol() *CreditProtocol {
+	if c == nil {
+		return nil
+	}
+	return c.Protocol
+}
+
+func (c *CreditWithdrawParams) GetCollateralVault() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.CollateralVault
 }

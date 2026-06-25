@@ -114,6 +114,14 @@ type CreditBorrowParams struct {
 	InterestRateMode *InterestRateMode `json:"interest_rate_mode,omitzero"`
 	// Optional fee on the borrowed amount.
 	Fee optionalnullable.OptionalNullable[CreditFee] `json:"fee,omitzero"`
+	// Which lending protocol a credit action targets.
+	//
+	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
+	// field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
+	// Euler V2 path, where the market is identified by EVK vault address(es).
+	Protocol *CreditProtocol `json:"protocol,omitzero"`
+	// Euler only: the EVK vault to borrow from. Required when protocol=EULER.
+	BorrowVault optionalnullable.OptionalNullable[string] `json:"borrow_vault,omitzero"`
 }
 
 func (c CreditBorrowParams) MarshalJSON() ([]byte, error) {
@@ -157,4 +165,18 @@ func (c *CreditBorrowParams) GetFee() optionalnullable.OptionalNullable[CreditFe
 		return nil
 	}
 	return c.Fee
+}
+
+func (c *CreditBorrowParams) GetProtocol() *CreditProtocol {
+	if c == nil {
+		return nil
+	}
+	return c.Protocol
+}
+
+func (c *CreditBorrowParams) GetBorrowVault() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.BorrowVault
 }

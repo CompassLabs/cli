@@ -284,6 +284,16 @@ type CreditBorrowRequest struct {
 	Owner string `json:"owner"`
 	// The chain to use.
 	Chain Chain `json:"chain"`
+	// Which lending protocol a credit action targets.
+	//
+	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
+	// field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
+	// Euler V2 path, where the market is identified by EVK vault address(es).
+	Protocol *CreditProtocol `json:"protocol,omitzero"`
+	// Euler only: the EVK collateral vault to supply into. Required when protocol=EULER and supplying collateral.
+	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
+	// Euler only: the EVK vault to borrow from. Required when protocol=EULER.
+	BorrowVault optionalnullable.OptionalNullable[string] `json:"borrow_vault,omitzero"`
 	// Token currently held in the Credit Account to use as input. If the same as collateral_token, no swap is performed. Omit together with amount_in and collateral_token to borrow against existing collateral.
 	TokenIn optionalnullable.OptionalNullable[string] `json:"token_in,omitzero"`
 	// Amount of token_in to use (in token units, not wei). Omit together with token_in and collateral_token for borrow-only mode.
@@ -335,6 +345,27 @@ func (c *CreditBorrowRequest) GetChain() Chain {
 		return Chain("")
 	}
 	return c.Chain
+}
+
+func (c *CreditBorrowRequest) GetProtocol() *CreditProtocol {
+	if c == nil {
+		return nil
+	}
+	return c.Protocol
+}
+
+func (c *CreditBorrowRequest) GetCollateralVault() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.CollateralVault
+}
+
+func (c *CreditBorrowRequest) GetBorrowVault() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.BorrowVault
 }
 
 func (c *CreditBorrowRequest) GetTokenIn() optionalnullable.OptionalNullable[string] {

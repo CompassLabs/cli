@@ -30,8 +30,10 @@ compass credit borrow [flags]
       --body string                 Request body as JSON (alternative to individual flags). Can also be provided via stdin.
       --borrow-amount string        JSON value (one of: number | string)
       --borrow-token string         Asset to borrow from Aave. [required]
+      --borrow-vault string         Euler only: the EVK vault to borrow from. Required when protocol=EULER.
       --chain string                The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
       --collateral-token string     Aave reserve token to supply as collateral. Omit together with token_in and amount_in for borrow-only mode.
+      --collateral-vault string     Euler only: the EVK collateral vault to supply into. Required when protocol=EULER and supplying collateral.
   -f, --fee string                  Optional fee configuration. If provided, a fee will be deducted from the borrowed amount and sent to the specified recipient address.
   -g, --gas-sponsorship             If true, returns EIP-712 signature data instead of an unsigned transaction.
   -h, --help                        help for borrow
@@ -42,6 +44,11 @@ compass credit borrow [flags]
       --permit2-deadline string     The deadline timestamp used in the Permit2 signature (from the signed typed data).
       --permit2-nonce string        The nonce used in the Permit2 signature (from the signed typed data).
       --permit2-signature string    The EOA owner's signature of the Permit2 PermitTransferFrom typed data. When provided, the borrow bundle will first pull token_in from the owner's EOA into the Credit Account via Permit2. Obtain by calling /v2/credit/transfer and signing the returned EIP-712 data.
+      --protocol                    Which lending protocol a credit action targets.
+                                    
+                                    AAVE`` is the default so existing callers (which never send a ``protocol``
+                                    field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
+                                    Euler V2 path, where the market is identified by EVK vault address(es). (options: AAVE, EULER)
   -s, --slippage string             JSON value (one of: number | string)
   -t, --token-in string             Token currently held in the Credit Account to use as input. If the same as collateral_token, no swap is performed. Omit together with amount_in and collateral_token to borrow against existing collateral.
 ```

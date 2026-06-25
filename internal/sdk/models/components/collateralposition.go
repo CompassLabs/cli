@@ -13,7 +13,15 @@ type CollateralPosition struct {
 	Token string `json:"token"`
 	// Symbol of the collateral token (e.g. USDC).
 	Symbol string `json:"symbol"`
-	// Current on-chain aToken balance for the collateral.
+	// Which lending protocol a credit action targets.
+	//
+	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
+	// field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
+	// Euler V2 path, where the market is identified by EVK vault address(es).
+	Protocol *CreditProtocol `json:"protocol,omitzero"`
+	// Euler only: the EVK collateral vault holding this position.
+	Vault optionalnullable.OptionalNullable[string] `json:"vault,omitzero"`
+	// Current on-chain collateral balance (the vault's underlying asset for Euler).
 	AmountSupplied *string `json:"amount_supplied"`
 	// Collateral value in USD.
 	UsdValue optionalnullable.OptionalNullable[string] `json:"usd_value,omitzero"`
@@ -54,6 +62,20 @@ func (c *CollateralPosition) GetSymbol() string {
 		return ""
 	}
 	return c.Symbol
+}
+
+func (c *CollateralPosition) GetProtocol() *CreditProtocol {
+	if c == nil {
+		return nil
+	}
+	return c.Protocol
+}
+
+func (c *CollateralPosition) GetVault() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.Vault
 }
 
 func (c *CollateralPosition) GetAmountSupplied() *string {

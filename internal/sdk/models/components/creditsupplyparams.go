@@ -5,6 +5,7 @@ package components
 import (
 	"errors"
 	"fmt"
+	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
@@ -103,10 +104,18 @@ func (u CreditSupplyParamsAmount) MarshalJSON() ([]byte, error) {
 type CreditSupplyParams struct {
 	//lint:ignore U1000 accessed via reflection for JSON marshaling
 	actionType *string `const:"CREDIT_SUPPLY" json:"action_type,omitzero"`
-	// Collateral token to supply to Aave.
+	// Collateral token to supply.
 	Token string `json:"token"`
 	// Amount in token units to supply.
 	Amount CreditSupplyParamsAmount `json:"amount"`
+	// Which lending protocol a credit action targets.
+	//
+	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
+	// field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
+	// Euler V2 path, where the market is identified by EVK vault address(es).
+	Protocol *CreditProtocol `json:"protocol,omitzero"`
+	// Euler only: the EVK collateral vault to supply into. Required when protocol=EULER.
+	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
 }
 
 func (c CreditSupplyParams) MarshalJSON() ([]byte, error) {
@@ -136,4 +145,18 @@ func (c *CreditSupplyParams) GetAmount() CreditSupplyParamsAmount {
 		return CreditSupplyParamsAmount{}
 	}
 	return c.Amount
+}
+
+func (c *CreditSupplyParams) GetProtocol() *CreditProtocol {
+	if c == nil {
+		return nil
+	}
+	return c.Protocol
+}
+
+func (c *CreditSupplyParams) GetCollateralVault() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.CollateralVault
 }

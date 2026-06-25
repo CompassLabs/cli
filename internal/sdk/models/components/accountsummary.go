@@ -6,8 +6,18 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 )
 
-// AccountSummary - Aave account-level summary from getUserAccountData().
+// AccountSummary - Account-level summary for one lending protocol.
+//
+// Populated from Aave “getUserAccountData()“ or, for Euler, from the
+// controller vault's risk engine (“accountLiquidity“). The E-Mode fields are
+// Aave-only and stay at their defaults for Euler.
 type AccountSummary struct {
+	// Which lending protocol a credit action targets.
+	//
+	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
+	// field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
+	// Euler V2 path, where the market is identified by EVK vault address(es).
+	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Health factor. Above 1 is safe; below 1 risks liquidation.
 	HealthFactor string `json:"health_factor"`
 	// Total collateral value in USD.
@@ -22,6 +32,13 @@ type AccountSummary struct {
 	EmodeCategoryID *int64 `json:"emode_category_id,omitzero"`
 	// Human-readable E-Mode category name (e.g. 'Stablecoins', 'ETH correlated'). Null when E-Mode is disabled (category 0).
 	EmodeLabel optionalnullable.OptionalNullable[string] `json:"emode_label,omitzero"`
+}
+
+func (a *AccountSummary) GetProtocol() *CreditProtocol {
+	if a == nil {
+		return nil
+	}
+	return a.Protocol
 }
 
 func (a *AccountSummary) GetHealthFactor() string {

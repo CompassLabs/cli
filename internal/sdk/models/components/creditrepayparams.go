@@ -5,6 +5,7 @@ package components
 import (
 	"errors"
 	"fmt"
+	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
@@ -103,7 +104,7 @@ func (u CreditRepayParamsAmount) MarshalJSON() ([]byte, error) {
 type CreditRepayParams struct {
 	//lint:ignore U1000 accessed via reflection for JSON marshaling
 	actionType *string `const:"CREDIT_REPAY" json:"action_type,omitzero"`
-	// Token to repay to Aave.
+	// Token to repay.
 	Token string `json:"token"`
 	// Amount in token units to repay.
 	Amount CreditRepayParamsAmount `json:"amount"`
@@ -111,6 +112,14 @@ type CreditRepayParams struct {
 	//
 	// A stable (but typically higher rate), or a variable rate.
 	InterestRateMode *InterestRateMode `json:"interest_rate_mode,omitzero"`
+	// Which lending protocol a credit action targets.
+	//
+	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
+	// field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
+	// Euler V2 path, where the market is identified by EVK vault address(es).
+	Protocol *CreditProtocol `json:"protocol,omitzero"`
+	// Euler only: the EVK vault the debt is owed to. Required when protocol=EULER.
+	BorrowVault optionalnullable.OptionalNullable[string] `json:"borrow_vault,omitzero"`
 }
 
 func (c CreditRepayParams) MarshalJSON() ([]byte, error) {
@@ -147,4 +156,18 @@ func (c *CreditRepayParams) GetInterestRateMode() *InterestRateMode {
 		return nil
 	}
 	return c.InterestRateMode
+}
+
+func (c *CreditRepayParams) GetProtocol() *CreditProtocol {
+	if c == nil {
+		return nil
+	}
+	return c.Protocol
+}
+
+func (c *CreditRepayParams) GetBorrowVault() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.BorrowVault
 }
