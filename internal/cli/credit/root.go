@@ -28,6 +28,10 @@ func InitCreditRoot(parent *cobra.Command) error {
 		return err
 	}
 
+	if err := initCreditEulerMarketsCmd(CreditCmd); err != nil {
+		return err
+	}
+
 	if err := initCreateAccountCmd(CreditCmd); err != nil {
 		return err
 	}
