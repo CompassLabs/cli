@@ -21,6 +21,8 @@ type CreditPositionsResponse struct {
 	AccountSummary AccountSummary `json:"account_summary"`
 	// Euler account-level summary (health factor, LTV, etc.), present only when the account holds Euler positions. Null for Aave-only accounts.
 	EulerAccountSummary optionalnullable.OptionalNullable[AccountSummary] `json:"euler_account_summary,omitzero"`
+	// Euler-only: additional borrowable amounts given the account's current Euler controller (i.e. borrow more of the controller's asset). Empty for accounts with no Euler borrow position — use /credit/euler_markets to discover a new market to borrow from.
+	EulerBorrowableTokens []BorrowableToken `json:"euler_borrowable_tokens,omitzero"`
 	// All tokens available for borrowing with max amounts based on current collateral.
 	BorrowableTokens []BorrowableToken `json:"borrowable_tokens,omitzero"`
 	// Net position value in USD (total collateral - total debt). Null if prices unavailable.
@@ -64,6 +66,13 @@ func (c *CreditPositionsResponse) GetEulerAccountSummary() optionalnullable.Opti
 		return nil
 	}
 	return c.EulerAccountSummary
+}
+
+func (c *CreditPositionsResponse) GetEulerBorrowableTokens() []BorrowableToken {
+	if c == nil {
+		return nil
+	}
+	return c.EulerBorrowableTokens
 }
 
 func (c *CreditPositionsResponse) GetBorrowableTokens() []BorrowableToken {

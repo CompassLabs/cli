@@ -2,16 +2,22 @@
 
 package components
 
+import (
+	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
+)
+
 // BorrowableToken - A token available for borrowing with the maximum borrowable amount.
 type BorrowableToken struct {
 	// Address of the borrowable token.
 	Token string `json:"token"`
 	// Symbol of the borrowable token (e.g. WETH).
 	Symbol string `json:"symbol"`
+	// Euler only: the EVK borrow vault to borrow this token from (pass as borrow_vault).
+	Vault optionalnullable.OptionalNullable[string] `json:"vault,omitzero"`
 	// Maximum amount that can be borrowed based on available borrow capacity and token price.
 	MaxBorrowableAmount string `json:"max_borrowable_amount"`
-	// Current variable borrow APY in percentage (e.g. 4.5 means 4.5%).
-	BorrowApy string `json:"borrow_apy"`
+	// Current variable borrow APY in percentage (e.g. 4.5 means 4.5%). Null if the rate is unavailable.
+	BorrowApy optionalnullable.OptionalNullable[string] `json:"borrow_apy,omitzero"`
 }
 
 func (b *BorrowableToken) GetToken() string {
@@ -28,6 +34,13 @@ func (b *BorrowableToken) GetSymbol() string {
 	return b.Symbol
 }
 
+func (b *BorrowableToken) GetVault() optionalnullable.OptionalNullable[string] {
+	if b == nil {
+		return nil
+	}
+	return b.Vault
+}
+
 func (b *BorrowableToken) GetMaxBorrowableAmount() string {
 	if b == nil {
 		return ""
@@ -35,9 +48,9 @@ func (b *BorrowableToken) GetMaxBorrowableAmount() string {
 	return b.MaxBorrowableAmount
 }
 
-func (b *BorrowableToken) GetBorrowApy() string {
+func (b *BorrowableToken) GetBorrowApy() optionalnullable.OptionalNullable[string] {
 	if b == nil {
-		return ""
+		return nil
 	}
 	return b.BorrowApy
 }

@@ -2,6 +2,10 @@
 
 package components
 
+import (
+	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
+)
+
 // EulerMarketCollateral - A collateral vault an Euler borrow market accepts, with its loan-to-value.
 type EulerMarketCollateral struct {
 	// EVK collateral vault to supply into (pass as collateral_vault when borrowing).
@@ -14,6 +18,8 @@ type EulerMarketCollateral struct {
 	BorrowLtv string `json:"borrow_ltv"`
 	// Loan-to-value at which this collateral is liquidated, in percentage (e.g. 96 means 96%).
 	LiquidationLtv string `json:"liquidation_ltv"`
+	// Current supply APY earned on this collateral while it backs a loan, in percentage (e.g. 3.5 means 3.5%). Null if the rate is unavailable.
+	SupplyApy optionalnullable.OptionalNullable[string] `json:"supply_apy,omitzero"`
 }
 
 func (e *EulerMarketCollateral) GetVault() string {
@@ -49,4 +55,11 @@ func (e *EulerMarketCollateral) GetLiquidationLtv() string {
 		return ""
 	}
 	return e.LiquidationLtv
+}
+
+func (e *EulerMarketCollateral) GetSupplyApy() optionalnullable.OptionalNullable[string] {
+	if e == nil {
+		return nil
+	}
+	return e.SupplyApy
 }

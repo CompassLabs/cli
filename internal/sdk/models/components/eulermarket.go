@@ -3,6 +3,7 @@
 package components
 
 import (
+	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
@@ -18,6 +19,10 @@ type EulerMarket struct {
 	AssetSymbol string `json:"asset_symbol"`
 	// Decimals of the borrowable asset.
 	AssetDecimals int64 `json:"asset_decimals"`
+	// Current borrow APY for this market (cost to borrow the asset), in percentage (e.g. 5.25 means 5.25%). Null if the rate is unavailable.
+	BorrowApy optionalnullable.OptionalNullable[string] `json:"borrow_apy,omitzero"`
+	// Current supply APY for this market (yield for supplying the asset), in percentage (e.g. 3.45 means 3.45%). Null if the rate is unavailable.
+	SupplyApy optionalnullable.OptionalNullable[string] `json:"supply_apy,omitzero"`
 	// Collateral vaults this market accepts (those currently borrowable, LTV > 0), each with its LTVs.
 	Collaterals []EulerMarketCollateral `json:"collaterals,omitzero"`
 }
@@ -66,6 +71,20 @@ func (e *EulerMarket) GetAssetDecimals() int64 {
 		return 0
 	}
 	return e.AssetDecimals
+}
+
+func (e *EulerMarket) GetBorrowApy() optionalnullable.OptionalNullable[string] {
+	if e == nil {
+		return nil
+	}
+	return e.BorrowApy
+}
+
+func (e *EulerMarket) GetSupplyApy() optionalnullable.OptionalNullable[string] {
+	if e == nil {
+		return nil
+	}
+	return e.SupplyApy
 }
 
 func (e *EulerMarket) GetCollaterals() []EulerMarketCollateral {
