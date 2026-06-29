@@ -15,42 +15,42 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var globalMarketsPerpsSetLeverageCmdMeta = []flagutil.FlagMeta{
+var setLeverageCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "User's EOA address [required]"},
 	{FlagName: "asset", Shorthand: "a", FieldPath: "Asset", Kind: flagutil.FlagKindString, Required: true, Description: "Asset ticker (e.g. 'AAPL', 'CL') [required]"},
 	{FlagName: "leverage", Shorthand: "l", FieldPath: "Leverage", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"leverage,omitempty"`, Description: "Target leverage as a whole-number multiplier. Omit (or pass null) to use the asset's maximum leverage. Must be between 1 and the asset's max leverage, which is available from the /opportunities endpoint."},
 }
 
-// initGlobalMarketsPerpsSetLeverageCmd initializes the global-markets-perps-set-leverage command.
-func initGlobalMarketsPerpsSetLeverageCmd(parent *cobra.Command) error {
+// initSetLeverageCmd initializes the set-leverage command.
+func initSetLeverageCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "global-markets-perps-set-leverage",
+		Use:     "set-leverage",
 		Short:   "Set leverage (defaults to market maximum)",
 		Long:    "Check leverage and prepare an updateLeverage action to the requested value.\n\nIf `leverage` is omitted, targets the asset's maximum leverage for that\nmarket. If the asset is already at the requested leverage, returns\nleverage_ok=true with null typed_data — no signing needed. Otherwise,\nreturns EIP-712 typed data for the user to sign. After signing, submit the\nsignature via the /execute endpoint.",
-		Example: "  compass global-markets-perps global-markets-perps-set-leverage --owner <value> --asset <value>",
-		RunE:    runGlobalMarketsPerpsSetLeverageCmd,
-		Aliases: []string{"gmpsl"},
+		Example: "  compass global-markets-perps set-leverage --owner <value> --asset <value>",
+		RunE:    runSetLeverageCmd,
+		Aliases: []string{"sl"},
 	}
-	flagutil.RegisterFlags(cmd, globalMarketsPerpsSetLeverageCmdMeta)
-	if err := flagutil.ValidateMeta[components.GlobalMarketsPerpsSetLeverageRequest](globalMarketsPerpsSetLeverageCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for global-markets-perps-set-leverage: %w", err)
+	flagutil.RegisterFlags(cmd, setLeverageCmdMeta)
+	if err := flagutil.ValidateMeta[components.GlobalMarketsPerpsSetLeverageRequest](setLeverageCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for set-leverage: %w", err)
 	}
 	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runGlobalMarketsPerpsSetLeverageCmd executes the global-markets-perps-set-leverage command.
-func runGlobalMarketsPerpsSetLeverageCmd(cmd *cobra.Command, args []string) error {
+// runSetLeverageCmd executes the set-leverage command.
+func runSetLeverageCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, globalMarketsPerpsSetLeverageCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, globalMarketsPerpsSetLeverageCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, setLeverageCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, setLeverageCmdMeta); err != nil {
 			return err
 		}
 	}
-	request, err := flagutil.BuildRequest[components.GlobalMarketsPerpsSetLeverageRequest](cmd, globalMarketsPerpsSetLeverageCmdMeta, "", "body")
+	request, err := flagutil.BuildRequest[components.GlobalMarketsPerpsSetLeverageRequest](cmd, setLeverageCmdMeta, "", "body")
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func runGlobalMarketsPerpsSetLeverageCmd(cmd *cobra.Command, args []string) erro
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.GlobalMarketsPerps.GlobalMarketsPerpsSetLeverage(cmd.Context(), *request, sdkOpts...)
+	res, err := s.GlobalMarketsPerps.SetLeverage(cmd.Context(), *request, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

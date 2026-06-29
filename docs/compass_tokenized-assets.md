@@ -38,17 +38,17 @@ compass tokenized-assets [flags]
 ### SEE ALSO
 
 * [compass](compass.md)	 - Compass API: Compass Labs DeFi API
+* [compass tokenized-assets balances](compass_tokenized-assets_balances.md)	 - Get account balances
 * [compass tokenized-assets buy](compass_tokenized-assets_buy.md)	 - Buy an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
 * [compass tokenized-assets create-account](compass_tokenized-assets_create-account.md)	 - Create a Tokenized Assets Account
 * [compass tokenized-assets market](compass_tokenized-assets_market.md)	 - Get a single market
 * [compass tokenized-assets markets](compass_tokenized-assets_markets.md)	 - List tokenized asset markets
 * [compass tokenized-assets order](compass_tokenized-assets_order.md)	 - Build a tokenized-equity buy/sell order (Ondo)
 * [compass tokenized-assets order-cancel](compass_tokenized-assets_order-cancel.md)	 - Cancel an unfilled tokenized-equity order (Ondo)
+* [compass tokenized-assets order-charge-fee](compass_tokenized-assets_order-charge-fee.md)	 - Charge a partner fee on a filled sell order's USDC proceeds
 * [compass tokenized-assets order-status](compass_tokenized-assets_order-status.md)	 - Get tokenized-equity order status (Ondo)
 * [compass tokenized-assets order-submit](compass_tokenized-assets_order-submit.md)	 - Submit a signed tokenized-equity order (Ondo)
 * [compass tokenized-assets positions](compass_tokenized-assets_positions.md)	 - Get tokenized-asset positions for an owner
 * [compass tokenized-assets quote](compass_tokenized-assets_quote.md)	 - Preview a tokenized-equity buy/sell quote (Ondo)
 * [compass tokenized-assets sell](compass_tokenized-assets_sell.md)	 - Sell an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
-* [compass tokenized-assets tokenized-assets-balances](compass_tokenized-assets_tokenized-assets-balances.md)	 - Get account balances
-* [compass tokenized-assets tokenized-assets-order-order-hash-charge-fee](compass_tokenized-assets_tokenized-assets-order-order-hash-charge-fee.md)	 - Charge a partner fee on a filled sell order's USDC proceeds
 * [compass tokenized-assets transfer](compass_tokenized-assets_transfer.md)	 - Deposit to / withdraw from a Tokenized Assets Account

@@ -42,7 +42,7 @@ compass credit [flags]
 * [compass credit borrow](compass_credit_borrow.md)	 - Borrow against collateral
 * [compass credit bundle](compass_credit_bundle.md)	 - Execute multiple credit actions
 * [compass credit create-account](compass_credit_create-account.md)	 - Create credit account
-* [compass credit credit-euler-markets](compass_credit_credit-euler-markets.md)	 - List curated Euler markets
+* [compass credit euler-markets](compass_credit_euler-markets.md)	 - List curated Euler markets
 * [compass credit positions](compass_credit_positions.md)	 - List credit positions
 * [compass credit repay](compass_credit_repay.md)	 - Repay debt and withdraw collateral
 * [compass credit transfer](compass_credit_transfer.md)	 - Transfer tokens to/from Credit Account

@@ -384,14 +384,14 @@ func (s *Credit) Balances(ctx context.Context, request operations.V2CreditBalanc
 
 }
 
-// CreditEulerMarkets - List curated Euler markets
+// EulerMarkets - List curated Euler markets
 // List curated Euler V2 credit markets for a chain.
 //
 // Euler is permissionless, so credit borrow/repay identify a market by EVK vault
 // address. This returns the borrow markets from Euler's Governed Perspective (the
 // DAO-vetted vault set) -- each with the collateral vaults it accepts and their
 // LTVs -- so callers know which borrow_vault / collateral_vault to use.
-func (s *Credit) CreditEulerMarkets(ctx context.Context, request operations.V2CreditEulerMarketsRequest, opts ...operations.Option) (*operations.V2CreditEulerMarketsResponse, error) {
+func (s *Credit) EulerMarkets(ctx context.Context, request operations.V2CreditEulerMarketsRequest, opts ...operations.Option) (*operations.V2CreditEulerMarketsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,

@@ -1,4 +1,4 @@
-## compass earn earn-swap-quote
+## compass earn swap-quote
 
 Quote a swap (read-only)
 
@@ -15,13 +15,13 @@ a position — for example, to warn when a market's underlying asset cannot be
 swapped back to a stablecoin without large slippage.
 
 ```
-compass earn earn-swap-quote [flags]
+compass earn swap-quote [flags]
 ```
 
 ### Examples
 
 ```
-  compass earn earn-swap-quote --chain base --token-in WETH --amount-in 1
+  compass earn swap-quote --chain base --token-in WETH --amount-in 1
 ```
 
 ### Options
@@ -29,7 +29,7 @@ compass earn earn-swap-quote [flags]
 ```
   -a, --amount-in string      JSON value (one of: number | string)
   -c, --chain string          Target blockchain network. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
-  -h, --help                  help for earn-swap-quote
+  -h, --help                  help for swap-quote
       --slippage string       JSON value (one of: number | string)
       --sy-address token_in   Optional Pendle SY (Standardized Yield) address. When provided, token_in is overridden with the token the PT actually redeems into on withdrawal (the SY asset if it is a valid token-out, else the SY yield token) — use this to gauge a Pendle position's real exit liquidity rather than the reported underlying.
       --token-in string       Token to sell (input). A token symbol (e.g. 'WETH') or any token address. [required]

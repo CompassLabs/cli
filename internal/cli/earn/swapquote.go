@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var earnSwapQuoteCmdMeta = []flagutil.FlagMeta{
+var swapQuoteCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "Target blockchain network. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]"},
 	{FlagName: "token-in", FieldPath: "TokenIn", Kind: flagutil.FlagKindString, Required: true, Description: "Token to sell (input). A token symbol (e.g. 'WETH') or any token address. [required]"},
 	{FlagName: "token-out", FieldPath: "TokenOut", Kind: flagutil.FlagKindString, Optional: true, Description: "Token to buy (output). A token symbol (e.g. 'USDC') or any token address."},
@@ -23,35 +23,35 @@ var earnSwapQuoteCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "slippage", FieldPath: "Slippage", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
 }
 
-// initEarnSwapQuoteCmd initializes the earn-swap-quote command.
-func initEarnSwapQuoteCmd(parent *cobra.Command) error {
+// initSwapQuoteCmd initializes the swap-quote command.
+func initSwapQuoteCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "earn-swap-quote",
+		Use:     "swap-quote",
 		Short:   "Quote a swap (read-only)",
 		Long:    "Estimate the output of a swap without building a transaction.\n\nReturns the expected amount of `token_out` received for selling `amount_in`\nof `token_in`, routed via 1inch. This is read-only: it does not build a\ntransaction, require an account, or check balances.\n\nUse it to gauge exit liquidity and price impact for a token before entering\na position — for example, to warn when a market's underlying asset cannot be\nswapped back to a stablecoin without large slippage.",
-		Example: "  compass earn earn-swap-quote --chain base --token-in WETH --amount-in 1",
-		RunE:    runEarnSwapQuoteCmd,
-		Aliases: []string{"esq"},
+		Example: "  compass earn swap-quote --chain base --token-in WETH --amount-in 1",
+		RunE:    runSwapQuoteCmd,
+		Aliases: []string{"sq"},
 	}
-	flagutil.RegisterFlags(cmd, earnSwapQuoteCmdMeta)
-	if err := flagutil.ValidateMeta[operations.V2EarnSwapQuoteRequest](earnSwapQuoteCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for earn-swap-quote: %w", err)
+	flagutil.RegisterFlags(cmd, swapQuoteCmdMeta)
+	if err := flagutil.ValidateMeta[operations.V2EarnSwapQuoteRequest](swapQuoteCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for swap-quote: %w", err)
 	}
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runEarnSwapQuoteCmd executes the earn-swap-quote command.
-func runEarnSwapQuoteCmd(cmd *cobra.Command, args []string) error {
+// runSwapQuoteCmd executes the swap-quote command.
+func runSwapQuoteCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, earnSwapQuoteCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, earnSwapQuoteCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, swapQuoteCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, swapQuoteCmdMeta); err != nil {
 			return err
 		}
 	}
-	req, err := flagutil.BuildRequest[operations.V2EarnSwapQuoteRequest](cmd, earnSwapQuoteCmdMeta, "", "")
+	req, err := flagutil.BuildRequest[operations.V2EarnSwapQuoteRequest](cmd, swapQuoteCmdMeta, "", "")
 	if err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func runEarnSwapQuoteCmd(cmd *cobra.Command, args []string) error {
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.Earn.EarnSwapQuote(cmd.Context(), *req, sdkOpts...)
+	res, err := s.Earn.SwapQuote(cmd.Context(), *req, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

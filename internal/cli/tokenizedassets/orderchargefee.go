@@ -14,43 +14,43 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tokenizedAssetsOrderOrderHashChargeFeeCmdMeta = []flagutil.FlagMeta{
+var orderChargeFeeCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "order-hash", FieldPath: "OrderHash", Kind: flagutil.FlagKindString, Required: true, Description: "[required]"},
 	{FlagName: "owner", FieldPath: "Body.Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The owner's wallet address; the product account is derived from it. [required]"},
 	{FlagName: "fee", Shorthand: "f", FieldPath: "Body.Fee", Kind: flagutil.FlagKindJSON, Required: true, Annotations: `json:"fee"`, Description: "Fee configuration for tokenized-asset trades.\n\nSame shape as `Fee`, but narrows `denomination` to the values supported by\ntokenized-asset trades. PERFORMANCE is not supported because realized-profit\nfees are not computed for spot buy/sell trades. [required]"},
 	{FlagName: "gas-sponsorship", Shorthand: "g", FieldPath: "Body.GasSponsorship", Kind: flagutil.FlagKindBool, Optional: true, Description: "When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction."},
 }
 
-// initTokenizedAssetsOrderOrderHashChargeFeeCmd initializes the tokenized-assets-order-order-hash-charge-fee command.
-func initTokenizedAssetsOrderOrderHashChargeFeeCmd(parent *cobra.Command) error {
+// initOrderChargeFeeCmd initializes the order-charge-fee command.
+func initOrderChargeFeeCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "tokenized-assets-order-order-hash-charge-fee",
+		Use:     "order-charge-fee",
 		Short:   "Charge a partner fee on a filled sell order's USDC proceeds",
 		Long:    "Build a USDC fee transfer on a filled equity sell order's proceeds.\n\nEquity orders fill off-chain via a third-party venue, so the fee can't be\nbundled into the trade. Once the sell order has filled, call this with the\norder hash and your `fee` (recipient + percentage/fixed); it reads the actual\nfilled USDC proceeds and returns a `transfer(recipient, fee)` executed by the\nproduct account — an unsigned transaction the owner signs, or an EIP-712\npayload when `gas_sponsorship` is true.",
-		Example: "  compass tokenized-assets tokenized-assets-order-order-hash-charge-fee --order-hash <value> --owner <value> --fee '{\"recipient\":\"<value>\",\"amount\":8619.46,\"denomination\":\"PERCENTAGE\"}'",
-		RunE:    runTokenizedAssetsOrderOrderHashChargeFeeCmd,
-		Aliases: []string{"taoohcf"},
+		Example: "  compass tokenized-assets order-charge-fee --order-hash <value> --owner <value> --fee '{\"recipient\":\"<value>\",\"amount\":8619.46,\"denomination\":\"PERCENTAGE\"}'",
+		RunE:    runOrderChargeFeeCmd,
+		Aliases: []string{"ocf"},
 	}
-	flagutil.RegisterFlags(cmd, tokenizedAssetsOrderOrderHashChargeFeeCmdMeta)
-	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsOrderOrderHashChargeFeeRequest](tokenizedAssetsOrderOrderHashChargeFeeCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for tokenized-assets-order-order-hash-charge-fee: %w", err)
+	flagutil.RegisterFlags(cmd, orderChargeFeeCmdMeta)
+	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsOrderOrderHashChargeFeeRequest](orderChargeFeeCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for order-charge-fee: %w", err)
 	}
 	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runTokenizedAssetsOrderOrderHashChargeFeeCmd executes the tokenized-assets-order-order-hash-charge-fee command.
-func runTokenizedAssetsOrderOrderHashChargeFeeCmd(cmd *cobra.Command, args []string) error {
+// runOrderChargeFeeCmd executes the order-charge-fee command.
+func runOrderChargeFeeCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, tokenizedAssetsOrderOrderHashChargeFeeCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, tokenizedAssetsOrderOrderHashChargeFeeCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, orderChargeFeeCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, orderChargeFeeCmdMeta); err != nil {
 			return err
 		}
 	}
-	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsOrderOrderHashChargeFeeRequest](cmd, tokenizedAssetsOrderOrderHashChargeFeeCmdMeta, "Body", "body")
+	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsOrderOrderHashChargeFeeRequest](cmd, orderChargeFeeCmdMeta, "Body", "body")
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func runTokenizedAssetsOrderOrderHashChargeFeeCmd(cmd *cobra.Command, args []str
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.TokenizedAssets.TokenizedAssetsOrderOrderHashChargeFee(cmd.Context(), *req, sdkOpts...)
+	res, err := s.TokenizedAssets.OrderChargeFee(cmd.Context(), *req, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

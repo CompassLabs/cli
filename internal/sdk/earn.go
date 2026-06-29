@@ -935,7 +935,7 @@ func (s *Earn) PendleMarkets(ctx context.Context, request operations.V2EarnPendl
 
 }
 
-// EarnSwapQuote - Quote a swap (read-only)
+// SwapQuote - Quote a swap (read-only)
 // Estimate the output of a swap without building a transaction.
 //
 // Returns the expected amount of `token_out` received for selling `amount_in`
@@ -945,7 +945,7 @@ func (s *Earn) PendleMarkets(ctx context.Context, request operations.V2EarnPendl
 // Use it to gauge exit liquidity and price impact for a token before entering
 // a position — for example, to warn when a market's underlying asset cannot be
 // swapped back to a stablecoin without large slippage.
-func (s *Earn) EarnSwapQuote(ctx context.Context, request operations.V2EarnSwapQuoteRequest, opts ...operations.Option) (*operations.V2EarnSwapQuoteResponse, error) {
+func (s *Earn) SwapQuote(ctx context.Context, request operations.V2EarnSwapQuoteRequest, opts ...operations.Option) (*operations.V2EarnSwapQuoteResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,

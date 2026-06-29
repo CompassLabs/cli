@@ -77,7 +77,7 @@ func InitGlobalMarketsPerpsRoot(parent *cobra.Command) error {
 		return err
 	}
 
-	if err := initGlobalMarketsPerpsSetLeverageCmd(GlobalMarketsPerpsCmd); err != nil {
+	if err := initSetLeverageCmd(GlobalMarketsPerpsCmd); err != nil {
 		return err
 	}
 

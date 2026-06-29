@@ -42,11 +42,11 @@ compass earn [flags]
 * [compass earn balances](compass_earn_balances.md)	 - Get token balances
 * [compass earn bundle](compass_earn_bundle.md)	 - Execute multiple earn actions
 * [compass earn create-account](compass_earn_create-account.md)	 - Create earn account
-* [compass earn earn-swap-quote](compass_earn_earn-swap-quote.md)	 - Quote a swap (read-only)
 * [compass earn manage](compass_earn_manage.md)	 - Manage earn position
 * [compass earn pendle-markets](compass_earn_pendle-markets.md)	 - List pendle markets
 * [compass earn positions](compass_earn_positions.md)	 - List earn positions
 * [compass earn positions-all](compass_earn_positions-all.md)	 - List earn positions across all chains
 * [compass earn swap](compass_earn_swap.md)	 - Swap tokens within Earn Account
+* [compass earn swap-quote](compass_earn_swap-quote.md)	 - Quote a swap (read-only)
 * [compass earn transfer](compass_earn_transfer.md)	 - Transfer tokens to/from account
 * [compass earn vaults](compass_earn_vaults.md)	 - List vaults

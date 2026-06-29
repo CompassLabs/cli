@@ -719,12 +719,12 @@ func (s *TokenizedAssets) Positions(ctx context.Context, request operations.V2To
 
 }
 
-// TokenizedAssetsBalances - Get account balances
+// Balances - Get account balances
 // Get the token balances of a Tokenized Assets Account.
 //
 // Returns each token held in the account with its current balance, USD value,
 // and transfer history. Pass `chain=base` for Base holdings.
-func (s *TokenizedAssets) TokenizedAssetsBalances(ctx context.Context, request operations.V2TokenizedAssetsBalancesRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsBalancesResponse, error) {
+func (s *TokenizedAssets) Balances(ctx context.Context, request operations.V2TokenizedAssetsBalancesRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsBalancesResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -2491,7 +2491,7 @@ func (s *TokenizedAssets) OrderCancel(ctx context.Context, request operations.V2
 
 }
 
-// TokenizedAssetsOrderOrderHashChargeFee - Charge a partner fee on a filled sell order's USDC proceeds
+// OrderChargeFee - Charge a partner fee on a filled sell order's USDC proceeds
 // Build a USDC fee transfer on a filled equity sell order's proceeds.
 //
 // Equity orders fill off-chain via a third-party venue, so the fee can't be
@@ -2500,7 +2500,7 @@ func (s *TokenizedAssets) OrderCancel(ctx context.Context, request operations.V2
 // filled USDC proceeds and returns a `transfer(recipient, fee)` executed by the
 // product account — an unsigned transaction the owner signs, or an EIP-712
 // payload when `gas_sponsorship` is true.
-func (s *TokenizedAssets) TokenizedAssetsOrderOrderHashChargeFee(ctx context.Context, request operations.V2TokenizedAssetsOrderOrderHashChargeFeeRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsOrderOrderHashChargeFeeResponse, error) {
+func (s *TokenizedAssets) OrderChargeFee(ctx context.Context, request operations.V2TokenizedAssetsOrderOrderHashChargeFeeRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsOrderOrderHashChargeFeeResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,

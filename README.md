@@ -182,7 +182,7 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`vaults`](docs/compass_earn_vaults.md) - List vaults
 * [`aave-markets`](docs/compass_earn_aave-markets.md) - List aave markets
 * [`pendle-markets`](docs/compass_earn_pendle-markets.md) - List pendle markets
-* [`earn-swap-quote`](docs/compass_earn_earn-swap-quote.md) - Quote a swap (read-only)
+* [`swap-quote`](docs/compass_earn_swap-quote.md) - Quote a swap (read-only)
 * [`balances`](docs/compass_earn_balances.md) - Get token balances
 * [`create-account`](docs/compass_earn_create-account.md) - Create earn account
 * [`transfer`](docs/compass_earn_transfer.md) - Transfer tokens to/from account
@@ -194,7 +194,7 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 
 * [`positions`](docs/compass_credit_positions.md) - List credit positions
 * [`balances`](docs/compass_credit_balances.md) - Get credit account token balances
-* [`credit-euler-markets`](docs/compass_credit_credit-euler-markets.md) - List curated Euler markets
+* [`euler-markets`](docs/compass_credit_euler-markets.md) - List curated Euler markets
 * [`create-account`](docs/compass_credit_create-account.md) - Create credit account
 * [`borrow`](docs/compass_credit_borrow.md) - Borrow against collateral
 * [`transfer`](docs/compass_credit_transfer.md) - Transfer tokens to/from Credit Account
@@ -217,14 +217,14 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`approve-builder-fee`](docs/compass_global-markets-perps_approve-builder-fee.md) - Approve builder fee
 * [`enable-unified-account`](docs/compass_global-markets-perps_enable-unified-account.md) - Enable unified account mode
 * [`ensure-leverage`](docs/compass_global-markets-perps_ensure-leverage.md) - Ensure 1x cross leverage
-* [`global-markets-perps-set-leverage`](docs/compass_global-markets-perps_global-markets-perps-set-leverage.md) - Set leverage (defaults to market maximum)
+* [`set-leverage`](docs/compass_global-markets-perps_set-leverage.md) - Set leverage (defaults to market maximum)
 
 ### [tokenized-assets](docs/compass_tokenized-assets.md)
 
 * [`markets`](docs/compass_tokenized-assets_markets.md) - List tokenized asset markets
 * [`market`](docs/compass_tokenized-assets_market.md) - Get a single market
 * [`positions`](docs/compass_tokenized-assets_positions.md) - Get tokenized-asset positions for an owner
-* [`tokenized-assets-balances`](docs/compass_tokenized-assets_tokenized-assets-balances.md) - Get account balances
+* [`balances`](docs/compass_tokenized-assets_balances.md) - Get account balances
 * [`order-status`](docs/compass_tokenized-assets_order-status.md) - Get tokenized-equity order status (Ondo)
 * [`create-account`](docs/compass_tokenized-assets_create-account.md) - Create a Tokenized Assets Account
 * [`transfer`](docs/compass_tokenized-assets_transfer.md) - Deposit to / withdraw from a Tokenized Assets Account
@@ -232,7 +232,7 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`order`](docs/compass_tokenized-assets_order.md) - Build a tokenized-equity buy/sell order (Ondo)
 * [`order-submit`](docs/compass_tokenized-assets_order-submit.md) - Submit a signed tokenized-equity order (Ondo)
 * [`order-cancel`](docs/compass_tokenized-assets_order-cancel.md) - Cancel an unfilled tokenized-equity order (Ondo)
-* [`tokenized-assets-order-order-hash-charge-fee`](docs/compass_tokenized-assets_tokenized-assets-order-order-hash-charge-fee.md) - Charge a partner fee on a filled sell order's USDC proceeds
+* [`order-charge-fee`](docs/compass_tokenized-assets_order-charge-fee.md) - Charge a partner fee on a filled sell order's USDC proceeds
 * [`buy`](docs/compass_tokenized-assets_buy.md) - Buy an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
 * [`sell`](docs/compass_tokenized-assets_sell.md) - Sell an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
 

@@ -14,40 +14,39 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tokenizedAssetsBalancesCmdMeta = []flagutil.FlagMeta{
+var balancesCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address of the owner of the Tokenized Assets Account to read balances for. The account address is derived deterministically from this owner; balances are read from the derived account. [required]"},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "Network to read balances on (defaults to Ethereum). Equities exist on Ethereum only; RWA yield assets also exist on Base. (options: base, ethereum, arbitrum, hyperevm, tempo)"},
 }
 
-// initTokenizedAssetsBalancesCmd initializes the tokenized-assets-balances command.
-func initTokenizedAssetsBalancesCmd(parent *cobra.Command) error {
+// initBalancesCmd initializes the balances command.
+func initBalancesCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "tokenized-assets-balances",
+		Use:     "balances",
 		Short:   "Get account balances",
 		Long:    "Get the token balances of a Tokenized Assets Account.\n\nReturns each token held in the account with its current balance, USD value,\nand transfer history. Pass `chain=base` for Base holdings.",
-		Example: "  compass tokenized-assets tokenized-assets-balances --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B",
-		RunE:    runTokenizedAssetsBalancesCmd,
-		Aliases: []string{"tab"},
+		Example: "  compass tokenized-assets balances --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B",
+		RunE:    runBalancesCmd,
 	}
-	flagutil.RegisterFlags(cmd, tokenizedAssetsBalancesCmdMeta)
-	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsBalancesRequest](tokenizedAssetsBalancesCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for tokenized-assets-balances: %w", err)
+	flagutil.RegisterFlags(cmd, balancesCmdMeta)
+	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsBalancesRequest](balancesCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for balances: %w", err)
 	}
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runTokenizedAssetsBalancesCmd executes the tokenized-assets-balances command.
-func runTokenizedAssetsBalancesCmd(cmd *cobra.Command, args []string) error {
+// runBalancesCmd executes the balances command.
+func runBalancesCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, tokenizedAssetsBalancesCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, tokenizedAssetsBalancesCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, balancesCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, balancesCmdMeta); err != nil {
 			return err
 		}
 	}
-	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsBalancesRequest](cmd, tokenizedAssetsBalancesCmdMeta, "", "")
+	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsBalancesRequest](cmd, balancesCmdMeta, "", "")
 	if err != nil {
 		return err
 	}
@@ -70,7 +69,7 @@ func runTokenizedAssetsBalancesCmd(cmd *cobra.Command, args []string) error {
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.TokenizedAssets.TokenizedAssetsBalances(cmd.Context(), *req, sdkOpts...)
+	res, err := s.TokenizedAssets.Balances(cmd.Context(), *req, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

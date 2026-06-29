@@ -1,30 +1,31 @@
-## compass tokenized-assets tokenized-assets-balances
+## compass credit euler-markets
 
-Get account balances
+List curated Euler markets
 
 ### Synopsis
 
-Get the token balances of a Tokenized Assets Account.
+List curated Euler V2 credit markets for a chain.
 
-Returns each token held in the account with its current balance, USD value,
-and transfer history. Pass `chain=base` for Base holdings.
+Euler is permissionless, so credit borrow/repay identify a market by EVK vault
+address. This returns the borrow markets from Euler's Governed Perspective (the
+DAO-vetted vault set) -- each with the collateral vaults it accepts and their
+LTVs -- so callers know which borrow_vault / collateral_vault to use.
 
 ```
-compass tokenized-assets tokenized-assets-balances [flags]
+compass credit euler-markets [flags]
 ```
 
 ### Examples
 
 ```
-  compass tokenized-assets tokenized-assets-balances --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B
+  compass credit euler-markets --chain ethereum
 ```
 
 ### Options
 
 ```
-  -c, --chain string   Network to read balances on (defaults to Ethereum). Equities exist on Ethereum only; RWA yield assets also exist on Base. (options: base, ethereum, arbitrum, hyperevm, tempo)
-  -h, --help           help for tokenized-assets-balances
-      --owner string   The address of the owner of the Tokenized Assets Account to read balances for. The account address is derived deterministically from this owner; balances are read from the derived account. [required]
+  -c, --chain string   options: arbitrum, base, ethereum, tempo [required]
+  -h, --help           help for euler-markets
 ```
 
 ### Options inherited from parent commands
@@ -48,4 +49,4 @@ compass tokenized-assets tokenized-assets-balances [flags]
 
 ### SEE ALSO
 
-* [compass tokenized-assets](compass_tokenized-assets.md)	 - Operations for tokenized-assets
+* [compass credit](compass_credit.md)	 - Operations for credit

@@ -1,4 +1,4 @@
-## compass tokenized-assets tokenized-assets-order-order-hash-charge-fee
+## compass tokenized-assets order-charge-fee
 
 Charge a partner fee on a filled sell order's USDC proceeds
 
@@ -14,13 +14,13 @@ product account — an unsigned transaction the owner signs, or an EIP-712
 payload when `gas_sponsorship` is true.
 
 ```
-compass tokenized-assets tokenized-assets-order-order-hash-charge-fee [flags]
+compass tokenized-assets order-charge-fee [flags]
 ```
 
 ### Examples
 
 ```
-  compass tokenized-assets tokenized-assets-order-order-hash-charge-fee --order-hash <value> --owner <value> --fee '{"recipient":"<value>","amount":8619.46,"denomination":"PERCENTAGE"}'
+  compass tokenized-assets order-charge-fee --order-hash <value> --owner <value> --fee '{"recipient":"<value>","amount":8619.46,"denomination":"PERCENTAGE"}'
 ```
 
 ### Options
@@ -33,7 +33,7 @@ compass tokenized-assets tokenized-assets-order-order-hash-charge-fee [flags]
                             tokenized-asset trades. PERFORMANCE is not supported because realized-profit
                             fees are not computed for spot buy/sell trades. [required]
   -g, --gas-sponsorship     When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction.
-  -h, --help                help for tokenized-assets-order-order-hash-charge-fee
+  -h, --help                help for order-charge-fee
       --order-hash string   [required]
       --owner string        The owner's wallet address; the product account is derived from it. [required]
 ```

@@ -2567,7 +2567,7 @@ func (s *GlobalMarketsPerps) EnsureLeverage(ctx context.Context, request compone
 
 }
 
-// GlobalMarketsPerpsSetLeverage - Set leverage (defaults to market maximum)
+// SetLeverage - Set leverage (defaults to market maximum)
 // Check leverage and prepare an updateLeverage action to the requested value.
 //
 // If `leverage` is omitted, targets the asset's maximum leverage for that
@@ -2575,7 +2575,7 @@ func (s *GlobalMarketsPerps) EnsureLeverage(ctx context.Context, request compone
 // leverage_ok=true with null typed_data — no signing needed. Otherwise,
 // returns EIP-712 typed data for the user to sign. After signing, submit the
 // signature via the /execute endpoint.
-func (s *GlobalMarketsPerps) GlobalMarketsPerpsSetLeverage(ctx context.Context, request components.GlobalMarketsPerpsSetLeverageRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsSetLeverageResponse, error) {
+func (s *GlobalMarketsPerps) SetLeverage(ctx context.Context, request components.GlobalMarketsPerpsSetLeverageRequest, opts ...operations.Option) (*operations.V2GlobalMarketsPerpsSetLeverageResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,

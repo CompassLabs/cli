@@ -47,9 +47,9 @@ compass global-markets-perps [flags]
 * [compass global-markets-perps enable-unified-account](compass_global-markets-perps_enable-unified-account.md)	 - Enable unified account mode
 * [compass global-markets-perps ensure-leverage](compass_global-markets-perps_ensure-leverage.md)	 - Ensure 1x cross leverage
 * [compass global-markets-perps execute](compass_global-markets-perps_execute.md)	 - Execute signed action
-* [compass global-markets-perps global-markets-perps-set-leverage](compass_global-markets-perps_global-markets-perps-set-leverage.md)	 - Set leverage (defaults to market maximum)
 * [compass global-markets-perps limit-order](compass_global-markets-perps_limit-order.md)	 - Place limit order
 * [compass global-markets-perps market-order](compass_global-markets-perps_market-order.md)	 - Place market order
 * [compass global-markets-perps opportunities](compass_global-markets-perps_opportunities.md)	 - List global markets perps markets
 * [compass global-markets-perps positions](compass_global-markets-perps_positions.md)	 - List global markets perps positions
+* [compass global-markets-perps set-leverage](compass_global-markets-perps_set-leverage.md)	 - Set leverage (defaults to market maximum)
 * [compass global-markets-perps withdraw](compass_global-markets-perps_withdraw.md)	 - Withdraw USDC from global markets perps account

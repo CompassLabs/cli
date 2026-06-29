@@ -14,39 +14,39 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var creditEulerMarketsCmdMeta = []flagutil.FlagMeta{
+var eulerMarketsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"arbitrum", "base", "ethereum", "tempo"}, Description: "options: arbitrum, base, ethereum, tempo [required]"},
 }
 
-// initCreditEulerMarketsCmd initializes the credit-euler-markets command.
-func initCreditEulerMarketsCmd(parent *cobra.Command) error {
+// initEulerMarketsCmd initializes the euler-markets command.
+func initEulerMarketsCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "credit-euler-markets",
+		Use:     "euler-markets",
 		Short:   "List curated Euler markets",
 		Long:    "List curated Euler V2 credit markets for a chain.\n\nEuler is permissionless, so credit borrow/repay identify a market by EVK vault\naddress. This returns the borrow markets from Euler's Governed Perspective (the\nDAO-vetted vault set) -- each with the collateral vaults it accepts and their\nLTVs -- so callers know which borrow_vault / collateral_vault to use.",
-		Example: "  compass credit credit-euler-markets --chain ethereum",
-		RunE:    runCreditEulerMarketsCmd,
-		Aliases: []string{"cem"},
+		Example: "  compass credit euler-markets --chain ethereum",
+		RunE:    runEulerMarketsCmd,
+		Aliases: []string{"em"},
 	}
-	flagutil.RegisterFlags(cmd, creditEulerMarketsCmdMeta)
-	if err := flagutil.ValidateMeta[operations.V2CreditEulerMarketsRequest](creditEulerMarketsCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for credit-euler-markets: %w", err)
+	flagutil.RegisterFlags(cmd, eulerMarketsCmdMeta)
+	if err := flagutil.ValidateMeta[operations.V2CreditEulerMarketsRequest](eulerMarketsCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for euler-markets: %w", err)
 	}
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runCreditEulerMarketsCmd executes the credit-euler-markets command.
-func runCreditEulerMarketsCmd(cmd *cobra.Command, args []string) error {
+// runEulerMarketsCmd executes the euler-markets command.
+func runEulerMarketsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, creditEulerMarketsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, creditEulerMarketsCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, eulerMarketsCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, eulerMarketsCmdMeta); err != nil {
 			return err
 		}
 	}
-	req, err := flagutil.BuildRequest[operations.V2CreditEulerMarketsRequest](cmd, creditEulerMarketsCmdMeta, "", "")
+	req, err := flagutil.BuildRequest[operations.V2CreditEulerMarketsRequest](cmd, eulerMarketsCmdMeta, "", "")
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,7 @@ func runCreditEulerMarketsCmd(cmd *cobra.Command, args []string) error {
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.Credit.CreditEulerMarkets(cmd.Context(), *req, sdkOpts...)
+	res, err := s.Credit.EulerMarkets(cmd.Context(), *req, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

@@ -1,4 +1,4 @@
-## compass global-markets-perps global-markets-perps-set-leverage
+## compass global-markets-perps set-leverage
 
 Set leverage (defaults to market maximum)
 
@@ -13,13 +13,13 @@ returns EIP-712 typed data for the user to sign. After signing, submit the
 signature via the /execute endpoint.
 
 ```
-compass global-markets-perps global-markets-perps-set-leverage [flags]
+compass global-markets-perps set-leverage [flags]
 ```
 
 ### Examples
 
 ```
-  compass global-markets-perps global-markets-perps-set-leverage --owner <value> --asset <value>
+  compass global-markets-perps set-leverage --owner <value> --asset <value>
 ```
 
 ### Options
@@ -27,7 +27,7 @@ compass global-markets-perps global-markets-perps-set-leverage [flags]
 ```
   -a, --asset string      Asset ticker (e.g. 'AAPL', 'CL') [required]
       --body string       Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -h, --help              help for global-markets-perps-set-leverage
+  -h, --help              help for set-leverage
   -l, --leverage string   Target leverage as a whole-number multiplier. Omit (or pass null) to use the asset's maximum leverage. Must be between 1 and the asset's max leverage, which is available from the /opportunities endpoint.
       --owner string      User's EOA address [required]
 ```
