@@ -7,18 +7,43 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
+// Protocol - Lending protocol backing this vault. 'MORPHO' for Morpho vaults, 'EULER' for Euler V2 (EVK) vaults. Both are ERC-4626 and are deposited into / withdrawn from the same way (by `vault_address`, via the Earn `VAULT` venue).
+type Protocol string
+
+const (
+	ProtocolMorpho Protocol = "MORPHO"
+	ProtocolEuler  Protocol = "EULER"
+)
+
+func (e Protocol) ToPointer() *Protocol {
+	return &e
+}
+
+// IsExact returns true if the value matches a known enum value, false otherwise.
+func (e *Protocol) IsExact() bool {
+	if e != nil {
+		switch *e {
+		case "MORPHO", "EULER":
+			return true
+		}
+	}
+	return false
+}
+
 // VaultInfo - Information about a single ERC-4626 vault from the database.
 type VaultInfo struct {
 	// The vault contract address.
 	VaultAddress string `json:"vault_address"`
 	// Blockchain name (e.g., 'ethereum', 'base').
 	Chain string `json:"chain"`
+	// Lending protocol backing this vault. 'MORPHO' for Morpho vaults, 'EULER' for Euler V2 (EVK) vaults. Both are ERC-4626 and are deposited into / withdrawn from the same way (by `vault_address`, via the Earn `VAULT` venue).
+	Protocol *Protocol `json:"protocol,omitzero"`
 	// The name of the vault.
 	Name optionalnullable.OptionalNullable[string] `json:"name,omitzero"`
 	// The vault share token symbol.
 	Symbol optionalnullable.OptionalNullable[string] `json:"symbol,omitzero"`
-	// The vault owner address.
-	Owner string `json:"owner"`
+	// The vault owner address. Null for Euler vaults (the EVK governor is not tracked).
+	Owner optionalnullable.OptionalNullable[string] `json:"owner,omitzero"`
 	// The underlying asset contract address.
 	Asset string `json:"asset"`
 	// The name of the underlying asset.
@@ -70,6 +95,13 @@ func (v *VaultInfo) GetChain() string {
 	return v.Chain
 }
 
+func (v *VaultInfo) GetProtocol() *Protocol {
+	if v == nil {
+		return nil
+	}
+	return v.Protocol
+}
+
 func (v *VaultInfo) GetName() optionalnullable.OptionalNullable[string] {
 	if v == nil {
 		return nil
@@ -84,9 +116,9 @@ func (v *VaultInfo) GetSymbol() optionalnullable.OptionalNullable[string] {
 	return v.Symbol
 }
 
-func (v *VaultInfo) GetOwner() string {
+func (v *VaultInfo) GetOwner() optionalnullable.OptionalNullable[string] {
 	if v == nil {
-		return ""
+		return nil
 	}
 	return v.Owner
 }
