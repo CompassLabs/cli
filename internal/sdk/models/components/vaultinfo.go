@@ -42,8 +42,8 @@ type VaultInfo struct {
 	Name optionalnullable.OptionalNullable[string] `json:"name,omitzero"`
 	// The vault share token symbol.
 	Symbol optionalnullable.OptionalNullable[string] `json:"symbol,omitzero"`
-	// The vault owner address. Null for Euler vaults (the EVK governor is not tracked).
-	Owner optionalnullable.OptionalNullable[string] `json:"owner,omitzero"`
+	// The vault owner address. For Morpho vaults this is the vault curator/owner. Euler V2 (EVK) vaults have no Morpho-style owner, so this is the zero-address sentinel (0x0 + 40 zeros). Always a string, never null, for backward compatibility.
+	Owner string `json:"owner"`
 	// The underlying asset contract address.
 	Asset string `json:"asset"`
 	// The name of the underlying asset.
@@ -116,9 +116,9 @@ func (v *VaultInfo) GetSymbol() optionalnullable.OptionalNullable[string] {
 	return v.Symbol
 }
 
-func (v *VaultInfo) GetOwner() optionalnullable.OptionalNullable[string] {
+func (v *VaultInfo) GetOwner() string {
 	if v == nil {
-		return nil
+		return ""
 	}
 	return v.Owner
 }
