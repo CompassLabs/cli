@@ -41,6 +41,10 @@ func InitTokenizedAssetsRoot(parent *cobra.Command) error {
 		return err
 	}
 
+	if err := initRedemptionsCmd(TokenizedAssetsCmd); err != nil {
+		return err
+	}
+
 	if err := initCreateAccountCmd(TokenizedAssetsCmd); err != nil {
 		return err
 	}

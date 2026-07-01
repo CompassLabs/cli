@@ -50,5 +50,6 @@ compass tokenized-assets [flags]
 * [compass tokenized-assets order-submit](compass_tokenized-assets_order-submit.md)	 - Submit a signed tokenized-equity order (Ondo)
 * [compass tokenized-assets positions](compass_tokenized-assets_positions.md)	 - Get tokenized-asset positions for an owner
 * [compass tokenized-assets quote](compass_tokenized-assets_quote.md)	 - Preview a tokenized-equity buy/sell quote (Ondo)
+* [compass tokenized-assets redemptions](compass_tokenized-assets_redemptions.md)	 - Get IXS vault redemption requests for an owner
 * [compass tokenized-assets sell](compass_tokenized-assets_sell.md)	 - Sell an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
 * [compass tokenized-assets transfer](compass_tokenized-assets_transfer.md)	 - Deposit to / withdraw from a Tokenized Assets Account

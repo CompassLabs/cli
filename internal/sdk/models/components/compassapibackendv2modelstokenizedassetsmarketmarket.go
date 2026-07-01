@@ -15,7 +15,7 @@ type CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket struct {
 	UnderlyingTicker string `json:"underlying_ticker"`
 	// Underlying equity full name (e.g. 'Tesla, Inc. Common Stock').
 	Name string `json:"name"`
-	// Ethereum mainnet ERC-20 address for this token.
+	// On-chain ERC-20 address for this token, on the network given by `chain`.
 	ContractAddress string `json:"contract_address"`
 	// ERC-20 decimals for this token.
 	Decimals int64 `json:"decimals"`
@@ -30,15 +30,17 @@ type CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket struct {
 	// Regional market exposure tags (e.g. ['US']).
 	RegionExposure []string `json:"region_exposure,omitzero"`
 	// Issuer/provider of a tokenized asset.
-	Provider *TokenizedAssetProvider `json:"provider,omitzero"`
+	Provider TokenizedAssetProvider `json:"provider"`
 	// Asset class of a tokenized asset.
 	//
 	// `EQUITY` trades via the order endpoints (build/submit/cancel); the RWA
-	// yield classes (`T_BILLS`, `BASIS_TRADE`, `BTC_YIELD`) trade via the
-	// swap-based `transact/buy` and `transact/sell` endpoints.
-	AssetClass *TokenizedAssetClass `json:"asset_class,omitzero"`
+	// yield classes (`T_BILLS`, `BASIS_TRADE`, `BTC_YIELD`) and `MANAGED_VAULT`
+	// trade via the swap-based `transact/buy` and `transact/sell` endpoints.
+	// `MANAGED_VAULT` (IXS ERC-4626 vaults) is special in that a sell is an
+	// *asynchronous* redemption request settled off-chain by the vault operator.
+	AssetClass TokenizedAssetClass `json:"asset_class"`
 	// The chain to use.
-	Chain *Chain `json:"chain,omitzero"`
+	Chain Chain `json:"chain"`
 	// Trailing 7-day annualized NAV growth (decimal fraction string, e.g. '0.0512' = 5.12%). RWA yield assets only; null until enough NAV history exists.
 	Apy7d optionalnullable.OptionalNullable[string] `json:"apy_7d,omitzero"`
 	// Trailing 30-day annualized NAV growth (decimal fraction string). RWA yield assets only; null until enough NAV history exists.
@@ -128,23 +130,23 @@ func (c *CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket) GetRegionExposure
 	return c.RegionExposure
 }
 
-func (c *CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket) GetProvider() *TokenizedAssetProvider {
+func (c *CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket) GetProvider() TokenizedAssetProvider {
 	if c == nil {
-		return nil
+		return TokenizedAssetProvider("")
 	}
 	return c.Provider
 }
 
-func (c *CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket) GetAssetClass() *TokenizedAssetClass {
+func (c *CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket) GetAssetClass() TokenizedAssetClass {
 	if c == nil {
-		return nil
+		return TokenizedAssetClass("")
 	}
 	return c.AssetClass
 }
 
-func (c *CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket) GetChain() *Chain {
+func (c *CompassAPIBackendV2ModelsTokenizedAssetsMarketMarket) GetChain() Chain {
 	if c == nil {
-		return nil
+		return Chain("")
 	}
 	return c.Chain
 }

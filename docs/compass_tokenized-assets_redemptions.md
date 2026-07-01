@@ -1,41 +1,39 @@
-## compass tokenized-assets markets
+## compass tokenized-assets redemptions
 
-List tokenized asset markets
+Get IXS vault redemption requests for an owner
 
 ### Synopsis
 
-List tokenized asset markets: Ondo equities and Midas RWA yield tokens.
+Get an owner's IXS vault redemption requests (async redemption status).
 
-Each entry carries `provider` (`ondo` | `midas`), `asset_class` (`EQUITY` |
-`T_BILLS` | `BASIS_TRADE` | `BTC_YIELD`), `chain`, the symbol, underlying
-ticker, contract address, latest USD price, and 24h change; RWA-yield entries
-add `apy_7d`/`apy_30d` and `tvl_usd`. Filter with `provider`, `asset_class`,
-and `chain`, plus `category` (sector tag — equities only) or `search`
-(substring match against symbol, ticker, or name).
+IXS managed-vault **sells** are asynchronous: `/transact/sell` returns a
+`requestRedeem` transaction, and the vault operator settles it off-chain
+later. This endpoint reconstructs the owner's requests directly from the
+vault on every call (Compass persists no async state) — each entry carries
+its `status` (`pending` | `finalized` | `rejected`), the `shares` requested,
+and, while `pending`, the `expected_net_assets` it would settle for at the
+current NAV (a preview, not a guarantee).
 
-Equities are Ethereum-only; RWA yield tokens also list on Base — pass
-`chain=base` to see them. How to trade each: `asset_class=EQUITY` →
-`/quote` + `/order`; the RWA classes → `/transact/buy` + `/transact/sell`.
+IXS vaults live on BNB Smart Chain — pass `chain=bsc` (the default) and the
+`vault` handle (default `ixv1`).
 
 ```
-compass tokenized-assets markets [flags]
+compass tokenized-assets redemptions [flags]
 ```
 
 ### Examples
 
 ```
-  compass tokenized-assets markets
+  compass tokenized-assets redemptions --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B
 ```
 
 ### Options
 
 ```
-  -a, --asset-class string   Filter by asset class (EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD). (options: EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD, MANAGED_VAULT)
-      --category string      Filter markets by category (e.g. 'tech', 'finance').
-      --chain string         Filter by network. Equities are Ethereum-only; RWA yield assets exist on Ethereum and Base. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc)
-  -h, --help                 help for markets
-  -p, --provider string      Filter by issuer ('ondo' equities, 'midas' RWA yield). (options: ondo, midas, ixs)
-  -s, --search string        Case-insensitive substring match against the on-chain symbol, underlying ticker, and underlying name.
+  -c, --chain string   Network the IXS vault lives on (IXS managed vaults are on BNB Smart Chain). (options: base, ethereum, arbitrum, hyperevm, tempo, bsc)
+  -h, --help           help for redemptions
+      --owner string   The owner of the Tokenized Assets Account whose IXS redemption requests to read. Requests are reconstructed on-chain from the derived product account (the request receiver). [required]
+  -v, --vault string   The IXS vault handle to read redemptions for (e.g. 'ixv1').
 ```
 
 ### Options inherited from parent commands

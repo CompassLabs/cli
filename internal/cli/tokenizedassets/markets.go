@@ -17,8 +17,8 @@ import (
 var marketsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "category", FieldPath: "Category", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=category"`, Description: "Filter markets by category (e.g. 'tech', 'finance')."},
 	{FlagName: "search", Shorthand: "s", FieldPath: "Search", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=search"`, Description: "Case-insensitive substring match against the on-chain symbol, underlying ticker, and underlying name."},
-	{FlagName: "provider", Shorthand: "p", FieldPath: "Provider", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=provider"`, Description: "Filter by issuer ('ondo' equities, 'midas' RWA yield). (options: ondo, midas)"},
-	{FlagName: "asset-class", Shorthand: "a", FieldPath: "AssetClass", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=asset_class"`, Description: "Filter by asset class (EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD). (options: EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD)"},
+	{FlagName: "provider", Shorthand: "p", FieldPath: "Provider", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=provider"`, Description: "Filter by issuer ('ondo' equities, 'midas' RWA yield). (options: ondo, midas, ixs)"},
+	{FlagName: "asset-class", Shorthand: "a", FieldPath: "AssetClass", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=asset_class"`, Description: "Filter by asset class (EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD). (options: EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD, MANAGED_VAULT)"},
 	{FlagName: "chain", FieldPath: "Chain", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=chain"`, Description: "Filter by network. Equities are Ethereum-only; RWA yield assets exist on Ethereum and Base. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc)"},
 }
 

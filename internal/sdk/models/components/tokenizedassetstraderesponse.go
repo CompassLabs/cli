@@ -7,6 +7,29 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
+// Settlement - How the trade settles. `instant`: the signed transaction completes the trade (Midas/Ondo swaps and IXS deposits). `async`: the transaction only *requests* an IXS redemption, which the vault operator settles off-chain later — poll `poll_endpoint` for status.
+type Settlement string
+
+const (
+	SettlementInstant Settlement = "instant"
+	SettlementAsync   Settlement = "async"
+)
+
+func (e Settlement) ToPointer() *Settlement {
+	return &e
+}
+
+// IsExact returns true if the value matches a known enum value, false otherwise.
+func (e *Settlement) IsExact() bool {
+	if e != nil {
+		switch *e {
+		case "instant", "async":
+			return true
+		}
+	}
+	return false
+}
+
 // TokenizedAssetsTradeResponse - Unsigned trade execution for the owner to sign.
 //
 // Exactly one of `transaction` (gas_sponsorship=false) or `eip_712`
@@ -20,6 +43,10 @@ type TokenizedAssetsTradeResponse struct {
 	EstimatedAmountOut string `json:"estimated_amount_out"`
 	// Fee charged on the sell, in payout-token (USDC) units. Null when no fee was applied.
 	FeeAmount optionalnullable.OptionalNullable[string] `json:"fee_amount,omitzero"`
+	// How the trade settles. `instant`: the signed transaction completes the trade (Midas/Ondo swaps and IXS deposits). `async`: the transaction only *requests* an IXS redemption, which the vault operator settles off-chain later — poll `poll_endpoint` for status.
+	Settlement *Settlement `json:"settlement,omitzero"`
+	// For `async` settlements, the endpoint to poll for redemption status (`GET /v2/tokenized_assets/redemptions`). Null for instant trades.
+	PollEndpoint optionalnullable.OptionalNullable[string] `json:"poll_endpoint,omitzero"`
 }
 
 func (t TokenizedAssetsTradeResponse) MarshalJSON() ([]byte, error) {
@@ -59,4 +86,18 @@ func (t *TokenizedAssetsTradeResponse) GetFeeAmount() optionalnullable.OptionalN
 		return nil
 	}
 	return t.FeeAmount
+}
+
+func (t *TokenizedAssetsTradeResponse) GetSettlement() *Settlement {
+	if t == nil {
+		return nil
+	}
+	return t.Settlement
+}
+
+func (t *TokenizedAssetsTradeResponse) GetPollEndpoint() optionalnullable.OptionalNullable[string] {
+	if t == nil {
+		return nil
+	}
+	return t.PollEndpoint
 }

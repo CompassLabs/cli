@@ -5,15 +5,18 @@ package components
 // TokenizedAssetClass - Asset class of a tokenized asset.
 //
 // `EQUITY` trades via the order endpoints (build/submit/cancel); the RWA
-// yield classes (`T_BILLS`, `BASIS_TRADE`, `BTC_YIELD`) trade via the
-// swap-based `transact/buy` and `transact/sell` endpoints.
+// yield classes (`T_BILLS`, `BASIS_TRADE`, `BTC_YIELD`) and `MANAGED_VAULT`
+// trade via the swap-based `transact/buy` and `transact/sell` endpoints.
+// `MANAGED_VAULT` (IXS ERC-4626 vaults) is special in that a sell is an
+// *asynchronous* redemption request settled off-chain by the vault operator.
 type TokenizedAssetClass string
 
 const (
-	TokenizedAssetClassEquity     TokenizedAssetClass = "EQUITY"
-	TokenizedAssetClassTBills     TokenizedAssetClass = "T_BILLS"
-	TokenizedAssetClassBasisTrade TokenizedAssetClass = "BASIS_TRADE"
-	TokenizedAssetClassBtcYield   TokenizedAssetClass = "BTC_YIELD"
+	TokenizedAssetClassEquity       TokenizedAssetClass = "EQUITY"
+	TokenizedAssetClassTBills       TokenizedAssetClass = "T_BILLS"
+	TokenizedAssetClassBasisTrade   TokenizedAssetClass = "BASIS_TRADE"
+	TokenizedAssetClassBtcYield     TokenizedAssetClass = "BTC_YIELD"
+	TokenizedAssetClassManagedVault TokenizedAssetClass = "MANAGED_VAULT"
 )
 
 func (e TokenizedAssetClass) ToPointer() *TokenizedAssetClass {
@@ -24,7 +27,7 @@ func (e TokenizedAssetClass) ToPointer() *TokenizedAssetClass {
 func (e *TokenizedAssetClass) IsExact() bool {
 	if e != nil {
 		switch *e {
-		case "EQUITY", "T_BILLS", "BASIS_TRADE", "BTC_YIELD":
+		case "EQUITY", "T_BILLS", "BASIS_TRADE", "BTC_YIELD", "MANAGED_VAULT":
 			return true
 		}
 	}
