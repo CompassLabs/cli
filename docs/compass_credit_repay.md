@@ -29,7 +29,7 @@ compass credit repay [flags]
 ```
       --body string                 Request body as JSON (alternative to individual flags). Can also be provided via stdin.
   -b, --borrow-vault string         Euler only: the EVK vault the debt is owed to (repay target). Required when protocol=EULER.
-      --chain string                The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
+      --chain string                The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]
       --collateral-vault string     Euler only: the EVK collateral vault to withdraw from. Required when protocol=EULER and withdrawing collateral.
   -g, --gas-sponsorship             If true, returns EIP-712 signature data instead of an unsigned transaction.
   -h, --help                        help for repay

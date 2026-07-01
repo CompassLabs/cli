@@ -19,6 +19,7 @@ const (
 	V2TokenizedAssetsMarketsSymbolChainArbitrum V2TokenizedAssetsMarketsSymbolChain = "arbitrum"
 	V2TokenizedAssetsMarketsSymbolChainHyperevm V2TokenizedAssetsMarketsSymbolChain = "hyperevm"
 	V2TokenizedAssetsMarketsSymbolChainTempo    V2TokenizedAssetsMarketsSymbolChain = "tempo"
+	V2TokenizedAssetsMarketsSymbolChainBsc      V2TokenizedAssetsMarketsSymbolChain = "bsc"
 )
 
 func (e V2TokenizedAssetsMarketsSymbolChain) ToPointer() *V2TokenizedAssetsMarketsSymbolChain {
@@ -39,6 +40,8 @@ func (e *V2TokenizedAssetsMarketsSymbolChain) UnmarshalJSON(data []byte) error {
 	case "hyperevm":
 		fallthrough
 	case "tempo":
+		fallthrough
+	case "bsc":
 		*e = V2TokenizedAssetsMarketsSymbolChain(v)
 		return nil
 	default:

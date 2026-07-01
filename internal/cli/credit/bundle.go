@@ -17,7 +17,7 @@ import (
 
 var bundleCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The owner's wallet address that controls the Credit Account. [required]"},
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]"},
 	{FlagName: "actions", Shorthand: "a", FieldPath: "Actions", Kind: flagutil.FlagKindJSON, Required: true, Annotations: `json:"actions"`, Description: "List of actions to bundle. Actions are executed in order. [required]"},
 	{FlagName: "gas-sponsorship", Shorthand: "g", FieldPath: "GasSponsorship", Kind: flagutil.FlagKindBool, Optional: true, Description: "If true, returns EIP-712 typed data for gas-sponsored execution."},
 }

@@ -39,7 +39,7 @@ compass tokenized-assets create-account [flags]
 
 ```
       --body string     Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -c, --chain string    The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo)
+  -c, --chain string    The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc)
   -e, --estimate-gas    Determines whether to estimate gas costs for transactions, also verifying that the transaction can be successfully executed.
   -h, --help            help for create-account
       --owner string    The address that will own and control the compass Tokenized Assets Account [required]

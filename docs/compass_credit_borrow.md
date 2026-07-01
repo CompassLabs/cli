@@ -31,7 +31,7 @@ compass credit borrow [flags]
       --borrow-amount string        JSON value (one of: number | string)
       --borrow-token string         Asset to borrow from Aave. [required]
       --borrow-vault string         Euler only: the EVK vault to borrow from. Required when protocol=EULER.
-      --chain string                The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
+      --chain string                The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]
       --collateral-token string     Aave reserve token to supply as collateral. Omit together with token_in and amount_in for borrow-only mode.
       --collateral-vault string     Euler only: the EVK collateral vault to supply into. Required when protocol=EULER and supplying collateral.
   -f, --fee string                  Optional fee configuration. If provided, a fee will be deducted from the borrowed amount and sent to the specified recipient address.

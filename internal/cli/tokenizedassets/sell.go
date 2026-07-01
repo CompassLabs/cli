@@ -21,7 +21,7 @@ var sellCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "amount-in", Shorthand: "a", FieldPath: "AmountIn", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "slippage", Shorthand: "s", FieldPath: "Slippage", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The owner's wallet address. [required]"},
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]"},
 	{FlagName: "gas-sponsorship", Shorthand: "g", FieldPath: "GasSponsorship", Kind: flagutil.FlagKindBool, Optional: true, Description: "When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction."},
 	{FlagName: "fee", Shorthand: "f", FieldPath: "Fee", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"fee,omitempty"`, Description: "Optional partner fee charged when selling (exiting). It is taken from the payout-token (USDC) proceeds and sent to your fee recipient inside the same execution."},
 }
@@ -32,7 +32,7 @@ func initSellCmd(parent *cobra.Command) error {
 		Use:     "sell",
 		Short:   "Sell an RWA yield token (Midas: mTBILL/mBASIS/mBTC)",
 		Long:    "Sell (redeem) an RWA yield asset (e.g. `mTBILL`) inside the product account.\n\nRedeems `token_in` (a Midas RWA asset held by the Tokenized Assets Account)\ndirectly with Midas into `token_out` (USDC). Returns an unsigned transaction\nfor the owner to sign, or an EIP-712 payload when `gas_sponsorship` is true.\n\nInstant redemption draws on Midas's on-chain liquidity and is subject to a\nsmall redemption fee and daily limit.",
-		Example: "  compass tokenized-assets sell --token-in <value> --token-out <value> --amount-in 8512.47 --owner <value> --chain ethereum",
+		Example: "  compass tokenized-assets sell --token-in <value> --token-out <value> --amount-in 8512.47 --owner <value> --chain arbitrum",
 		RunE:    runSellCmd,
 	}
 	flagutil.RegisterFlags(cmd, sellCmdMeta)

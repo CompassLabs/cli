@@ -17,7 +17,7 @@ import (
 
 var approveTransferCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The wallet address that owns the Earn Account. [required]"},
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]"},
 	{FlagName: "token", Shorthand: "t", FieldPath: "Token", Kind: flagutil.FlagKindString, Required: true, Description: "The token you would like to transfer with gas sponsorship. [required]"},
 	{FlagName: "gas-sponsorship", Shorthand: "g", FieldPath: "GasSponsorship", Kind: flagutil.FlagKindBool, Optional: true, Description: "Optionally request gas sponsorship. If set to `true`, EIP-712 signature data will be returned that must be signed by the `owner` and submitted to the `/gas_sponsorship/prepare` endpoint."},
 }

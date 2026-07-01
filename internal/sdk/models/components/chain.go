@@ -11,6 +11,7 @@ const (
 	ChainArbitrum Chain = "arbitrum"
 	ChainHyperevm Chain = "hyperevm"
 	ChainTempo    Chain = "tempo"
+	ChainBsc      Chain = "bsc"
 )
 
 func (e Chain) ToPointer() *Chain {
@@ -21,7 +22,7 @@ func (e Chain) ToPointer() *Chain {
 func (e *Chain) IsExact() bool {
 	if e != nil {
 		switch *e {
-		case "base", "ethereum", "arbitrum", "hyperevm", "tempo":
+		case "base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc":
 			return true
 		}
 	}

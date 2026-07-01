@@ -29,7 +29,7 @@ compass gas-sponsorship approve-transfer [flags]
 
 ```
       --body string            Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -c, --chain string           The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
+  -c, --chain string           The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]
   -g, --gas-sponsorship true   Optionally request gas sponsorship. If set to true, EIP-712 signature data will be returned that must be signed by the `owner` and submitted to the `/gas_sponsorship/prepare` endpoint.
   -h, --help                   help for approve-transfer
       --owner string           The wallet address that owns the Earn Account. [required]

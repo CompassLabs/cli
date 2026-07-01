@@ -28,7 +28,7 @@ compass earn swap-quote [flags]
 
 ```
   -a, --amount-in string      JSON value (one of: number | string)
-  -c, --chain string          Target blockchain network. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
+  -c, --chain string          Target blockchain network. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]
   -h, --help                  help for swap-quote
       --slippage string       JSON value (one of: number | string)
       --sy-address token_in   Optional Pendle SY (Standardized Yield) address. When provided, token_in is overridden with the token the PT actually redeems into on withdrawal (the SY asset if it is a valid token-out, else the SY yield token) — use this to gauge a Pendle position's real exit liquidity rather than the reported underlying.

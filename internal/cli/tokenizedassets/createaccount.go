@@ -19,7 +19,7 @@ var createAccountCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "sender", Shorthand: "s", FieldPath: "Sender", Kind: flagutil.FlagKindString, Required: true, Description: "The address of the transaction sender. [required]"},
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address that will own and control the compass Tokenized Assets Account [required]"},
 	{FlagName: "estimate-gas", Shorthand: "e", FieldPath: "EstimateGas", Kind: flagutil.FlagKindBool, Optional: true, Description: "Determines whether to estimate gas costs for transactions, also verifying that the transaction can be successfully executed."},
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo)"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc)"},
 }
 
 // initCreateAccountCmd initializes the create-account command.

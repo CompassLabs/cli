@@ -17,7 +17,7 @@ import (
 
 var borrowCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address that owns the Credit Account. [required]"},
-	{FlagName: "chain", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]"},
+	{FlagName: "chain", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]"},
 	{FlagName: "protocol", FieldPath: "Protocol", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"AAVE", "EULER"}, Description: "Which lending protocol a credit action targets.\n\n``AAVE`` is the default so existing callers (which never send a ``protocol``\nfield) keep hitting the unchanged Aave code path. ``EULER`` opts in to the\nEuler V2 path, where the market is identified by EVK vault address(es). (options: AAVE, EULER)"},
 	{FlagName: "collateral-vault", FieldPath: "CollateralVault", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"collateral_vault,omitempty"`, Description: "Euler only: the EVK collateral vault to supply into. Required when protocol=EULER and supplying collateral."},
 	{FlagName: "borrow-vault", FieldPath: "BorrowVault", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"borrow_vault,omitempty"`, Description: "Euler only: the EVK vault to borrow from. Required when protocol=EULER."},

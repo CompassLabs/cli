@@ -39,7 +39,7 @@ compass tokenized-assets transfer [flags]
       --action string          Whether you are depositing to or withdrawing from your Tokenized Assets Account. (options: DEPOSIT, WITHDRAW) [required]
       --amount string          JSON value (one of: number | string)
       --body string            Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -c, --chain string           The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo)
+  -c, --chain string           The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc)
   -g, --gas-sponsorship true   Optionally request gas sponsorship. If set to true, EIP-712 signature data will be returned that must be signed by the `owner` and submitted to the `/gas_sponsorship/prepare` endpoint.
   -h, --help                   help for transfer
       --owner string           The owner's wallet address (EOA). [required]

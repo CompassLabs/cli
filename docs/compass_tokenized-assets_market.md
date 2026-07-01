@@ -36,7 +36,7 @@ compass tokenized-assets market [flags]
 ### Options
 
 ```
-  -c, --chain string     Network the market is deployed on (defaults to Ethereum). A token deployed on multiple chains (e.g. Midas RWA on Ethereum and Base) is resolved per chain; 404 if the symbol isn't deployed there. Ondo equities are Ethereum-only. (options: base, ethereum, arbitrum, hyperevm, tempo)
+  -c, --chain string     Network the market is deployed on (defaults to Ethereum). A token deployed on multiple chains (e.g. Midas RWA on Ethereum and Base) is resolved per chain; 404 if the symbol isn't deployed there. Ondo equities are Ethereum-only. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc)
   -h, --help             help for market
   -i, --interval range   Optional candle interval. Must be paired with range and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1min, 5min, 15min, 1hour, 4hour, 12hour, 1day)
   -r, --range interval   Optional lookback window. Must be paired with interval and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1day, 1month, 3month, 6month, 1year, all)

@@ -36,7 +36,7 @@ compass earn manage [flags]
       --action venue                                 Whether you are depositing into or withdrawing from the given Earn venue. (options: DEPOSIT, WITHDRAW) [required]
       --amount string                                JSON value (one of: number | string)
       --body string                                  Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -c, --chain string                                 The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
+  -c, --chain string                                 The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]
   -f, --fee string                                   Optional fee configuration. If provided, a fee will be applied to the transaction amount and sent to the specified recipient address. The fee can be specified as a percentage of the transaction amount, as a fixed token amount, or as a percentage of realized profit (PERFORMANCE).
   -g, --gas-sponsorship true                         Optionally request gas sponsorship. If set to true, EIP-712 typed data will be returned that must be signed by the `owner` and submitted to the 'Prepare gas-sponsored transaction' endpoint (`/gas_sponsorship/prepare`).
   -h, --help                                         help for manage

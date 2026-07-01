@@ -15,7 +15,7 @@ import (
 )
 
 var swapQuoteCmdMeta = []flagutil.FlagMeta{
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "Target blockchain network. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc"}, Description: "Target blockchain network. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]"},
 	{FlagName: "token-in", FieldPath: "TokenIn", Kind: flagutil.FlagKindString, Required: true, Description: "Token to sell (input). A token symbol (e.g. 'WETH') or any token address. [required]"},
 	{FlagName: "token-out", FieldPath: "TokenOut", Kind: flagutil.FlagKindString, Optional: true, Description: "Token to buy (output). A token symbol (e.g. 'USDC') or any token address."},
 	{FlagName: "sy-address", FieldPath: "SyAddress", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=sy_address"`, Description: "Optional Pendle SY (Standardized Yield) address. When provided, `token_in` is overridden with the token the PT actually redeems into on withdrawal (the SY asset if it is a valid token-out, else the SY yield token) — use this to gauge a Pendle position's real exit liquidity rather than the reported underlying."},

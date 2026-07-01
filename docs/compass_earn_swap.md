@@ -27,7 +27,7 @@ compass earn swap [flags]
 ```
   -a, --amount-in string       JSON value (one of: number | string)
       --body string            Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -c, --chain string           The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
+  -c, --chain string           The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]
   -g, --gas-sponsorship true   Optionally request gas sponsorship. If true, EIP-712 typed data will be returned that must be signed by the `owner` and submitted to the 'Prepare gas-sponsored transaction' endpoint (`/gas_sponsorship/prepare`).
   -h, --help                   help for swap
       --owner string           The owner's wallet address. [required]

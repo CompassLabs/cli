@@ -20,6 +20,7 @@ const (
 	V2EarnSwapQuoteChainArbitrum V2EarnSwapQuoteChain = "arbitrum"
 	V2EarnSwapQuoteChainHyperevm V2EarnSwapQuoteChain = "hyperevm"
 	V2EarnSwapQuoteChainTempo    V2EarnSwapQuoteChain = "tempo"
+	V2EarnSwapQuoteChainBsc      V2EarnSwapQuoteChain = "bsc"
 )
 
 func (e V2EarnSwapQuoteChain) ToPointer() *V2EarnSwapQuoteChain {
@@ -40,6 +41,8 @@ func (e *V2EarnSwapQuoteChain) UnmarshalJSON(data []byte) error {
 	case "hyperevm":
 		fallthrough
 	case "tempo":
+		fallthrough
+	case "bsc":
 		*e = V2EarnSwapQuoteChain(v)
 		return nil
 	default:

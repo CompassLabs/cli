@@ -16,7 +16,7 @@ import (
 
 var balancesCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address of the owner of the Tokenized Assets Account to read balances for. The account address is derived deterministically from this owner; balances are read from the derived account. [required]"},
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "Network to read balances on (defaults to Ethereum). Equities exist on Ethereum only; RWA yield assets also exist on Base. (options: base, ethereum, arbitrum, hyperevm, tempo)"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc"}, Description: "Network to read balances on (defaults to Ethereum). Equities exist on Ethereum only; RWA yield assets also exist on Base. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc)"},
 }
 
 // initBalancesCmd initializes the balances command.

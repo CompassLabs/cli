@@ -30,7 +30,7 @@ compass gas-sponsorship prepare [flags]
 
 ```
       --body string        Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -c, --chain string       The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]
+  -c, --chain string       The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]
   -e, --eip-712 string     JSON value (one of: { domain: object, types: object, message: object } | { types: object, domain: object, message: object })
   -h, --help               help for prepare
       --owner string       The wallet address that owns the Product Account. [required]

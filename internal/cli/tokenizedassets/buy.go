@@ -21,7 +21,7 @@ var buyCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "amount-in", Shorthand: "a", FieldPath: "AmountIn", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "slippage", Shorthand: "s", FieldPath: "Slippage", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The owner's wallet address. [required]"},
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]"},
 	{FlagName: "gas-sponsorship", Shorthand: "g", FieldPath: "GasSponsorship", Kind: flagutil.FlagKindBool, Optional: true, Description: "When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction."},
 	{FlagName: "fee", Shorthand: "f", FieldPath: "Fee", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"fee,omitempty"`, Description: "Optional partner fee charged when selling (exiting). It is taken from the payout-token (USDC) proceeds and sent to your fee recipient inside the same execution."},
 }

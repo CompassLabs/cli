@@ -17,7 +17,7 @@ import (
 
 var transferCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The owner's wallet address (EOA). [required]"},
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo) [required]"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]"},
 	{FlagName: "token", Shorthand: "t", FieldPath: "Token", Kind: flagutil.FlagKindString, Required: true, Description: "The token to transfer. [required]"},
 	{FlagName: "amount", FieldPath: "Amount", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "action", FieldPath: "Action", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"DEPOSIT", "WITHDRAW"}, Description: "Whether you are depositing to or withdrawing from your credit account. (options: DEPOSIT, WITHDRAW) [required]"},
