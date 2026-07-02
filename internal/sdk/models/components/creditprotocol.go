@@ -7,16 +7,11 @@ package components
 // “AAVE“ is the default so existing callers (which never send a “protocol“
 // field) keep hitting the unchanged Aave code path. “EULER“ opts in to the
 // Euler V2 path, where the market is identified by EVK vault address(es).
-// “MORPHO“ identifies Morpho Blue lending markets (bytes32 market id) and is
-// currently read-only: positions and market discovery only — transaction
-// builders land with the looping work (COM-7106/7107/7108), so transact
-// endpoints reject it with a 422.
 type CreditProtocol string
 
 const (
-	CreditProtocolAave   CreditProtocol = "AAVE"
-	CreditProtocolEuler  CreditProtocol = "EULER"
-	CreditProtocolMorpho CreditProtocol = "MORPHO"
+	CreditProtocolAave  CreditProtocol = "AAVE"
+	CreditProtocolEuler CreditProtocol = "EULER"
 )
 
 func (e CreditProtocol) ToPointer() *CreditProtocol {
@@ -27,7 +22,7 @@ func (e CreditProtocol) ToPointer() *CreditProtocol {
 func (e *CreditProtocol) IsExact() bool {
 	if e != nil {
 		switch *e {
-		case "AAVE", "EULER", "MORPHO":
+		case "AAVE", "EULER":
 			return true
 		}
 	}

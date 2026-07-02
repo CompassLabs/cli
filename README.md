@@ -195,7 +195,6 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`positions`](docs/compass_credit_positions.md) - List credit positions
 * [`balances`](docs/compass_credit_balances.md) - Get credit account token balances
 * [`euler-markets`](docs/compass_credit_euler-markets.md) - List curated Euler markets
-* [`credit-morpho-markets`](docs/compass_credit_credit-morpho-markets.md) - List curated Morpho markets
 * [`create-account`](docs/compass_credit_create-account.md) - Create credit account
 * [`borrow`](docs/compass_credit_borrow.md) - Borrow against collateral
 * [`transfer`](docs/compass_credit_transfer.md) - Transfer tokens to/from Credit Account
