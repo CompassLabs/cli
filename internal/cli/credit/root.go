@@ -32,19 +32,11 @@ func InitCreditRoot(parent *cobra.Command) error {
 		return err
 	}
 
-	if err := initCreditMorphoMarketsCmd(CreditCmd); err != nil {
-		return err
-	}
-
 	if err := initCreateAccountCmd(CreditCmd); err != nil {
 		return err
 	}
 
 	if err := initBorrowCmd(CreditCmd); err != nil {
-		return err
-	}
-
-	if err := initCreditLoopCmd(CreditCmd); err != nil {
 		return err
 	}
 

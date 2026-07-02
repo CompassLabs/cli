@@ -18,17 +18,9 @@ type DebtPosition struct {
 	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
 	// field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
 	// Euler V2 path, where the market is identified by EVK vault address(es).
-	// ``MORPHO`` identifies Morpho Blue lending markets (bytes32 market id) and is
-	// currently read-only: positions and market discovery only — transaction
-	// builders land with the looping work (COM-7106/7107/7108), so transact
-	// endpoints reject it with a 422.
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Euler only: the EVK borrow vault this debt is owed to.
 	Vault optionalnullable.OptionalNullable[string] `json:"vault,omitzero"`
-	// Morpho only: the bytes32 id of the isolated market this debt is owed to.
-	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
-	// Morpho only: this market's health factor (markets are isolated, so health is per market — below 1 the position is liquidatable). Null for other protocols and when the oracle read fails.
-	HealthFactor optionalnullable.OptionalNullable[string] `json:"health_factor,omitzero"`
 	// Current on-chain debt balance (the vault's underlying asset for Euler).
 	AmountBorrowed *string `json:"amount_borrowed"`
 	// Debt value in USD.
@@ -82,20 +74,6 @@ func (d *DebtPosition) GetVault() optionalnullable.OptionalNullable[string] {
 		return nil
 	}
 	return d.Vault
-}
-
-func (d *DebtPosition) GetMarketID() optionalnullable.OptionalNullable[string] {
-	if d == nil {
-		return nil
-	}
-	return d.MarketID
-}
-
-func (d *DebtPosition) GetHealthFactor() optionalnullable.OptionalNullable[string] {
-	if d == nil {
-		return nil
-	}
-	return d.HealthFactor
 }
 
 func (d *DebtPosition) GetAmountBorrowed() *string {
