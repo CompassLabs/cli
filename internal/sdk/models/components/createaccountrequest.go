@@ -12,6 +12,7 @@ type CreateAccountRequestChain string
 const (
 	CreateAccountRequestChainArbitrum CreateAccountRequestChain = "arbitrum"
 	CreateAccountRequestChainBase     CreateAccountRequestChain = "base"
+	CreateAccountRequestChainBsc      CreateAccountRequestChain = "bsc"
 	CreateAccountRequestChainEthereum CreateAccountRequestChain = "ethereum"
 	CreateAccountRequestChainTempo    CreateAccountRequestChain = "tempo"
 )
@@ -28,6 +29,8 @@ func (e *CreateAccountRequestChain) UnmarshalJSON(data []byte) error {
 	case "arbitrum":
 		fallthrough
 	case "base":
+		fallthrough
+	case "bsc":
 		fallthrough
 	case "ethereum":
 		fallthrough

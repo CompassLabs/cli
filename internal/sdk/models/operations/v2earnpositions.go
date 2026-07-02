@@ -14,6 +14,7 @@ type V2EarnPositionsChain string
 const (
 	V2EarnPositionsChainArbitrum V2EarnPositionsChain = "arbitrum"
 	V2EarnPositionsChainBase     V2EarnPositionsChain = "base"
+	V2EarnPositionsChainBsc      V2EarnPositionsChain = "bsc"
 	V2EarnPositionsChainEthereum V2EarnPositionsChain = "ethereum"
 	V2EarnPositionsChainTempo    V2EarnPositionsChain = "tempo"
 )
@@ -30,6 +31,8 @@ func (e *V2EarnPositionsChain) UnmarshalJSON(data []byte) error {
 	case "arbitrum":
 		fallthrough
 	case "base":
+		fallthrough
+	case "bsc":
 		fallthrough
 	case "ethereum":
 		fallthrough

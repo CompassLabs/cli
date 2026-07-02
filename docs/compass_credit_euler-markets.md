@@ -24,7 +24,7 @@ compass credit euler-markets [flags]
 ### Options
 
 ```
-  -c, --chain string   options: arbitrum, base, ethereum, tempo [required]
+  -c, --chain string   options: arbitrum, base, bsc, ethereum, tempo [required]
   -h, --help           help for euler-markets
 ```
 

@@ -1,34 +1,31 @@
-## compass earn positions
+## compass credit credit-morpho-markets
 
-List earn positions
+List curated Morpho markets
 
 ### Synopsis
 
-List all Earn positions for a given owner with PnL tracking.
+List curated Morpho Blue lending markets for a chain.
 
-Returns position data including current balance, cost basis, and profit and loss.
-Use this endpoint to display portfolio performance, track yields over time, or build
-position management interfaces.
-
-Positions are tracked across all venue types (vaults and Aave markets). Each
-position includes the venue address, deposited amount, and performance metrics.
+Morpho Blue is permissionless, so credit actions identify a market by its
+bytes32 market id. This returns the curated market set with live LLTV,
+supply/borrow APY, utilization, and available liquidity -- read on-chain per
+request -- so callers know which market_id to use and what it currently costs.
 
 ```
-compass earn positions [flags]
+compass credit credit-morpho-markets [flags]
 ```
 
 ### Examples
 
 ```
-  compass earn positions --chain base --owner 0x01E62835dd7F52173546A325294762143eE4a882
+  compass credit credit-morpho-markets --chain ethereum
 ```
 
 ### Options
 
 ```
   -c, --chain string   options: arbitrum, base, bsc, ethereum, tempo [required]
-  -h, --help           help for positions
-      --owner string   The address of the owner of the earn account to get positions for. [required]
+  -h, --help           help for credit-morpho-markets
 ```
 
 ### Options inherited from parent commands
@@ -52,4 +49,4 @@ compass earn positions [flags]
 
 ### SEE ALSO
 
-* [compass earn](compass_earn.md)	 - Operations for earn
+* [compass credit](compass_credit.md)	 - Operations for credit

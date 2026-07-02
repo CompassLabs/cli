@@ -14,6 +14,7 @@ type V2CreditEulerMarketsChain string
 const (
 	V2CreditEulerMarketsChainArbitrum V2CreditEulerMarketsChain = "arbitrum"
 	V2CreditEulerMarketsChainBase     V2CreditEulerMarketsChain = "base"
+	V2CreditEulerMarketsChainBsc      V2CreditEulerMarketsChain = "bsc"
 	V2CreditEulerMarketsChainEthereum V2CreditEulerMarketsChain = "ethereum"
 	V2CreditEulerMarketsChainTempo    V2CreditEulerMarketsChain = "tempo"
 )
@@ -30,6 +31,8 @@ func (e *V2CreditEulerMarketsChain) UnmarshalJSON(data []byte) error {
 	case "arbitrum":
 		fallthrough
 	case "base":
+		fallthrough
+	case "bsc":
 		fallthrough
 	case "ethereum":
 		fallthrough

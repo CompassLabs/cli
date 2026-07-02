@@ -18,9 +18,17 @@ type CollateralPosition struct {
 	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
 	// field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
 	// Euler V2 path, where the market is identified by EVK vault address(es).
+	// ``MORPHO`` identifies Morpho Blue lending markets (bytes32 market id) and is
+	// currently read-only: positions and market discovery only — transaction
+	// builders land with the looping work (COM-7106/7107/7108), so transact
+	// endpoints reject it with a 422.
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Euler only: the EVK collateral vault holding this position.
 	Vault optionalnullable.OptionalNullable[string] `json:"vault,omitzero"`
+	// Morpho only: the bytes32 id of the isolated market holding this position.
+	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
+	// Morpho only: true when this is a loan-asset supply position (earning supply APY) rather than collateral backing borrows.
+	IsPureSupply optionalnullable.OptionalNullable[bool] `json:"is_pure_supply,omitzero"`
 	// Current on-chain collateral balance (the vault's underlying asset for Euler).
 	AmountSupplied *string `json:"amount_supplied"`
 	// Collateral value in USD.
@@ -76,6 +84,20 @@ func (c *CollateralPosition) GetVault() optionalnullable.OptionalNullable[string
 		return nil
 	}
 	return c.Vault
+}
+
+func (c *CollateralPosition) GetMarketID() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.MarketID
+}
+
+func (c *CollateralPosition) GetIsPureSupply() optionalnullable.OptionalNullable[bool] {
+	if c == nil {
+		return nil
+	}
+	return c.IsPureSupply
 }
 
 func (c *CollateralPosition) GetAmountSupplied() *string {
