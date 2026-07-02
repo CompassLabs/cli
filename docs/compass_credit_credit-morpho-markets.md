@@ -1,19 +1,31 @@
-## compass credit
+## compass credit credit-morpho-markets
 
-Operations for credit
+List curated Morpho markets
 
 ### Synopsis
 
-Operations for credit
+List curated Morpho Blue lending markets for a chain.
+
+Morpho Blue is permissionless, so credit actions identify a market by its
+bytes32 market id. This returns the curated market set with live LLTV,
+supply/borrow APY, utilization, and available liquidity -- read on-chain per
+request -- so callers know which market_id to use and what it currently costs.
 
 ```
-compass credit [flags]
+compass credit credit-morpho-markets [flags]
+```
+
+### Examples
+
+```
+  compass credit credit-morpho-markets --chain ethereum
 ```
 
 ### Options
 
 ```
-  -h, --help   help for credit
+  -c, --chain string   options: arbitrum, base, ethereum, tempo [required]
+  -h, --help           help for credit-morpho-markets
 ```
 
 ### Options inherited from parent commands
@@ -37,13 +49,4 @@ compass credit [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
-* [compass credit balances](compass_credit_balances.md)	 - Get credit account token balances
-* [compass credit borrow](compass_credit_borrow.md)	 - Borrow against collateral
-* [compass credit bundle](compass_credit_bundle.md)	 - Execute multiple credit actions
-* [compass credit create-account](compass_credit_create-account.md)	 - Create credit account
-* [compass credit credit-morpho-markets](compass_credit_credit-morpho-markets.md)	 - List curated Morpho markets
-* [compass credit euler-markets](compass_credit_euler-markets.md)	 - List curated Euler markets
-* [compass credit positions](compass_credit_positions.md)	 - List credit positions
-* [compass credit repay](compass_credit_repay.md)	 - Repay debt and withdraw collateral
-* [compass credit transfer](compass_credit_transfer.md)	 - Transfer tokens to/from Credit Account
+* [compass credit](compass_credit.md)	 - Operations for credit

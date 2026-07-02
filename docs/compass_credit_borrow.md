@@ -48,7 +48,11 @@ compass credit borrow [flags]
                                     
                                     AAVE`` is the default so existing callers (which never send a ``protocol``
                                     field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
-                                    Euler V2 path, where the market is identified by EVK vault address(es). (options: AAVE, EULER)
+                                    Euler V2 path, where the market is identified by EVK vault address(es).
+                                    ``MORPHO`` identifies Morpho Blue lending markets (bytes32 market id) and is
+                                    currently read-only: positions and market discovery only — transaction
+                                    builders land with the looping work (COM-7106/7107/7108), so transact
+                                    endpoints reject it with a 422. (options: AAVE, EULER, MORPHO)
   -s, --slippage string             JSON value (one of: number | string)
   -t, --token-in string             Token currently held in the Credit Account to use as input. If the same as collateral_token, no swap is performed. Omit together with amount_in and collateral_token to borrow against existing collateral.
 ```
