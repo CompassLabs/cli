@@ -289,9 +289,15 @@ type CreditRepayRequest struct {
 	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
 	// field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
 	// Euler V2 path, where the market is identified by EVK vault address(es).
+	// ``MORPHO`` identifies Morpho Blue lending markets (bytes32 market id) and is
+	// currently read-only: positions and market discovery only — transaction
+	// builders land with the looping work (COM-7106/7107/7108), so transact
+	// endpoints reject it with a 422.
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Euler only: the EVK vault the debt is owed to (repay target). Required when protocol=EULER.
 	BorrowVault optionalnullable.OptionalNullable[string] `json:"borrow_vault,omitzero"`
+	// Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
+	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
 	// Euler only: the EVK collateral vault to withdraw from. Required when protocol=EULER and withdrawing collateral.
 	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
 	// The borrowed asset to repay (e.g. WETH). Must match the debt position's token.
@@ -346,6 +352,13 @@ func (c *CreditRepayRequest) GetBorrowVault() optionalnullable.OptionalNullable[
 		return nil
 	}
 	return c.BorrowVault
+}
+
+func (c *CreditRepayRequest) GetMarketID() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.MarketID
 }
 
 func (c *CreditRepayRequest) GetCollateralVault() optionalnullable.OptionalNullable[string] {

@@ -36,6 +36,7 @@ compass credit repay [flags]
   -i, --interest-rate-mode string   On AAVE there are 2 different interest modes.
                                     
                                     A stable (but typically higher rate), or a variable rate. (options: stable, variable)
+  -m, --market-id string            Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
       --owner string                The address that owns the Credit Account. [required]
       --permit2-deadline string     The deadline timestamp used in the Permit2 signature (from the signed typed data).
       --permit2-nonce string        The nonce used in the Permit2 signature (from the signed typed data).
@@ -44,7 +45,11 @@ compass credit repay [flags]
                                     
                                     AAVE`` is the default so existing callers (which never send a ``protocol``
                                     field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
-                                    Euler V2 path, where the market is identified by EVK vault address(es). (options: AAVE, EULER)
+                                    Euler V2 path, where the market is identified by EVK vault address(es).
+                                    ``MORPHO`` identifies Morpho Blue lending markets (bytes32 market id) and is
+                                    currently read-only: positions and market discovery only — transaction
+                                    builders land with the looping work (COM-7106/7107/7108), so transact
+                                    endpoints reject it with a 422. (options: AAVE, EULER, MORPHO)
       --repay-amount string         JSON value (one of: number | string)
       --repay-token string          The borrowed asset to repay (e.g. WETH). Must match the debt position's token. [required]
   -s, --slippage string             JSON value (one of: number | string)
