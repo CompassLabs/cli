@@ -1,19 +1,34 @@
-## compass credit
+## compass credit credit-looped-positions
 
-Operations for credit
+List looped (leveraged) credit positions
 
 ### Synopsis
 
-Operations for credit
+List looped (leveraged) positions for a credit account owner.
+
+Detects loops from the account's on-chain history: a transaction containing
+lending + borrowing + swap legs is a loop transaction. Returns one position
+per Morpho market / Aave collateral+debt reserve pair, each with its complete
+per-transaction history, lifetime totals, and live on-chain state (health
+factor, USD values, leverage) for open positions. Covers Aave V3 and Morpho
+Blue.
 
 ```
-compass credit [flags]
+compass credit credit-looped-positions [flags]
+```
+
+### Examples
+
+```
+  compass credit credit-looped-positions --chain base --owner 0x06A9aF046187895AcFc7258450B15397CAc67400
 ```
 
 ### Options
 
 ```
-  -h, --help   help for credit
+  -c, --chain string   options: arbitrum, base, bsc, ethereum, tempo [required]
+  -h, --help           help for credit-looped-positions
+      --owner string   The address of the owner of the credit account to get looped positions for. [required]
 ```
 
 ### Options inherited from parent commands
@@ -37,15 +52,4 @@ compass credit [flags]
 
 ### SEE ALSO
 
-* [compass](compass.md)	 - Compass API: Compass Labs DeFi API
-* [compass credit balances](compass_credit_balances.md)	 - Get credit account token balances
-* [compass credit borrow](compass_credit_borrow.md)	 - Borrow against collateral
-* [compass credit bundle](compass_credit_bundle.md)	 - Execute multiple credit actions
-* [compass credit create-account](compass_credit_create-account.md)	 - Create credit account
-* [compass credit credit-loop](compass_credit_credit-loop.md)	 - Open a leveraged loop
-* [compass credit credit-looped-positions](compass_credit_credit-looped-positions.md)	 - List looped (leveraged) credit positions
-* [compass credit credit-morpho-markets](compass_credit_credit-morpho-markets.md)	 - List curated Morpho markets
-* [compass credit euler-markets](compass_credit_euler-markets.md)	 - List curated Euler markets
-* [compass credit positions](compass_credit_positions.md)	 - List credit positions
-* [compass credit repay](compass_credit_repay.md)	 - Repay debt and withdraw collateral
-* [compass credit transfer](compass_credit_transfer.md)	 - Transfer tokens to/from Credit Account
+* [compass credit](compass_credit.md)	 - Operations for credit
