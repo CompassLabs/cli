@@ -279,40 +279,40 @@ func (u LoanToValue) MarshalJSON() ([]byte, error) {
 	return nil, errors.New("could not marshal union type LoanToValue: all fields are null")
 }
 
-type MaxSlippagePercentType string
+type CreditLoopRequestMaxSlippagePercentType string
 
 const (
-	MaxSlippagePercentTypeNumber MaxSlippagePercentType = "number"
-	MaxSlippagePercentTypeStr    MaxSlippagePercentType = "str"
+	CreditLoopRequestMaxSlippagePercentTypeNumber CreditLoopRequestMaxSlippagePercentType = "number"
+	CreditLoopRequestMaxSlippagePercentTypeStr    CreditLoopRequestMaxSlippagePercentType = "str"
 )
 
-// MaxSlippagePercent - Per-swap slippage tolerance in percent. Loop dust is bounded by this per iteration, so tighter slippage means less dust.
-type MaxSlippagePercent struct {
+// CreditLoopRequestMaxSlippagePercent - Per-swap slippage tolerance in percent. Loop dust is bounded by this per iteration, so tighter slippage means less dust.
+type CreditLoopRequestMaxSlippagePercent struct {
 	Number *float64 `queryParam:"inline" union:"member"`
 	Str    *string  `queryParam:"inline" union:"member"`
 
-	Type MaxSlippagePercentType
+	Type CreditLoopRequestMaxSlippagePercentType
 }
 
-func CreateMaxSlippagePercentNumber(number float64) MaxSlippagePercent {
-	typ := MaxSlippagePercentTypeNumber
+func CreateCreditLoopRequestMaxSlippagePercentNumber(number float64) CreditLoopRequestMaxSlippagePercent {
+	typ := CreditLoopRequestMaxSlippagePercentTypeNumber
 
-	return MaxSlippagePercent{
+	return CreditLoopRequestMaxSlippagePercent{
 		Number: &number,
 		Type:   typ,
 	}
 }
 
-func CreateMaxSlippagePercentStr(str string) MaxSlippagePercent {
-	typ := MaxSlippagePercentTypeStr
+func CreateCreditLoopRequestMaxSlippagePercentStr(str string) CreditLoopRequestMaxSlippagePercent {
+	typ := CreditLoopRequestMaxSlippagePercentTypeStr
 
-	return MaxSlippagePercent{
+	return CreditLoopRequestMaxSlippagePercent{
 		Str:  &str,
 		Type: typ,
 	}
 }
 
-func (u *MaxSlippagePercent) UnmarshalJSON(data []byte) error {
+func (u *CreditLoopRequestMaxSlippagePercent) UnmarshalJSON(data []byte) error {
 
 	var candidates []utils.UnionCandidate
 
@@ -320,7 +320,7 @@ func (u *MaxSlippagePercent) UnmarshalJSON(data []byte) error {
 	var number float64 = float64(0)
 	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
 		candidates = append(candidates, utils.UnionCandidate{
-			Type:  MaxSlippagePercentTypeNumber,
+			Type:  CreditLoopRequestMaxSlippagePercentTypeNumber,
 			Value: &number,
 		})
 	}
@@ -328,36 +328,36 @@ func (u *MaxSlippagePercent) UnmarshalJSON(data []byte) error {
 	var str string = ""
 	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
 		candidates = append(candidates, utils.UnionCandidate{
-			Type:  MaxSlippagePercentTypeStr,
+			Type:  CreditLoopRequestMaxSlippagePercentTypeStr,
 			Value: &str,
 		})
 	}
 
 	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for MaxSlippagePercent", string(data))
+		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditLoopRequestMaxSlippagePercent", string(data))
 	}
 
 	// Pick the best candidate using multi-stage filtering
 	best := utils.PickBestUnionCandidate(candidates, data)
 	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for MaxSlippagePercent", string(data))
+		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditLoopRequestMaxSlippagePercent", string(data))
 	}
 
 	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(MaxSlippagePercentType)
+	u.Type = best.Type.(CreditLoopRequestMaxSlippagePercentType)
 	switch best.Type {
-	case MaxSlippagePercentTypeNumber:
+	case CreditLoopRequestMaxSlippagePercentTypeNumber:
 		u.Number = best.Value.(*float64)
 		return nil
-	case MaxSlippagePercentTypeStr:
+	case CreditLoopRequestMaxSlippagePercentTypeStr:
 		u.Str = best.Value.(*string)
 		return nil
 	}
 
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for MaxSlippagePercent", string(data))
+	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditLoopRequestMaxSlippagePercent", string(data))
 }
 
-func (u MaxSlippagePercent) MarshalJSON() ([]byte, error) {
+func (u CreditLoopRequestMaxSlippagePercent) MarshalJSON() ([]byte, error) {
 	if u.Number != nil {
 		return utils.MarshalJSON(u.Number, "", true)
 	}
@@ -366,7 +366,7 @@ func (u MaxSlippagePercent) MarshalJSON() ([]byte, error) {
 		return utils.MarshalJSON(u.Str, "", true)
 	}
 
-	return nil, errors.New("could not marshal union type MaxSlippagePercent: all fields are null")
+	return nil, errors.New("could not marshal union type CreditLoopRequestMaxSlippagePercent: all fields are null")
 }
 
 // CreditLoopRequest - Open a leveraged loop: repeatedly supply collateral, borrow, and swap the
@@ -400,7 +400,7 @@ type CreditLoopRequest struct {
 	// Per-iteration borrow LTV in percent. Must not exceed the protocol's maximum for the market (Aave reserve/e-mode LTV; Morpho LLTV with a safety margin); borrows are sized slightly inside the requested value so no leg sits on the protocol's revert boundary.
 	LoanToValue LoanToValue `json:"loan_to_value"`
 	// Per-swap slippage tolerance in percent. Loop dust is bounded by this per iteration, so tighter slippage means less dust.
-	MaxSlippagePercent *MaxSlippagePercent `json:"max_slippage_percent,omitzero"`
+	MaxSlippagePercent *CreditLoopRequestMaxSlippagePercent `json:"max_slippage_percent,omitzero"`
 	// Aave only: e-mode category to enable before looping (higher LTV for correlated pairs, e.g. ETH-correlated).
 	EmodeCategory optionalnullable.OptionalNullable[int64] `json:"emode_category,omitzero"`
 	// If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
@@ -470,7 +470,7 @@ func (c *CreditLoopRequest) GetLoanToValue() LoanToValue {
 	return c.LoanToValue
 }
 
-func (c *CreditLoopRequest) GetMaxSlippagePercent() *MaxSlippagePercent {
+func (c *CreditLoopRequest) GetMaxSlippagePercent() *CreditLoopRequestMaxSlippagePercent {
 	if c == nil {
 		return nil
 	}

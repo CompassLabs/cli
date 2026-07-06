@@ -52,6 +52,10 @@ func InitCreditRoot(parent *cobra.Command) error {
 		return err
 	}
 
+	if err := initCreditUnloopCmd(CreditCmd); err != nil {
+		return err
+	}
+
 	if err := initTransferCmd(CreditCmd); err != nil {
 		return err
 	}
