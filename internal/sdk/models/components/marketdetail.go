@@ -47,6 +47,8 @@ type MarketDetail struct {
 	Apy30d optionalnullable.OptionalNullable[string] `json:"apy_30d,omitzero"`
 	// Total value locked in USD (RWA yield assets only).
 	TvlUsd optionalnullable.OptionalNullable[string] `json:"tvl_usd,omitzero"`
+	// Live tradability: whether this market can be traded right now, and if not, why (and when it reopens). Equities follow US market sessions (some are 24-7 via an off-hours track); RWA yield / vault assets trade continuously unless the issuer pauses. Null if status is unavailable.
+	Status optionalnullable.OptionalNullable[TradingStatus] `json:"status,omitzero"`
 	// 24h price sparkline as `(timestamp, price)` samples in chronological order.
 	PriceHistory24h []PricePoint `json:"price_history_24h,omitzero"`
 	// 52-week high of the underlying equity (USD).
@@ -192,6 +194,13 @@ func (m *MarketDetail) GetTvlUsd() optionalnullable.OptionalNullable[string] {
 		return nil
 	}
 	return m.TvlUsd
+}
+
+func (m *MarketDetail) GetStatus() optionalnullable.OptionalNullable[TradingStatus] {
+	if m == nil {
+		return nil
+	}
+	return m.Status
 }
 
 func (m *MarketDetail) GetPriceHistory24h() []PricePoint {
