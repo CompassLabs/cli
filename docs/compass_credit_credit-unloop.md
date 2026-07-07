@@ -25,10 +25,12 @@ the maximum single-transaction progress (preview.fully_unwound=false), then
 call unloop again to finish. Very large unwinds relative to pool depth can
 still exceed the slippage tolerance through their own cumulative price impact.
 
-Positions are unwound as far as the swap router can route; a residual below
-the router's minimum routable size is either repaid directly from the Credit
-Account's idle balance (a true full close) or reported honestly in the preview
-(fully_unwound=false) — it never fails the call.
+Positions are unwound as far as the swap router can route; on a router-minimum
+stop the engine still withdraws all collateral not needed to back the residual,
+and completes a true full close whenever the unwind's own guaranteed swap
+surpluses (or the Credit Account's idle balance) cover the remainder — a
+residual below the router's minimum routable size never fails the call, it is
+reported honestly in the preview (fully_unwound=false).
 
 For protocol=MORPHO pass a market_id from /v2/credit/morpho_markets; inspect
 open loops via /v2/credit/looped_positions.
