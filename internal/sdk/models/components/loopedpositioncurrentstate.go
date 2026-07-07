@@ -6,20 +6,20 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 )
 
-// HealthFactorScope - 'market' for Morpho (isolated per-market health). 'account' for Aave: collateral is pooled, so all collateral backs all debt and this health factor is shared by every Aave position on the account — see aave_account_summary for the account-level figures.
-type HealthFactorScope string
+// LoopedPositionCurrentStateHealthFactorScope - 'market' for Morpho (isolated per-market health). 'account' for Aave: collateral is pooled, so all collateral backs all debt and this health factor is shared by every Aave position on the account — see aave_account_summary for the account-level figures.
+type LoopedPositionCurrentStateHealthFactorScope string
 
 const (
-	HealthFactorScopeMarket  HealthFactorScope = "market"
-	HealthFactorScopeAccount HealthFactorScope = "account"
+	LoopedPositionCurrentStateHealthFactorScopeMarket  LoopedPositionCurrentStateHealthFactorScope = "market"
+	LoopedPositionCurrentStateHealthFactorScopeAccount LoopedPositionCurrentStateHealthFactorScope = "account"
 )
 
-func (e HealthFactorScope) ToPointer() *HealthFactorScope {
+func (e LoopedPositionCurrentStateHealthFactorScope) ToPointer() *LoopedPositionCurrentStateHealthFactorScope {
 	return &e
 }
 
 // IsExact returns true if the value matches a known enum value, false otherwise.
-func (e *HealthFactorScope) IsExact() bool {
+func (e *LoopedPositionCurrentStateHealthFactorScope) IsExact() bool {
 	if e != nil {
 		switch *e {
 		case "market", "account":
@@ -46,7 +46,7 @@ type LoopedPositionCurrentState struct {
 	// Health factor. Above 1 is safe; below 1 risks liquidation. See health_factor_scope for what it covers.
 	HealthFactor optionalnullable.OptionalNullable[string] `json:"health_factor,omitzero"`
 	// 'market' for Morpho (isolated per-market health). 'account' for Aave: collateral is pooled, so all collateral backs all debt and this health factor is shared by every Aave position on the account — see aave_account_summary for the account-level figures.
-	HealthFactorScope HealthFactorScope `json:"health_factor_scope"`
+	HealthFactorScope LoopedPositionCurrentStateHealthFactorScope `json:"health_factor_scope"`
 }
 
 func (l *LoopedPositionCurrentState) GetCollateralAmount() *string {
@@ -98,9 +98,9 @@ func (l *LoopedPositionCurrentState) GetHealthFactor() optionalnullable.Optional
 	return l.HealthFactor
 }
 
-func (l *LoopedPositionCurrentState) GetHealthFactorScope() HealthFactorScope {
+func (l *LoopedPositionCurrentState) GetHealthFactorScope() LoopedPositionCurrentStateHealthFactorScope {
 	if l == nil {
-		return HealthFactorScope("")
+		return LoopedPositionCurrentStateHealthFactorScope("")
 	}
 	return l.HealthFactorScope
 }

@@ -55,16 +55,14 @@ func runConfigureCmd(cmd *cobra.Command, args []string) error {
 	if cfg == nil {
 		cfg = &config.Config{}
 	}
+
+	keychainStored := false
 	if noInteractive, _ := cmd.Flags().GetBool("no-interactive"); noInteractive {
 		changed := false
 		if f := cmd.Flags().Lookup("api-key-auth"); f != nil && f.Changed {
 			v, _ := cmd.Flags().GetString("api-key-auth")
-			if config.KeyringAvailable() {
-				if err := config.SetKeyringValue("api-key-auth", v); err != nil {
-					cfg.Security.ApiKeyAuth = v // keyring failed, store in config
-				}
-			} else {
-				cfg.Security.ApiKeyAuth = v // no keyring, store in config
+			if config.StoreSecret("api-key-auth", v, &cfg.Security.ApiKeyAuth) == nil {
+				keychainStored = true
 			}
 			changed = true
 		}
@@ -82,7 +80,7 @@ func runConfigureCmd(cmd *cobra.Command, args []string) error {
 				Title("Your Compass API Key. Get your key [here](https://www.compasslabs.ai/dashboard).").
 				Description("--api-key-auth").
 				EchoMode(huh.EchoModePassword).
-				Placeholder(maskSecret(cfg.Security.ApiKeyAuth)).
+				Placeholder(maskSecret(config.GetStoredSecret("api-key-auth", cfg.Security.ApiKeyAuth))).
 				Value(&authApiKeyAuth),
 		}
 		groups = append(groups, huh.NewGroup(securityFields...).Title("Authentication"))
@@ -119,12 +117,8 @@ func runConfigureCmd(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("configure: %w", err)
 		}
 		if authApiKeyAuth != "" {
-			if config.KeyringAvailable() {
-				if err := config.SetKeyringValue("api-key-auth", authApiKeyAuth); err != nil {
-					cfg.Security.ApiKeyAuth = authApiKeyAuth // keyring failed, store in config
-				}
-			} else {
-				cfg.Security.ApiKeyAuth = authApiKeyAuth // no keyring, store in config
+			if config.StoreSecret("api-key-auth", authApiKeyAuth, &cfg.Security.ApiKeyAuth) == nil {
+				keychainStored = true
 			}
 		}
 		if !accessible {
@@ -142,7 +136,7 @@ func runConfigureCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	out := cmd.OutOrStdout()
-	if config.KeyringAvailable() {
+	if keychainStored {
 		fmt.Fprintln(out, "Secret credentials stored in OS keychain")
 	}
 	fmt.Fprintf(out, "Configuration saved to %s\n", config.GetConfigPath())

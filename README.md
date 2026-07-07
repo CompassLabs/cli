@@ -201,6 +201,7 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`borrow`](docs/compass_credit_borrow.md) - Borrow against collateral
 * [`credit-loop`](docs/compass_credit_credit-loop.md) - Open a leveraged loop
 * [`credit-unloop`](docs/compass_credit_credit-unloop.md) - Unwind a leveraged loop
+* [`credit-rebalance`](docs/compass_credit_credit-rebalance.md) - Rebalance the leveraged credit book
 * [`transfer`](docs/compass_credit_transfer.md) - Transfer tokens to/from Credit Account
 * [`repay`](docs/compass_credit_repay.md) - Repay debt and withdraw collateral
 * [`bundle`](docs/compass_credit_bundle.md) - Execute multiple credit actions
