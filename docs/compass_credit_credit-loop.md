@@ -13,7 +13,10 @@ slippage tolerance can never break a later step; any positive surplus stays
 in the Credit Account (the preview reports the bound as estimated_max_dust).
 Very large loops relative to pool depth can still exceed the slippage
 tolerance through their own cumulative price impact — size accordingly or
-raise max_slippage_percent.
+raise max_slippage_percent. Conversely, the geometric tail can shrink below
+the swap router's minimum routable size; when it does the loop simply ends
+early on that supply — the achieved multiplier is still guaranteed within
+0.5% of the request or the call returns a clean 400.
 
 The Credit Account must already hold initial_collateral_amount of
 collateral_token. For protocol=MORPHO pass a market_id from

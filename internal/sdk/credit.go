@@ -1302,7 +1302,10 @@ func (s *Credit) Borrow(ctx context.Context, request components.CreditBorrowRequ
 // in the Credit Account (the preview reports the bound as estimated_max_dust).
 // Very large loops relative to pool depth can still exceed the slippage
 // tolerance through their own cumulative price impact — size accordingly or
-// raise max_slippage_percent.
+// raise max_slippage_percent. Conversely, the geometric tail can shrink below
+// the swap router's minimum routable size; when it does the loop simply ends
+// early on that supply — the achieved multiplier is still guaranteed within
+// 0.5% of the request or the call returns a clean 400.
 //
 // The Credit Account must already hold initial_collateral_amount of
 // collateral_token. For protocol=MORPHO pass a market_id from
@@ -1503,6 +1506,11 @@ func (s *Credit) CreditLoop(ctx context.Context, request components.CreditLoopRe
 // the maximum single-transaction progress (preview.fully_unwound=false), then
 // call unloop again to finish. Very large unwinds relative to pool depth can
 // still exceed the slippage tolerance through their own cumulative price impact.
+//
+// Positions are unwound as far as the swap router can route; a residual below
+// the router's minimum routable size is either repaid directly from the Credit
+// Account's idle balance (a true full close) or reported honestly in the preview
+// (fully_unwound=false) — it never fails the call.
 //
 // For protocol=MORPHO pass a market_id from /v2/credit/morpho_markets; inspect
 // open loops via /v2/credit/looped_positions.
@@ -1707,6 +1715,12 @@ func (s *Credit) CreditUnloop(ctx context.Context, request components.CreditUnlo
 // into two calls. Every deleveraging step keeps the health factor ≥ 1.02 and
 // every leveraging step respects the protocol's borrow limits; Aave targets share
 // one account-level health factor, which the preview reports.
+//
+// Dust tails and routing swaps below the swap router's minimum routable size do
+// not fail the call: a releasing target that cannot fully unwind returns its
+// honest residual in the preview, and an unroutable routing swap is skipped
+// (its uncovered amount only 422s the rebalance if it breaches the funding
+// tolerance).
 //
 // For protocol=MORPHO pass a market_id from /v2/credit/morpho_markets; inspect the
 // current book via /v2/credit/looped_positions.

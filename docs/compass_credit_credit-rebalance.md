@@ -30,6 +30,12 @@ into two calls. Every deleveraging step keeps the health factor ≥ 1.02 and
 every leveraging step respects the protocol's borrow limits; Aave targets share
 one account-level health factor, which the preview reports.
 
+Dust tails and routing swaps below the swap router's minimum routable size do
+not fail the call: a releasing target that cannot fully unwind returns its
+honest residual in the preview, and an unroutable routing swap is skipped
+(its uncovered amount only 422s the rebalance if it breaches the funding
+tolerance).
+
 For protocol=MORPHO pass a market_id from /v2/credit/morpho_markets; inspect the
 current book via /v2/credit/looped_positions.
 
