@@ -300,6 +300,8 @@ type CreditBorrowRequest struct {
 	BorrowVault optionalnullable.OptionalNullable[string] `json:"borrow_vault,omitzero"`
 	// Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
 	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
+	// Euler only: EVC sub-account (0–255) to isolate this position. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health, letting one Credit Account hold multiple isolated Euler positions. Defaults to 0. Ignored for Aave/Morpho.
+	SubAccountID *int64 `json:"sub_account_id,omitzero"`
 	// Token currently held in the Credit Account to use as input. If the same as collateral_token, no swap is performed. Omit together with amount_in and collateral_token to borrow against existing collateral.
 	TokenIn optionalnullable.OptionalNullable[string] `json:"token_in,omitzero"`
 	// Amount of token_in to use (in token units, not wei). Omit together with token_in and collateral_token for borrow-only mode.
@@ -379,6 +381,13 @@ func (c *CreditBorrowRequest) GetMarketID() optionalnullable.OptionalNullable[st
 		return nil
 	}
 	return c.MarketID
+}
+
+func (c *CreditBorrowRequest) GetSubAccountID() *int64 {
+	if c == nil {
+		return nil
+	}
+	return c.SubAccountID
 }
 
 func (c *CreditBorrowRequest) GetTokenIn() optionalnullable.OptionalNullable[string] {

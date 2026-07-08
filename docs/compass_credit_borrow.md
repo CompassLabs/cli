@@ -54,7 +54,8 @@ compass credit borrow [flags]
                                     currently read-only: positions and market discovery only — transaction
                                     builders land with the looping work (COM-7106/7107/7108), so transact
                                     endpoints reject it with a 422. (options: AAVE, EULER, MORPHO)
-  -s, --slippage string             JSON value (one of: number | string)
+      --slippage string             JSON value (one of: number | string)
+      --sub-account-id int          Euler only: EVC sub-account (0–255) to isolate this position. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health, letting one Credit Account hold multiple isolated Euler positions. Defaults to 0. Ignored for Aave/Morpho.
   -t, --token-in string             Token currently held in the Credit Account to use as input. If the same as collateral_token, no swap is performed. Omit together with amount_in and collateral_token to borrow against existing collateral.
 ```
 

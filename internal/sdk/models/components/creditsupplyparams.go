@@ -120,6 +120,8 @@ type CreditSupplyParams struct {
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Euler only: the EVK collateral vault to supply into. Required when protocol=EULER.
 	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
+	// Euler only: EVC sub-account (0–255) to isolate this position. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health. Defaults to 0. Ignored for Aave/Morpho.
+	SubAccountID *int64 `json:"sub_account_id,omitzero"`
 	// Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
 	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
 }
@@ -165,6 +167,13 @@ func (c *CreditSupplyParams) GetCollateralVault() optionalnullable.OptionalNulla
 		return nil
 	}
 	return c.CollateralVault
+}
+
+func (c *CreditSupplyParams) GetSubAccountID() *int64 {
+	if c == nil {
+		return nil
+	}
+	return c.SubAccountID
 }
 
 func (c *CreditSupplyParams) GetMarketID() optionalnullable.OptionalNullable[string] {

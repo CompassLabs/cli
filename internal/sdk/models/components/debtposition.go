@@ -25,6 +25,8 @@ type DebtPosition struct {
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Euler only: the EVK borrow vault this debt is owed to.
 	Vault optionalnullable.OptionalNullable[string] `json:"vault,omitzero"`
+	// Euler only: the EVC sub-account (0–255) this debt belongs to. Each sub-account is an independent Euler position with its own health. Null for Aave/Morpho.
+	SubAccountID optionalnullable.OptionalNullable[int64] `json:"sub_account_id,omitzero"`
 	// Morpho only: the bytes32 id of the isolated market this debt is owed to.
 	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
 	// Morpho only: this market's health factor (markets are isolated, so health is per market — below 1 the position is liquidatable). Null for other protocols and when the oracle read fails.
@@ -82,6 +84,13 @@ func (d *DebtPosition) GetVault() optionalnullable.OptionalNullable[string] {
 		return nil
 	}
 	return d.Vault
+}
+
+func (d *DebtPosition) GetSubAccountID() optionalnullable.OptionalNullable[int64] {
+	if d == nil {
+		return nil
+	}
+	return d.SubAccountID
 }
 
 func (d *DebtPosition) GetMarketID() optionalnullable.OptionalNullable[string] {

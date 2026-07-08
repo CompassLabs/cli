@@ -25,6 +25,8 @@ type CollateralPosition struct {
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Euler only: the EVK collateral vault holding this position.
 	Vault optionalnullable.OptionalNullable[string] `json:"vault,omitzero"`
+	// Euler only: the EVC sub-account (0–255) this position belongs to. Each sub-account is an independent Euler position with its own health. Null for Aave/Morpho.
+	SubAccountID optionalnullable.OptionalNullable[int64] `json:"sub_account_id,omitzero"`
 	// Morpho only: the bytes32 id of the isolated market holding this position.
 	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
 	// Morpho only: true when this is a loan-asset supply position (earning supply APY) rather than collateral backing borrows.
@@ -84,6 +86,13 @@ func (c *CollateralPosition) GetVault() optionalnullable.OptionalNullable[string
 		return nil
 	}
 	return c.Vault
+}
+
+func (c *CollateralPosition) GetSubAccountID() optionalnullable.OptionalNullable[int64] {
+	if c == nil {
+		return nil
+	}
+	return c.SubAccountID
 }
 
 func (c *CollateralPosition) GetMarketID() optionalnullable.OptionalNullable[string] {

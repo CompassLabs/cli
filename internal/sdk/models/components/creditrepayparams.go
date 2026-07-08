@@ -124,6 +124,8 @@ type CreditRepayParams struct {
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Euler only: the EVK vault the debt is owed to. Required when protocol=EULER.
 	BorrowVault optionalnullable.OptionalNullable[string] `json:"borrow_vault,omitzero"`
+	// Euler only: EVC sub-account (0–255) holding the debt to repay. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health. Defaults to 0. Ignored for Aave/Morpho.
+	SubAccountID *int64 `json:"sub_account_id,omitzero"`
 	// Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
 	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
 }
@@ -176,6 +178,13 @@ func (c *CreditRepayParams) GetBorrowVault() optionalnullable.OptionalNullable[s
 		return nil
 	}
 	return c.BorrowVault
+}
+
+func (c *CreditRepayParams) GetSubAccountID() *int64 {
+	if c == nil {
+		return nil
+	}
+	return c.SubAccountID
 }
 
 func (c *CreditRepayParams) GetMarketID() optionalnullable.OptionalNullable[string] {

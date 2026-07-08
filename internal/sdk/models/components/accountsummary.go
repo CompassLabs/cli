@@ -22,6 +22,8 @@ type AccountSummary struct {
 	// builders land with the looping work (COM-7106/7107/7108), so transact
 	// endpoints reject it with a 422.
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
+	// Euler only: the EVC sub-account (0–255) this summary describes. Euler health is per-sub-account. Null for Aave/Morpho.
+	SubAccountID optionalnullable.OptionalNullable[int64] `json:"sub_account_id,omitzero"`
 	// Health factor. Above 1 is safe; below 1 risks liquidation.
 	HealthFactor string `json:"health_factor"`
 	// Total collateral value in USD.
@@ -43,6 +45,13 @@ func (a *AccountSummary) GetProtocol() *CreditProtocol {
 		return nil
 	}
 	return a.Protocol
+}
+
+func (a *AccountSummary) GetSubAccountID() optionalnullable.OptionalNullable[int64] {
+	if a == nil {
+		return nil
+	}
+	return a.SubAccountID
 }
 
 func (a *AccountSummary) GetHealthFactor() string {

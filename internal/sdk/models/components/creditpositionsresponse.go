@@ -19,7 +19,9 @@ type CreditPositionsResponse struct {
 	// controller vault's risk engine (``accountLiquidity``). The E-Mode fields are
 	// Aave-only and stay at their defaults for Euler.
 	AccountSummary AccountSummary `json:"account_summary"`
-	// Euler account-level summary (health factor, LTV, etc.), present only when the account holds Euler positions. Null for Aave-only accounts.
+	// Euler account-level summaries — ONE PER ACTIVE EVC SUB-ACCOUNT (Euler health is per-sub-account, so an owner with positions on sub-accounts 0 and 3 gets two entries, each carrying its sub_account_id and independent health factor). Empty for accounts with no Euler positions. Supersedes the singular euler_account_summary.
+	EulerAccountSummaries []AccountSummary `json:"euler_account_summaries,omitzero"`
+	// DEPRECATED (use euler_account_summaries): the sub-account-0 Euler account-level summary, kept for one release for backwards compatibility. Present only when the account holds Euler positions; for a multi-sub-account owner it reflects only sub-account 0 (or the first active sub-account if 0 is empty). Null for Aave-only accounts.
 	EulerAccountSummary optionalnullable.OptionalNullable[AccountSummary] `json:"euler_account_summary,omitzero"`
 	// Euler-only: additional borrowable amounts given the account's current Euler controller (i.e. borrow more of the controller's asset). Empty for accounts with no Euler borrow position — use /credit/euler_markets to discover a new market to borrow from.
 	EulerBorrowableTokens []BorrowableToken `json:"euler_borrowable_tokens,omitzero"`
@@ -59,6 +61,13 @@ func (c *CreditPositionsResponse) GetAccountSummary() AccountSummary {
 		return AccountSummary{}
 	}
 	return c.AccountSummary
+}
+
+func (c *CreditPositionsResponse) GetEulerAccountSummaries() []AccountSummary {
+	if c == nil {
+		return nil
+	}
+	return c.EulerAccountSummaries
 }
 
 func (c *CreditPositionsResponse) GetEulerAccountSummary() optionalnullable.OptionalNullable[AccountSummary] {

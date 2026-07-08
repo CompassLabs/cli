@@ -29,6 +29,8 @@ type CreditEnableCollateralParams struct {
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Euler only: the EVK collateral vault to enable. Required when protocol=EULER.
 	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
+	// Euler only: EVC sub-account (0–255) to enable the collateral for. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health. Defaults to 0. Ignored for Aave/Morpho.
+	SubAccountID *int64 `json:"sub_account_id,omitzero"`
 }
 
 func (c CreditEnableCollateralParams) MarshalJSON() ([]byte, error) {
@@ -65,4 +67,11 @@ func (c *CreditEnableCollateralParams) GetCollateralVault() optionalnullable.Opt
 		return nil
 	}
 	return c.CollateralVault
+}
+
+func (c *CreditEnableCollateralParams) GetSubAccountID() *int64 {
+	if c == nil {
+		return nil
+	}
+	return c.SubAccountID
 }

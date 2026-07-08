@@ -300,6 +300,8 @@ type CreditRepayRequest struct {
 	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
 	// Euler only: the EVK collateral vault to withdraw from. Required when protocol=EULER and withdrawing collateral.
 	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
+	// Euler only: EVC sub-account (0–255) holding the debt to repay. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health. Defaults to 0. Ignored for Aave/Morpho.
+	SubAccountID *int64 `json:"sub_account_id,omitzero"`
 	// The borrowed asset to repay (e.g. WETH). Must match the debt position's token.
 	RepayToken string `json:"repay_token"`
 	// Amount of repay_token to repay (in token units, not wei).
@@ -366,6 +368,13 @@ func (c *CreditRepayRequest) GetCollateralVault() optionalnullable.OptionalNulla
 		return nil
 	}
 	return c.CollateralVault
+}
+
+func (c *CreditRepayRequest) GetSubAccountID() *int64 {
+	if c == nil {
+		return nil
+	}
+	return c.SubAccountID
 }
 
 func (c *CreditRepayRequest) GetRepayToken() string {

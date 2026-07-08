@@ -52,7 +52,8 @@ compass credit repay [flags]
                                     endpoints reject it with a 422. (options: AAVE, EULER, MORPHO)
       --repay-amount string         JSON value (one of: number | string)
       --repay-token string          The borrowed asset to repay (e.g. WETH). Must match the debt position's token. [required]
-  -s, --slippage string             JSON value (one of: number | string)
+      --slippage string             JSON value (one of: number | string)
+      --sub-account-id int          Euler only: EVC sub-account (0–255) holding the debt to repay. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health. Defaults to 0. Ignored for Aave/Morpho.
   -t, --token-out string            Desired output token. If different from withdraw_token, a swap is performed after withdrawal. If None, the withdrawn collateral is kept as-is.
       --withdraw-amount string      JSON value (one of: number | string)
       --withdraw-token string       Collateral token to withdraw from Aave after repaying debt. Omit together with withdraw_amount for repay-only mode.
