@@ -31,17 +31,17 @@ func (e *LoopedPositionCurrentStateHealthFactorScope) IsExact() bool {
 
 // LoopedPositionCurrentState - Live on-chain state of an OPEN looped position.
 type LoopedPositionCurrentState struct {
-	// Current on-chain collateral amount for this position.
+	// Current on-chain collateral amount for this position. When multiple open Aave positions share one collateral reserve (Aave holds a single pooled aToken balance per reserve), that pooled balance is attributed across them pro-rata by each position's event-ledger contribution — bookkeeping, not protocol truth; liquidation sees the pooled account, not this per-position split.
 	CollateralAmount *string `json:"collateral_amount"`
 	// Current on-chain debt amount for this position.
 	DebtAmount *string `json:"debt_amount"`
-	// Collateral value in USD (null if unpriced).
+	// Collateral value in USD (null if unpriced). Derived from the attributed collateral_amount for shared-reserve Aave positions.
 	CollateralUsd optionalnullable.OptionalNullable[string] `json:"collateral_usd,omitzero"`
 	// Debt value in USD (null if unpriced).
 	DebtUsd optionalnullable.OptionalNullable[string] `json:"debt_usd,omitzero"`
-	// Net position value in USD (collateral - debt); null if unpriced.
+	// Net position value in USD (collateral - debt); null if unpriced. For shared-reserve Aave positions the collateral side uses the pro-rata attributed balance (bookkeeping, not protocol truth).
 	NetUsdValue optionalnullable.OptionalNullable[string] `json:"net_usd_value,omitzero"`
-	// Leverage multiplier: collateral_usd / (collateral_usd - debt_usd). Null when unpriced or net value is non-positive.
+	// Leverage multiplier: collateral_usd / (collateral_usd - debt_usd). Null when unpriced or net value is non-positive. For shared-reserve Aave positions this is derived from the pro-rata attributed collateral (bookkeeping, not protocol truth).
 	Leverage optionalnullable.OptionalNullable[string] `json:"leverage,omitzero"`
 	// Health factor. Above 1 is safe; below 1 risks liquidation. See health_factor_scope for what it covers.
 	HealthFactor optionalnullable.OptionalNullable[string] `json:"health_factor,omitzero"`

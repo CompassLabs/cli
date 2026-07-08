@@ -32,6 +32,10 @@ surpluses (or the Credit Account's idle balance) cover the remainder — a
 residual below the router's minimum routable size never fails the call, it is
 reported honestly in the preview (fully_unwound=false).
 
+When other open Aave loops share this position's collateral reserve, a full
+close withdraws only this position's attributed share of the pooled collateral
+(event-ledger bookkeeping), leaving the rest supplied for the other positions.
+
 For protocol=MORPHO pass a market_id from /v2/credit/morpho_markets; inspect
 open loops via /v2/credit/looped_positions.
 
