@@ -19,10 +19,26 @@ type EulerMarket struct {
 	AssetSymbol string `json:"asset_symbol"`
 	// Decimals of the borrowable asset.
 	AssetDecimals int64 `json:"asset_decimals"`
+	// USD price of one whole unit of the borrowable asset. Use it to convert USD borrow capacity into token units. Null if the price feed can't quote it.
+	AssetPriceUsd optionalnullable.OptionalNullable[string] `json:"asset_price_usd,omitzero"`
+	// Symbol of the market's native unit of account (usually USD). The market's own risk engine denominates collateral and debt in this unit.
+	UnitOfAccountSymbol optionalnullable.OptionalNullable[string] `json:"unit_of_account_symbol,omitzero"`
 	// Current borrow APY for this market (cost to borrow the asset), in percentage (e.g. 5.25 means 5.25%). Null if the rate is unavailable.
 	BorrowApy optionalnullable.OptionalNullable[string] `json:"borrow_apy,omitzero"`
 	// Current supply APY for this market (yield for supplying the asset), in percentage (e.g. 3.45 means 3.45%). Null if the rate is unavailable.
 	SupplyApy optionalnullable.OptionalNullable[string] `json:"supply_apy,omitzero"`
+	// Asset available to borrow right now (vault cash), in token units. A borrow larger than this reverts even if the account is healthy.
+	AvailableLiquidity string `json:"available_liquidity"`
+	// Total asset supplied to this market, in token units.
+	TotalSupplyAssets string `json:"total_supply_assets"`
+	// Total asset borrowed from this market, in token units.
+	TotalBorrowAssets string `json:"total_borrow_assets"`
+	// Borrowed share of supplied assets, in percentage 0-100.
+	Utilization string `json:"utilization"`
+	// Maximum total supply allowed, in token units. Null when the market is uncapped.
+	SupplyCap optionalnullable.OptionalNullable[string] `json:"supply_cap,omitzero"`
+	// Maximum total borrow allowed, in token units. A borrow that would breach this reverts even when cash exists. Null when uncapped.
+	BorrowCap optionalnullable.OptionalNullable[string] `json:"borrow_cap,omitzero"`
 	// Collateral vaults this market accepts (those currently borrowable, LTV > 0), each with its LTVs.
 	Collaterals []EulerMarketCollateral `json:"collaterals,omitzero"`
 }
@@ -73,6 +89,20 @@ func (e *EulerMarket) GetAssetDecimals() int64 {
 	return e.AssetDecimals
 }
 
+func (e *EulerMarket) GetAssetPriceUsd() optionalnullable.OptionalNullable[string] {
+	if e == nil {
+		return nil
+	}
+	return e.AssetPriceUsd
+}
+
+func (e *EulerMarket) GetUnitOfAccountSymbol() optionalnullable.OptionalNullable[string] {
+	if e == nil {
+		return nil
+	}
+	return e.UnitOfAccountSymbol
+}
+
 func (e *EulerMarket) GetBorrowApy() optionalnullable.OptionalNullable[string] {
 	if e == nil {
 		return nil
@@ -85,6 +115,48 @@ func (e *EulerMarket) GetSupplyApy() optionalnullable.OptionalNullable[string] {
 		return nil
 	}
 	return e.SupplyApy
+}
+
+func (e *EulerMarket) GetAvailableLiquidity() string {
+	if e == nil {
+		return ""
+	}
+	return e.AvailableLiquidity
+}
+
+func (e *EulerMarket) GetTotalSupplyAssets() string {
+	if e == nil {
+		return ""
+	}
+	return e.TotalSupplyAssets
+}
+
+func (e *EulerMarket) GetTotalBorrowAssets() string {
+	if e == nil {
+		return ""
+	}
+	return e.TotalBorrowAssets
+}
+
+func (e *EulerMarket) GetUtilization() string {
+	if e == nil {
+		return ""
+	}
+	return e.Utilization
+}
+
+func (e *EulerMarket) GetSupplyCap() optionalnullable.OptionalNullable[string] {
+	if e == nil {
+		return nil
+	}
+	return e.SupplyCap
+}
+
+func (e *EulerMarket) GetBorrowCap() optionalnullable.OptionalNullable[string] {
+	if e == nil {
+		return nil
+	}
+	return e.BorrowCap
 }
 
 func (e *EulerMarket) GetCollaterals() []EulerMarketCollateral {

@@ -14,6 +14,10 @@ type EulerMarketCollateral struct {
 	Asset string `json:"asset"`
 	// Symbol of the collateral's underlying asset (e.g. USDC).
 	AssetSymbol string `json:"asset_symbol"`
+	// Decimals of the collateral's underlying asset.
+	AssetDecimals int64 `json:"asset_decimals"`
+	// USD price of one whole unit of the collateral asset. Null if the price feed can't quote it (size the supply in token units instead).
+	AssetPriceUsd optionalnullable.OptionalNullable[string] `json:"asset_price_usd,omitzero"`
 	// Maximum loan-to-value when borrowing against this collateral, in percentage (e.g. 94 means 94%).
 	BorrowLtv string `json:"borrow_ltv"`
 	// Loan-to-value at which this collateral is liquidated, in percentage (e.g. 96 means 96%).
@@ -41,6 +45,20 @@ func (e *EulerMarketCollateral) GetAssetSymbol() string {
 		return ""
 	}
 	return e.AssetSymbol
+}
+
+func (e *EulerMarketCollateral) GetAssetDecimals() int64 {
+	if e == nil {
+		return 0
+	}
+	return e.AssetDecimals
+}
+
+func (e *EulerMarketCollateral) GetAssetPriceUsd() optionalnullable.OptionalNullable[string] {
+	if e == nil {
+		return nil
+	}
+	return e.AssetPriceUsd
 }
 
 func (e *EulerMarketCollateral) GetBorrowLtv() string {
