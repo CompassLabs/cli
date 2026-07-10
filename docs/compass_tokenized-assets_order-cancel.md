@@ -1,20 +1,14 @@
 ## compass tokenized-assets order-cancel
 
-Cancel an unfilled tokenized-equity order (Ondo)
+Cancel an order
 
 ### Synopsis
 
-Build the EIP-712 payload to cancel an unfilled order on-chain.
+Cancel an unfilled equity order on-chain.
 
-Returns ``cancel_safe_tx_eip712``, an EIP-712 payload that authorizes
-the on-chain cancellation. Sign with the Tokenized Assets Account's
-owner via ``wallet.signTypedData(...)`` and relay via
-``POST /v2/gas_sponsorship/prepare`` so the sponsor broadcasts the
-cancellation on the product account. The owner can also broadcast
-the resulting transaction directly without using gas sponsorship.
-
-Cancellation works on `pending` and `expired` orders only. Only the
-Tokenized Assets Account that placed the order can cancel it.
+Returns an EIP-712 payload the owner signs; a sponsor relays it, or the owner
+broadcasts it directly. Works only on `pending` or `expired` orders, and only
+the account that placed the order can cancel it.
 
 ```
 compass tokenized-assets order-cancel [flags]

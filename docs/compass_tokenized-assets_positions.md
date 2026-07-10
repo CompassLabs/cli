@@ -1,22 +1,16 @@
 ## compass tokenized-assets positions
 
-Get tokenized-asset positions for an owner
+List positions
 
 ### Synopsis
 
-Get the tokenized-asset holdings for an owner.
+Get an owner's tokenized-asset holdings, priced and aggregated.
 
-Covers **both** asset families held in the account — Ondo equities and
-Midas RWA yield tokens (`mTBILL`, `mBASIS`, `mBTC`). The Tokenized Assets
-Account address is derived deterministically from the `owner` query param;
-balances are read from that account (proceeds from equity orders and RWA
-swaps both settle there). Equity positions are priced from the Ondo feed;
-RWA positions are valued at the latest indexed NAV. Pass `chain=base` for
-Base holdings (equities are Ethereum-only). Zero balances are omitted, and
-a `total_usd` aggregate is returned across all priced positions.
-
-Returns 400 `ACCOUNT_NOT_DEPLOYED` if the owner has no Tokenized Assets
-Account deployed yet — create one via `/create_account` first.
+Returns positions across every asset family the account holds — Ondo equities,
+Midas RWA yield tokens, and IXS managed vaults — each valued in USD (equities
+from the Ondo feed, RWA at the latest indexed NAV) with a `total_usd` total.
+The account is derived from `owner`; pass `chain` for Base (Midas) or BNB Smart
+Chain (IXS) holdings.
 
 ```
 compass tokenized-assets positions [flags]

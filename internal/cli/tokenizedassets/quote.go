@@ -26,8 +26,8 @@ var quoteCmdMeta = []flagutil.FlagMeta{
 func initQuoteCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "quote",
-		Short:   "Preview a tokenized-equity buy/sell quote (Ondo)",
-		Long:    "Preview a buy/sell quote for a tokenized **equity** (Ondo, e.g. `TSLAon`).\n\n**Equities only.** RWA yield tokens (Midas — `mTBILL`, `mBASIS`, `mBTC`) are\nrejected here with 422 `Wrong trade flow`; they have no auction/quote step —\nbuy/sell them directly via `/transact/buy` & `/transact/sell`.\n\nReturns the input/output amounts, fees, and slippage tolerance for an order.\n\nRead-only: previews the quote without consuming a ``quote_id`` or\ncommitting an order. Pair with `POST /order`:\nsurface this preview to the user, and on confirm pass the body plus\n``recommended_slippage_bps`` to `/order`.\n\nThe response carries:\n\n- **`quote`** — input/output token amounts, fees, and an\n  ``est_fill_seconds`` upper bound.\n- **`recommended_slippage_bps`** — system-derived slippage tolerance\n  that clears the current auction floor; pass back as\n  ``slippage_bps`` on `/order` so the build call validates against the\n  same floor the user was shown.\n- **`auction_range_bps`** — worst-case bps gap between the auction\n  end amount and the reference quote amount. Use to surface a\n  thin-liquidity warning to the user.",
+		Short:   "Quote an order",
+		Long:    "Preview a buy/sell quote for a tokenized **equity** (Ondo, e.g. `TSLAon`).\n\nRead-only price preview: returns the expected input/output amounts and a\nsystem-recommended slippage tolerance to carry into `/order`. Equities only —\nRWA yield tokens (Midas) have no quote step and are rejected with `422 Wrong\ntrade flow`; trade them via `/transact/buy` and `/transact/sell`.",
 		Example: "  compass tokenized-assets quote --from-token <value> --to-token <value> --amount 226.42 --owner <value>",
 		RunE:    runQuoteCmd,
 	}

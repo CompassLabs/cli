@@ -1,27 +1,17 @@
 ## compass tokenized-assets market
 
-Get a single market
+Get a market
 
 ### Synopsis
 
-Get extended detail for a single tokenized market.
+Get extended detail for a single market — an Ondo **equity** (e.g. `TSLAon`), a
+Midas **RWA yield token** (e.g. `mTBILL`), or an IXS **managed vault** (e.g.
+`ixv1`).
 
-Works for both asset families: an Ondo **equity** (e.g. `TSLAon`) or a
-Midas **RWA yield token** (e.g. `mTBILL`). Equities add 52-week range,
-volume, market cap, holder count, and tradable sessions on top of the
-`/markets` fields; RWA-yield entries instead carry `apy_7d`/`apy_30d` and
-`tvl_usd`.
-
-**OHLC candles are an equities-only feature** — opt in by passing both
-`interval` and `range` query params to include a `candles` array. They
-must be provided together and must form one of the supported pairs:
-
-- `1min` / `5min` / `15min` with `range=1day`
-- `1hour` / `4hour` with `range=1month`
-- `12hour` with `range=3month`
-- `1day` with `range=3month` / `6month` / `1year` / `all`
-
-Omitting both returns the market detail without `candles`.
+Adds richer market data on top of the `/markets` listing, plus an optional
+OHLC candle series: pass matching `interval` and `range` query params to
+include `candles` (available for equities, Midas tokens except `mBTC`, and IXS
+vaults; omit both for detail without candles).
 
 ```
 compass tokenized-assets market [flags]

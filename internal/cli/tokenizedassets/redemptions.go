@@ -24,8 +24,8 @@ var redemptionsCmdMeta = []flagutil.FlagMeta{
 func initRedemptionsCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "redemptions",
-		Short:   "Get IXS vault redemption requests for an owner",
-		Long:    "Get an owner's IXS vault redemption requests (async redemption status).\n\nIXS managed-vault **sells** are asynchronous: `/transact/sell` returns a\n`requestRedeem` transaction, and the vault operator settles it off-chain\nlater. This endpoint reconstructs the owner's requests directly from the\nvault on every call (Compass persists no async state) — each entry carries\nits `status` (`pending` | `finalized` | `rejected`), the `shares` requested,\nand, while `pending`, the `expected_net_assets` it would settle for at the\ncurrent NAV (a preview, not a guarantee).\n\nIXS vaults live on BNB Smart Chain — pass `chain=bsc` (the default) and the\n`vault` handle (default `ixv1`).",
+		Short:   "List redemption requests",
+		Long:    "Get an owner's IXS managed-vault redemption requests and their status.\n\nIXS vault sells are asynchronous — `/transact/sell` files a `requestRedeem`\nthat the vault operator settles off-chain later. This reconstructs the owner's\nrequests live from the vault (Compass stores no async state), reporting each as\n`pending`, `finalized`, or `rejected`. IXS vaults live on BNB Smart Chain\n(`chain=bsc`, vault `ixv1`).",
 		Example: "  compass tokenized-assets redemptions --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B",
 		RunE:    runRedemptionsCmd,
 	}

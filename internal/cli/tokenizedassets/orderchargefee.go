@@ -25,8 +25,8 @@ var orderChargeFeeCmdMeta = []flagutil.FlagMeta{
 func initOrderChargeFeeCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "order-charge-fee",
-		Short:   "Charge a partner fee on a filled sell order's USDC proceeds",
-		Long:    "Build a USDC fee transfer on a filled equity sell order's proceeds.\n\nEquity orders fill off-chain via a third-party venue, so the fee can't be\nbundled into the trade. Once the sell order has filled, call this with the\norder hash and your `fee` (recipient + percentage/fixed); it reads the actual\nfilled USDC proceeds and returns a `transfer(recipient, fee)` executed by the\nproduct account — an unsigned transaction the owner signs, or an EIP-712\npayload when `gas_sponsorship` is true.",
+		Short:   "Charge a partner fee",
+		Long:    "Charge a partner fee on a filled equity sell order's USDC proceeds.\n\nEquity orders settle off-chain, so fees can't be bundled into the trade — call\nthis after a sell fills and it builds a USDC transfer of your `fee` from the\nactual proceeds, executed by the product account (owner signs, or EIP-712 with\n`gas_sponsorship`).",
 		Example: "  compass tokenized-assets order-charge-fee --order-hash <value> --owner <value> --fee '{\"recipient\":\"<value>\",\"amount\":8619.46,\"denomination\":\"PERCENTAGE\"}'",
 		RunE:    runOrderChargeFeeCmd,
 		Aliases: []string{"ocf"},

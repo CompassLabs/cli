@@ -1,21 +1,16 @@
 ## compass tokenized-assets redemptions
 
-Get IXS vault redemption requests for an owner
+List redemption requests
 
 ### Synopsis
 
-Get an owner's IXS vault redemption requests (async redemption status).
+Get an owner's IXS managed-vault redemption requests and their status.
 
-IXS managed-vault **sells** are asynchronous: `/transact/sell` returns a
-`requestRedeem` transaction, and the vault operator settles it off-chain
-later. This endpoint reconstructs the owner's requests directly from the
-vault on every call (Compass persists no async state) — each entry carries
-its `status` (`pending` | `finalized` | `rejected`), the `shares` requested,
-and, while `pending`, the `expected_net_assets` it would settle for at the
-current NAV (a preview, not a guarantee).
-
-IXS vaults live on BNB Smart Chain — pass `chain=bsc` (the default) and the
-`vault` handle (default `ixv1`).
+IXS vault sells are asynchronous — `/transact/sell` files a `requestRedeem`
+that the vault operator settles off-chain later. This reconstructs the owner's
+requests live from the vault (Compass stores no async state), reporting each as
+`pending`, `finalized`, or `rejected`. IXS vaults live on BNB Smart Chain
+(`chain=bsc`, vault `ixv1`).
 
 ```
 compass tokenized-assets redemptions [flags]

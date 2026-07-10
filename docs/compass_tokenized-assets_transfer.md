@@ -1,27 +1,16 @@
 ## compass tokenized-assets transfer
 
-Deposit to / withdraw from a Tokenized Assets Account
+Transfer tokens to/from account
 
 ### Synopsis
 
 Move tokens between the owner's wallet and their Tokenized Assets Account.
 
-Use `DEPOSIT` to fund the account from the owner's wallet, or `WITHDRAW` to
-send tokens from the account back to the owner. Equity orders settle in
-USDC; RWA yield assets trade against USDC on Ethereum and Base.
-
-With `gas_sponsorship=true` the response is EIP-712 typed data the owner
-signs off-chain, then submits to `POST /v2/gas_sponsorship/prepare` so the
-sponsor broadcasts and pays the gas:
-
-- **DEPOSIT** returns a Permit2 `PermitTransferFrom`. The owner must first
-  grant a one-time token->Permit2 allowance (gaslessly via
-  `POST /v2/gas_sponsorship/approve_transfer`).
-- **WITHDRAW** returns a Safe transaction the account executes.
-
-With `gas_sponsorship=false` a DEPOSIT returns an unsigned ERC-20 transfer
-the owner broadcasts directly, and a WITHDRAW returns an unsigned Safe
-`execTransaction` the owner signs and broadcasts.
+`DEPOSIT` funds the account from the owner's wallet; `WITHDRAW` sends tokens
+back. Supports gas sponsorship: with `gas_sponsorship=true` the owner signs
+EIP-712 typed data (a Permit2 permit on deposit, a product-account transaction
+on withdrawal) and a sponsor broadcasts; otherwise the owner broadcasts the
+transaction directly.
 
 ```
 compass tokenized-assets transfer [flags]

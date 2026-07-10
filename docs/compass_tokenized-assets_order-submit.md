@@ -1,20 +1,14 @@
 ## compass tokenized-assets order-submit
 
-Submit a signed tokenized-equity order (Ondo)
+Submit a signed order
 
 ### Synopsis
 
-Submit a signed order for settlement.
+Submit a signed equity order to the market-maker network for settlement.
 
-The body echoes the `order` fields from `/order` (`signed_order`,
-`extension`, `quote_id`, optionally `order_hash`) plus the owner's
-signature over `order.safe_message_eip712`. The maker on the order
-struct is the Tokenized Assets Account, not the owner's wallet —
-pass `signed_order` back unchanged.
-
-Returns the order hash and a server-side ISO 8601 timestamp.
-Subsequent calls to `GET /order/{order_hash}` track the lifecycle
-(`pending` → `filled` / `expired` / `cancelled`).
+Relays the payload from `/order` plus the owner's signature, and returns the
+order hash. Poll `GET /order/{order_hash}` to track its lifecycle (`pending` →
+`filled` / `expired` / `cancelled`).
 
 ```
 compass tokenized-assets order-submit [flags]

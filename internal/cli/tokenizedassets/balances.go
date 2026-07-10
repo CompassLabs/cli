@@ -23,8 +23,8 @@ var balancesCmdMeta = []flagutil.FlagMeta{
 func initBalancesCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "balances",
-		Short:   "Get account balances",
-		Long:    "Get the token balances of a Tokenized Assets Account.\n\nReturns each token held in the account with its current balance, USD value,\nand transfer history. Pass `chain=base` for Base holdings.",
+		Short:   "Get token balances",
+		Long:    "Get a Tokenized Assets Account's full token ledger.\n\nReturns every token the account has held — including zero balances from fully-exited\npositions and USDC funding — each with its USD value and transfer history (a\nsuperset of `/positions`). Pass `chain=base` or `chain=bsc` for Base or BNB Smart\nChain holdings.",
 		Example: "  compass tokenized-assets balances --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B",
 		RunE:    runBalancesCmd,
 	}

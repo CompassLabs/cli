@@ -23,8 +23,8 @@ var positionsCmdMeta = []flagutil.FlagMeta{
 func initPositionsCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "positions",
-		Short:   "Get tokenized-asset positions for an owner",
-		Long:    "Get the tokenized-asset holdings for an owner.\n\nCovers **both** asset families held in the account — Ondo equities and\nMidas RWA yield tokens (`mTBILL`, `mBASIS`, `mBTC`). The Tokenized Assets\nAccount address is derived deterministically from the `owner` query param;\nbalances are read from that account (proceeds from equity orders and RWA\nswaps both settle there). Equity positions are priced from the Ondo feed;\nRWA positions are valued at the latest indexed NAV. Pass `chain=base` for\nBase holdings (equities are Ethereum-only). Zero balances are omitted, and\na `total_usd` aggregate is returned across all priced positions.\n\nReturns 400 `ACCOUNT_NOT_DEPLOYED` if the owner has no Tokenized Assets\nAccount deployed yet — create one via `/create_account` first.",
+		Short:   "List positions",
+		Long:    "Get an owner's tokenized-asset holdings, priced and aggregated.\n\nReturns positions across every asset family the account holds — Ondo equities,\nMidas RWA yield tokens, and IXS managed vaults — each valued in USD (equities\nfrom the Ondo feed, RWA at the latest indexed NAV) with a `total_usd` total.\nThe account is derived from `owner`; pass `chain` for Base (Midas) or BNB Smart\nChain (IXS) holdings.",
 		Example: "  compass tokenized-assets positions --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B",
 		RunE:    runPositionsCmd,
 	}

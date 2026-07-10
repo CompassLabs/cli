@@ -47,6 +47,6 @@ compass earn [flags]
 * [compass earn positions](compass_earn_positions.md)	 - List earn positions
 * [compass earn positions-all](compass_earn_positions-all.md)	 - List earn positions across all chains
 * [compass earn swap](compass_earn_swap.md)	 - Swap tokens within Earn Account
-* [compass earn swap-quote](compass_earn_swap-quote.md)	 - Quote a swap (read-only)
+* [compass earn swap-quote](compass_earn_swap-quote.md)	 - Quote a swap
 * [compass earn transfer](compass_earn_transfer.md)	 - Transfer tokens to/from account
 * [compass earn vaults](compass_earn_vaults.md)	 - List vaults

@@ -1,13 +1,15 @@
 ## compass tokenized-assets balances
 
-Get account balances
+Get token balances
 
 ### Synopsis
 
-Get the token balances of a Tokenized Assets Account.
+Get a Tokenized Assets Account's full token ledger.
 
-Returns each token held in the account with its current balance, USD value,
-and transfer history. Pass `chain=base` for Base holdings.
+Returns every token the account has held — including zero balances from fully-exited
+positions and USDC funding — each with its USD value and transfer history (a
+superset of `/positions`). Pass `chain=base` or `chain=bsc` for Base or BNB Smart
+Chain holdings.
 
 ```
 compass tokenized-assets balances [flags]

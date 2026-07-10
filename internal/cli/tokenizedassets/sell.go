@@ -30,8 +30,8 @@ var sellCmdMeta = []flagutil.FlagMeta{
 func initSellCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "sell",
-		Short:   "Sell an RWA yield token (Midas: mTBILL/mBASIS/mBTC)",
-		Long:    "Sell (redeem) an RWA yield asset (e.g. `mTBILL`) inside the product account.\n\nRedeems `token_in` (a Midas RWA asset held by the Tokenized Assets Account)\ndirectly with Midas into `token_out` (USDC). Returns an unsigned transaction\nfor the owner to sign, or an EIP-712 payload when `gas_sponsorship` is true.\n\nInstant redemption draws on Midas's on-chain liquidity and is subject to a\nsmall redemption fee and daily limit.",
+		Short:   "Sell an RWA yield token",
+		Long:    "Sell an RWA yield token, or redeem from an IXS managed vault, back to a\nstablecoin.\n\nSet `token_in` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`) or to an IXS\n**vault address**. A Midas redemption is instant and settles in the same\ntransaction; an IXS redemption is **asynchronous** — it files a\n`requestRedeem` (`settlement: async`) the vault operator settles off-chain\nlater, so poll `GET /v2/tokenized_assets/redemptions` for status. The\ntransaction executes inside the product account (owner signs, or EIP-712 with\n`gas_sponsorship`).",
 		Example: "  compass tokenized-assets sell --token-in <value> --token-out <value> --amount-in 8512.47 --owner <value> --chain arbitrum",
 		RunE:    runSellCmd,
 	}

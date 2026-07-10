@@ -30,8 +30,8 @@ var buyCmdMeta = []flagutil.FlagMeta{
 func initBuyCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "buy",
-		Short:   "Buy an RWA yield token (Midas: mTBILL/mBASIS/mBTC)",
-		Long:    "Buy (mint) an RWA yield asset (e.g. `mTBILL`) inside the product account.\n\nMints `token_out` directly from Midas with `token_in` (a stablecoin already\nheld by the Tokenized Assets Account — fund it with a plain transfer first).\n`token_in` must be a payment token the Midas issuance vault accepts (USDC on\nevery supported network; mBASIS also accepts USDT/DAI on Ethereum). Returns\nan unsigned transaction for the owner to sign, or an EIP-712 payload when\n`gas_sponsorship` is true.\n\n`token_out` must be a Midas RWA asset; equities trade via the order\nendpoints (`/quote`, `/order`, `/order/submit`).",
+		Short:   "Buy an RWA yield token",
+		Long:    "Buy an RWA yield token, or deposit into an IXS managed vault, with a stablecoin\nin one transaction.\n\nSet `token_out` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`) or to an IXS\n**vault address** (its shares aren't a registered symbol). The account spends\na stablecoin it already holds (fund it with a plain transfer first) and\nsettles inside the product account — an unsigned transaction the owner signs,\nor EIP-712 with `gas_sponsorship`. Both paths are instant. Equities use the\norder flow (`/quote`, `/order`).",
 		Example: "  compass tokenized-assets buy --token-in <value> --token-out <value> --amount-in 4533.23 --owner <value> --chain ethereum",
 		RunE:    runBuyCmd,
 	}

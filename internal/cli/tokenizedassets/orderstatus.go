@@ -22,8 +22,8 @@ var orderStatusCmdMeta = []flagutil.FlagMeta{
 func initOrderStatusCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "order-status",
-		Short:   "Get tokenized-equity order status (Ondo)",
-		Long:    "Get the lifecycle state of a submitted tokenized-**equity** order (Ondo).\n\nEquity-order flow only: RWA-yield trades (`/transact/buy`, `/transact/sell`)\nare plain swaps that settle in a single transaction and have no order\nlifecycle to poll.\n\nThe `status` field is one of `pending`, `filled`, `expired`, or\n`cancelled`. Partial fills stay in `pending` while `filled_amount` is\npopulated as fills come in; once an order fully fills, `fill_tx_hash`\nis also returned.\n\nUpstream protocol states beyond these four (e.g. `partially-filled`,\n`refunded`) are mapped onto this set.",
+		Short:   "Get order status",
+		Long:    "Poll the lifecycle state of a submitted equity order (Ondo).\n\nReports `pending`, `filled`, `expired`, or `cancelled`, with fill details as\nthey arrive. Equity orders only — RWA yield swaps settle in one transaction and\nhave no lifecycle to poll.",
 		Example: "  compass tokenized-assets order-status --order-hash <value>",
 		RunE:    runOrderStatusCmd,
 		Aliases: []string{"os"},

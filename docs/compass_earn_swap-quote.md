@@ -1,6 +1,6 @@
 ## compass earn swap-quote
 
-Quote a swap (read-only)
+Quote a swap
 
 ### Synopsis
 

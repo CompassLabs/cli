@@ -1,33 +1,15 @@
 ## compass tokenized-assets quote
 
-Preview a tokenized-equity buy/sell quote (Ondo)
+Quote an order
 
 ### Synopsis
 
 Preview a buy/sell quote for a tokenized **equity** (Ondo, e.g. `TSLAon`).
 
-**Equities only.** RWA yield tokens (Midas — `mTBILL`, `mBASIS`, `mBTC`) are
-rejected here with 422 `Wrong trade flow`; they have no auction/quote step —
-buy/sell them directly via `/transact/buy` & `/transact/sell`.
-
-Returns the input/output amounts, fees, and slippage tolerance for an order.
-
-Read-only: previews the quote without consuming a ``quote_id`` or
-committing an order. Pair with `POST /order`:
-surface this preview to the user, and on confirm pass the body plus
-``recommended_slippage_bps`` to `/order`.
-
-The response carries:
-
-- **`quote`** — input/output token amounts, fees, and an
-  ``est_fill_seconds`` upper bound.
-- **`recommended_slippage_bps`** — system-derived slippage tolerance
-  that clears the current auction floor; pass back as
-  ``slippage_bps`` on `/order` so the build call validates against the
-  same floor the user was shown.
-- **`auction_range_bps`** — worst-case bps gap between the auction
-  end amount and the reference quote amount. Use to surface a
-  thin-liquidity warning to the user.
+Read-only price preview: returns the expected input/output amounts and a
+system-recommended slippage tolerance to carry into `/order`. Equities only —
+RWA yield tokens (Midas) have no quote step and are rejected with `422 Wrong
+trade flow`; trade them via `/transact/buy` and `/transact/sell`.
 
 ```
 compass tokenized-assets quote [flags]

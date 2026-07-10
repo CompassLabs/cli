@@ -1,17 +1,15 @@
 ## compass tokenized-assets order-charge-fee
 
-Charge a partner fee on a filled sell order's USDC proceeds
+Charge a partner fee
 
 ### Synopsis
 
-Build a USDC fee transfer on a filled equity sell order's proceeds.
+Charge a partner fee on a filled equity sell order's USDC proceeds.
 
-Equity orders fill off-chain via a third-party venue, so the fee can't be
-bundled into the trade. Once the sell order has filled, call this with the
-order hash and your `fee` (recipient + percentage/fixed); it reads the actual
-filled USDC proceeds and returns a `transfer(recipient, fee)` executed by the
-product account — an unsigned transaction the owner signs, or an EIP-712
-payload when `gas_sponsorship` is true.
+Equity orders settle off-chain, so fees can't be bundled into the trade — call
+this after a sell fills and it builds a USDC transfer of your `fee` from the
+actual proceeds, executed by the product account (owner signs, or EIP-712 with
+`gas_sponsorship`).
 
 ```
 compass tokenized-assets order-charge-fee [flags]

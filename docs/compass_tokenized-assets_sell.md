@@ -1,17 +1,19 @@
 ## compass tokenized-assets sell
 
-Sell an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
+Sell an RWA yield token
 
 ### Synopsis
 
-Sell (redeem) an RWA yield asset (e.g. `mTBILL`) inside the product account.
+Sell an RWA yield token, or redeem from an IXS managed vault, back to a
+stablecoin.
 
-Redeems `token_in` (a Midas RWA asset held by the Tokenized Assets Account)
-directly with Midas into `token_out` (USDC). Returns an unsigned transaction
-for the owner to sign, or an EIP-712 payload when `gas_sponsorship` is true.
-
-Instant redemption draws on Midas's on-chain liquidity and is subject to a
-small redemption fee and daily limit.
+Set `token_in` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`) or to an IXS
+**vault address**. A Midas redemption is instant and settles in the same
+transaction; an IXS redemption is **asynchronous** — it files a
+`requestRedeem` (`settlement: async`) the vault operator settles off-chain
+later, so poll `GET /v2/tokenized_assets/redemptions` for status. The
+transaction executes inside the product account (owner signs, or EIP-712 with
+`gas_sponsorship`).
 
 ```
 compass tokenized-assets sell [flags]

@@ -27,8 +27,8 @@ var orderCmdMeta = []flagutil.FlagMeta{
 func initOrderCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "order",
-		Short:   "Build a tokenized-equity buy/sell order (Ondo)",
-		Long:    "Build a tokenized-**equity** (Ondo) buy/sell order; maker is the product account.\n\n**Equities only.** RWA yield tokens (Midas — `mTBILL`, `mBASIS`, `mBTC`) are\nrejected with 422 `Wrong trade flow`; trade them via `/transact/buy` &\n`/transact/sell`. Equity orders are always USDC-paired (USDC→equity to buy,\nequity→USDC to sell) and settle on-chain.\n\nReturns up to three pieces in a single round-trip:\n\n- **`quote`** — preview of the input/output amounts and fees.\n- **`approval_safe_tx_eip712`** — only present when the account's\n  allowance to the settlement contract is below `amount`. The owner\n  signs this EIP-712 payload, then it is broadcast via\n  `POST /v2/gas_sponsorship/prepare` (or the owner can broadcast\n  directly) to set the on-chain allowance. Wait for that transaction\n  to confirm before signing the order.\n- **`order`** — the order metadata (`order_hash`, `extension`,\n  `quote_id`, `order_message`) plus `safe_message_eip712`, an EIP-712\n  payload the owner signs off-chain to authorize the order. The\n  signature is submitted to `/order/submit` and is **never** broadcast\n  on-chain.\n\nThe owner never broadcasts the order itself — only the (one-time)\napproval transaction ever hits the chain.",
+		Short:   "Build an order",
+		Long:    "Build a tokenized-**equity** (Ondo) buy/sell order; the product account is the\nmaker.\n\nReturns everything needed to place the order in one round-trip: a price quote,\na one-time token approval to sign (only until the settlement contract is\napproved), and the order payload the owner signs off-chain. Only the approval\never touches the chain — the signed order is relayed to market makers, never\nbroadcast. Equities only; RWA yield tokens use `/transact/buy` and\n`/transact/sell`.",
 		Example: "  compass tokenized-assets order --from-token <value> --to-token <value> --amount 853.30 --owner <value>",
 		RunE:    runOrderCmd,
 	}

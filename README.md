@@ -182,7 +182,7 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`vaults`](docs/compass_earn_vaults.md) - List vaults
 * [`aave-markets`](docs/compass_earn_aave-markets.md) - List aave markets
 * [`pendle-markets`](docs/compass_earn_pendle-markets.md) - List pendle markets
-* [`swap-quote`](docs/compass_earn_swap-quote.md) - Quote a swap (read-only)
+* [`swap-quote`](docs/compass_earn_swap-quote.md) - Quote a swap
 * [`balances`](docs/compass_earn_balances.md) - Get token balances
 * [`create-account`](docs/compass_earn_create-account.md) - Create earn account
 * [`transfer`](docs/compass_earn_transfer.md) - Transfer tokens to/from account
@@ -226,21 +226,21 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 
 ### [tokenized-assets](docs/compass_tokenized-assets.md)
 
-* [`markets`](docs/compass_tokenized-assets_markets.md) - List tokenized asset markets
-* [`market`](docs/compass_tokenized-assets_market.md) - Get a single market
-* [`positions`](docs/compass_tokenized-assets_positions.md) - Get tokenized-asset positions for an owner
-* [`balances`](docs/compass_tokenized-assets_balances.md) - Get account balances
-* [`order-status`](docs/compass_tokenized-assets_order-status.md) - Get tokenized-equity order status (Ondo)
-* [`redemptions`](docs/compass_tokenized-assets_redemptions.md) - Get IXS vault redemption requests for an owner
-* [`create-account`](docs/compass_tokenized-assets_create-account.md) - Create a Tokenized Assets Account
-* [`transfer`](docs/compass_tokenized-assets_transfer.md) - Deposit to / withdraw from a Tokenized Assets Account
-* [`quote`](docs/compass_tokenized-assets_quote.md) - Preview a tokenized-equity buy/sell quote (Ondo)
-* [`order`](docs/compass_tokenized-assets_order.md) - Build a tokenized-equity buy/sell order (Ondo)
-* [`order-submit`](docs/compass_tokenized-assets_order-submit.md) - Submit a signed tokenized-equity order (Ondo)
-* [`order-cancel`](docs/compass_tokenized-assets_order-cancel.md) - Cancel an unfilled tokenized-equity order (Ondo)
-* [`order-charge-fee`](docs/compass_tokenized-assets_order-charge-fee.md) - Charge a partner fee on a filled sell order's USDC proceeds
-* [`buy`](docs/compass_tokenized-assets_buy.md) - Buy an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
-* [`sell`](docs/compass_tokenized-assets_sell.md) - Sell an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
+* [`markets`](docs/compass_tokenized-assets_markets.md) - List markets
+* [`market`](docs/compass_tokenized-assets_market.md) - Get a market
+* [`positions`](docs/compass_tokenized-assets_positions.md) - List positions
+* [`balances`](docs/compass_tokenized-assets_balances.md) - Get token balances
+* [`order-status`](docs/compass_tokenized-assets_order-status.md) - Get order status
+* [`redemptions`](docs/compass_tokenized-assets_redemptions.md) - List redemption requests
+* [`create-account`](docs/compass_tokenized-assets_create-account.md) - Create account
+* [`transfer`](docs/compass_tokenized-assets_transfer.md) - Transfer tokens to/from account
+* [`quote`](docs/compass_tokenized-assets_quote.md) - Quote an order
+* [`order`](docs/compass_tokenized-assets_order.md) - Build an order
+* [`order-submit`](docs/compass_tokenized-assets_order-submit.md) - Submit a signed order
+* [`order-cancel`](docs/compass_tokenized-assets_order-cancel.md) - Cancel an order
+* [`order-charge-fee`](docs/compass_tokenized-assets_order-charge-fee.md) - Charge a partner fee
+* [`buy`](docs/compass_tokenized-assets_buy.md) - Buy an RWA yield token
+* [`sell`](docs/compass_tokenized-assets_sell.md) - Sell an RWA yield token
 
 ### [onramp](docs/compass_onramp.md)
 

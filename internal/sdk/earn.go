@@ -935,7 +935,7 @@ func (s *Earn) PendleMarkets(ctx context.Context, request operations.V2EarnPendl
 
 }
 
-// SwapQuote - Quote a swap (read-only)
+// SwapQuote - Quote a swap
 // Estimate the output of a swap without building a transaction.
 //
 // Returns the expected amount of `token_out` received for selling `amount_in`

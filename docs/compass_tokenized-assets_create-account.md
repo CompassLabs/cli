@@ -1,29 +1,21 @@
 ## compass tokenized-assets create-account
 
-Create a Tokenized Assets Account
+Create account
 
 ### Synopsis
 
 Create a Tokenized Assets Account for a wallet address.
 
-Required once before **either** trade flow — tokenized-equity orders
-(Ondo, via `/quote` + `/order`) and RWA-yield-token swaps (Midas, via
-`/transact/buy` + `/transact/sell`) both settle into this one account.
+Before trading tokenized assets, the owner must create a Tokenized Assets
+Account. Each wallet address has one Tokenized Assets Account per chain.
 
-Each wallet address has one Tokenized Assets Account, isolated from the
-owner's Earn, Credit, and other product accounts.
-
-The account address is deterministic. If it already exists, the
-response returns `transaction: null` and you can skip straight to
-building orders.
-
-Returns an unsigned transaction to create the account. The `sender`
-signs and broadcasts this transaction.
+Returns an unsigned transaction to create the account. The `sender` signs
+and broadcasts this transaction.
 
 **If owner pays gas:** Set `sender` to the owner's address.
 
-**If someone else pays gas:** Set `sender` to the wallet that will
-sign and broadcast the transaction on behalf of the owner.
+**If someone else pays gas:** Set `sender` to the wallet that will sign and
+broadcast the transaction on behalf of the owner.
 
 ```
 compass tokenized-assets create-account [flags]

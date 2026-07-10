@@ -29,8 +29,8 @@ var transferCmdMeta = []flagutil.FlagMeta{
 func initTransferCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "transfer",
-		Short:   "Deposit to / withdraw from a Tokenized Assets Account",
-		Long:    "Move tokens between the owner's wallet and their Tokenized Assets Account.\n\nUse `DEPOSIT` to fund the account from the owner's wallet, or `WITHDRAW` to\nsend tokens from the account back to the owner. Equity orders settle in\nUSDC; RWA yield assets trade against USDC on Ethereum and Base.\n\nWith `gas_sponsorship=true` the response is EIP-712 typed data the owner\nsigns off-chain, then submits to `POST /v2/gas_sponsorship/prepare` so the\nsponsor broadcasts and pays the gas:\n\n- **DEPOSIT** returns a Permit2 `PermitTransferFrom`. The owner must first\n  grant a one-time token->Permit2 allowance (gaslessly via\n  `POST /v2/gas_sponsorship/approve_transfer`).\n- **WITHDRAW** returns a Safe transaction the account executes.\n\nWith `gas_sponsorship=false` a DEPOSIT returns an unsigned ERC-20 transfer\nthe owner broadcasts directly, and a WITHDRAW returns an unsigned Safe\n`execTransaction` the owner signs and broadcasts.",
+		Short:   "Transfer tokens to/from account",
+		Long:    "Move tokens between the owner's wallet and their Tokenized Assets Account.\n\n`DEPOSIT` funds the account from the owner's wallet; `WITHDRAW` sends tokens\nback. Supports gas sponsorship: with `gas_sponsorship=true` the owner signs\nEIP-712 typed data (a Permit2 permit on deposit, a product-account transaction\non withdrawal) and a sponsor broadcasts; otherwise the owner broadcasts the\ntransaction directly.",
 		Example: "  compass tokenized-assets transfer --owner 0x9bDC45AA15FdFFc52E103EA05c260c494A5638f7 --token USDC --amount 100 --action DEPOSIT",
 		RunE:    runTransferCmd,
 	}

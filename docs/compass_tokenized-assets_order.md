@@ -1,33 +1,18 @@
 ## compass tokenized-assets order
 
-Build a tokenized-equity buy/sell order (Ondo)
+Build an order
 
 ### Synopsis
 
-Build a tokenized-**equity** (Ondo) buy/sell order; maker is the product account.
+Build a tokenized-**equity** (Ondo) buy/sell order; the product account is the
+maker.
 
-**Equities only.** RWA yield tokens (Midas — `mTBILL`, `mBASIS`, `mBTC`) are
-rejected with 422 `Wrong trade flow`; trade them via `/transact/buy` &
-`/transact/sell`. Equity orders are always USDC-paired (USDC→equity to buy,
-equity→USDC to sell) and settle on-chain.
-
-Returns up to three pieces in a single round-trip:
-
-- **`quote`** — preview of the input/output amounts and fees.
-- **`approval_safe_tx_eip712`** — only present when the account's
-  allowance to the settlement contract is below `amount`. The owner
-  signs this EIP-712 payload, then it is broadcast via
-  `POST /v2/gas_sponsorship/prepare` (or the owner can broadcast
-  directly) to set the on-chain allowance. Wait for that transaction
-  to confirm before signing the order.
-- **`order`** — the order metadata (`order_hash`, `extension`,
-  `quote_id`, `order_message`) plus `safe_message_eip712`, an EIP-712
-  payload the owner signs off-chain to authorize the order. The
-  signature is submitted to `/order/submit` and is **never** broadcast
-  on-chain.
-
-The owner never broadcasts the order itself — only the (one-time)
-approval transaction ever hits the chain.
+Returns everything needed to place the order in one round-trip: a price quote,
+a one-time token approval to sign (only until the settlement contract is
+approved), and the order payload the owner signs off-chain. Only the approval
+ever touches the chain — the signed order is relayed to market makers, never
+broadcast. Equities only; RWA yield tokens use `/transact/buy` and
+`/transact/sell`.
 
 ```
 compass tokenized-assets order [flags]

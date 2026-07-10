@@ -1,20 +1,18 @@
 ## compass tokenized-assets buy
 
-Buy an RWA yield token (Midas: mTBILL/mBASIS/mBTC)
+Buy an RWA yield token
 
 ### Synopsis
 
-Buy (mint) an RWA yield asset (e.g. `mTBILL`) inside the product account.
+Buy an RWA yield token, or deposit into an IXS managed vault, with a stablecoin
+in one transaction.
 
-Mints `token_out` directly from Midas with `token_in` (a stablecoin already
-held by the Tokenized Assets Account — fund it with a plain transfer first).
-`token_in` must be a payment token the Midas issuance vault accepts (USDC on
-every supported network; mBASIS also accepts USDT/DAI on Ethereum). Returns
-an unsigned transaction for the owner to sign, or an EIP-712 payload when
-`gas_sponsorship` is true.
-
-`token_out` must be a Midas RWA asset; equities trade via the order
-endpoints (`/quote`, `/order`, `/order/submit`).
+Set `token_out` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`) or to an IXS
+**vault address** (its shares aren't a registered symbol). The account spends
+a stablecoin it already holds (fund it with a plain transfer first) and
+settles inside the product account — an unsigned transaction the owner signs,
+or EIP-712 with `gas_sponsorship`. Both paths are instant. Equities use the
+order flow (`/quote`, `/order`).
 
 ```
 compass tokenized-assets buy [flags]

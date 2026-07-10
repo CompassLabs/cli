@@ -27,8 +27,8 @@ var orderSubmitCmdMeta = []flagutil.FlagMeta{
 func initOrderSubmitCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "order-submit",
-		Short:   "Submit a signed tokenized-equity order (Ondo)",
-		Long:    "Submit a signed order for settlement.\n\nThe body echoes the `order` fields from `/order` (`signed_order`,\n`extension`, `quote_id`, optionally `order_hash`) plus the owner's\nsignature over `order.safe_message_eip712`. The maker on the order\nstruct is the Tokenized Assets Account, not the owner's wallet —\npass `signed_order` back unchanged.\n\nReturns the order hash and a server-side ISO 8601 timestamp.\nSubsequent calls to `GET /order/{order_hash}` track the lifecycle\n(`pending` → `filled` / `expired` / `cancelled`).",
+		Short:   "Submit a signed order",
+		Long:    "Submit a signed equity order to the market-maker network for settlement.\n\nRelays the payload from `/order` plus the owner's signature, and returns the\norder hash. Poll `GET /order/{order_hash}` to track its lifecycle (`pending` →\n`filled` / `expired` / `cancelled`).",
 		Example: "  compass tokenized-assets order-submit --signed-order '{\"key\":\"<value>\"}' --signature <value> --extension m2a --quote-id <id>",
 		RunE:    runOrderSubmitCmd,
 		Aliases: []string{"osu"},
