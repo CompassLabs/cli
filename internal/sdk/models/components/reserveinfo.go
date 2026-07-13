@@ -27,6 +27,10 @@ type ReserveInfo struct {
 	AvailableLiquidity string `json:"available_liquidity"`
 	// Percentage of supplied tokens that are currently borrowed (e.g., 85.0 means 85%).
 	UtilizationRate string `json:"utilization_rate"`
+	// Maximum loan-to-value when this reserve is used as collateral, in percentage (e.g., 80.0 means 80%). This is the highest LTV you can borrow at against this asset; 0 means it cannot be used as collateral.
+	Ltv string `json:"ltv"`
+	// Liquidation threshold when this reserve is used as collateral, in percentage (e.g., 82.5 means 82.5%). A position whose LTV crosses this can be liquidated; 0 means the asset cannot be used as collateral.
+	LiquidationThreshold string `json:"liquidation_threshold"`
 }
 
 func (r *ReserveInfo) GetAddress() string {
@@ -90,4 +94,18 @@ func (r *ReserveInfo) GetUtilizationRate() string {
 		return ""
 	}
 	return r.UtilizationRate
+}
+
+func (r *ReserveInfo) GetLtv() string {
+	if r == nil {
+		return ""
+	}
+	return r.Ltv
+}
+
+func (r *ReserveInfo) GetLiquidationThreshold() string {
+	if r == nil {
+		return ""
+	}
+	return r.LiquidationThreshold
 }

@@ -42,6 +42,10 @@ type MorphoLendingMarket struct {
 	AvailableLiquidity string `json:"available_liquidity"`
 	// Protocol fee taken from interest, in percentage of interest (e.g. 0 means no fee).
 	Fee string `json:"fee"`
+	// Total value locked (total supplied assets) in USD, sourced from the indexer. Null if the indexer hasn't priced this market yet.
+	TvlUsd optionalnullable.OptionalNullable[string] `json:"tvl_usd,omitzero"`
+	// Available liquidity (supplied - borrowed) in USD, sourced from the indexer. Null if the indexer hasn't priced this market yet.
+	LiquidityUsd optionalnullable.OptionalNullable[string] `json:"liquidity_usd,omitzero"`
 }
 
 func (m *MorphoLendingMarket) GetMarketID() string {
@@ -161,4 +165,18 @@ func (m *MorphoLendingMarket) GetFee() string {
 		return ""
 	}
 	return m.Fee
+}
+
+func (m *MorphoLendingMarket) GetTvlUsd() optionalnullable.OptionalNullable[string] {
+	if m == nil {
+		return nil
+	}
+	return m.TvlUsd
+}
+
+func (m *MorphoLendingMarket) GetLiquidityUsd() optionalnullable.OptionalNullable[string] {
+	if m == nil {
+		return nil
+	}
+	return m.LiquidityUsd
 }

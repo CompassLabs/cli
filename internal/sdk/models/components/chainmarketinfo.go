@@ -31,6 +31,10 @@ type ChainMarketInfo struct {
 	AvailableLiquidity string `json:"available_liquidity"`
 	// Percentage of supplied tokens that are currently borrowed (e.g., 85.0 means 85%).
 	UtilizationRate string `json:"utilization_rate"`
+	// Maximum loan-to-value when this reserve is used as collateral, in percentage (e.g., 80.0 means 80%). This is the highest LTV you can borrow at against this asset; 0 means it cannot be used as collateral.
+	Ltv string `json:"ltv"`
+	// Liquidation threshold when this reserve is used as collateral, in percentage (e.g., 82.5 means 82.5%). A position whose LTV crosses this can be liquidated; 0 means the asset cannot be used as collateral.
+	LiquidationThreshold string `json:"liquidation_threshold"`
 	// Every Aave reserve for this token on this chain, ordered by liquidity (highest first). Identified by underlying `address`. For most tokens this has a single entry equal to the canonical reserve above; where a chain has multiple reserves for one symbol (e.g. Arbitrum native USDC and bridged USDC.e), all are listed with their individual rates.
 	Reserves []ReserveInfo `json:"reserves,omitzero"`
 }
@@ -107,6 +111,20 @@ func (c *ChainMarketInfo) GetUtilizationRate() string {
 		return ""
 	}
 	return c.UtilizationRate
+}
+
+func (c *ChainMarketInfo) GetLtv() string {
+	if c == nil {
+		return ""
+	}
+	return c.Ltv
+}
+
+func (c *ChainMarketInfo) GetLiquidationThreshold() string {
+	if c == nil {
+		return ""
+	}
+	return c.LiquidationThreshold
 }
 
 func (c *ChainMarketInfo) GetReserves() []ReserveInfo {
