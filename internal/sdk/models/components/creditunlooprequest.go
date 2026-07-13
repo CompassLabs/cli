@@ -200,15 +200,20 @@ type CreditUnloopRequest struct {
 	// Which lending protocol a credit action targets.
 	//
 	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
-	// field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
-	// Euler V2 path, where the market is identified by EVK vault address(es).
-	// ``MORPHO`` identifies Morpho Blue lending markets (bytes32 market id) and is
-	// currently read-only: positions and market discovery only — transaction
-	// builders land with the looping work (COM-7106/7107/7108), so transact
-	// endpoints reject it with a 422.
+	// field) keep hitting the unchanged Aave code path. ``MORPHO`` identifies Morpho
+	// Blue lending markets by their bytes32 ``market_id``. ``EULER`` identifies Euler
+	// V2 markets by their EVK ``collateral_vault`` + ``borrow_vault`` addresses and
+	// supports isolated per-sub-account positions (``sub_account_id``). All three
+	// support the loop/unloop leverage endpoints.
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
 	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
+	// Euler only: the EVK vault the loop's collateral is in. Required when protocol=EULER.
+	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
+	// Euler only: the EVK vault the loop borrowed from (the sub-account's controller). Required when protocol=EULER.
+	BorrowVault optionalnullable.OptionalNullable[string] `json:"borrow_vault,omitzero"`
+	// Euler only: the EVC sub-account (0-255) holding the looped position to unwind. 0 is the Credit Account itself.
+	SubAccountID *int64 `json:"sub_account_id,omitzero"`
 	// Token supplied as collateral in the loop being unwound. For MORPHO it must be the market's collateral token.
 	CollateralToken string `json:"collateral_token"`
 	// Token borrowed in the loop; withdrawn collateral is swapped back to it and used to repay. For MORPHO it must be the market's loan token.
@@ -249,6 +254,27 @@ func (c *CreditUnloopRequest) GetMarketID() optionalnullable.OptionalNullable[st
 		return nil
 	}
 	return c.MarketID
+}
+
+func (c *CreditUnloopRequest) GetCollateralVault() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.CollateralVault
+}
+
+func (c *CreditUnloopRequest) GetBorrowVault() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.BorrowVault
+}
+
+func (c *CreditUnloopRequest) GetSubAccountID() *int64 {
+	if c == nil {
+		return nil
+	}
+	return c.SubAccountID
 }
 
 func (c *CreditUnloopRequest) GetCollateralToken() string {

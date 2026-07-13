@@ -36,9 +36,11 @@ compass credit credit-loop [flags]
 
 ```
       --body string                        Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -b, --borrow-token string                Token borrowed each iteration and swapped back to the collateral token. For MORPHO it must be the market's loan token. [required]
+      --borrow-token string                Token borrowed each iteration and swapped back to the collateral token. For MORPHO it must be the market's loan token. [required]
+      --borrow-vault string                Euler only: the EVK vault address borrowed from (the sub-account's controller). Required when protocol=EULER.
       --chain string                       The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]
       --collateral-token string            Token supplied as collateral each iteration. Must already be in the Credit Account for the initial amount. For MORPHO it must be the market's collateral token. [required]
+      --collateral-vault string            Euler only: the EVK vault address collateral is supplied to (from /v2/credit/euler_markets). Required when protocol=EULER.
   -e, --emode-category string              Aave only: e-mode category to enable before looping (higher LTV for correlated pairs, e.g. ETH-correlated).
   -g, --gas-sponsorship                    If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
   -h, --help                               help for credit-loop
@@ -51,12 +53,12 @@ compass credit credit-loop [flags]
   -p, --protocol                           Which lending protocol a credit action targets.
                                            
                                            AAVE`` is the default so existing callers (which never send a ``protocol``
-                                           field) keep hitting the unchanged Aave code path. ``EULER`` opts in to the
-                                           Euler V2 path, where the market is identified by EVK vault address(es).
-                                           ``MORPHO`` identifies Morpho Blue lending markets (bytes32 market id) and is
-                                           currently read-only: positions and market discovery only — transaction
-                                           builders land with the looping work (COM-7106/7107/7108), so transact
-                                           endpoints reject it with a 422. (options: AAVE, EULER, MORPHO)
+                                           field) keep hitting the unchanged Aave code path. ``MORPHO`` identifies Morpho
+                                           Blue lending markets by their bytes32 ``market_id``. ``EULER`` identifies Euler
+                                           V2 markets by their EVK ``collateral_vault`` + ``borrow_vault`` addresses and
+                                           supports isolated per-sub-account positions (``sub_account_id``). All three
+                                           support the loop/unloop leverage endpoints. (options: AAVE, EULER, MORPHO)
+  -s, --sub-account-id int                 Euler only: the EVC sub-account (0-255) holding this isolated looped position. 0 is the Credit Account itself.
 ```
 
 ### Options inherited from parent commands
