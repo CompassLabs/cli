@@ -6,11 +6,15 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
-// MorphoMarketsResponse - Curated Morpho Blue lending markets, read on-chain per request.
+// MorphoMarketsResponse - A page of Morpho Blue lending markets, ordered + paginated on the DB set;
+// each returned market is enriched with live on-chain LLTV/APY/utilisation.
 type MorphoMarketsResponse struct {
+	Total  int64 `json:"total"`
+	Offset int64 `json:"offset"`
+	Limit  int64 `json:"limit"`
 	// Morpho Blue singleton contract the markets were read from.
 	Morpho string `json:"morpho"`
-	// Curated lending markets with live LLTV, APYs, utilization, and liquidity.
+	// This page of lending markets (already ordered) with live LLTV, APYs, utilization, and liquidity. `total` is the full market count.
 	Markets []MorphoLendingMarket `json:"markets,omitzero"`
 }
 
@@ -23,6 +27,27 @@ func (m *MorphoMarketsResponse) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	return nil
+}
+
+func (m *MorphoMarketsResponse) GetTotal() int64 {
+	if m == nil {
+		return 0
+	}
+	return m.Total
+}
+
+func (m *MorphoMarketsResponse) GetOffset() int64 {
+	if m == nil {
+		return 0
+	}
+	return m.Offset
+}
+
+func (m *MorphoMarketsResponse) GetLimit() int64 {
+	if m == nil {
+		return 0
+	}
+	return m.Limit
 }
 
 func (m *MorphoMarketsResponse) GetMorpho() string {

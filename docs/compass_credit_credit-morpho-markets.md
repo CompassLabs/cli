@@ -24,8 +24,12 @@ compass credit credit-morpho-markets [flags]
 ### Options
 
 ```
-  -c, --chain string   options: arbitrum, base, bsc, ethereum, tempo [required]
-  -h, --help           help for credit-morpho-markets
+  -c, --chain string       options: arbitrum, base, bsc, ethereum, tempo [required]
+      --direction string   Order direction (asc/desc). (options: asc, desc)
+  -h, --help               help for credit-morpho-markets
+  -l, --limit int          The number of items to return.
+      --offset int         The offset of the first item to return.
+      --order-by string    Field to order the markets by before paginating. (options: tvl_usd, liquidity_usd, lltv)
 ```
 
 ### Options inherited from parent commands

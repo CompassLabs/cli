@@ -15,7 +15,11 @@ import (
 )
 
 var creditMorphoMarketsCmdMeta = []flagutil.FlagMeta{
+	{FlagName: "offset", FieldPath: "Offset", Kind: flagutil.FlagKindInt64, Optional: true, Description: "The offset of the first item to return."},
+	{FlagName: "limit", Shorthand: "l", FieldPath: "Limit", Kind: flagutil.FlagKindInt64, Optional: true, Description: "The number of items to return."},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"arbitrum", "base", "bsc", "ethereum", "tempo"}, Description: "options: arbitrum, base, bsc, ethereum, tempo [required]"},
+	{FlagName: "order-by", FieldPath: "OrderBy", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"tvl_usd", "liquidity_usd", "lltv"}, Description: "Field to order the markets by before paginating. (options: tvl_usd, liquidity_usd, lltv)"},
+	{FlagName: "direction", FieldPath: "Direction", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"asc", "desc"}, Description: "Order direction (asc/desc). (options: asc, desc)"},
 }
 
 // initCreditMorphoMarketsCmd initializes the credit-morpho-markets command.

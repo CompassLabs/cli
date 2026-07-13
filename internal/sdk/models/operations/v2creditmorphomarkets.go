@@ -44,8 +44,89 @@ func (e *V2CreditMorphoMarketsChain) UnmarshalJSON(data []byte) error {
 	}
 }
 
+// MorphoMarketOrderBy - Columns the Morpho markets list can be ordered by. All are stored by the
+// indexer, so ordering + paging happen on the DB set before the (expensive)
+// per-market on-chain enrichment — only the requested page is read on-chain.
+type MorphoMarketOrderBy string
+
+const (
+	MorphoMarketOrderByTvlUsd       MorphoMarketOrderBy = "tvl_usd"
+	MorphoMarketOrderByLiquidityUsd MorphoMarketOrderBy = "liquidity_usd"
+	MorphoMarketOrderByLltv         MorphoMarketOrderBy = "lltv"
+)
+
+func (e MorphoMarketOrderBy) ToPointer() *MorphoMarketOrderBy {
+	return &e
+}
+func (e *MorphoMarketOrderBy) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "tvl_usd":
+		fallthrough
+	case "liquidity_usd":
+		fallthrough
+	case "lltv":
+		*e = MorphoMarketOrderBy(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for MorphoMarketOrderBy: %v", v)
+	}
+}
+
+// V2CreditMorphoMarketsDirection - Order direction (asc/desc).
+type V2CreditMorphoMarketsDirection string
+
+const (
+	V2CreditMorphoMarketsDirectionAsc  V2CreditMorphoMarketsDirection = "asc"
+	V2CreditMorphoMarketsDirectionDesc V2CreditMorphoMarketsDirection = "desc"
+)
+
+func (e V2CreditMorphoMarketsDirection) ToPointer() *V2CreditMorphoMarketsDirection {
+	return &e
+}
+func (e *V2CreditMorphoMarketsDirection) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "asc":
+		fallthrough
+	case "desc":
+		*e = V2CreditMorphoMarketsDirection(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for V2CreditMorphoMarketsDirection: %v", v)
+	}
+}
+
 type V2CreditMorphoMarketsRequest struct {
+	// The offset of the first item to return.
+	Offset *int64 `queryParam:"style=form,explode=true,name=offset"`
+	// The number of items to return.
+	Limit *int64                     `queryParam:"style=form,explode=true,name=limit"`
 	Chain V2CreditMorphoMarketsChain `queryParam:"style=form,explode=true,name=chain"`
+	// Field to order the markets by before paginating.
+	OrderBy *MorphoMarketOrderBy `queryParam:"style=form,explode=true,name=order_by"`
+	// Order direction (asc/desc).
+	Direction *V2CreditMorphoMarketsDirection `queryParam:"style=form,explode=true,name=direction"`
+}
+
+func (v *V2CreditMorphoMarketsRequest) GetOffset() *int64 {
+	if v == nil {
+		return nil
+	}
+	return v.Offset
+}
+
+func (v *V2CreditMorphoMarketsRequest) GetLimit() *int64 {
+	if v == nil {
+		return nil
+	}
+	return v.Limit
 }
 
 func (v *V2CreditMorphoMarketsRequest) GetChain() V2CreditMorphoMarketsChain {
@@ -53,6 +134,20 @@ func (v *V2CreditMorphoMarketsRequest) GetChain() V2CreditMorphoMarketsChain {
 		return V2CreditMorphoMarketsChain("")
 	}
 	return v.Chain
+}
+
+func (v *V2CreditMorphoMarketsRequest) GetOrderBy() *MorphoMarketOrderBy {
+	if v == nil {
+		return nil
+	}
+	return v.OrderBy
+}
+
+func (v *V2CreditMorphoMarketsRequest) GetDirection() *V2CreditMorphoMarketsDirection {
+	if v == nil {
+		return nil
+	}
+	return v.Direction
 }
 
 // #region class-body-v2creditmorphomarketsrequest
