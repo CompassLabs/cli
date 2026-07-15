@@ -1,0 +1,26 @@
+diff --git a/cli-sdk/internal/cli/version.go b/cli-sdk/internal/cli/version.go
+index cde6be133..49b328528 100644
+--- a/cli-sdk/internal/cli/version.go
++++ b/cli-sdk/internal/cli/version.go
+@@ -45,5 +45,21 @@ overridden at build time using Go linker flags:
+ 		},
+ 	}
+ 	parent.AddCommand(cmd)
++
++	// Also expose the version through the conventional top-level
++	// `compass --version` flag, not just the `version` subcommand — users
++	// reach for `--version` by muscle memory (git, cast, node all support it).
++	// Cobra auto-handles a `--version` bool whenever Command.Version is set; we
++	// register the flag ourselves (no shorthand) so Cobra doesn't also claim
++	// `-v`, and point SetVersionTemplate at the same string the subcommand
++	// prints so both paths stay in sync (including the optional build time).
++	parent.Version = Version
++	parent.Flags().Bool("version", false, "Print the CLI version")
++	versionTemplate := fmt.Sprintf("compass %s\n", Version)
++	if BuildTime != "" {
++		versionTemplate = fmt.Sprintf("compass %s\nBuilt: %s\n", Version, BuildTime)
++	}
++	parent.SetVersionTemplate(versionTemplate)
++
+ 	return nil
+ }

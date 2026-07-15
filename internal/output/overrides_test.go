@@ -2,6 +2,8 @@ package output
 
 import (
 	"errors"
+	"io"
+	"net/http"
 	"strings"
 	"testing"
 
@@ -172,5 +174,60 @@ func TestFormatFastAPIDetail_ignoresNonFastAPIShape(t *testing.T) {
 	}
 	if _, ok := formatFastAPIDetail(payload); ok {
 		t.Fatalf("non-FastAPI shape was incorrectly matched")
+	}
+}
+
+func TestIsEmptyJSONObject(t *testing.T) {
+	t.Parallel()
+	for _, s := range []string{"", "  ", "{}", " {} ", "[]", "null"} {
+		if !isEmptyJSONObject(s) {
+			t.Errorf("isEmptyJSONObject(%q) = false, want true", s)
+		}
+	}
+	for _, s := range []string{`{"a":1}`, `[1]`, `"x"`, "0", `{"message":"nope"}`} {
+		if isEmptyJSONObject(s) {
+			t.Errorf("isEmptyJSONObject(%q) = true, want false", s)
+		}
+	}
+}
+
+// fakeMetaHolder mirrors the field *names* (not types) that Speakeasy's typed
+// error structs expose — err.HTTPMeta.Response — so the reflection walk in
+// rawErrorBodyFromHTTPMeta resolves against it exactly as it does against the
+// real HTTPValidationError.
+type fakeMeta struct{ Response *http.Response }
+type fakeAPIError struct{ HTTPMeta fakeMeta }
+
+// Error mimics HTTPValidationError.Error() when the server payload didn't match
+// the declared schema: the struct's own fields serialize to an empty object.
+func (fakeAPIError) Error() string { return "{}" }
+
+func TestRawErrorBodyFromHTTPMeta_recoversBufferedBody(t *testing.T) {
+	t.Parallel()
+	const payload = `{"error_message":"Invalid chain: notachain","message":"Allowed chains: [...]"}`
+	resp := &http.Response{Body: io.NopCloser(strings.NewReader(payload))}
+	err := &fakeAPIError{HTTPMeta: fakeMeta{Response: resp}}
+
+	if got := rawErrorBodyFromHTTPMeta(err); got != payload {
+		t.Fatalf("rawErrorBodyFromHTTPMeta = %q, want %q", got, payload)
+	}
+	// The buffer must be restored so any later reader still sees the body.
+	again, _ := io.ReadAll(resp.Body)
+	if string(again) != payload {
+		t.Errorf("response body not restored after read: got %q", string(again))
+	}
+}
+
+func TestRawErrorBodyFromHTTPMeta_degradesToEmpty(t *testing.T) {
+	t.Parallel()
+	if got := rawErrorBodyFromHTTPMeta(nil); got != "" {
+		t.Errorf("nil error: got %q, want empty", got)
+	}
+	if got := rawErrorBodyFromHTTPMeta(errors.New("connection refused")); got != "" {
+		t.Errorf("plain error: got %q, want empty", got)
+	}
+	// HTTPMeta present but no Response → still empty, no panic.
+	if got := rawErrorBodyFromHTTPMeta(&fakeAPIError{}); got != "" {
+		t.Errorf("nil Response: got %q, want empty", got)
 	}
 }

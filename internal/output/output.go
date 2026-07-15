@@ -345,8 +345,16 @@ func Error(cmd *cobra.Command, err error) error {
 		// "". The Error() method on those types serializes the struct as
 		// JSON, so use err.Error() as the body when the reflection-based
 		// extractors come up empty. statusCode reuses the same fallback.
-		if body == "" {
-			if msg := err.Error(); msg != "" && isValidJSON(msg) {
+		if body == "" || isEmptyJSONObject(body) {
+			// A typed SDK error struct only carries the fields its OpenAPI
+			// schema declared. When the server returns a different JSON shape
+			// for that status (e.g. a custom {error_message, message} 422),
+			// those fields unmarshal to nothing and err.Error() serializes to
+			// "{}". Prefer the raw buffered response body so the user sees what
+			// the server actually said; fall back to err.Error() otherwise.
+			if raw := rawErrorBodyFromHTTPMeta(err); raw != "" {
+				body = raw
+			} else if msg := err.Error(); msg != "" && isValidJSON(msg) {
 				body = msg
 			}
 		}

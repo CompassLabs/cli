@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var creditLoopCmdMeta = []flagutil.FlagMeta{
+var loopCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address that owns the Credit Account. [required]"},
 	{FlagName: "chain", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]"},
 	{FlagName: "protocol", Shorthand: "p", FieldPath: "Protocol", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"AAVE", "EULER", "MORPHO"}, Description: "Which lending protocol a credit action targets.\n\n``AAVE`` is the default so existing callers (which never send a ``protocol``\nfield) keep hitting the unchanged Aave code path. ``MORPHO`` identifies Morpho\nBlue lending markets by their bytes32 ``market_id``. ``EULER`` identifies Euler\nV2 markets by their EVK ``collateral_vault`` + ``borrow_vault`` addresses and\nsupports isolated per-sub-account positions (``sub_account_id``). All three\nsupport the loop/unloop leverage endpoints. (options: AAVE, EULER, MORPHO)"},
@@ -33,36 +33,35 @@ var creditLoopCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "gas-sponsorship", Shorthand: "g", FieldPath: "GasSponsorship", Kind: flagutil.FlagKindBool, Optional: true, Description: "If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction."},
 }
 
-// initCreditLoopCmd initializes the credit-loop command.
-func initCreditLoopCmd(parent *cobra.Command) error {
+// initLoopCmd initializes the loop command.
+func initLoopCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "credit-loop",
+		Use:     "loop",
 		Short:   "Open a leveraged loop",
 		Long:    "Open a leveraged loop into an Aave or Morpho market in ONE atomic transaction.\n\nRepeatedly supplies collateral, borrows at the requested loan-to-value, and\nswaps the borrow back to collateral. Each iteration's supply uses the swap's\nGUARANTEED minimum output (enforced on-chain), so a fill anywhere within the\nslippage tolerance can never break a later step; any positive surplus stays\nin the Credit Account (the preview reports the bound as estimated_max_dust).\nVery large loops relative to pool depth can still exceed the slippage\ntolerance through their own cumulative price impact — size accordingly or\nraise max_slippage_percent. Conversely, the geometric tail can shrink below\nthe swap router's minimum routable size; when it does the loop simply ends\nearly on that supply — the achieved multiplier is still guaranteed within\n0.5% of the request or the call returns a clean 400.\n\nThe Credit Account must already hold initial_collateral_amount of\ncollateral_token. For protocol=MORPHO pass a market_id from\n/v2/credit/morpho_markets.",
-		Example: "  compass credit credit-loop --owner 0x5e5b00ed886A6879C2B934612D2312975427fcAf --chain ethereum --collateral-token WETH --borrow-token USDC --initial-collateral-amount 1",
-		RunE:    runCreditLoopCmd,
-		Aliases: []string{"cl"},
+		Example: "  compass credit loop --owner 0x5e5b00ed886A6879C2B934612D2312975427fcAf --chain ethereum --collateral-token WETH --borrow-token USDC --initial-collateral-amount 1",
+		RunE:    runLoopCmd,
 	}
-	flagutil.RegisterFlags(cmd, creditLoopCmdMeta)
-	if err := flagutil.ValidateMeta[components.CreditLoopRequest](creditLoopCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for credit-loop: %w", err)
+	flagutil.RegisterFlags(cmd, loopCmdMeta)
+	if err := flagutil.ValidateMeta[components.CreditLoopRequest](loopCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for loop: %w", err)
 	}
 	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runCreditLoopCmd executes the credit-loop command.
-func runCreditLoopCmd(cmd *cobra.Command, args []string) error {
+// runLoopCmd executes the loop command.
+func runLoopCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, creditLoopCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, creditLoopCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, loopCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, loopCmdMeta); err != nil {
 			return err
 		}
 	}
-	request, err := flagutil.BuildRequest[components.CreditLoopRequest](cmd, creditLoopCmdMeta, "", "body")
+	request, err := flagutil.BuildRequest[components.CreditLoopRequest](cmd, loopCmdMeta, "", "body")
 	if err != nil {
 		return err
 	}
@@ -85,7 +84,7 @@ func runCreditLoopCmd(cmd *cobra.Command, args []string) error {
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.Credit.CreditLoop(cmd.Context(), *request, sdkOpts...)
+	res, err := s.Credit.Loop(cmd.Context(), *request, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

@@ -42,3 +42,15 @@ func targetsString(ft reflect.Type) bool {
 	}
 	return false
 }
+
+// friendlyDescription rewrites the opaque help string Speakeasy emits for
+// number|string union flags — amounts, ratios, slippage, leverage — into
+// something a user can act on. Only the exact generated string is matched, so
+// any real per-flag description carried in the spec is left untouched.
+func friendlyDescription(desc string) string {
+	const numberOrString = "JSON value (one of: number | string)"
+	if desc == numberOrString {
+		return `Decimal amount, as a number or quoted string (e.g. 100 or "1.5").`
+	}
+	return desc
+}

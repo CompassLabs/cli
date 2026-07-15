@@ -1,4 +1,4 @@
-## compass credit credit-rebalance
+## compass credit rebalance
 
 Rebalance the leveraged credit book
 
@@ -40,13 +40,13 @@ For protocol=MORPHO pass a market_id from /v2/credit/morpho_markets; inspect the
 current book via /v2/credit/looped_positions.
 
 ```
-compass credit credit-rebalance [flags]
+compass credit rebalance [flags]
 ```
 
 ### Examples
 
 ```
-  compass credit credit-rebalance --owner 0x4D3c07d1db7E4A9E44285fae9810d6549655bc74 --chain ethereum --targets '[{"protocol":"AAVE","collateral_token":"WETH","borrow_token":"USDC","target_multiplier":2}]'
+  compass credit rebalance --owner 0x4D3c07d1db7E4A9E44285fae9810d6549655bc74 --chain ethereum --targets '[{"protocol":"AAVE","collateral_token":"WETH","borrow_token":"USDC","target_multiplier":2}]'
 ```
 
 ### Options
@@ -55,7 +55,7 @@ compass credit credit-rebalance [flags]
       --body string                   Request body as JSON (alternative to individual flags). Can also be provided via stdin.
   -c, --chain string                  The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]
   -g, --gas-sponsorship               If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
-  -h, --help                          help for credit-rebalance
+  -h, --help                          help for rebalance
   -m, --max-slippage-percent string   JSON value (one of: number | string)
       --owner string                  The address that owns the Credit Account. [required]
   -t, --targets string                The positions to change. Scoped: only positions named here are touched; any position not listed is left untouched. [required]

@@ -1,34 +1,35 @@
-## compass credit credit-looped-positions
+## compass credit morpho-markets
 
-List looped (leveraged) credit positions
+List curated Morpho markets
 
 ### Synopsis
 
-List looped (leveraged) positions for a credit account owner.
+List curated Morpho Blue lending markets for a chain.
 
-Detects loops from the account's on-chain history: a transaction containing
-lending + borrowing + swap legs is a loop transaction. Returns one position
-per Morpho market / Aave collateral+debt reserve pair, each with its complete
-per-transaction history, lifetime totals, and live on-chain state (health
-factor, USD values, leverage) for open positions. Covers Aave V3 and Morpho
-Blue.
+Morpho Blue is permissionless, so credit actions identify a market by its
+bytes32 market id. This returns the curated market set with live LLTV,
+supply/borrow APY, utilization, and available liquidity -- read on-chain per
+request -- so callers know which market_id to use and what it currently costs.
 
 ```
-compass credit credit-looped-positions [flags]
+compass credit morpho-markets [flags]
 ```
 
 ### Examples
 
 ```
-  compass credit credit-looped-positions --chain base --owner 0x06A9aF046187895AcFc7258450B15397CAc67400
+  compass credit morpho-markets --chain ethereum
 ```
 
 ### Options
 
 ```
-  -c, --chain string   options: arbitrum, base, bsc, ethereum, tempo [required]
-  -h, --help           help for credit-looped-positions
-      --owner string   The address of the owner of the credit account to get looped positions for. [required]
+  -c, --chain string       options: arbitrum, base, bsc, ethereum, tempo [required]
+      --direction string   Order direction (asc/desc). (options: asc, desc)
+  -h, --help               help for morpho-markets
+  -l, --limit int          The number of items to return.
+      --offset int         The offset of the first item to return.
+      --order-by string    Field to order the markets by before paginating. (options: tvl_usd, liquidity_usd, lltv)
 ```
 
 ### Options inherited from parent commands

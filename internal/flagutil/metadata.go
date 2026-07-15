@@ -160,10 +160,11 @@ func RegisterFlags(cmd *cobra.Command, meta []FlagMeta) {
 
 // registerStringFlag registers a string flag with optional shorthand.
 func registerStringFlag(cmd *cobra.Command, m FlagMeta) {
+	desc := friendlyDescription(m.Description)
 	if m.Shorthand != "" {
-		cmd.Flags().StringP(m.FlagName, m.Shorthand, m.DefaultStr, m.Description)
+		cmd.Flags().StringP(m.FlagName, m.Shorthand, m.DefaultStr, desc)
 	} else {
-		cmd.Flags().String(m.FlagName, m.DefaultStr, m.Description)
+		cmd.Flags().String(m.FlagName, m.DefaultStr, desc)
 	}
 }
 
@@ -1066,10 +1067,11 @@ func registerUnionFlags(cmd *cobra.Command, m FlagMeta) {
 	u := m.Union
 	// Top-level JSON flag (skip if inherited persistent flag exists)
 	if cmd.InheritedFlags().Lookup(m.FlagName) == nil {
+		desc := friendlyDescription(u.TypeDescription)
 		if m.Shorthand != "" {
-			cmd.Flags().StringP(m.FlagName, m.Shorthand, "", u.TypeDescription)
+			cmd.Flags().StringP(m.FlagName, m.Shorthand, "", desc)
 		} else {
-			cmd.Flags().String(m.FlagName, "", u.TypeDescription)
+			cmd.Flags().String(m.FlagName, "", desc)
 		}
 	}
 

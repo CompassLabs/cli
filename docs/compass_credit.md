@@ -42,12 +42,12 @@ compass credit [flags]
 * [compass credit borrow](compass_credit_borrow.md)	 - Borrow against collateral
 * [compass credit bundle](compass_credit_bundle.md)	 - Execute multiple credit actions
 * [compass credit create-account](compass_credit_create-account.md)	 - Create credit account
-* [compass credit credit-loop](compass_credit_credit-loop.md)	 - Open a leveraged loop
-* [compass credit credit-looped-positions](compass_credit_credit-looped-positions.md)	 - List looped (leveraged) credit positions
-* [compass credit credit-morpho-markets](compass_credit_credit-morpho-markets.md)	 - List curated Morpho markets
-* [compass credit credit-rebalance](compass_credit_credit-rebalance.md)	 - Rebalance the leveraged credit book
-* [compass credit credit-unloop](compass_credit_credit-unloop.md)	 - Unwind a leveraged loop
 * [compass credit euler-markets](compass_credit_euler-markets.md)	 - List curated Euler markets
+* [compass credit loop](compass_credit_loop.md)	 - Open a leveraged loop
+* [compass credit looped-positions](compass_credit_looped-positions.md)	 - List looped (leveraged) credit positions
+* [compass credit morpho-markets](compass_credit_morpho-markets.md)	 - List curated Morpho markets
 * [compass credit positions](compass_credit_positions.md)	 - List credit positions
+* [compass credit rebalance](compass_credit_rebalance.md)	 - Rebalance the leveraged credit book
 * [compass credit repay](compass_credit_repay.md)	 - Repay debt and withdraw collateral
 * [compass credit transfer](compass_credit_transfer.md)	 - Transfer tokens to/from Credit Account
+* [compass credit unloop](compass_credit_unloop.md)	 - Unwind a leveraged loop

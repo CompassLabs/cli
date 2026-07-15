@@ -384,7 +384,7 @@ func (s *Credit) Balances(ctx context.Context, request operations.V2CreditBalanc
 
 }
 
-// CreditLoopedPositions - List looped (leveraged) credit positions
+// LoopedPositions - List looped (leveraged) credit positions
 // List looped (leveraged) positions for a credit account owner.
 //
 // Detects loops from the account's on-chain history: a transaction containing
@@ -393,7 +393,7 @@ func (s *Credit) Balances(ctx context.Context, request operations.V2CreditBalanc
 // per-transaction history, lifetime totals, and live on-chain state (health
 // factor, USD values, leverage) for open positions. Covers Aave V3 and Morpho
 // Blue.
-func (s *Credit) CreditLoopedPositions(ctx context.Context, request operations.V2CreditLoopedPositionsRequest, opts ...operations.Option) (*operations.V2CreditLoopedPositionsResponse, error) {
+func (s *Credit) LoopedPositions(ctx context.Context, request operations.V2CreditLoopedPositionsRequest, opts ...operations.Option) (*operations.V2CreditLoopedPositionsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -744,14 +744,14 @@ func (s *Credit) EulerMarkets(ctx context.Context, request operations.V2CreditEu
 
 }
 
-// CreditMorphoMarkets - List curated Morpho markets
+// MorphoMarkets - List curated Morpho markets
 // List curated Morpho Blue lending markets for a chain.
 //
 // Morpho Blue is permissionless, so credit actions identify a market by its
 // bytes32 market id. This returns the curated market set with live LLTV,
 // supply/borrow APY, utilization, and available liquidity -- read on-chain per
 // request -- so callers know which market_id to use and what it currently costs.
-func (s *Credit) CreditMorphoMarkets(ctx context.Context, request operations.V2CreditMorphoMarketsRequest, opts ...operations.Option) (*operations.V2CreditMorphoMarketsResponse, error) {
+func (s *Credit) MorphoMarkets(ctx context.Context, request operations.V2CreditMorphoMarketsRequest, opts ...operations.Option) (*operations.V2CreditMorphoMarketsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1292,7 +1292,7 @@ func (s *Credit) Borrow(ctx context.Context, request components.CreditBorrowRequ
 
 }
 
-// CreditLoop - Open a leveraged loop
+// Loop - Open a leveraged loop
 // Open a leveraged loop into an Aave or Morpho market in ONE atomic transaction.
 //
 // Repeatedly supplies collateral, borrows at the requested loan-to-value, and
@@ -1310,7 +1310,7 @@ func (s *Credit) Borrow(ctx context.Context, request components.CreditBorrowRequ
 // The Credit Account must already hold initial_collateral_amount of
 // collateral_token. For protocol=MORPHO pass a market_id from
 // /v2/credit/morpho_markets.
-func (s *Credit) CreditLoop(ctx context.Context, request components.CreditLoopRequest, opts ...operations.Option) (*operations.V2CreditLoopResponse, error) {
+func (s *Credit) Loop(ctx context.Context, request components.CreditLoopRequest, opts ...operations.Option) (*operations.V2CreditLoopResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1485,7 +1485,7 @@ func (s *Credit) CreditLoop(ctx context.Context, request components.CreditLoopRe
 
 }
 
-// CreditUnloop - Unwind a leveraged loop
+// Unloop - Unwind a leveraged loop
 // Unwind an Aave or Morpho loop in ONE atomic transaction.
 //
 // Repeatedly withdraws collateral, swaps it to the borrow token at a GUARANTEED
@@ -1520,7 +1520,7 @@ func (s *Credit) CreditLoop(ctx context.Context, request components.CreditLoopRe
 //
 // For protocol=MORPHO pass a market_id from /v2/credit/morpho_markets; inspect
 // open loops via /v2/credit/looped_positions.
-func (s *Credit) CreditUnloop(ctx context.Context, request components.CreditUnloopRequest, opts ...operations.Option) (*operations.V2CreditUnloopResponse, error) {
+func (s *Credit) Unloop(ctx context.Context, request components.CreditUnloopRequest, opts ...operations.Option) (*operations.V2CreditUnloopResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -1695,7 +1695,7 @@ func (s *Credit) CreditUnloop(ctx context.Context, request components.CreditUnlo
 
 }
 
-// CreditRebalance - Rebalance the leveraged credit book
+// Rebalance the leveraged credit book
 // Rebalance the leveraged credit book in ONE atomic transaction.
 //
 // List only the positions to change — anything not named is left untouched;
@@ -1730,7 +1730,7 @@ func (s *Credit) CreditUnloop(ctx context.Context, request components.CreditUnlo
 //
 // For protocol=MORPHO pass a market_id from /v2/credit/morpho_markets; inspect the
 // current book via /v2/credit/looped_positions.
-func (s *Credit) CreditRebalance(ctx context.Context, request components.CreditRebalanceRequest, opts ...operations.Option) (*operations.V2CreditRebalanceResponse, error) {
+func (s *Credit) Rebalance(ctx context.Context, request components.CreditRebalanceRequest, opts ...operations.Option) (*operations.V2CreditRebalanceResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,

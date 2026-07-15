@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var creditMorphoMarketsCmdMeta = []flagutil.FlagMeta{
+var morphoMarketsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "offset", FieldPath: "Offset", Kind: flagutil.FlagKindInt64, Optional: true, Description: "The offset of the first item to return."},
 	{FlagName: "limit", Shorthand: "l", FieldPath: "Limit", Kind: flagutil.FlagKindInt64, Optional: true, Description: "The number of items to return."},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"arbitrum", "base", "bsc", "ethereum", "tempo"}, Description: "options: arbitrum, base, bsc, ethereum, tempo [required]"},
@@ -22,35 +22,35 @@ var creditMorphoMarketsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "direction", FieldPath: "Direction", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"asc", "desc"}, Description: "Order direction (asc/desc). (options: asc, desc)"},
 }
 
-// initCreditMorphoMarketsCmd initializes the credit-morpho-markets command.
-func initCreditMorphoMarketsCmd(parent *cobra.Command) error {
+// initMorphoMarketsCmd initializes the morpho-markets command.
+func initMorphoMarketsCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "credit-morpho-markets",
+		Use:     "morpho-markets",
 		Short:   "List curated Morpho markets",
 		Long:    "List curated Morpho Blue lending markets for a chain.\n\nMorpho Blue is permissionless, so credit actions identify a market by its\nbytes32 market id. This returns the curated market set with live LLTV,\nsupply/borrow APY, utilization, and available liquidity -- read on-chain per\nrequest -- so callers know which market_id to use and what it currently costs.",
-		Example: "  compass credit credit-morpho-markets --chain ethereum",
-		RunE:    runCreditMorphoMarketsCmd,
-		Aliases: []string{"cmm"},
+		Example: "  compass credit morpho-markets --chain ethereum",
+		RunE:    runMorphoMarketsCmd,
+		Aliases: []string{"mm"},
 	}
-	flagutil.RegisterFlags(cmd, creditMorphoMarketsCmdMeta)
-	if err := flagutil.ValidateMeta[operations.V2CreditMorphoMarketsRequest](creditMorphoMarketsCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for credit-morpho-markets: %w", err)
+	flagutil.RegisterFlags(cmd, morphoMarketsCmdMeta)
+	if err := flagutil.ValidateMeta[operations.V2CreditMorphoMarketsRequest](morphoMarketsCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for morpho-markets: %w", err)
 	}
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runCreditMorphoMarketsCmd executes the credit-morpho-markets command.
-func runCreditMorphoMarketsCmd(cmd *cobra.Command, args []string) error {
+// runMorphoMarketsCmd executes the morpho-markets command.
+func runMorphoMarketsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, creditMorphoMarketsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, creditMorphoMarketsCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, morphoMarketsCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, morphoMarketsCmdMeta); err != nil {
 			return err
 		}
 	}
-	req, err := flagutil.BuildRequest[operations.V2CreditMorphoMarketsRequest](cmd, creditMorphoMarketsCmdMeta, "", "")
+	req, err := flagutil.BuildRequest[operations.V2CreditMorphoMarketsRequest](cmd, morphoMarketsCmdMeta, "", "")
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func runCreditMorphoMarketsCmd(cmd *cobra.Command, args []string) error {
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.Credit.CreditMorphoMarkets(cmd.Context(), *req, sdkOpts...)
+	res, err := s.Credit.MorphoMarkets(cmd.Context(), *req, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

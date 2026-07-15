@@ -1,4 +1,4 @@
-## compass credit credit-loop
+## compass credit loop
 
 Open a leveraged loop
 
@@ -23,13 +23,13 @@ collateral_token. For protocol=MORPHO pass a market_id from
 /v2/credit/morpho_markets.
 
 ```
-compass credit credit-loop [flags]
+compass credit loop [flags]
 ```
 
 ### Examples
 
 ```
-  compass credit credit-loop --owner 0x5e5b00ed886A6879C2B934612D2312975427fcAf --chain ethereum --collateral-token WETH --borrow-token USDC --initial-collateral-amount 1
+  compass credit loop --owner 0x5e5b00ed886A6879C2B934612D2312975427fcAf --chain ethereum --collateral-token WETH --borrow-token USDC --initial-collateral-amount 1
 ```
 
 ### Options
@@ -43,7 +43,7 @@ compass credit credit-loop [flags]
       --collateral-vault string            Euler only: the EVK vault address collateral is supplied to (from /v2/credit/euler_markets). Required when protocol=EULER.
   -e, --emode-category string              Aave only: e-mode category to enable before looping (higher LTV for correlated pairs, e.g. ETH-correlated).
   -g, --gas-sponsorship                    If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
-  -h, --help                               help for credit-loop
+  -h, --help                               help for loop
   -i, --initial-collateral-amount string   JSON value (one of: number | string)
   -l, --loan-to-value string               JSON value (one of: number | string)
       --market-id string                   Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.

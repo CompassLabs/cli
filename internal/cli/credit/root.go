@@ -28,7 +28,7 @@ func InitCreditRoot(parent *cobra.Command) error {
 		return err
 	}
 
-	if err := initCreditLoopedPositionsCmd(CreditCmd); err != nil {
+	if err := initLoopedPositionsCmd(CreditCmd); err != nil {
 		return err
 	}
 
@@ -36,7 +36,7 @@ func InitCreditRoot(parent *cobra.Command) error {
 		return err
 	}
 
-	if err := initCreditMorphoMarketsCmd(CreditCmd); err != nil {
+	if err := initMorphoMarketsCmd(CreditCmd); err != nil {
 		return err
 	}
 
@@ -48,15 +48,15 @@ func InitCreditRoot(parent *cobra.Command) error {
 		return err
 	}
 
-	if err := initCreditLoopCmd(CreditCmd); err != nil {
+	if err := initLoopCmd(CreditCmd); err != nil {
 		return err
 	}
 
-	if err := initCreditUnloopCmd(CreditCmd); err != nil {
+	if err := initUnloopCmd(CreditCmd); err != nil {
 		return err
 	}
 
-	if err := initCreditRebalanceCmd(CreditCmd); err != nil {
+	if err := initRebalanceCmd(CreditCmd); err != nil {
 		return err
 	}
 

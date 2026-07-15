@@ -26,6 +26,7 @@ Compass API: Compass Labs DeFi API
   * [Error Handling](#error-handling)
   * [Diagnostics](#diagnostics)
   * [Common Pitfalls](#common-pitfalls)
+  * [Executing transactions (signing & broadcasting)](#executing-transactions-signing-broadcasting)
 * [Development](#development)
   * [Maturity](#maturity)
   * [Contributions](#contributions)
@@ -194,14 +195,14 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 
 * [`positions`](docs/compass_credit_positions.md) - List credit positions
 * [`balances`](docs/compass_credit_balances.md) - Get credit account token balances
-* [`credit-looped-positions`](docs/compass_credit_credit-looped-positions.md) - List looped (leveraged) credit positions
+* [`looped-positions`](docs/compass_credit_looped-positions.md) - List looped (leveraged) credit positions
 * [`euler-markets`](docs/compass_credit_euler-markets.md) - List curated Euler markets
-* [`credit-morpho-markets`](docs/compass_credit_credit-morpho-markets.md) - List curated Morpho markets
+* [`morpho-markets`](docs/compass_credit_morpho-markets.md) - List curated Morpho markets
 * [`create-account`](docs/compass_credit_create-account.md) - Create credit account
 * [`borrow`](docs/compass_credit_borrow.md) - Borrow against collateral
-* [`credit-loop`](docs/compass_credit_credit-loop.md) - Open a leveraged loop
-* [`credit-unloop`](docs/compass_credit_credit-unloop.md) - Unwind a leveraged loop
-* [`credit-rebalance`](docs/compass_credit_credit-rebalance.md) - Rebalance the leveraged credit book
+* [`loop`](docs/compass_credit_loop.md) - Open a leveraged loop
+* [`unloop`](docs/compass_credit_unloop.md) - Unwind a leveraged loop
+* [`rebalance`](docs/compass_credit_rebalance.md) - Rebalance the leveraged credit book
 * [`transfer`](docs/compass_credit_transfer.md) - Transfer tokens to/from Credit Account
 * [`repay`](docs/compass_credit_repay.md) - Repay debt and withdraw collateral
 * [`bundle`](docs/compass_credit_bundle.md) - Execute multiple credit actions
@@ -465,46 +466,27 @@ Diagnostic output should still be treated as potentially sensitive operational d
 
 These are real footguns surfaced during prod testing. AI coding agents should read this section before writing CLI invocations — most of these errors are not obvious from the per-command help text.
 
-### Some optional flags require JSON-quoted values
+### Optional string flags accept plain values
 
-Flags whose help text reads as a regular string but that are implemented as JSON-encoded query parameters require **JSON-quoted** values. Only **optional string-typed** query params are affected; optional numeric flags (e.g., `--min-tvl-usd`, `--limit`) work plain because the JSON parser accepts bare numbers. Affected today:
-
-| Command | Flag(s) |
-|---------|---------|
-| `earn vaults` | `--chain`, `--asset-symbol` |
-| `earn aave-markets` | `--chain` |
-| `earn pendle-markets` | `--chain`, `--underlying-symbol` |
-| `tokenized-equities markets` | `--category`, `--search` |
-| `tokenized-equities market` | `--interval`, `--range` |
-| `global-markets-perps opportunities` | `--category` |
-| `global-markets-perps positions` | `--asset` |
-
-Example:
+Historically, optional string-typed query-param flags (which Speakeasy generates as `FlagKindJSON`) needed a **JSON-quoted** value — `--chain '"base"'` — and a bare `--chain base` failed with a misleading `error unmarshalling json response body: invalid character 'b'`. Current versions auto-quote bare string values for these flags, so **plain values just work**:
 
 ```bash
-# Wrong: --chain base       → invalid character 'b' looking for beginning of value
-# Right: --chain '"base"'
+compass earn vaults --order-by tvl_usd --chain base                     # ✓
+compass earn aave-markets --chain base                                  # ✓
+compass earn pendle-markets --order-by tvl_usd --underlying-symbol WETH # ✓
 ```
 
-**Symptom:** an error like `invalid value for --chain: error unmarshalling json response body: invalid character 'b' looking for beginning of value`. The phrase "response body" is misleading — this is flag parsing, not an HTTP error.
+If you pin an **older** build and still hit the `unmarshalling` error, wrap the value in JSON quotes (`'"base"'`) or omit the optional flag. (That error says "response body" but it's flag parsing, not HTTP.)
 
-**Workaround:** wrap the value in JSON-quoted form (`'"value"'` in zsh/bash). Or, if the flag is optional, omit it entirely.
+### `-o table` unwraps flat list envelopes, not nested ones
 
-**Why:** Speakeasy generates these as `FlagKindJSON` because they're optional query parameters; the generator does `json.Unmarshal` on the raw input. Required enum/string flags use a different code path and accept plain values normally. Tracked for upstream/overlay fix.
-
-### `-o table` does not unwrap response envelopes
-
-Endpoints that return paginated lists wrap the array in an envelope, e.g. `earn vaults` returns `{ total, offset, limit, vaults: [...] }`. `--output-format table` renders the envelope, not the array.
+List endpoints wrap their array in an envelope, e.g. `earn vaults` returns `{ total, offset, limit, vaults: [...] }`. `-o table` unwraps that automatically — it prints the envelope scalars as a header and renders the inner array as a table:
 
 ```bash
-# Tiny scalar table — not what you want
-compass earn vaults --order-by tvl_usd -o table
-
-# Drill into the array (output is JSON; --jq forces JSON regardless of -o)
-compass earn vaults --order-by tvl_usd --jq '.vaults'
+compass earn vaults --order-by tvl_usd -o table   # header + a real table
 ```
 
-The same pattern applies to other list endpoints (`earn aave-markets`, `tokenized-equities markets`, etc.). If you want a table of the inner array specifically, that's not supported in a single command today — pipe the JSON result through another tool, or just consume the JSON.
+The table renderer only handles rows of flat scalars. On endpoints whose rows embed nested objects (e.g. `earn aave-markets`, whose rows carry reserve objects) it prints `no displayable fields found` — use `-o json`, `-o toon`, or `--jq` there instead.
 
 ### Flag metavars can be misleading
 
@@ -525,6 +507,44 @@ Trust the **Description** column over the metavar.
 - **Line continuations**: `compass <cmd> \` followed by a trailing space (especially after pasting) breaks zsh — strip trailing whitespace or use a one-liner.
 - **No `--api-key` / `--api-key-auth-key` flag**: the auth flag is `--api-key-auth` (single token).
 - **`COMPASS_API_KEY` doesn't work**; the env var is `COMPASS_API_KEY_AUTH`.
+
+## Executing transactions (signing & broadcasting)
+
+The CLI is **non-custodial**: it never holds keys and never broadcasts. Read commands return data directly; **action** commands (`earn manage`, `credit borrow`, `credit loop`, `tokenized-assets order`, …) return an **unsigned transaction** — or EIP-712 typed data for gas-sponsored and order flows — for *you* to sign and submit. Every action is therefore a two-step "build → sign & send"; there is intentionally no `compass sign` / `compass send` (keeping signing in your own wallet is what makes the CLI non-custodial).
+
+### Self-paid EOA transaction (build → `cast send`)
+
+Action responses carry a `transaction` object with hex-encoded `to`, `data`, `value`, `gas`, and `chainId`. Sign and broadcast it with your own wallet — e.g. Foundry's `cast`:
+
+```bash
+# 1. Build the unsigned tx and keep the JSON (any action command works;
+#    see `compass credit borrow --help` for the exact flags).
+compass credit borrow --chain base --owner "$ADDR" \
+  --borrow-token USDC --amount-in 100 -o json > tx.json
+
+# 2. cast signs with your key and broadcasts.
+cast send \
+  "$(jq -r .transaction.to   tx.json)" \
+  "$(jq -r .transaction.data tx.json)" \
+  --value     "$(jq -r .transaction.value tx.json)" \
+  --gas-limit "$(jq -r .transaction.gas   tx.json)" \
+  --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY"
+```
+
+Pass the API's `gas` through as an explicit `--gas-limit` — `cast`'s own estimate can undershoot for Safe/bundled calls and revert with `GS013`.
+
+### Gas-sponsored transaction (sign EIP-712 → a sponsor pays)
+
+Add `--gas-sponsorship` to an action to get EIP-712 typed data instead of an unsigned tx. Sign it with your wallet, then submit the signature so a sponsor broadcasts and pays the gas:
+
+```bash
+compass gas-sponsorship prepare --owner "$ADDR" --chain arbitrum \
+  --eip-712 '<typed-data-json>' --signature 0x<sig> --sender "$SPONSOR"
+```
+
+### Hyperliquid perps & tokenized-asset orders
+
+These sign an exchange / EIP-712 payload rather than an EVM tx. Build with the command, sign the returned typed data, then submit the signature via `global-markets-perps execute` (perps) or `tokenized-assets order-submit` (equity orders) — no raw broadcast on your side.
 
 <!-- Placeholder for Future Speakeasy SDK Sections -->
 

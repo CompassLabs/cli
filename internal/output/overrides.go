@@ -13,8 +13,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
@@ -272,4 +275,66 @@ func errorStatusCodeFromHTTPMeta(err error) int {
 		return 0
 	}
 	return int(sc.Int())
+}
+
+// isEmptyJSONObject reports whether s is JSON that carries no information for
+// the user — an empty object/array or a bare null. Typed SDK error structs
+// whose fields didn't match the server payload serialize to "{}" via their
+// Error() method, which is useless to display; we treat those as "no body" so
+// the raw-response fallback in output.Error kicks in.
+func isEmptyJSONObject(s string) bool {
+	switch strings.TrimSpace(s) {
+	case "", "{}", "[]", "null":
+		return true
+	default:
+		return false
+	}
+}
+
+// rawErrorBodyFromHTTPMeta recovers the raw HTTP response body from a typed SDK
+// error that carries it on HTTPMeta.Response. Speakeasy unmarshals an error
+// response into the struct its OpenAPI schema declared (e.g. HTTPValidationError,
+// which has only a `detail` field). When the server actually returns a
+// different JSON shape for that status — say a custom {error_message, message}
+// 422 — none of those fields match, so the struct's Error() serializes to "{}"
+// and the real message is lost. The SDK re-buffers the body after reading it
+// (utils.ConsumeRawBody sets res.Body = io.NopCloser(bytes.NewBuffer(rawBody))),
+// so reading it here is safe; we restore the buffer afterwards for any later
+// reader. Returns "" when the error carries no HTTP response or an empty body.
+//
+// Mirrors the reflection walk in errorStatusCodeFromHTTPMeta (err -> HTTPMeta ->
+// Response) so it degrades to "" on any shape it doesn't recognize.
+func rawErrorBodyFromHTTPMeta(err error) string {
+	if err == nil {
+		return ""
+	}
+	v := reflect.ValueOf(err)
+	for v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
+		if v.IsNil() {
+			return ""
+		}
+		v = v.Elem()
+	}
+	if v.Kind() != reflect.Struct {
+		return ""
+	}
+	meta := v.FieldByName("HTTPMeta")
+	if !meta.IsValid() || meta.Kind() != reflect.Struct {
+		return ""
+	}
+	respField := meta.FieldByName("Response")
+	if !respField.IsValid() || !respField.CanInterface() {
+		return ""
+	}
+	resp, ok := respField.Interface().(*http.Response)
+	if !ok || resp == nil || resp.Body == nil {
+		return ""
+	}
+	raw, readErr := io.ReadAll(resp.Body)
+	// Restore the buffer so anything that reads the response after us still works.
+	resp.Body = io.NopCloser(bytes.NewBuffer(raw))
+	if readErr != nil {
+		return ""
+	}
+	return string(raw)
 }

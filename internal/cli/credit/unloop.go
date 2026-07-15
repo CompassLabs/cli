@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var creditUnloopCmdMeta = []flagutil.FlagMeta{
+var unloopCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address that owns the Credit Account. [required]"},
 	{FlagName: "chain", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]"},
 	{FlagName: "protocol", Shorthand: "p", FieldPath: "Protocol", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"AAVE", "EULER", "MORPHO"}, Description: "Which lending protocol a credit action targets.\n\n``AAVE`` is the default so existing callers (which never send a ``protocol``\nfield) keep hitting the unchanged Aave code path. ``MORPHO`` identifies Morpho\nBlue lending markets by their bytes32 ``market_id``. ``EULER`` identifies Euler\nV2 markets by their EVK ``collateral_vault`` + ``borrow_vault`` addresses and\nsupports isolated per-sub-account positions (``sub_account_id``). All three\nsupport the loop/unloop leverage endpoints. (options: AAVE, EULER, MORPHO)"},
@@ -31,36 +31,35 @@ var creditUnloopCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "gas-sponsorship", Shorthand: "g", FieldPath: "GasSponsorship", Kind: flagutil.FlagKindBool, Optional: true, Description: "If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction."},
 }
 
-// initCreditUnloopCmd initializes the credit-unloop command.
-func initCreditUnloopCmd(parent *cobra.Command) error {
+// initUnloopCmd initializes the unloop command.
+func initUnloopCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "credit-unloop",
+		Use:     "unloop",
 		Short:   "Unwind a leveraged loop",
 		Long:    "Unwind an Aave or Morpho loop in ONE atomic transaction.\n\nRepeatedly withdraws collateral, swaps it to the borrow token at a GUARANTEED\nminimum output (enforced on-chain), and repays. The floor discipline means a\nswap filling anywhere within the slippage tolerance can never break a later\nstep; any positive surplus stays in the Credit Account as borrow-token dust\n(the preview reports the bound as estimated_max_dust).\n\nOmit target_multiplier for a full close: the debt is cleared exactly —\naccrued interest included — and the pair collateral is returned to the Credit\nAccount. Pass 1 to clear the debt but keep the collateral supplied, or a value\nabove 1 to delever to that multiplier (it must be below the position's current\nmultiplier).\n\nEach withdrawal is sized to keep the position's health factor ≥ 1.02 at that\nstep, so a position opened very close to the liquidation threshold may need\nmore than one transaction to fully close — set allow_partial=true to return\nthe maximum single-transaction progress (preview.fully_unwound=false), then\ncall unloop again to finish. Very large unwinds relative to pool depth can\nstill exceed the slippage tolerance through their own cumulative price impact.\n\nPositions are unwound as far as the swap router can route; on a router-minimum\nstop the engine still withdraws all collateral not needed to back the residual,\nand completes a true full close whenever the unwind's own guaranteed swap\nsurpluses (or the Credit Account's idle balance) cover the remainder — a\nresidual below the router's minimum routable size never fails the call, it is\nreported honestly in the preview (fully_unwound=false).\n\nWhen other open Aave loops share this position's collateral reserve, a full\nclose withdraws only this position's attributed share of the pooled collateral\n(event-ledger bookkeeping), leaving the rest supplied for the other positions.\n\nFor protocol=MORPHO pass a market_id from /v2/credit/morpho_markets; inspect\nopen loops via /v2/credit/looped_positions.",
-		Example: "  compass credit credit-unloop --owner 0x0E407CdeBD8e078E6966ef6740540d25F5897082 --chain ethereum --collateral-token WETH --borrow-token USDC",
-		RunE:    runCreditUnloopCmd,
-		Aliases: []string{"cu"},
+		Example: "  compass credit unloop --owner 0x0E407CdeBD8e078E6966ef6740540d25F5897082 --chain ethereum --collateral-token WETH --borrow-token USDC",
+		RunE:    runUnloopCmd,
 	}
-	flagutil.RegisterFlags(cmd, creditUnloopCmdMeta)
-	if err := flagutil.ValidateMeta[components.CreditUnloopRequest](creditUnloopCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for credit-unloop: %w", err)
+	flagutil.RegisterFlags(cmd, unloopCmdMeta)
+	if err := flagutil.ValidateMeta[components.CreditUnloopRequest](unloopCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for unloop: %w", err)
 	}
 	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runCreditUnloopCmd executes the credit-unloop command.
-func runCreditUnloopCmd(cmd *cobra.Command, args []string) error {
+// runUnloopCmd executes the unloop command.
+func runUnloopCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, creditUnloopCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, creditUnloopCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, unloopCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, unloopCmdMeta); err != nil {
 			return err
 		}
 	}
-	request, err := flagutil.BuildRequest[components.CreditUnloopRequest](cmd, creditUnloopCmdMeta, "", "body")
+	request, err := flagutil.BuildRequest[components.CreditUnloopRequest](cmd, unloopCmdMeta, "", "body")
 	if err != nil {
 		return err
 	}
@@ -83,7 +82,7 @@ func runCreditUnloopCmd(cmd *cobra.Command, args []string) error {
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.Credit.CreditUnloop(cmd.Context(), *request, sdkOpts...)
+	res, err := s.Credit.Unloop(cmd.Context(), *request, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

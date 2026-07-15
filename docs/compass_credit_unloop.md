@@ -1,4 +1,4 @@
-## compass credit credit-unloop
+## compass credit unloop
 
 Unwind a leveraged loop
 
@@ -40,13 +40,13 @@ For protocol=MORPHO pass a market_id from /v2/credit/morpho_markets; inspect
 open loops via /v2/credit/looped_positions.
 
 ```
-compass credit credit-unloop [flags]
+compass credit unloop [flags]
 ```
 
 ### Examples
 
 ```
-  compass credit credit-unloop --owner 0x0E407CdeBD8e078E6966ef6740540d25F5897082 --chain ethereum --collateral-token WETH --borrow-token USDC
+  compass credit unloop --owner 0x0E407CdeBD8e078E6966ef6740540d25F5897082 --chain ethereum --collateral-token WETH --borrow-token USDC
 ```
 
 ### Options
@@ -60,7 +60,7 @@ compass credit credit-unloop [flags]
       --collateral-token string       Token supplied as collateral in the loop being unwound. For MORPHO it must be the market's collateral token. [required]
       --collateral-vault string       Euler only: the EVK vault the loop's collateral is in. Required when protocol=EULER.
   -g, --gas-sponsorship               If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
-  -h, --help                          help for credit-unloop
+  -h, --help                          help for unloop
       --market-id string              Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
       --max-slippage-percent string   JSON value (one of: number | string)
       --owner string                  The address that owns the Credit Account. [required]

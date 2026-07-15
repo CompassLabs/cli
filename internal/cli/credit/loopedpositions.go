@@ -14,40 +14,40 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var creditLoopedPositionsCmdMeta = []flagutil.FlagMeta{
+var loopedPositionsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"arbitrum", "base", "bsc", "ethereum", "tempo"}, Description: "options: arbitrum, base, bsc, ethereum, tempo [required]"},
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address of the owner of the credit account to get looped positions for. [required]"},
 }
 
-// initCreditLoopedPositionsCmd initializes the credit-looped-positions command.
-func initCreditLoopedPositionsCmd(parent *cobra.Command) error {
+// initLoopedPositionsCmd initializes the looped-positions command.
+func initLoopedPositionsCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "credit-looped-positions",
+		Use:     "looped-positions",
 		Short:   "List looped (leveraged) credit positions",
 		Long:    "List looped (leveraged) positions for a credit account owner.\n\nDetects loops from the account's on-chain history: a transaction containing\nlending + borrowing + swap legs is a loop transaction. Returns one position\nper Morpho market / Aave collateral+debt reserve pair, each with its complete\nper-transaction history, lifetime totals, and live on-chain state (health\nfactor, USD values, leverage) for open positions. Covers Aave V3 and Morpho\nBlue.",
-		Example: "  compass credit credit-looped-positions --chain base --owner 0x06A9aF046187895AcFc7258450B15397CAc67400",
-		RunE:    runCreditLoopedPositionsCmd,
-		Aliases: []string{"clp"},
+		Example: "  compass credit looped-positions --chain base --owner 0x06A9aF046187895AcFc7258450B15397CAc67400",
+		RunE:    runLoopedPositionsCmd,
+		Aliases: []string{"lp"},
 	}
-	flagutil.RegisterFlags(cmd, creditLoopedPositionsCmdMeta)
-	if err := flagutil.ValidateMeta[operations.V2CreditLoopedPositionsRequest](creditLoopedPositionsCmdMeta); err != nil {
-		return fmt.Errorf("invalid metadata for credit-looped-positions: %w", err)
+	flagutil.RegisterFlags(cmd, loopedPositionsCmdMeta)
+	if err := flagutil.ValidateMeta[operations.V2CreditLoopedPositionsRequest](loopedPositionsCmdMeta); err != nil {
+		return fmt.Errorf("invalid metadata for looped-positions: %w", err)
 	}
 	parent.AddCommand(cmd)
 	return nil
 }
 
-// runCreditLoopedPositionsCmd executes the credit-looped-positions command.
-func runCreditLoopedPositionsCmd(cmd *cobra.Command, args []string) error {
+// runLoopedPositionsCmd executes the looped-positions command.
+func runLoopedPositionsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, creditLoopedPositionsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, creditLoopedPositionsCmdMeta); err != nil {
+	if interactive.ShouldPrompt(cmd, loopedPositionsCmdMeta) {
+		if err := interactive.PromptAndSetFlags(cmd, loopedPositionsCmdMeta); err != nil {
 			return err
 		}
 	}
-	req, err := flagutil.BuildRequest[operations.V2CreditLoopedPositionsRequest](cmd, creditLoopedPositionsCmdMeta, "", "")
+	req, err := flagutil.BuildRequest[operations.V2CreditLoopedPositionsRequest](cmd, loopedPositionsCmdMeta, "", "")
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func runCreditLoopedPositionsCmd(cmd *cobra.Command, args []string) error {
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.Credit.CreditLoopedPositions(cmd.Context(), *req, sdkOpts...)
+	res, err := s.Credit.LoopedPositions(cmd.Context(), *req, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}
