@@ -6,9 +6,10 @@ package components
 type TokenizedAssetProvider string
 
 const (
-	TokenizedAssetProviderOndo  TokenizedAssetProvider = "ondo"
-	TokenizedAssetProviderMidas TokenizedAssetProvider = "midas"
-	TokenizedAssetProviderIxs   TokenizedAssetProvider = "ixs"
+	TokenizedAssetProviderOndo       TokenizedAssetProvider = "ondo"
+	TokenizedAssetProviderMidas      TokenizedAssetProvider = "midas"
+	TokenizedAssetProviderIxs        TokenizedAssetProvider = "ixs"
+	TokenizedAssetProviderCentrifuge TokenizedAssetProvider = "centrifuge"
 )
 
 func (e TokenizedAssetProvider) ToPointer() *TokenizedAssetProvider {
@@ -19,7 +20,7 @@ func (e TokenizedAssetProvider) ToPointer() *TokenizedAssetProvider {
 func (e *TokenizedAssetProvider) IsExact() bool {
 	if e != nil {
 		switch *e {
-		case "ondo", "midas", "ixs":
+		case "ondo", "midas", "ixs", "centrifuge":
 			return true
 		}
 	}

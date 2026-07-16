@@ -25,11 +25,11 @@ compass tokenized-assets markets [flags]
 ### Options
 
 ```
-  -a, --asset-class string   Filter by asset class (EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD). (options: EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD, MANAGED_VAULT)
+  -a, --asset-class string   Filter by asset class (EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD). (options: EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD, MANAGED_VAULT, DERWA)
       --category string      Filter markets by category (e.g. 'tech', 'finance').
       --chain string         Filter by network. Equities are Ethereum-only; RWA yield assets exist on Ethereum and Base. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc)
   -h, --help                 help for markets
-  -p, --provider string      Filter by issuer ('ondo' equities, 'midas' RWA yield). (options: ondo, midas, ixs)
+  -p, --provider string      Filter by issuer ('ondo' equities, 'midas' RWA yield). (options: ondo, midas, ixs, centrifuge)
   -s, --search string        Case-insensitive substring match against the on-chain symbol, underlying ticker, and underlying name.
 ```
 

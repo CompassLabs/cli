@@ -30,10 +30,12 @@ type CompassAPIBackendV2ModelsTokenizedAssetsReadResponsePositionsPosition struc
 	// Asset class of a tokenized asset.
 	//
 	// `EQUITY` trades via the order endpoints (build/submit/cancel); the RWA
-	// yield classes (`T_BILLS`, `BASIS_TRADE`, `BTC_YIELD`) and `MANAGED_VAULT`
-	// trade via the swap-based `transact/buy` and `transact/sell` endpoints.
-	// `MANAGED_VAULT` (IXS ERC-4626 vaults) is special in that a sell is an
-	// *asynchronous* redemption request settled off-chain by the vault operator.
+	// yield classes (`T_BILLS`, `BASIS_TRADE`, `BTC_YIELD`), `MANAGED_VAULT`, and
+	// `DERWA` trade via the swap-based `transact/buy` and `transact/sell`
+	// endpoints. `MANAGED_VAULT` (IXS ERC-4626 vaults) is special in that a sell
+	// is an *asynchronous* redemption request settled off-chain by the vault
+	// operator. `DERWA` (Centrifuge freely-transferable RWA wrappers) settles
+	// each buy/sell as a single instant DEX swap.
 	AssetClass *TokenizedAssetClass `json:"asset_class,omitzero"`
 	// The chain to use.
 	Chain *Chain `json:"chain,omitzero"`

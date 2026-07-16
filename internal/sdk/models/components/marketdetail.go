@@ -34,10 +34,12 @@ type MarketDetail struct {
 	// Asset class of a tokenized asset.
 	//
 	// `EQUITY` trades via the order endpoints (build/submit/cancel); the RWA
-	// yield classes (`T_BILLS`, `BASIS_TRADE`, `BTC_YIELD`) and `MANAGED_VAULT`
-	// trade via the swap-based `transact/buy` and `transact/sell` endpoints.
-	// `MANAGED_VAULT` (IXS ERC-4626 vaults) is special in that a sell is an
-	// *asynchronous* redemption request settled off-chain by the vault operator.
+	// yield classes (`T_BILLS`, `BASIS_TRADE`, `BTC_YIELD`), `MANAGED_VAULT`, and
+	// `DERWA` trade via the swap-based `transact/buy` and `transact/sell`
+	// endpoints. `MANAGED_VAULT` (IXS ERC-4626 vaults) is special in that a sell
+	// is an *asynchronous* redemption request settled off-chain by the vault
+	// operator. `DERWA` (Centrifuge freely-transferable RWA wrappers) settles
+	// each buy/sell as a single instant DEX swap.
 	AssetClass TokenizedAssetClass `json:"asset_class"`
 	// The chain to use.
 	Chain Chain `json:"chain"`
@@ -49,6 +51,8 @@ type MarketDetail struct {
 	TvlUsd optionalnullable.OptionalNullable[string] `json:"tvl_usd,omitzero"`
 	// Live tradability: whether this market can be traded right now, and if not, why (and when it reopens). Equities follow US market sessions (some are 24-7 via an off-hours track); RWA yield / vault assets trade continuously unless the issuer pauses. Null if status is unavailable.
 	Status optionalnullable.OptionalNullable[TradingStatus] `json:"status,omitzero"`
+	// ISO country codes where this asset must not be offered (e.g. ['US']). Regulation-S instruments (Centrifuge deRWA) restrict US persons; the API surfaces the restriction for integrators to enforce — it does not itself geo-gate. Empty for unrestricted assets (Ondo/Midas/IXS).
+	RestrictedJurisdictions []string `json:"restricted_jurisdictions,omitzero"`
 	// 24h price sparkline as `(timestamp, price)` samples in chronological order.
 	PriceHistory24h []PricePoint `json:"price_history_24h,omitzero"`
 	// 52-week high of the underlying equity (USD).
@@ -201,6 +205,13 @@ func (m *MarketDetail) GetStatus() optionalnullable.OptionalNullable[TradingStat
 		return nil
 	}
 	return m.Status
+}
+
+func (m *MarketDetail) GetRestrictedJurisdictions() []string {
+	if m == nil {
+		return nil
+	}
+	return m.RestrictedJurisdictions
 }
 
 func (m *MarketDetail) GetPriceHistory24h() []PricePoint {
