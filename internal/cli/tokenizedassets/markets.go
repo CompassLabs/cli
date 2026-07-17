@@ -27,7 +27,7 @@ func initMarketsCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "markets",
 		Short:   "List markets",
-		Long:    "List the tradable tokenized-asset catalog.\n\nAggregates all three providers — Ondo (tokenized US equities), Midas (RWA\nyield tokens), and IXS (managed vaults) — into a single list with live USD\npricing, plus APY and TVL for yield assets. Filter by provider, asset class,\nor chain, and narrow the results with a sector `category` or free-text\n`search`.",
+		Long:    "List the tradable tokenized-asset catalog.\n\nAggregates all four providers — Ondo (tokenized US equities), Midas (RWA\nyield tokens), IXS (managed vaults), and Centrifuge (deRWA wrappers) — into\na single list with live USD pricing, plus APY and TVL for yield assets.\nFilter by provider, asset class, or chain, and narrow the results with a\nsector `category` or free-text `search`.",
 		Example: "  compass tokenized-assets markets",
 		RunE:    runMarketsCmd,
 	}

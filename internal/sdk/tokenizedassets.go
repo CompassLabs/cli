@@ -33,11 +33,11 @@ func newTokenizedAssets(rootSDK *CompassCLI, sdkConfig config.SDKConfiguration, 
 // Markets - List markets
 // List the tradable tokenized-asset catalog.
 //
-// Aggregates all three providers — Ondo (tokenized US equities), Midas (RWA
-// yield tokens), and IXS (managed vaults) — into a single list with live USD
-// pricing, plus APY and TVL for yield assets. Filter by provider, asset class,
-// or chain, and narrow the results with a sector `category` or free-text
-// `search`.
+// Aggregates all four providers — Ondo (tokenized US equities), Midas (RWA
+// yield tokens), IXS (managed vaults), and Centrifuge (deRWA wrappers) — into
+// a single list with live USD pricing, plus APY and TVL for yield assets.
+// Filter by provider, asset class, or chain, and narrow the results with a
+// sector `category` or free-text `search`.
 func (s *TokenizedAssets) Markets(ctx context.Context, request *operations.V2TokenizedAssetsMarketsRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsMarketsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
@@ -2763,15 +2763,15 @@ func (s *TokenizedAssets) OrderChargeFee(ctx context.Context, request operations
 }
 
 // Buy an RWA yield token
-// Buy an RWA yield token, or deposit into an IXS managed vault, with a stablecoin
-// in one transaction.
+// Buy an RWA yield token, deposit into an IXS managed vault, or buy a Centrifuge
+// deRWA token, with a stablecoin in one transaction.
 //
-// Set `token_out` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`) or to an IXS
-// **vault address** (its shares aren't a registered symbol). The account spends
-// a stablecoin it already holds (fund it with a plain transfer first) and
-// settles inside the product account — an unsigned transaction the owner signs,
-// or EIP-712 with `gas_sponsorship`. Both paths are instant. Equities use the
-// order flow (`/quote`, `/order`).
+// Set `token_out` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`), a Centrifuge
+// deRWA symbol (e.g. `deSPXA`), or an IXS **vault address** (its shares aren't a
+// registered symbol). The account spends a stablecoin it already holds (fund it
+// with a plain transfer first) and settles inside the product account — an
+// unsigned transaction the owner signs, or EIP-712 with `gas_sponsorship`. All
+// three settle instantly. Equities use the order flow (`/quote`, `/order`).
 func (s *TokenizedAssets) Buy(ctx context.Context, request components.TokenizedAssetsTradeRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsTransactBuyResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
@@ -2948,16 +2948,16 @@ func (s *TokenizedAssets) Buy(ctx context.Context, request components.TokenizedA
 }
 
 // Sell an RWA yield token
-// Sell an RWA yield token, or redeem from an IXS managed vault, back to a
-// stablecoin.
+// Sell an RWA yield token, redeem from an IXS managed vault, or sell a Centrifuge
+// deRWA token, back to a stablecoin.
 //
-// Set `token_in` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`) or to an IXS
-// **vault address**. A Midas redemption is instant and settles in the same
-// transaction; an IXS redemption is **asynchronous** — it files a
-// `requestRedeem` (`settlement: async`) the vault operator settles off-chain
-// later, so poll `GET /v2/tokenized_assets/redemptions` for status. The
-// transaction executes inside the product account (owner signs, or EIP-712 with
-// `gas_sponsorship`).
+// Set `token_in` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`), a Centrifuge
+// deRWA symbol (e.g. `deSPXA`), or an IXS **vault address**. Midas redemptions
+// and Centrifuge deRWA swaps are instant and settle in the same transaction; an
+// IXS redemption is **asynchronous** — it files a `requestRedeem`
+// (`settlement: async`) the vault operator settles off-chain later, so poll
+// `GET /v2/tokenized_assets/redemptions` for status. The transaction executes
+// inside the product account (owner signs, or EIP-712 with `gas_sponsorship`).
 func (s *TokenizedAssets) Sell(ctx context.Context, request components.TokenizedAssetsTradeRequest, opts ...operations.Option) (*operations.V2TokenizedAssetsTransactSellResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{

@@ -31,7 +31,7 @@ func initBuyCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "buy",
 		Short:   "Buy an RWA yield token",
-		Long:    "Buy an RWA yield token, or deposit into an IXS managed vault, with a stablecoin\nin one transaction.\n\nSet `token_out` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`) or to an IXS\n**vault address** (its shares aren't a registered symbol). The account spends\na stablecoin it already holds (fund it with a plain transfer first) and\nsettles inside the product account — an unsigned transaction the owner signs,\nor EIP-712 with `gas_sponsorship`. Both paths are instant. Equities use the\norder flow (`/quote`, `/order`).",
+		Long:    "Buy an RWA yield token, deposit into an IXS managed vault, or buy a Centrifuge\ndeRWA token, with a stablecoin in one transaction.\n\nSet `token_out` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`), a Centrifuge\ndeRWA symbol (e.g. `deSPXA`), or an IXS **vault address** (its shares aren't a\nregistered symbol). The account spends a stablecoin it already holds (fund it\nwith a plain transfer first) and settles inside the product account — an\nunsigned transaction the owner signs, or EIP-712 with `gas_sponsorship`. All\nthree settle instantly. Equities use the order flow (`/quote`, `/order`).",
 		Example: "  compass tokenized-assets buy --token-in <value> --token-out <value> --amount-in 4533.23 --owner <value> --chain ethereum",
 		RunE:    runBuyCmd,
 	}

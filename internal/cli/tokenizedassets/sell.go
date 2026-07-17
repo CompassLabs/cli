@@ -31,7 +31,7 @@ func initSellCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "sell",
 		Short:   "Sell an RWA yield token",
-		Long:    "Sell an RWA yield token, or redeem from an IXS managed vault, back to a\nstablecoin.\n\nSet `token_in` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`) or to an IXS\n**vault address**. A Midas redemption is instant and settles in the same\ntransaction; an IXS redemption is **asynchronous** — it files a\n`requestRedeem` (`settlement: async`) the vault operator settles off-chain\nlater, so poll `GET /v2/tokenized_assets/redemptions` for status. The\ntransaction executes inside the product account (owner signs, or EIP-712 with\n`gas_sponsorship`).",
+		Long:    "Sell an RWA yield token, redeem from an IXS managed vault, or sell a Centrifuge\ndeRWA token, back to a stablecoin.\n\nSet `token_in` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`), a Centrifuge\ndeRWA symbol (e.g. `deSPXA`), or an IXS **vault address**. Midas redemptions\nand Centrifuge deRWA swaps are instant and settle in the same transaction; an\nIXS redemption is **asynchronous** — it files a `requestRedeem`\n(`settlement: async`) the vault operator settles off-chain later, so poll\n`GET /v2/tokenized_assets/redemptions` for status. The transaction executes\ninside the product account (owner signs, or EIP-712 with `gas_sponsorship`).",
 		Example: "  compass tokenized-assets sell --token-in <value> --token-out <value> --amount-in 8512.47 --owner <value> --chain arbitrum",
 		RunE:    runSellCmd,
 	}

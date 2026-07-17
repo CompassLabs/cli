@@ -6,11 +6,11 @@ List markets
 
 List the tradable tokenized-asset catalog.
 
-Aggregates all three providers — Ondo (tokenized US equities), Midas (RWA
-yield tokens), and IXS (managed vaults) — into a single list with live USD
-pricing, plus APY and TVL for yield assets. Filter by provider, asset class,
-or chain, and narrow the results with a sector `category` or free-text
-`search`.
+Aggregates all four providers — Ondo (tokenized US equities), Midas (RWA
+yield tokens), IXS (managed vaults), and Centrifuge (deRWA wrappers) — into
+a single list with live USD pricing, plus APY and TVL for yield assets.
+Filter by provider, asset class, or chain, and narrow the results with a
+sector `category` or free-text `search`.
 
 ```
 compass tokenized-assets markets [flags]

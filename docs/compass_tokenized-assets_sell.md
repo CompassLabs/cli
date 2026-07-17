@@ -4,16 +4,16 @@ Sell an RWA yield token
 
 ### Synopsis
 
-Sell an RWA yield token, or redeem from an IXS managed vault, back to a
-stablecoin.
+Sell an RWA yield token, redeem from an IXS managed vault, or sell a Centrifuge
+deRWA token, back to a stablecoin.
 
-Set `token_in` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`) or to an IXS
-**vault address**. A Midas redemption is instant and settles in the same
-transaction; an IXS redemption is **asynchronous** — it files a
-`requestRedeem` (`settlement: async`) the vault operator settles off-chain
-later, so poll `GET /v2/tokenized_assets/redemptions` for status. The
-transaction executes inside the product account (owner signs, or EIP-712 with
-`gas_sponsorship`).
+Set `token_in` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`), a Centrifuge
+deRWA symbol (e.g. `deSPXA`), or an IXS **vault address**. Midas redemptions
+and Centrifuge deRWA swaps are instant and settle in the same transaction; an
+IXS redemption is **asynchronous** — it files a `requestRedeem`
+(`settlement: async`) the vault operator settles off-chain later, so poll
+`GET /v2/tokenized_assets/redemptions` for status. The transaction executes
+inside the product account (owner signs, or EIP-712 with `gas_sponsorship`).
 
 ```
 compass tokenized-assets sell [flags]

@@ -4,15 +4,15 @@ Buy an RWA yield token
 
 ### Synopsis
 
-Buy an RWA yield token, or deposit into an IXS managed vault, with a stablecoin
-in one transaction.
+Buy an RWA yield token, deposit into an IXS managed vault, or buy a Centrifuge
+deRWA token, with a stablecoin in one transaction.
 
-Set `token_out` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`) or to an IXS
-**vault address** (its shares aren't a registered symbol). The account spends
-a stablecoin it already holds (fund it with a plain transfer first) and
-settles inside the product account — an unsigned transaction the owner signs,
-or EIP-712 with `gas_sponsorship`. Both paths are instant. Equities use the
-order flow (`/quote`, `/order`).
+Set `token_out` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`), a Centrifuge
+deRWA symbol (e.g. `deSPXA`), or an IXS **vault address** (its shares aren't a
+registered symbol). The account spends a stablecoin it already holds (fund it
+with a plain transfer first) and settles inside the product account — an
+unsigned transaction the owner signs, or EIP-712 with `gas_sponsorship`. All
+three settle instantly. Equities use the order flow (`/quote`, `/order`).
 
 ```
 compass tokenized-assets buy [flags]
