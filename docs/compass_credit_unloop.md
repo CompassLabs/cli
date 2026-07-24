@@ -12,6 +12,12 @@ swap filling anywhere within the slippage tolerance can never break a later
 step; any positive surplus stays in the Credit Account as borrow-token dust
 (the preview reports the bound as estimated_max_dust).
 
+When the collateral token is itself an ERC-4626 vault share (e.g. a Morpho
+vault token like steakUSDC), each conversion redeems the shares through the
+vault at net asset value and swaps the underlying asset to the borrow token
+instead of swapping the share token on a DEX; a direct share-token route is
+only ever used when it prices within 1% of net asset value.
+
 Omit target_multiplier for a full close: the debt is cleared exactly —
 accrued interest included — and the pair collateral is returned to the Credit
 Account. Pass 1 to clear the debt but keep the collateral supplied, or a value

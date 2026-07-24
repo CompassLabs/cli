@@ -1307,6 +1307,13 @@ func (s *Credit) Borrow(ctx context.Context, request components.CreditBorrowRequ
 // early on that supply — the achieved multiplier is still guaranteed within
 // 0.5% of the request or the call returns a clean 400.
 //
+// When the collateral token is itself an ERC-4626 vault share (e.g. a Morpho
+// vault token like steakUSDC), each conversion swaps the borrow token to the
+// vault's underlying asset and mints the shares via the vault's own deposit at
+// net asset value instead of swapping the share token on a DEX — share tokens
+// have no honest DEX route. A direct share-token route is only ever used when
+// it prices within 1% of net asset value.
+//
 // The Credit Account must already hold initial_collateral_amount of
 // collateral_token. For protocol=MORPHO pass a market_id from
 // /v2/credit/morpho_markets.
@@ -1493,6 +1500,12 @@ func (s *Credit) Loop(ctx context.Context, request components.CreditLoopRequest,
 // swap filling anywhere within the slippage tolerance can never break a later
 // step; any positive surplus stays in the Credit Account as borrow-token dust
 // (the preview reports the bound as estimated_max_dust).
+//
+// When the collateral token is itself an ERC-4626 vault share (e.g. a Morpho
+// vault token like steakUSDC), each conversion redeems the shares through the
+// vault at net asset value and swaps the underlying asset to the borrow token
+// instead of swapping the share token on a DEX; a direct share-token route is
+// only ever used when it prices within 1% of net asset value.
 //
 // Omit target_multiplier for a full close: the debt is cleared exactly —
 // accrued interest included — and the pair collateral is returned to the Credit
@@ -1706,7 +1719,10 @@ func (s *Credit) Unloop(ctx context.Context, request components.CreditUnloopRequ
 // Account), the freed tokens are then routed by swaps at a GUARANTEED minimum
 // output (enforced on-chain), and consuming targets run last — so moving a
 // levered position between markets, token pairs, or protocols (Aave ↔ Morpho) is
-// simply a close plus an open in the same transaction.
+// simply a close plus an open in the same transaction. Conversions involving an
+// ERC-4626 vault-share token (e.g. a Morpho vault token like steakUSDC) go
+// through the vault's own deposit/redeem at net asset value rather than a DEX
+// swap of the share token.
 //
 // Net book growth is funded from the Credit Account's existing idle balance —
 // fund it first via /v2/credit/transfer; a net release stays in the Credit

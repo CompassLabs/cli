@@ -18,6 +18,13 @@ the swap router's minimum routable size; when it does the loop simply ends
 early on that supply — the achieved multiplier is still guaranteed within
 0.5% of the request or the call returns a clean 400.
 
+When the collateral token is itself an ERC-4626 vault share (e.g. a Morpho
+vault token like steakUSDC), each conversion swaps the borrow token to the
+vault's underlying asset and mints the shares via the vault's own deposit at
+net asset value instead of swapping the share token on a DEX — share tokens
+have no honest DEX route. A direct share-token route is only ever used when
+it prices within 1% of net asset value.
+
 The Credit Account must already hold initial_collateral_amount of
 collateral_token. For protocol=MORPHO pass a market_id from
 /v2/credit/morpho_markets.

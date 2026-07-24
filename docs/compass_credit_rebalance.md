@@ -14,7 +14,10 @@ Releasing targets run first (each unwind/delever frees tokens into the Credit
 Account), the freed tokens are then routed by swaps at a GUARANTEED minimum
 output (enforced on-chain), and consuming targets run last — so moving a
 levered position between markets, token pairs, or protocols (Aave ↔ Morpho) is
-simply a close plus an open in the same transaction.
+simply a close plus an open in the same transaction. Conversions involving an
+ERC-4626 vault-share token (e.g. a Morpho vault token like steakUSDC) go
+through the vault's own deposit/redeem at net asset value rather than a DEX
+swap of the share token.
 
 Net book growth is funded from the Credit Account's existing idle balance —
 fund it first via /v2/credit/transfer; a net release stays in the Credit
