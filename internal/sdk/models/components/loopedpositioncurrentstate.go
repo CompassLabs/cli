@@ -47,6 +47,12 @@ type LoopedPositionCurrentState struct {
 	HealthFactor optionalnullable.OptionalNullable[string] `json:"health_factor,omitzero"`
 	// 'market' for Morpho (isolated per-market health). 'account' for Aave: collateral is pooled, so all collateral backs all debt and this health factor is shared by every Aave position on the account — see aave_account_summary for the account-level figures.
 	HealthFactorScope LoopedPositionCurrentStateHealthFactorScope `json:"health_factor_scope"`
+	// What the collateral leg currently earns, in percentage (e.g. 6.12 = 6.12%). Aave: the collateral reserve's spot supply APY. Morpho: the collateral token's own yield — its 7d vault APY when it is an indexed vault share (e.g. steakUSDC); null otherwise, since Morpho collateral earns nothing from the market itself and an unindexed token's intrinsic yield is unknown.
+	CollateralApy optionalnullable.OptionalNullable[string] `json:"collateral_apy,omitzero"`
+	// What the debt leg currently costs, in percentage: the market's spot borrow APY (Morpho IRM rate / Aave variable borrow rate). Null when the rate read was unavailable.
+	BorrowApy optionalnullable.OptionalNullable[string] `json:"borrow_apy,omitzero"`
+	// Levered net yield on the position's equity, in percentage: leverage x collateral_apy - (leverage - 1) x borrow_apy. Negative means the carry is upside down (borrowing costs more than the collateral earns). Null when leverage or either leg is unknown. The collateral leg of a Morpho vault-share position is a 7d average while the borrow leg is spot.
+	NetApy optionalnullable.OptionalNullable[string] `json:"net_apy,omitzero"`
 }
 
 func (l *LoopedPositionCurrentState) GetCollateralAmount() *string {
@@ -103,4 +109,25 @@ func (l *LoopedPositionCurrentState) GetHealthFactorScope() LoopedPositionCurren
 		return LoopedPositionCurrentStateHealthFactorScope("")
 	}
 	return l.HealthFactorScope
+}
+
+func (l *LoopedPositionCurrentState) GetCollateralApy() optionalnullable.OptionalNullable[string] {
+	if l == nil {
+		return nil
+	}
+	return l.CollateralApy
+}
+
+func (l *LoopedPositionCurrentState) GetBorrowApy() optionalnullable.OptionalNullable[string] {
+	if l == nil {
+		return nil
+	}
+	return l.BorrowApy
+}
+
+func (l *LoopedPositionCurrentState) GetNetApy() optionalnullable.OptionalNullable[string] {
+	if l == nil {
+		return nil
+	}
+	return l.NetApy
 }
