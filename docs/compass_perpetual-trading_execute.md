@@ -1,16 +1,40 @@
-## compass
+## compass perpetual-trading execute
 
-Compass API: Compass Labs DeFi API
+Execute signed action
 
 ### Synopsis
 
-Compass API: Compass Labs DeFi API
+Submit a signed Hyperliquid action for execution.
+
+Accepts the signature from any prepare endpoint (market_order, limit_order,
+cancel_order, withdraw, approve_builder_fee) and POSTs it to the Hyperliquid
+exchange API.
+
+The caller must have already hit a prepare endpoint, so no compass_account
+registration is performed here.
 
 ```
-compass [flags]
+compass perpetual-trading execute [flags]
+```
+
+### Examples
+
+```
+  compass perpetual-trading execute --action '{"key":"<value>","key1":"<value>"}' --nonce 449590 --signature <value>
 ```
 
 ### Options
+
+```
+  -a, --action string          Raw Hyperliquid action from the prepare step [required]
+      --body string            Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -h, --help                   help for execute
+  -n, --nonce int              Nonce from the prepare step [required]
+  -s, --signature string       User's EIP-712 signature (hex, 65 bytes) [required]
+  -v, --vault-address string   Optional vault address
+```
+
+### Options inherited from parent commands
 
 ```
       --agent-mode             Enable structured errors and default TOON output for AI coding agents. Automatically enabled when a known agent environment is detected (CLAUDE_CODE, CURSOR_AGENT, etc.). Use --agent-mode=false to disable.
@@ -19,7 +43,6 @@ compass [flags]
   -d, --debug                  Log request and response diagnostics to stderr
       --dry-run                Preview the request that would be sent without executing it (output to stderr)
   -H, --header stringArray     Set a custom HTTP request header (format: "Key: Value"). Can be specified multiple times.
-  -h, --help                   help for compass
       --include-headers        Include HTTP response headers in the output
   -q, --jq string              Filter and transform output using a jq expression (e.g., '.name', '.items[] | .id')
       --no-interactive         Disable all interactive features (auto-prompting, explorer auto-launch, TUI forms)
@@ -32,14 +55,4 @@ compass [flags]
 
 ### SEE ALSO
 
-* [compass auth](compass_auth.md)	 - Manage authentication credentials
-* [compass configure](compass_configure.md)	 - Configure authentication credentials and preferences
-* [compass credit](compass_credit.md)	 - Operations for credit
-* [compass earn](compass_earn.md)	 - Operations for earn
-* [compass explore](compass_explore.md)	 - Interactively browse and run commands
-* [compass gas-sponsorship](compass_gas-sponsorship.md)	 - Operations for gas-sponsorship
-* [compass onramp](compass_onramp.md)	 - Operations for onramp
 * [compass perpetual-trading](compass_perpetual-trading.md)	 - Operations for perpetual-trading
-* [compass tokenized-assets](compass_tokenized-assets.md)	 - Operations for tokenized-assets
-* [compass version](compass_version.md)	 - Print the CLI version
-* [compass whoami](compass_whoami.md)	 - Display current authentication configuration

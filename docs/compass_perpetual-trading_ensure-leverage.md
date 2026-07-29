@@ -1,16 +1,36 @@
-## compass
+## compass perpetual-trading ensure-leverage
 
-Compass API: Compass Labs DeFi API
+Ensure 1x cross leverage
 
 ### Synopsis
 
-Compass API: Compass Labs DeFi API
+Check leverage and prepare an updateLeverage action if not 1x cross.
+
+If the asset is already at 1x cross leverage, returns leverage_ok=true
+with null typed_data — no signing needed. Otherwise, returns EIP-712
+typed data for the user to sign. After signing, submit the signature
+via the /execute endpoint.
 
 ```
-compass [flags]
+compass perpetual-trading ensure-leverage [flags]
+```
+
+### Examples
+
+```
+  compass perpetual-trading ensure-leverage --owner <value> --asset <value>
 ```
 
 ### Options
+
+```
+  -a, --asset string   Asset ticker (e.g. 'AAPL', 'CL') [required]
+      --body string    Request body as JSON (alternative to individual flags). Can also be provided via stdin.
+  -h, --help           help for ensure-leverage
+      --owner string   User's EOA address [required]
+```
+
+### Options inherited from parent commands
 
 ```
       --agent-mode             Enable structured errors and default TOON output for AI coding agents. Automatically enabled when a known agent environment is detected (CLAUDE_CODE, CURSOR_AGENT, etc.). Use --agent-mode=false to disable.
@@ -19,7 +39,6 @@ compass [flags]
   -d, --debug                  Log request and response diagnostics to stderr
       --dry-run                Preview the request that would be sent without executing it (output to stderr)
   -H, --header stringArray     Set a custom HTTP request header (format: "Key: Value"). Can be specified multiple times.
-  -h, --help                   help for compass
       --include-headers        Include HTTP response headers in the output
   -q, --jq string              Filter and transform output using a jq expression (e.g., '.name', '.items[] | .id')
       --no-interactive         Disable all interactive features (auto-prompting, explorer auto-launch, TUI forms)
@@ -32,14 +51,4 @@ compass [flags]
 
 ### SEE ALSO
 
-* [compass auth](compass_auth.md)	 - Manage authentication credentials
-* [compass configure](compass_configure.md)	 - Configure authentication credentials and preferences
-* [compass credit](compass_credit.md)	 - Operations for credit
-* [compass earn](compass_earn.md)	 - Operations for earn
-* [compass explore](compass_explore.md)	 - Interactively browse and run commands
-* [compass gas-sponsorship](compass_gas-sponsorship.md)	 - Operations for gas-sponsorship
-* [compass onramp](compass_onramp.md)	 - Operations for onramp
 * [compass perpetual-trading](compass_perpetual-trading.md)	 - Operations for perpetual-trading
-* [compass tokenized-assets](compass_tokenized-assets.md)	 - Operations for tokenized-assets
-* [compass version](compass_version.md)	 - Print the CLI version
-* [compass whoami](compass_whoami.md)	 - Display current authentication configuration

@@ -207,23 +207,23 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`repay`](docs/compass_credit_repay.md) - Repay debt and withdraw collateral
 * [`bundle`](docs/compass_credit_bundle.md) - Execute multiple credit actions
 
-### [global-markets-perps](docs/compass_global-markets-perps.md)
+### [perpetual-trading](docs/compass_perpetual-trading.md)
 
-* [`opportunities`](docs/compass_global-markets-perps_opportunities.md) - List global markets perps markets
-* [`positions`](docs/compass_global-markets-perps_positions.md) - List global markets perps positions
-* [`candles`](docs/compass_global-markets-perps_candles.md) - Get OHLCV candles
-* [`activity`](docs/compass_global-markets-perps_activity.md) - Aggregated Hyperliquid activity for a user
-* [`deposit`](docs/compass_global-markets-perps_deposit.md) - Deposit USDC to global markets perps account
-* [`deposit-sponsor-prepare`](docs/compass_global-markets-perps_deposit-sponsor-prepare.md) - Build the Bridge2 deposit tx from a signed permit
-* [`withdraw`](docs/compass_global-markets-perps_withdraw.md) - Withdraw USDC from global markets perps account
-* [`market-order`](docs/compass_global-markets-perps_market-order.md) - Place market order
-* [`limit-order`](docs/compass_global-markets-perps_limit-order.md) - Place limit order
-* [`cancel-order`](docs/compass_global-markets-perps_cancel-order.md) - Cancel order
-* [`execute`](docs/compass_global-markets-perps_execute.md) - Execute signed action
-* [`approve-builder-fee`](docs/compass_global-markets-perps_approve-builder-fee.md) - Approve builder fee
-* [`enable-unified-account`](docs/compass_global-markets-perps_enable-unified-account.md) - Enable unified account mode
-* [`ensure-leverage`](docs/compass_global-markets-perps_ensure-leverage.md) - Ensure 1x cross leverage
-* [`set-leverage`](docs/compass_global-markets-perps_set-leverage.md) - Set leverage (defaults to market maximum)
+* [`opportunities`](docs/compass_perpetual-trading_opportunities.md) - List perpetual trading markets
+* [`positions`](docs/compass_perpetual-trading_positions.md) - List perpetual trading positions
+* [`candles`](docs/compass_perpetual-trading_candles.md) - Get OHLCV candles
+* [`activity`](docs/compass_perpetual-trading_activity.md) - Aggregated Hyperliquid activity for a user
+* [`deposit`](docs/compass_perpetual-trading_deposit.md) - Deposit USDC to perpetual trading account
+* [`deposit-sponsor-prepare`](docs/compass_perpetual-trading_deposit-sponsor-prepare.md) - Build the Bridge2 deposit tx from a signed permit
+* [`withdraw`](docs/compass_perpetual-trading_withdraw.md) - Withdraw USDC from perpetual trading account
+* [`market-order`](docs/compass_perpetual-trading_market-order.md) - Place market order
+* [`limit-order`](docs/compass_perpetual-trading_limit-order.md) - Place limit order
+* [`cancel-order`](docs/compass_perpetual-trading_cancel-order.md) - Cancel order
+* [`execute`](docs/compass_perpetual-trading_execute.md) - Execute signed action
+* [`approve-builder-fee`](docs/compass_perpetual-trading_approve-builder-fee.md) - Approve builder fee
+* [`enable-unified-account`](docs/compass_perpetual-trading_enable-unified-account.md) - Enable unified account mode
+* [`ensure-leverage`](docs/compass_perpetual-trading_ensure-leverage.md) - Ensure 1x cross leverage
+* [`set-leverage`](docs/compass_perpetual-trading_set-leverage.md) - Set leverage (defaults to market maximum)
 
 ### [tokenized-assets](docs/compass_tokenized-assets.md)
 
@@ -544,7 +544,7 @@ compass gas-sponsorship prepare --owner "$ADDR" --chain arbitrum \
 
 ### Hyperliquid perps & tokenized-asset orders
 
-These sign an exchange / EIP-712 payload rather than an EVM tx. Build with the command, sign the returned typed data, then submit the signature via `global-markets-perps execute` (perps) or `tokenized-assets order-submit` (equity orders) — no raw broadcast on your side.
+These sign an exchange / EIP-712 payload rather than an EVM tx. Build with the command, sign the returned typed data, then submit the signature via `perpetual-trading execute` (perps) or `tokenized-assets order-submit` (equity orders) — no raw broadcast on your side.
 
 <!-- Placeholder for Future Speakeasy SDK Sections -->
 

@@ -8,8 +8,8 @@ import (
 	"github.com/CompassLabs/cli/internal/cli/earn"
 	"github.com/CompassLabs/cli/internal/cli/gassponsorship"
 	"github.com/CompassLabs/cli/internal/cli/risk"
-	"github.com/CompassLabs/cli/internal/cli/globalmarketsperps"
 	"github.com/CompassLabs/cli/internal/cli/onramp"
+	"github.com/CompassLabs/cli/internal/cli/perpetualtrading"
 	"github.com/CompassLabs/cli/internal/cli/tokenizedassets"
 	"github.com/CompassLabs/cli/internal/config"
 	"github.com/CompassLabs/cli/internal/explorer"
@@ -61,8 +61,8 @@ func NewRootCommand() (*cobra.Command, error) {
 	if err := credit.InitCreditRoot(rootCmd); err != nil {
 		return nil, fmt.Errorf("init credit: %w", err)
 	}
-	if err := globalmarketsperps.InitGlobalMarketsPerpsRoot(rootCmd); err != nil {
-		return nil, fmt.Errorf("init global-markets-perps: %w", err)
+	if err := perpetualtrading.InitPerpetualTradingRoot(rootCmd); err != nil {
+		return nil, fmt.Errorf("init perpetual-trading: %w", err)
 	}
 	if err := tokenizedassets.InitTokenizedAssetsRoot(rootCmd); err != nil {
 		return nil, fmt.Errorf("init tokenized-assets: %w", err)

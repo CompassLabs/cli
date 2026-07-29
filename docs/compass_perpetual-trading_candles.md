@@ -1,16 +1,38 @@
-## compass
+## compass perpetual-trading candles
 
-Compass API: Compass Labs DeFi API
+Get OHLCV candles
 
 ### Synopsis
 
-Compass API: Compass Labs DeFi API
+Return OHLCV candles for a single asset and interval.
+
+Wraps Hyperliquid's ``candleSnapshot`` info type and adds the xyz: HIP-3 DEX
+prefix server-side so the SDK only needs the bare ticker (e.g. ``AAPL``).
+Candle ``time`` is returned in unix seconds, ready for TradingView
+lightweight-charts. Cached for 15 seconds per (symbol, interval, window).
 
 ```
-compass [flags]
+compass perpetual-trading candles [flags]
+```
+
+### Examples
+
+```
+  compass perpetual-trading candles --symbol AAPL --interval 1h
 ```
 
 ### Options
+
+```
+  -e, --end-time string     Optional end of the candle window in unix milliseconds. Defaults to now.
+  -h, --help                help for candles
+  -i, --interval string     Candle interval: 1m, 5m, 15m, 1h, 4h, 1d, 1w (options: 1m, 5m, 15m, 1h, 4h, 1d, 1w) [required]
+  -l, --limit int           Number of candles to return (max 5000, capped by Hyperliquid).
+      --start-time string   Optional start of the candle window in unix milliseconds. If omitted, computed as end_time - limit * interval.
+      --symbol string       Asset ticker (e.g. AAPL, GOLD, EUR). The xyz: HIP-3 DEX prefix is added server-side if not already present. [required]
+```
+
+### Options inherited from parent commands
 
 ```
       --agent-mode             Enable structured errors and default TOON output for AI coding agents. Automatically enabled when a known agent environment is detected (CLAUDE_CODE, CURSOR_AGENT, etc.). Use --agent-mode=false to disable.
@@ -19,7 +41,6 @@ compass [flags]
   -d, --debug                  Log request and response diagnostics to stderr
       --dry-run                Preview the request that would be sent without executing it (output to stderr)
   -H, --header stringArray     Set a custom HTTP request header (format: "Key: Value"). Can be specified multiple times.
-  -h, --help                   help for compass
       --include-headers        Include HTTP response headers in the output
   -q, --jq string              Filter and transform output using a jq expression (e.g., '.name', '.items[] | .id')
       --no-interactive         Disable all interactive features (auto-prompting, explorer auto-launch, TUI forms)
@@ -32,14 +53,4 @@ compass [flags]
 
 ### SEE ALSO
 
-* [compass auth](compass_auth.md)	 - Manage authentication credentials
-* [compass configure](compass_configure.md)	 - Configure authentication credentials and preferences
-* [compass credit](compass_credit.md)	 - Operations for credit
-* [compass earn](compass_earn.md)	 - Operations for earn
-* [compass explore](compass_explore.md)	 - Interactively browse and run commands
-* [compass gas-sponsorship](compass_gas-sponsorship.md)	 - Operations for gas-sponsorship
-* [compass onramp](compass_onramp.md)	 - Operations for onramp
 * [compass perpetual-trading](compass_perpetual-trading.md)	 - Operations for perpetual-trading
-* [compass tokenized-assets](compass_tokenized-assets.md)	 - Operations for tokenized-assets
-* [compass version](compass_version.md)	 - Print the CLI version
-* [compass whoami](compass_whoami.md)	 - Display current authentication configuration
