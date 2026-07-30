@@ -22,6 +22,8 @@ type CreditLoopPreview struct {
 	ProjectedHealthFactor string `json:"projected_health_factor"`
 	// Upper bound of collateral-token surplus the swaps can leave in the Credit Account (sum of quote − guaranteed floor per swap). It is bounded by max_slippage_percent per iteration, stays in the account, and is never lost.
 	EstimatedMaxDust string `json:"estimated_max_dust"`
+	// Expected one-off cost of entering this loop, in COLLATERAL token units: the sum over swap legs of the market oracle's fair output minus the router's quote. This is the DEX fee plus price impact — the amount the position must earn back before it is ahead. Multiply by the collateral price for a USD figure. Distinct from estimated_max_dust, which is surplus retained in the account, not a cost. Excludes gas. Measured against the protocol's own oracle, so it also carries any oracle-to-market basis; clamped at zero.
+	EstimatedSwapCost string `json:"estimated_swap_cost"`
 	// Per-iteration breakdown.
 	Legs []LoopLegPreview `json:"legs,omitzero"`
 }
@@ -84,6 +86,13 @@ func (c *CreditLoopPreview) GetEstimatedMaxDust() string {
 		return ""
 	}
 	return c.EstimatedMaxDust
+}
+
+func (c *CreditLoopPreview) GetEstimatedSwapCost() string {
+	if c == nil {
+		return ""
+	}
+	return c.EstimatedSwapCost
 }
 
 func (c *CreditLoopPreview) GetLegs() []LoopLegPreview {

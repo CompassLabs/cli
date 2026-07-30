@@ -14,6 +14,8 @@ type LoopLegPreview struct {
 	BorrowAmount optionalnullable.OptionalNullable[string] `json:"borrow_amount,omitzero"`
 	// Guaranteed swap output (collateral units) — the next iteration's supply. Enforced on-chain by the swap's minimum-return.
 	MinSwapOut optionalnullable.OptionalNullable[string] `json:"min_swap_out,omitzero"`
+	// Quoted swap output (collateral units) before the slippage floor is applied. Only min_swap_out is guaranteed on-chain; the gap between the two is the adverse-slippage tolerance, bounded by max_slippage_percent, not a surplus that is certain to arrive. Whatever the fill actually delivers above min_swap_out stays in the account, and estimated_max_dust is the upper bound on that.
+	ExpectedSwapOut optionalnullable.OptionalNullable[string] `json:"expected_swap_out,omitzero"`
 }
 
 func (l *LoopLegPreview) GetSupplyAmount() *string {
@@ -35,4 +37,11 @@ func (l *LoopLegPreview) GetMinSwapOut() optionalnullable.OptionalNullable[strin
 		return nil
 	}
 	return l.MinSwapOut
+}
+
+func (l *LoopLegPreview) GetExpectedSwapOut() optionalnullable.OptionalNullable[string] {
+	if l == nil {
+		return nil
+	}
+	return l.ExpectedSwapOut
 }
