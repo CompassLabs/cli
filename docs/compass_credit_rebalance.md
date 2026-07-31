@@ -56,7 +56,7 @@ compass credit rebalance [flags]
 
 ```
       --body string                   Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -c, --chain string                  The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]
+  -c, --chain string                  Blockchain network. Rebalance is not available on HyperEVM yet; use loop/unloop there. (options: arbitrum, base, bsc, ethereum, tempo) [required]
   -g, --gas-sponsorship               If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
   -h, --help                          help for rebalance
   -m, --max-slippage-percent string   JSON value (one of: number | string)

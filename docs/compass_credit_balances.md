@@ -22,7 +22,7 @@ compass credit balances [flags]
 ### Options
 
 ```
-  -c, --chain string   options: arbitrum, base, bsc, ethereum, tempo [required]
+  -c, --chain string   options: arbitrum, base, bsc, ethereum, hyperevm, tempo [required]
   -h, --help           help for balances
       --owner string   The address of the owner of the credit account. [required]
 ```

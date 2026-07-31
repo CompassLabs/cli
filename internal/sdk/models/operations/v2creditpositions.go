@@ -16,6 +16,7 @@ const (
 	V2CreditPositionsChainBase     V2CreditPositionsChain = "base"
 	V2CreditPositionsChainBsc      V2CreditPositionsChain = "bsc"
 	V2CreditPositionsChainEthereum V2CreditPositionsChain = "ethereum"
+	V2CreditPositionsChainHyperevm V2CreditPositionsChain = "hyperevm"
 	V2CreditPositionsChainTempo    V2CreditPositionsChain = "tempo"
 )
 
@@ -35,6 +36,8 @@ func (e *V2CreditPositionsChain) UnmarshalJSON(data []byte) error {
 	case "bsc":
 		fallthrough
 	case "ethereum":
+		fallthrough
+	case "hyperevm":
 		fallthrough
 	case "tempo":
 		*e = V2CreditPositionsChain(v)

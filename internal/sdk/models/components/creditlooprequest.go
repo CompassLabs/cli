@@ -3,11 +3,51 @@
 package components
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
+
+// CreditLoopRequestChain - Blockchain network.
+type CreditLoopRequestChain string
+
+const (
+	CreditLoopRequestChainArbitrum CreditLoopRequestChain = "arbitrum"
+	CreditLoopRequestChainBase     CreditLoopRequestChain = "base"
+	CreditLoopRequestChainBsc      CreditLoopRequestChain = "bsc"
+	CreditLoopRequestChainEthereum CreditLoopRequestChain = "ethereum"
+	CreditLoopRequestChainHyperevm CreditLoopRequestChain = "hyperevm"
+	CreditLoopRequestChainTempo    CreditLoopRequestChain = "tempo"
+)
+
+func (e CreditLoopRequestChain) ToPointer() *CreditLoopRequestChain {
+	return &e
+}
+func (e *CreditLoopRequestChain) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "arbitrum":
+		fallthrough
+	case "base":
+		fallthrough
+	case "bsc":
+		fallthrough
+	case "ethereum":
+		fallthrough
+	case "hyperevm":
+		fallthrough
+	case "tempo":
+		*e = CreditLoopRequestChain(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for CreditLoopRequestChain: %v", v)
+	}
+}
 
 type InitialCollateralAmountType string
 
@@ -375,8 +415,8 @@ func (u CreditLoopRequestMaxSlippagePercent) MarshalJSON() ([]byte, error) {
 type CreditLoopRequest struct {
 	// The address that owns the Credit Account.
 	Owner string `json:"owner"`
-	// The chain to use.
-	Chain Chain `json:"chain"`
+	// Blockchain network.
+	Chain CreditLoopRequestChain `json:"chain"`
 	// Which lending protocol a credit action targets.
 	//
 	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
@@ -419,9 +459,9 @@ func (c *CreditLoopRequest) GetOwner() string {
 	return c.Owner
 }
 
-func (c *CreditLoopRequest) GetChain() Chain {
+func (c *CreditLoopRequest) GetChain() CreditLoopRequestChain {
 	if c == nil {
-		return Chain("")
+		return CreditLoopRequestChain("")
 	}
 	return c.Chain
 }

@@ -28,7 +28,7 @@ compass credit create-account [flags]
 
 ```
       --body string     Request body as JSON (alternative to individual flags). Can also be provided via stdin.
-  -c, --chain string    options: arbitrum, base, bsc, ethereum, tempo [required]
+  -c, --chain string    options: arbitrum, base, bsc, ethereum, hyperevm, tempo [required]
   -e, --estimate-gas    Determines whether to estimate gas costs for transactions, also verifying that the transaction can be successfully executed.
   -h, --help            help for create-account
       --owner string    The address that will own and control the compass credit account [required]

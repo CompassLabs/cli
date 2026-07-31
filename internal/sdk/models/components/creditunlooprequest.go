@@ -3,11 +3,51 @@
 package components
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
+
+// CreditUnloopRequestChain - Blockchain network.
+type CreditUnloopRequestChain string
+
+const (
+	CreditUnloopRequestChainArbitrum CreditUnloopRequestChain = "arbitrum"
+	CreditUnloopRequestChainBase     CreditUnloopRequestChain = "base"
+	CreditUnloopRequestChainBsc      CreditUnloopRequestChain = "bsc"
+	CreditUnloopRequestChainEthereum CreditUnloopRequestChain = "ethereum"
+	CreditUnloopRequestChainHyperevm CreditUnloopRequestChain = "hyperevm"
+	CreditUnloopRequestChainTempo    CreditUnloopRequestChain = "tempo"
+)
+
+func (e CreditUnloopRequestChain) ToPointer() *CreditUnloopRequestChain {
+	return &e
+}
+func (e *CreditUnloopRequestChain) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "arbitrum":
+		fallthrough
+	case "base":
+		fallthrough
+	case "bsc":
+		fallthrough
+	case "ethereum":
+		fallthrough
+	case "hyperevm":
+		fallthrough
+	case "tempo":
+		*e = CreditUnloopRequestChain(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for CreditUnloopRequestChain: %v", v)
+	}
+}
 
 type CreditUnloopRequestTargetMultiplierType string
 
@@ -195,8 +235,8 @@ func (u CreditUnloopRequestMaxSlippagePercent) MarshalJSON() ([]byte, error) {
 type CreditUnloopRequest struct {
 	// The address that owns the Credit Account.
 	Owner string `json:"owner"`
-	// The chain to use.
-	Chain Chain `json:"chain"`
+	// Blockchain network.
+	Chain CreditUnloopRequestChain `json:"chain"`
 	// Which lending protocol a credit action targets.
 	//
 	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
@@ -235,9 +275,9 @@ func (c *CreditUnloopRequest) GetOwner() string {
 	return c.Owner
 }
 
-func (c *CreditUnloopRequest) GetChain() Chain {
+func (c *CreditUnloopRequest) GetChain() CreditUnloopRequestChain {
 	if c == nil {
-		return Chain("")
+		return CreditUnloopRequestChain("")
 	}
 	return c.Chain
 }

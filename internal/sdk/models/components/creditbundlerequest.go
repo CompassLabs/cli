@@ -2,12 +2,56 @@
 
 package components
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
+// CreditBundleRequestChain - Target blockchain network where the bundled actions will execute.
+type CreditBundleRequestChain string
+
+const (
+	CreditBundleRequestChainArbitrum CreditBundleRequestChain = "arbitrum"
+	CreditBundleRequestChainBase     CreditBundleRequestChain = "base"
+	CreditBundleRequestChainBsc      CreditBundleRequestChain = "bsc"
+	CreditBundleRequestChainEthereum CreditBundleRequestChain = "ethereum"
+	CreditBundleRequestChainHyperevm CreditBundleRequestChain = "hyperevm"
+	CreditBundleRequestChainTempo    CreditBundleRequestChain = "tempo"
+)
+
+func (e CreditBundleRequestChain) ToPointer() *CreditBundleRequestChain {
+	return &e
+}
+func (e *CreditBundleRequestChain) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "arbitrum":
+		fallthrough
+	case "base":
+		fallthrough
+	case "bsc":
+		fallthrough
+	case "ethereum":
+		fallthrough
+	case "hyperevm":
+		fallthrough
+	case "tempo":
+		*e = CreditBundleRequestChain(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for CreditBundleRequestChain: %v", v)
+	}
+}
+
 // CreditBundleRequest - Request to execute multiple credit actions in a single atomic transaction.
 type CreditBundleRequest struct {
 	// The owner's wallet address that controls the Credit Account.
 	Owner string `json:"owner"`
-	// The chain to use.
-	Chain Chain `json:"chain"`
+	// Target blockchain network where the bundled actions will execute.
+	Chain CreditBundleRequestChain `json:"chain"`
 	// List of actions to bundle. Actions are executed in order.
 	Actions []CreditUserOperation `json:"actions"`
 	// If true, returns EIP-712 typed data for gas-sponsored execution.
@@ -21,9 +65,9 @@ func (c *CreditBundleRequest) GetOwner() string {
 	return c.Owner
 }
 
-func (c *CreditBundleRequest) GetChain() Chain {
+func (c *CreditBundleRequest) GetChain() CreditBundleRequestChain {
 	if c == nil {
-		return Chain("")
+		return CreditBundleRequestChain("")
 	}
 	return c.Chain
 }

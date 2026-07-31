@@ -62,7 +62,7 @@ compass credit unloop [flags]
       --body string                   Request body as JSON (alternative to individual flags). Can also be provided via stdin.
       --borrow-token string           Token borrowed in the loop; withdrawn collateral is swapped back to it and used to repay. For MORPHO it must be the market's loan token. [required]
       --borrow-vault string           Euler only: the EVK vault the loop borrowed from (the sub-account's controller). Required when protocol=EULER.
-      --chain string                  The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]
+      --chain string                  Blockchain network. (options: arbitrum, base, bsc, ethereum, hyperevm, tempo) [required]
       --collateral-token string       Token supplied as collateral in the loop being unwound. For MORPHO it must be the market's collateral token. [required]
       --collateral-vault string       Euler only: the EVK vault the loop's collateral is in. Required when protocol=EULER.
   -g, --gas-sponsorship               If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.

@@ -14,6 +14,7 @@ const (
 	CreateCreditAccountRequestChainBase     CreateCreditAccountRequestChain = "base"
 	CreateCreditAccountRequestChainBsc      CreateCreditAccountRequestChain = "bsc"
 	CreateCreditAccountRequestChainEthereum CreateCreditAccountRequestChain = "ethereum"
+	CreateCreditAccountRequestChainHyperevm CreateCreditAccountRequestChain = "hyperevm"
 	CreateCreditAccountRequestChainTempo    CreateCreditAccountRequestChain = "tempo"
 )
 
@@ -33,6 +34,8 @@ func (e *CreateCreditAccountRequestChain) UnmarshalJSON(data []byte) error {
 	case "bsc":
 		fallthrough
 	case "ethereum":
+		fallthrough
+	case "hyperevm":
 		fallthrough
 	case "tempo":
 		*e = CreateCreditAccountRequestChain(v)

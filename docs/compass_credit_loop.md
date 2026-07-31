@@ -45,7 +45,7 @@ compass credit loop [flags]
       --body string                        Request body as JSON (alternative to individual flags). Can also be provided via stdin.
       --borrow-token string                Token borrowed each iteration and swapped back to the collateral token. For MORPHO it must be the market's loan token. [required]
       --borrow-vault string                Euler only: the EVK vault address borrowed from (the sub-account's controller). Required when protocol=EULER.
-      --chain string                       The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]
+      --chain string                       Blockchain network. (options: arbitrum, base, bsc, ethereum, hyperevm, tempo) [required]
       --collateral-token string            Token supplied as collateral each iteration. Must already be in the Credit Account for the initial amount. For MORPHO it must be the market's collateral token. [required]
       --collateral-vault string            Euler only: the EVK vault address collateral is supplied to (from /v2/credit/euler_markets). Required when protocol=EULER.
   -e, --emode-category string              Aave only: e-mode category to enable before looping (higher LTV for correlated pairs, e.g. ETH-correlated).

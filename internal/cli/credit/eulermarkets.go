@@ -15,7 +15,7 @@ import (
 )
 
 var eulerMarketsCmdMeta = []flagutil.FlagMeta{
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"arbitrum", "base", "bsc", "ethereum", "tempo"}, Description: "options: arbitrum, base, bsc, ethereum, tempo [required]"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"arbitrum", "base", "bsc", "ethereum", "hyperevm", "tempo"}, Description: "options: arbitrum, base, bsc, ethereum, hyperevm, tempo [required]"},
 }
 
 // initEulerMarketsCmd initializes the euler-markets command.

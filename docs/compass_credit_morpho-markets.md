@@ -24,7 +24,7 @@ compass credit morpho-markets [flags]
 ### Options
 
 ```
-  -c, --chain string       options: arbitrum, base, bsc, ethereum, tempo [required]
+  -c, --chain string       options: arbitrum, base, bsc, ethereum, hyperevm, tempo [required]
       --direction string   Order direction (asc/desc). (options: asc, desc)
   -h, --help               help for morpho-markets
   -l, --limit int          The number of items to return.

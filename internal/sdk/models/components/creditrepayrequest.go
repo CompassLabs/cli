@@ -3,11 +3,51 @@
 package components
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
+
+// CreditRepayRequestChain - Blockchain network.
+type CreditRepayRequestChain string
+
+const (
+	CreditRepayRequestChainArbitrum CreditRepayRequestChain = "arbitrum"
+	CreditRepayRequestChainBase     CreditRepayRequestChain = "base"
+	CreditRepayRequestChainBsc      CreditRepayRequestChain = "bsc"
+	CreditRepayRequestChainEthereum CreditRepayRequestChain = "ethereum"
+	CreditRepayRequestChainHyperevm CreditRepayRequestChain = "hyperevm"
+	CreditRepayRequestChainTempo    CreditRepayRequestChain = "tempo"
+)
+
+func (e CreditRepayRequestChain) ToPointer() *CreditRepayRequestChain {
+	return &e
+}
+func (e *CreditRepayRequestChain) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "arbitrum":
+		fallthrough
+	case "base":
+		fallthrough
+	case "bsc":
+		fallthrough
+	case "ethereum":
+		fallthrough
+	case "hyperevm":
+		fallthrough
+	case "tempo":
+		*e = CreditRepayRequestChain(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for CreditRepayRequestChain: %v", v)
+	}
+}
 
 type RepayAmountType string
 
@@ -282,8 +322,8 @@ func (u CreditRepayRequestSlippage) MarshalJSON() ([]byte, error) {
 type CreditRepayRequest struct {
 	// The address that owns the Credit Account.
 	Owner string `json:"owner"`
-	// The chain to use.
-	Chain Chain `json:"chain"`
+	// Blockchain network.
+	Chain CreditRepayRequestChain `json:"chain"`
 	// Which lending protocol a credit action targets.
 	//
 	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
@@ -334,9 +374,9 @@ func (c *CreditRepayRequest) GetOwner() string {
 	return c.Owner
 }
 
-func (c *CreditRepayRequest) GetChain() Chain {
+func (c *CreditRepayRequest) GetChain() CreditRepayRequestChain {
 	if c == nil {
-		return Chain("")
+		return CreditRepayRequestChain("")
 	}
 	return c.Chain
 }

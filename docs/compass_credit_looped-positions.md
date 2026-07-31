@@ -26,7 +26,7 @@ compass credit looped-positions [flags]
 ### Options
 
 ```
-  -c, --chain string   options: arbitrum, base, bsc, ethereum, tempo [required]
+  -c, --chain string   options: arbitrum, base, bsc, ethereum, hyperevm, tempo [required]
   -h, --help           help for looped-positions
       --owner string   The address of the owner of the credit account to get looped positions for. [required]
 ```

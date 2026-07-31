@@ -3,11 +3,51 @@
 package components
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
+
+// CreditBorrowRequestChain - Blockchain network.
+type CreditBorrowRequestChain string
+
+const (
+	CreditBorrowRequestChainArbitrum CreditBorrowRequestChain = "arbitrum"
+	CreditBorrowRequestChainBase     CreditBorrowRequestChain = "base"
+	CreditBorrowRequestChainBsc      CreditBorrowRequestChain = "bsc"
+	CreditBorrowRequestChainEthereum CreditBorrowRequestChain = "ethereum"
+	CreditBorrowRequestChainHyperevm CreditBorrowRequestChain = "hyperevm"
+	CreditBorrowRequestChainTempo    CreditBorrowRequestChain = "tempo"
+)
+
+func (e CreditBorrowRequestChain) ToPointer() *CreditBorrowRequestChain {
+	return &e
+}
+func (e *CreditBorrowRequestChain) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "arbitrum":
+		fallthrough
+	case "base":
+		fallthrough
+	case "bsc":
+		fallthrough
+	case "ethereum":
+		fallthrough
+	case "hyperevm":
+		fallthrough
+	case "tempo":
+		*e = CreditBorrowRequestChain(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for CreditBorrowRequestChain: %v", v)
+	}
+}
 
 type CreditBorrowRequestAmountInType string
 
@@ -282,8 +322,8 @@ func (u CreditBorrowRequestSlippage) MarshalJSON() ([]byte, error) {
 type CreditBorrowRequest struct {
 	// The address that owns the Credit Account.
 	Owner string `json:"owner"`
-	// The chain to use.
-	Chain Chain `json:"chain"`
+	// Blockchain network.
+	Chain CreditBorrowRequestChain `json:"chain"`
 	// Which lending protocol a credit action targets.
 	//
 	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
@@ -347,9 +387,9 @@ func (c *CreditBorrowRequest) GetOwner() string {
 	return c.Owner
 }
 
-func (c *CreditBorrowRequest) GetChain() Chain {
+func (c *CreditBorrowRequest) GetChain() CreditBorrowRequestChain {
 	if c == nil {
-		return Chain("")
+		return CreditBorrowRequestChain("")
 	}
 	return c.Chain
 }

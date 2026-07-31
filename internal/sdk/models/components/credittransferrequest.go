@@ -10,6 +10,45 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
+// CreditTransferRequestChain - Blockchain network.
+type CreditTransferRequestChain string
+
+const (
+	CreditTransferRequestChainArbitrum CreditTransferRequestChain = "arbitrum"
+	CreditTransferRequestChainBase     CreditTransferRequestChain = "base"
+	CreditTransferRequestChainBsc      CreditTransferRequestChain = "bsc"
+	CreditTransferRequestChainEthereum CreditTransferRequestChain = "ethereum"
+	CreditTransferRequestChainHyperevm CreditTransferRequestChain = "hyperevm"
+	CreditTransferRequestChainTempo    CreditTransferRequestChain = "tempo"
+)
+
+func (e CreditTransferRequestChain) ToPointer() *CreditTransferRequestChain {
+	return &e
+}
+func (e *CreditTransferRequestChain) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "arbitrum":
+		fallthrough
+	case "base":
+		fallthrough
+	case "bsc":
+		fallthrough
+	case "ethereum":
+		fallthrough
+	case "hyperevm":
+		fallthrough
+	case "tempo":
+		*e = CreditTransferRequestChain(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for CreditTransferRequestChain: %v", v)
+	}
+}
+
 type CreditTransferRequestAmountType string
 
 const (
@@ -130,8 +169,8 @@ func (e *CreditTransferRequestAction) UnmarshalJSON(data []byte) error {
 type CreditTransferRequest struct {
 	// The owner's wallet address (EOA).
 	Owner string `json:"owner"`
-	// The chain to use.
-	Chain Chain `json:"chain"`
+	// Blockchain network.
+	Chain CreditTransferRequestChain `json:"chain"`
 	// The token to transfer.
 	Token string `json:"token"`
 	// The amount of tokens to transfer (in token units, not wei).
@@ -151,9 +190,9 @@ func (c *CreditTransferRequest) GetOwner() string {
 	return c.Owner
 }
 
-func (c *CreditTransferRequest) GetChain() Chain {
+func (c *CreditTransferRequest) GetChain() CreditTransferRequestChain {
 	if c == nil {
-		return Chain("")
+		return CreditTransferRequestChain("")
 	}
 	return c.Chain
 }

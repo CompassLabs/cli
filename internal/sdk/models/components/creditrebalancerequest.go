@@ -3,10 +3,47 @@
 package components
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
+
+// CreditRebalanceRequestChain - Blockchain network. Rebalance is not available on HyperEVM yet; use loop/unloop there.
+type CreditRebalanceRequestChain string
+
+const (
+	CreditRebalanceRequestChainArbitrum CreditRebalanceRequestChain = "arbitrum"
+	CreditRebalanceRequestChainBase     CreditRebalanceRequestChain = "base"
+	CreditRebalanceRequestChainBsc      CreditRebalanceRequestChain = "bsc"
+	CreditRebalanceRequestChainEthereum CreditRebalanceRequestChain = "ethereum"
+	CreditRebalanceRequestChainTempo    CreditRebalanceRequestChain = "tempo"
+)
+
+func (e CreditRebalanceRequestChain) ToPointer() *CreditRebalanceRequestChain {
+	return &e
+}
+func (e *CreditRebalanceRequestChain) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "arbitrum":
+		fallthrough
+	case "base":
+		fallthrough
+	case "bsc":
+		fallthrough
+	case "ethereum":
+		fallthrough
+	case "tempo":
+		*e = CreditRebalanceRequestChain(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for CreditRebalanceRequestChain: %v", v)
+	}
+}
 
 type CreditRebalanceRequestMaxSlippagePercentType string
 
@@ -105,8 +142,8 @@ func (u CreditRebalanceRequestMaxSlippagePercent) MarshalJSON() ([]byte, error) 
 type CreditRebalanceRequest struct {
 	// The address that owns the Credit Account.
 	Owner string `json:"owner"`
-	// The chain to use.
-	Chain Chain `json:"chain"`
+	// Blockchain network. Rebalance is not available on HyperEVM yet; use loop/unloop there.
+	Chain CreditRebalanceRequestChain `json:"chain"`
 	// The positions to change. Scoped: only positions named here are touched; any position not listed is left untouched.
 	Targets []RebalanceTarget `json:"targets"`
 	// Request-level per-swap slippage tolerance in percent (including routing swaps). A per-target max_slippage_percent overrides it where set.
@@ -122,9 +159,9 @@ func (c *CreditRebalanceRequest) GetOwner() string {
 	return c.Owner
 }
 
-func (c *CreditRebalanceRequest) GetChain() Chain {
+func (c *CreditRebalanceRequest) GetChain() CreditRebalanceRequestChain {
 	if c == nil {
-		return Chain("")
+		return CreditRebalanceRequestChain("")
 	}
 	return c.Chain
 }

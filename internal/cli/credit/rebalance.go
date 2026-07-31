@@ -17,7 +17,7 @@ import (
 
 var rebalanceCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address that owns the Credit Account. [required]"},
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc) [required]"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"arbitrum", "base", "bsc", "ethereum", "tempo"}, Description: "Blockchain network. Rebalance is not available on HyperEVM yet; use loop/unloop there. (options: arbitrum, base, bsc, ethereum, tempo) [required]"},
 	{FlagName: "targets", Shorthand: "t", FieldPath: "Targets", Kind: flagutil.FlagKindJSON, Required: true, Annotations: `json:"targets"`, Description: "The positions to change. Scoped: only positions named here are touched; any position not listed is left untouched. [required]"},
 	{FlagName: "max-slippage-percent", Shorthand: "m", FieldPath: "MaxSlippagePercent", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "gas-sponsorship", Shorthand: "g", FieldPath: "GasSponsorship", Kind: flagutil.FlagKindBool, Optional: true, Description: "If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction."},

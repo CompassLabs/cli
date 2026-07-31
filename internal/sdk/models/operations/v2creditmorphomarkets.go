@@ -16,6 +16,7 @@ const (
 	V2CreditMorphoMarketsChainBase     V2CreditMorphoMarketsChain = "base"
 	V2CreditMorphoMarketsChainBsc      V2CreditMorphoMarketsChain = "bsc"
 	V2CreditMorphoMarketsChainEthereum V2CreditMorphoMarketsChain = "ethereum"
+	V2CreditMorphoMarketsChainHyperevm V2CreditMorphoMarketsChain = "hyperevm"
 	V2CreditMorphoMarketsChainTempo    V2CreditMorphoMarketsChain = "tempo"
 )
 
@@ -35,6 +36,8 @@ func (e *V2CreditMorphoMarketsChain) UnmarshalJSON(data []byte) error {
 	case "bsc":
 		fallthrough
 	case "ethereum":
+		fallthrough
+	case "hyperevm":
 		fallthrough
 	case "tempo":
 		*e = V2CreditMorphoMarketsChain(v)
