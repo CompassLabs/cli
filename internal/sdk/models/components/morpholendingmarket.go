@@ -32,6 +32,10 @@ type MorphoLendingMarket struct {
 	SupplyApy optionalnullable.OptionalNullable[string] `json:"supply_apy,omitzero"`
 	// Current borrow APY for the loan token, in percentage (e.g. 5.25 means 5.25%). Null if the rate is unavailable.
 	BorrowApy optionalnullable.OptionalNullable[string] `json:"borrow_apy,omitzero"`
+	// What the COLLATERAL token earns inside its own price, in percentage: an ERC-4626 share's vault yield or a staking token's rewards, trailing 7 days. Morpho holds collateral without lending it out, so this is the collateral leg's ENTIRE yield. Null means unmeasured, NOT zero — a plain token (WETH, cbBTC) earns nothing and a yield-bearing one may simply not be indexed yet.
+	CollateralIntrinsicApy optionalnullable.OptionalNullable[string] `json:"collateral_intrinsic_apy,omitzero"`
+	// What the LOAN token earns inside its own price, in percentage, trailing 7 days. Debt owed in such a token grows by this on top of borrow_apy — a borrower's true cost is their sum. Null means unmeasured, NOT zero.
+	LoanIntrinsicApy optionalnullable.OptionalNullable[string] `json:"loan_intrinsic_apy,omitzero"`
 	// Borrowed share of supplied assets, in percentage 0-100.
 	Utilization string `json:"utilization"`
 	// Total loan tokens supplied to the market, in token units.
@@ -130,6 +134,20 @@ func (m *MorphoLendingMarket) GetBorrowApy() optionalnullable.OptionalNullable[s
 		return nil
 	}
 	return m.BorrowApy
+}
+
+func (m *MorphoLendingMarket) GetCollateralIntrinsicApy() optionalnullable.OptionalNullable[string] {
+	if m == nil {
+		return nil
+	}
+	return m.CollateralIntrinsicApy
+}
+
+func (m *MorphoLendingMarket) GetLoanIntrinsicApy() optionalnullable.OptionalNullable[string] {
+	if m == nil {
+		return nil
+	}
+	return m.LoanIntrinsicApy
 }
 
 func (m *MorphoLendingMarket) GetUtilization() string {

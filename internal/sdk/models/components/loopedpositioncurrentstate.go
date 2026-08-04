@@ -47,11 +47,23 @@ type LoopedPositionCurrentState struct {
 	HealthFactor optionalnullable.OptionalNullable[string] `json:"health_factor,omitzero"`
 	// 'market' for Morpho (isolated per-market health). 'account' for Aave: collateral is pooled, so all collateral backs all debt and this health factor is shared by every Aave position on the account — see aave_account_summary for the account-level figures.
 	HealthFactorScope LoopedPositionCurrentStateHealthFactorScope `json:"health_factor_scope"`
-	// What the collateral leg currently earns, in percentage (e.g. 6.12 = 6.12%). Aave: the collateral reserve's spot supply APY. Morpho: the collateral token's own yield — its 7d vault APY when it is an indexed vault share (e.g. steakUSDC); null otherwise, since Morpho collateral earns nothing from the market itself and an unindexed token's intrinsic yield is unknown.
+	// What the collateral leg currently earns, in percentage (e.g. 6.12 = 6.12%) — the sum of collateral_lending_apy and collateral_intrinsic_apy where both apply. Null when the token earns a yield outside the lending pool (a staked or wrapped asset) and no source for that yield is available: the pool's supply APY alone would understate the leg by percentage points and can invert the sign of net_apy, so it is withheld rather than reported as the whole yield.
 	CollateralApy optionalnullable.OptionalNullable[string] `json:"collateral_apy,omitzero"`
-	// What the debt leg currently costs, in percentage: the market's spot borrow APY (Morpho IRM rate / Aave variable borrow rate). Null when the rate read was unavailable.
+	// The supply half of the collateral leg, in percentage: interest paid by borrowers of the collateral asset (Aave supply APY). Near zero for staked assets, which almost nobody borrows. Exactly 0 on Morpho, whose collateral is held rather than lent — which is why a Morpho position's whole collateral leg is its vault yield.
+	CollateralLendingApy optionalnullable.OptionalNullable[string] `json:"collateral_lending_apy,omitzero"`
+	// The yield the collateral token earns inside its own price, in percentage, independent of the lending pool — a liquid-staking token's staking rewards (wstHYPE against HYPE) or an ERC-4626 share's vault yield — which of the two follows from the position's protocol. Null when the token has none or none is indexed.
+	//
+	// A TRAILING 7-DAY measurement, not a forward rate: a week is a short sample of a staking rate, so consecutive readings move around the longer-run average by a few tenths of a percent.
+	//
+	// A null here alongside a null collateral_apy and a NON-null collateral_lending_apy is the meaningful case: the token does earn outside the pool, but no source for that yield is available, so the total is withheld rather than understated.
+	CollateralIntrinsicApy optionalnullable.OptionalNullable[string] `json:"collateral_intrinsic_apy,omitzero"`
+	// What the debt leg currently costs, in percentage — the sum of borrow_lending_apy and borrow_intrinsic_apy where both apply. Debt owed in a token that appreciates inside its own price (a staked or wrapped asset) grows by that appreciation on top of the pool's interest, so the pool rate alone would understate the cost and overstate net_apy; for such a token with no yield source available this is null (withheld) rather than the pool rate. For ordinary debt assets it equals the market's spot borrow APY. Null also when the rate read was unavailable.
 	BorrowApy optionalnullable.OptionalNullable[string] `json:"borrow_apy,omitzero"`
-	// Levered net yield on the position's equity, in percentage: leverage x collateral_apy - (leverage - 1) x borrow_apy. Negative means the carry is upside down (borrowing costs more than the collateral earns). Null when leverage or either leg is unknown. The collateral leg of a Morpho vault-share position is a 7d average while the borrow leg is spot.
+	// The pool half of the debt leg, in percentage: the market's spot borrow APY (Morpho IRM rate / Aave variable borrow rate) — interest charged on the debt by the lending market itself.
+	BorrowLendingApy optionalnullable.OptionalNullable[string] `json:"borrow_lending_apy,omitzero"`
+	// The yield the DEBT token earns inside its own price, in percentage — which the borrower owes on top of pool interest, since the debt is denominated in an appreciating token. Same source and trailing 7-day window as collateral_intrinsic_apy. Null when the token has none or none is indexed; null alongside a null borrow_apy and a NON-null borrow_lending_apy means the debt token does earn outside the pool but no source is available, so the total cost is withheld rather than understated.
+	BorrowIntrinsicApy optionalnullable.OptionalNullable[string] `json:"borrow_intrinsic_apy,omitzero"`
+	// Levered net yield on the position's equity, in percentage: leverage x collateral_apy - (leverage - 1) x borrow_apy. Negative means the carry is upside down (borrowing costs more than the collateral earns). Null when leverage or either leg is unknown. This is a SNAPSHOT at today's rates, not a forecast, and it mixes a trailing collateral measurement with a spot borrow rate. It is also denominated in the debt asset, not USD: a wstHYPE/WHYPE loop earning a positive net_apy still loses USD value if HYPE falls. The borrow leg floats with the debt reserve's utilisation, so this figure can move without the position changing at all.
 	NetApy optionalnullable.OptionalNullable[string] `json:"net_apy,omitzero"`
 }
 
@@ -118,11 +130,39 @@ func (l *LoopedPositionCurrentState) GetCollateralApy() optionalnullable.Optiona
 	return l.CollateralApy
 }
 
+func (l *LoopedPositionCurrentState) GetCollateralLendingApy() optionalnullable.OptionalNullable[string] {
+	if l == nil {
+		return nil
+	}
+	return l.CollateralLendingApy
+}
+
+func (l *LoopedPositionCurrentState) GetCollateralIntrinsicApy() optionalnullable.OptionalNullable[string] {
+	if l == nil {
+		return nil
+	}
+	return l.CollateralIntrinsicApy
+}
+
 func (l *LoopedPositionCurrentState) GetBorrowApy() optionalnullable.OptionalNullable[string] {
 	if l == nil {
 		return nil
 	}
 	return l.BorrowApy
+}
+
+func (l *LoopedPositionCurrentState) GetBorrowLendingApy() optionalnullable.OptionalNullable[string] {
+	if l == nil {
+		return nil
+	}
+	return l.BorrowLendingApy
+}
+
+func (l *LoopedPositionCurrentState) GetBorrowIntrinsicApy() optionalnullable.OptionalNullable[string] {
+	if l == nil {
+		return nil
+	}
+	return l.BorrowIntrinsicApy
 }
 
 func (l *LoopedPositionCurrentState) GetNetApy() optionalnullable.OptionalNullable[string] {

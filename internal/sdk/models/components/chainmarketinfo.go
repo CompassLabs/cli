@@ -3,6 +3,7 @@
 package components
 
 import (
+	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
@@ -17,8 +18,10 @@ type ChainMarketInfo struct {
 	Address string `json:"address"`
 	// Aave aToken contract address on this chain. This is the interest-bearing token that represents the supply position.
 	ATokenAddress string `json:"a_token_address"`
-	// Variable rate APY for deposits, in percentage (e.g., 4.5 means 4.5%).
+	// Variable rate APY for deposits, in percentage (e.g., 4.5 means 4.5%). This is LENDING interest only — what borrowers pay. For a staked or wrapped asset it is not the whole yield; add `intrinsic_apy`.
 	SupplyApy string `json:"supply_apy"`
+	// What holding this asset earns OUTSIDE the lending pool, in percentage: staking rewards or vault yield accruing inside the token's own exchange rate, which the pool neither pays nor observes. A trailing 7-day measurement. ABSENT when no measurement is available (the route omits null fields) — absent does not mean zero. For an asset that plainly earns beyond lending (wstETH, sUSDe, wstHYPE) `supply_apy` alone understates what it earns by percentage points, since almost nobody borrows these and their supply rate rounds to nothing: Hyperlend's wstHYPE reserve pays 0.00006% against a ~2.5% staking yield. Treat an absent value as unknown rather than as the asset earning nothing beyond `supply_apy`.
+	IntrinsicApy optionalnullable.OptionalNullable[string] `json:"intrinsic_apy,omitzero"`
 	// Variable rate APY for loans, in percentage (e.g., 6.2 means 6.2%).
 	BorrowApy string `json:"borrow_apy"`
 	// Variable rate APY for deposits averaged over the `days` window in the request (default 30 days), in percentage. Computed the same way as the v1 `/v1/aave/avg_rate` endpoint.
@@ -69,6 +72,13 @@ func (c *ChainMarketInfo) GetSupplyApy() string {
 		return ""
 	}
 	return c.SupplyApy
+}
+
+func (c *ChainMarketInfo) GetIntrinsicApy() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.IntrinsicApy
 }
 
 func (c *ChainMarketInfo) GetBorrowApy() string {
