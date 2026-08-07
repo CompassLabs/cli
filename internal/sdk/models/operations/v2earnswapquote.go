@@ -15,12 +15,13 @@ import (
 type V2EarnSwapQuoteChain string
 
 const (
-	V2EarnSwapQuoteChainBase     V2EarnSwapQuoteChain = "base"
-	V2EarnSwapQuoteChainEthereum V2EarnSwapQuoteChain = "ethereum"
-	V2EarnSwapQuoteChainArbitrum V2EarnSwapQuoteChain = "arbitrum"
-	V2EarnSwapQuoteChainHyperevm V2EarnSwapQuoteChain = "hyperevm"
-	V2EarnSwapQuoteChainTempo    V2EarnSwapQuoteChain = "tempo"
-	V2EarnSwapQuoteChainBsc      V2EarnSwapQuoteChain = "bsc"
+	V2EarnSwapQuoteChainBase            V2EarnSwapQuoteChain = "base"
+	V2EarnSwapQuoteChainEthereum        V2EarnSwapQuoteChain = "ethereum"
+	V2EarnSwapQuoteChainArbitrum        V2EarnSwapQuoteChain = "arbitrum"
+	V2EarnSwapQuoteChainHyperevm        V2EarnSwapQuoteChain = "hyperevm"
+	V2EarnSwapQuoteChainTempo           V2EarnSwapQuoteChain = "tempo"
+	V2EarnSwapQuoteChainBsc             V2EarnSwapQuoteChain = "bsc"
+	V2EarnSwapQuoteChainEthereumSepolia V2EarnSwapQuoteChain = "ethereum_sepolia"
 )
 
 func (e V2EarnSwapQuoteChain) ToPointer() *V2EarnSwapQuoteChain {
@@ -43,6 +44,8 @@ func (e *V2EarnSwapQuoteChain) UnmarshalJSON(data []byte) error {
 	case "tempo":
 		fallthrough
 	case "bsc":
+		fallthrough
+	case "ethereum_sepolia":
 		*e = V2EarnSwapQuoteChain(v)
 		return nil
 	default:

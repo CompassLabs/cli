@@ -6,12 +6,13 @@ package components
 type Chain string
 
 const (
-	ChainBase     Chain = "base"
-	ChainEthereum Chain = "ethereum"
-	ChainArbitrum Chain = "arbitrum"
-	ChainHyperevm Chain = "hyperevm"
-	ChainTempo    Chain = "tempo"
-	ChainBsc      Chain = "bsc"
+	ChainBase            Chain = "base"
+	ChainEthereum        Chain = "ethereum"
+	ChainArbitrum        Chain = "arbitrum"
+	ChainHyperevm        Chain = "hyperevm"
+	ChainTempo           Chain = "tempo"
+	ChainBsc             Chain = "bsc"
+	ChainEthereumSepolia Chain = "ethereum_sepolia"
 )
 
 func (e Chain) ToPointer() *Chain {
@@ -22,7 +23,7 @@ func (e Chain) ToPointer() *Chain {
 func (e *Chain) IsExact() bool {
 	if e != nil {
 		switch *e {
-		case "base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc":
+		case "base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "ethereum_sepolia":
 			return true
 		}
 	}

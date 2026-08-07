@@ -28,7 +28,7 @@ compass earn pendle-markets [flags]
 ### Options
 
 ```
-  -c, --chain string               Optional chain filter. If not provided, returns markets for all chains. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc)
+  -c, --chain string               Optional chain filter. If not provided, returns markets for all chains. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, ethereum_sepolia)
       --direction string           The direction to order the results by. (options: asc, desc)
   -h, --help                       help for pendle-markets
   -l, --limit int                  The number of items to return.

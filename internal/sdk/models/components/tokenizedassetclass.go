@@ -11,6 +11,11 @@ package components
 // is an *asynchronous* redemption request settled off-chain by the vault
 // operator. `DERWA` (Centrifuge freely-transferable RWA wrappers) settles
 // each buy/sell as a single instant DEX swap.
+//
+// `MONEY_MARKET` (WisdomTree Connect digital funds) also uses `transact/buy`
+// and `transact/sell`, but neither swaps nor mints: a buy transfers the
+// settlement stablecoin to the issuer's deposit address and the issuer mints
+// fund shares back at the next NAV cycle, so settlement is *asynchronous*.
 type TokenizedAssetClass string
 
 const (
@@ -20,6 +25,7 @@ const (
 	TokenizedAssetClassBtcYield     TokenizedAssetClass = "BTC_YIELD"
 	TokenizedAssetClassManagedVault TokenizedAssetClass = "MANAGED_VAULT"
 	TokenizedAssetClassDerwa        TokenizedAssetClass = "DERWA"
+	TokenizedAssetClassMoneyMarket  TokenizedAssetClass = "MONEY_MARKET"
 )
 
 func (e TokenizedAssetClass) ToPointer() *TokenizedAssetClass {
@@ -30,7 +36,7 @@ func (e TokenizedAssetClass) ToPointer() *TokenizedAssetClass {
 func (e *TokenizedAssetClass) IsExact() bool {
 	if e != nil {
 		switch *e {
-		case "EQUITY", "T_BILLS", "BASIS_TRADE", "BTC_YIELD", "MANAGED_VAULT", "DERWA":
+		case "EQUITY", "T_BILLS", "BASIS_TRADE", "BTC_YIELD", "MANAGED_VAULT", "DERWA", "MONEY_MARKET":
 			return true
 		}
 	}

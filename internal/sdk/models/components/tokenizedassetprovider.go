@@ -10,6 +10,7 @@ const (
 	TokenizedAssetProviderMidas      TokenizedAssetProvider = "midas"
 	TokenizedAssetProviderIxs        TokenizedAssetProvider = "ixs"
 	TokenizedAssetProviderCentrifuge TokenizedAssetProvider = "centrifuge"
+	TokenizedAssetProviderWisdomtree TokenizedAssetProvider = "wisdomtree"
 )
 
 func (e TokenizedAssetProvider) ToPointer() *TokenizedAssetProvider {
@@ -20,7 +21,7 @@ func (e TokenizedAssetProvider) ToPointer() *TokenizedAssetProvider {
 func (e *TokenizedAssetProvider) IsExact() bool {
 	if e != nil {
 		switch *e {
-		case "ondo", "midas", "ixs", "centrifuge":
+		case "ondo", "midas", "ixs", "centrifuge", "wisdomtree":
 			return true
 		}
 	}

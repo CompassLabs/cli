@@ -6,7 +6,7 @@ index 304f0f8..ac73f3e 100644
  			}
  		}
  		if !anyChanged {
--			meta = relaxRequiredForBodyFields(meta, "")
+-			meta = relaxRequiredForBodyFields(meta, "", false)
 +			// Original behavior: relax ALL required body fields when the user
 +			// passed no flags. Intent was to support truly nullable bodies, but
 +			// the side effect was that `compass <write-endpoint> --dry-run`
@@ -31,7 +31,7 @@ index 304f0f8..ac73f3e 100644
 +				}
 +			}
 +			if !anyRequired {
-+				meta = relaxRequiredForBodyFields(meta, "")
++				meta = relaxRequiredForBodyFields(meta, "", false)
 +			}
  		}
  	}

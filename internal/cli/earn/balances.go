@@ -16,7 +16,7 @@ import (
 
 var balancesCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"arbitrum", "base", "bsc", "ethereum", "tempo"}, Description: "options: arbitrum, base, bsc, ethereum, tempo [required]"},
-	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address of the owner of the earn account. [required]"},
+	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address of the owner of the earn account.  [required]"},
 }
 
 // initBalancesCmd initializes the balances command.

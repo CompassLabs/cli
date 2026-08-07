@@ -16,7 +16,7 @@ import (
 
 var redemptionsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The owner of the Tokenized Assets Account whose IXS redemption requests to read. Requests are reconstructed on-chain from the derived product account (the request receiver). [required]"},
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc"}, Description: "Network the IXS vault lives on (IXS managed vaults are on BNB Smart Chain). (options: base, ethereum, arbitrum, hyperevm, tempo, bsc)"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "ethereum_sepolia"}, Description: "Network the IXS vault lives on (IXS managed vaults are on BNB Smart Chain). (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, ethereum_sepolia)"},
 	{FlagName: "vault", Shorthand: "v", FieldPath: "Vault", Kind: flagutil.FlagKindString, Optional: true, Description: "The IXS vault handle to read redemptions for (e.g. 'ixv1')."},
 }
 

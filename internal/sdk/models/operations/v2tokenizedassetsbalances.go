@@ -13,12 +13,13 @@ import (
 type V2TokenizedAssetsBalancesChain string
 
 const (
-	V2TokenizedAssetsBalancesChainBase     V2TokenizedAssetsBalancesChain = "base"
-	V2TokenizedAssetsBalancesChainEthereum V2TokenizedAssetsBalancesChain = "ethereum"
-	V2TokenizedAssetsBalancesChainArbitrum V2TokenizedAssetsBalancesChain = "arbitrum"
-	V2TokenizedAssetsBalancesChainHyperevm V2TokenizedAssetsBalancesChain = "hyperevm"
-	V2TokenizedAssetsBalancesChainTempo    V2TokenizedAssetsBalancesChain = "tempo"
-	V2TokenizedAssetsBalancesChainBsc      V2TokenizedAssetsBalancesChain = "bsc"
+	V2TokenizedAssetsBalancesChainBase            V2TokenizedAssetsBalancesChain = "base"
+	V2TokenizedAssetsBalancesChainEthereum        V2TokenizedAssetsBalancesChain = "ethereum"
+	V2TokenizedAssetsBalancesChainArbitrum        V2TokenizedAssetsBalancesChain = "arbitrum"
+	V2TokenizedAssetsBalancesChainHyperevm        V2TokenizedAssetsBalancesChain = "hyperevm"
+	V2TokenizedAssetsBalancesChainTempo           V2TokenizedAssetsBalancesChain = "tempo"
+	V2TokenizedAssetsBalancesChainBsc             V2TokenizedAssetsBalancesChain = "bsc"
+	V2TokenizedAssetsBalancesChainEthereumSepolia V2TokenizedAssetsBalancesChain = "ethereum_sepolia"
 )
 
 func (e V2TokenizedAssetsBalancesChain) ToPointer() *V2TokenizedAssetsBalancesChain {
@@ -41,6 +42,8 @@ func (e *V2TokenizedAssetsBalancesChain) UnmarshalJSON(data []byte) error {
 	case "tempo":
 		fallthrough
 	case "bsc":
+		fallthrough
+	case "ethereum_sepolia":
 		*e = V2TokenizedAssetsBalancesChain(v)
 		return nil
 	default:

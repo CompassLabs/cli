@@ -24,7 +24,7 @@ compass tokenized-assets balances [flags]
 ### Options
 
 ```
-  -c, --chain string   Network to read balances on (defaults to Ethereum). Equities exist on Ethereum only; RWA yield assets also exist on Base. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc)
+  -c, --chain string   Network to read balances on (defaults to Ethereum). Equities exist on Ethereum only; RWA yield assets also exist on Base. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, ethereum_sepolia)
   -h, --help           help for balances
       --owner string   The address of the owner of the Tokenized Assets Account to read balances for. The account address is derived deterministically from this owner; balances are read from the derived account. [required]
 ```

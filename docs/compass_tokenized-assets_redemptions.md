@@ -25,7 +25,7 @@ compass tokenized-assets redemptions [flags]
 ### Options
 
 ```
-  -c, --chain string   Network the IXS vault lives on (IXS managed vaults are on BNB Smart Chain). (options: base, ethereum, arbitrum, hyperevm, tempo, bsc)
+  -c, --chain string   Network the IXS vault lives on (IXS managed vaults are on BNB Smart Chain). (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, ethereum_sepolia)
   -h, --help           help for redemptions
       --owner string   The owner of the Tokenized Assets Account whose IXS redemption requests to read. Requests are reconstructed on-chain from the derived product account (the request receiver). [required]
   -v, --vault string   The IXS vault handle to read redemptions for (e.g. 'ixv1').
