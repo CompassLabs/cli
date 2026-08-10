@@ -70,7 +70,8 @@ compass credit unloop [flags]
       --market-id string              Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
       --max-slippage-percent string   JSON value (one of: number | string)
       --owner string                  The address that owns the Credit Account. [required]
-  -p, --protocol                      Which lending protocol a credit action targets.
+      --preview                       If true, build a display estimate only: the swap legs are priced at market rate and no single-use firm quote is ever spent. Set it on every parameter-exploration call and omit it only on the build the user is about to sign.
+      --protocol                      Which lending protocol a credit action targets.
                                       
                                       AAVE`` is the default so existing callers (which never send a ``protocol``
                                       field) keep hitting the unchanged Aave code path. ``MORPHO`` identifies Morpho

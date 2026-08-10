@@ -5,16 +5,46 @@ package components
 import (
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
+	"time"
 )
+
+// CreditUnloopResponseSwapProvider - Which venue priced the swap leg(s): 'one_inch' (market route, slippage-bounded floors) or 'bebop' (firm quotes, one per swap leg, each partially filled at the leg's size). On preview=true responses, 'bebop' means the numbers are INDICATIVE, computed from the firm venue's live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks.
+type CreditUnloopResponseSwapProvider string
+
+const (
+	CreditUnloopResponseSwapProviderOneInch CreditUnloopResponseSwapProvider = "one_inch"
+	CreditUnloopResponseSwapProviderBebop   CreditUnloopResponseSwapProvider = "bebop"
+)
+
+func (e CreditUnloopResponseSwapProvider) ToPointer() *CreditUnloopResponseSwapProvider {
+	return &e
+}
+
+// IsExact returns true if the value matches a known enum value, false otherwise.
+func (e *CreditUnloopResponseSwapProvider) IsExact() bool {
+	if e != nil {
+		switch *e {
+		case "one_inch", "bebop":
+			return true
+		}
+	}
+	return false
+}
 
 // CreditUnloopResponse - The atomic unwind transaction plus its guaranteed-floor preview.
 type CreditUnloopResponse struct {
-	// Unsigned transaction for direct execution by the owner. Present when gas_sponsorship=false.
+	// Unsigned transaction for direct execution by the owner. Present when gas_sponsorship=false — except firm-priced previews (preview=true with swap_provider='bebop'), which carry numbers only: the firm quotes are fetched at execution time, so there is no payload to sign yet.
 	Transaction optionalnullable.OptionalNullable[UnsignedTransaction] `json:"transaction,omitzero"`
 	// EIP-712 typed data for gas-sponsored execution. Present when gas_sponsorship=true.
 	Eip712 optionalnullable.OptionalNullable[BatchedSafeOperationsResponseOutput] `json:"eip_712,omitzero"`
 	// Projected end state of the unwind, computed on GUARANTEED swap floors.
 	Preview CreditUnloopPreview `json:"preview"`
+	// Which venue priced the swap leg(s): 'one_inch' (market route, slippage-bounded floors) or 'bebop' (firm quotes, one per swap leg, each partially filled at the leg's size). On preview=true responses, 'bebop' means the numbers are INDICATIVE, computed from the firm venue's live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks.
+	SwapProvider *CreditUnloopResponseSwapProvider `json:"swap_provider,omitzero"`
+	// Deadline of the firm swap quotes (the earliest across the unwind's swap legs) — sign and broadcast before it or the transaction reverts on-chain; refresh by re-calling this endpoint (discard the previous payload). Present only on executable swap_provider='bebop' builds; null on previews (no quote is spent for a preview).
+	QuoteExpiresAt optionalnullable.OptionalNullable[time.Time] `json:"quote_expires_at,omitzero"`
+	// Preview-only advisory: whether a firm-quote venue can serve this unwind's swap legs (estimated without spending any quote). Present only on preview=true responses; null otherwise.
+	FirmAvailable optionalnullable.OptionalNullable[bool] `json:"firm_available,omitzero"`
 }
 
 func (c CreditUnloopResponse) MarshalJSON() ([]byte, error) {
@@ -47,4 +77,25 @@ func (c *CreditUnloopResponse) GetPreview() CreditUnloopPreview {
 		return CreditUnloopPreview{}
 	}
 	return c.Preview
+}
+
+func (c *CreditUnloopResponse) GetSwapProvider() *CreditUnloopResponseSwapProvider {
+	if c == nil {
+		return nil
+	}
+	return c.SwapProvider
+}
+
+func (c *CreditUnloopResponse) GetQuoteExpiresAt() optionalnullable.OptionalNullable[time.Time] {
+	if c == nil {
+		return nil
+	}
+	return c.QuoteExpiresAt
+}
+
+func (c *CreditUnloopResponse) GetFirmAvailable() optionalnullable.OptionalNullable[bool] {
+	if c == nil {
+		return nil
+	}
+	return c.FirmAvailable
 }

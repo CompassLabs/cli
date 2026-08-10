@@ -57,7 +57,8 @@ compass credit loop [flags]
       --max-slippage-percent string        JSON value (one of: number | string)
       --multiplier string                  JSON value (one of: number | string)
       --owner string                       The address that owns the Credit Account. [required]
-  -p, --protocol                           Which lending protocol a credit action targets.
+      --preview                            If true, build a display ESTIMATE: swap legs always route through the default aggregator and no firm RFQ quotes are requested (quote_expires_at stays null). Set it on every call made while a user is exploring parameters, and leave it false only for the build they actually intend to sign — firm quotes are single-use maker commitments, and requesting them for displays that are never executed degrades the pricing this API is offered.
+      --protocol                           Which lending protocol a credit action targets.
                                            
                                            AAVE`` is the default so existing callers (which never send a ``protocol``
                                            field) keep hitting the unchanged Aave code path. ``MORPHO`` identifies Morpho

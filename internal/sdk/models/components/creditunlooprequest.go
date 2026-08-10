@@ -266,6 +266,8 @@ type CreditUnloopRequest struct {
 	AllowPartial *bool `json:"allow_partial,omitzero"`
 	// If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
+	// If true, build a display estimate only: the swap legs are priced at market rate and no single-use firm quote is ever spent. Set it on every parameter-exploration call and omit it only on the build the user is about to sign.
+	Preview *bool `json:"preview,omitzero"`
 }
 
 func (c *CreditUnloopRequest) GetOwner() string {
@@ -357,4 +359,11 @@ func (c *CreditUnloopRequest) GetGasSponsorship() *bool {
 		return nil
 	}
 	return c.GasSponsorship
+}
+
+func (c *CreditUnloopRequest) GetPreview() *bool {
+	if c == nil {
+		return nil
+	}
+	return c.Preview
 }

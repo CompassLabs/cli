@@ -5,16 +5,46 @@ package components
 import (
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
+	"time"
 )
+
+// CreditLoopResponseSwapProvider - Which venue priced the swap leg(s): 'one_inch' (iterative loop, slippage-bounded floors) or 'bebop' (firm zero-slippage quotes, one per swap leg, each partially filled at the leg's size — exact fills, zero dust). On preview=true responses, 'bebop' means the numbers are INDICATIVE, computed from the firm venue's live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks.
+type CreditLoopResponseSwapProvider string
+
+const (
+	CreditLoopResponseSwapProviderOneInch CreditLoopResponseSwapProvider = "one_inch"
+	CreditLoopResponseSwapProviderBebop   CreditLoopResponseSwapProvider = "bebop"
+)
+
+func (e CreditLoopResponseSwapProvider) ToPointer() *CreditLoopResponseSwapProvider {
+	return &e
+}
+
+// IsExact returns true if the value matches a known enum value, false otherwise.
+func (e *CreditLoopResponseSwapProvider) IsExact() bool {
+	if e != nil {
+		switch *e {
+		case "one_inch", "bebop":
+			return true
+		}
+	}
+	return false
+}
 
 // CreditLoopResponse - The atomic loop transaction plus its guaranteed-floor preview.
 type CreditLoopResponse struct {
-	// Unsigned transaction for direct execution by the owner. Present when gas_sponsorship=false.
+	// Unsigned transaction for direct execution by the owner. Present when gas_sponsorship=false — except firm-priced previews (preview=true with swap_provider='bebop'), which carry numbers only: the firm quotes are fetched at execution time, so there is no payload to sign yet.
 	Transaction optionalnullable.OptionalNullable[UnsignedTransaction] `json:"transaction,omitzero"`
 	// EIP-712 typed data for gas-sponsored execution. Present when gas_sponsorship=true.
 	Eip712 optionalnullable.OptionalNullable[BatchedSafeOperationsResponseOutput] `json:"eip_712,omitzero"`
 	// Projected end state of the loop, computed on GUARANTEED swap floors.
 	Preview CreditLoopPreview `json:"preview"`
+	// Which venue priced the swap leg(s): 'one_inch' (iterative loop, slippage-bounded floors) or 'bebop' (firm zero-slippage quotes, one per swap leg, each partially filled at the leg's size — exact fills, zero dust). On preview=true responses, 'bebop' means the numbers are INDICATIVE, computed from the firm venue's live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks.
+	SwapProvider *CreditLoopResponseSwapProvider `json:"swap_provider,omitzero"`
+	// Deadline of the firm swap quotes (the earliest across the loop's swap legs) — sign and broadcast before it or the transaction reverts on-chain; refresh by re-calling this endpoint (discard the previous payload). Present only on executable swap_provider='bebop' builds; null on previews (no quote is spent for a preview).
+	QuoteExpiresAt optionalnullable.OptionalNullable[time.Time] `json:"quote_expires_at,omitzero"`
+	// Multiplier bound firm zero-slippage quotes can fill for the requested position size, LTV and target (estimated without spending any quote). The requested multiplier is firm-servable iff it is <= this value; above it the loop executes at market rate with slippage-bounded floors instead. Present only on preview=true responses when a firm-quote venue covers the pair; null otherwise. Recompute per parameter change - minimum-size floors make reachability target-dependent.
+	MaxFirmMultiplier optionalnullable.OptionalNullable[string] `json:"max_firm_multiplier,omitzero"`
 }
 
 func (c CreditLoopResponse) MarshalJSON() ([]byte, error) {
@@ -47,4 +77,25 @@ func (c *CreditLoopResponse) GetPreview() CreditLoopPreview {
 		return CreditLoopPreview{}
 	}
 	return c.Preview
+}
+
+func (c *CreditLoopResponse) GetSwapProvider() *CreditLoopResponseSwapProvider {
+	if c == nil {
+		return nil
+	}
+	return c.SwapProvider
+}
+
+func (c *CreditLoopResponse) GetQuoteExpiresAt() optionalnullable.OptionalNullable[time.Time] {
+	if c == nil {
+		return nil
+	}
+	return c.QuoteExpiresAt
+}
+
+func (c *CreditLoopResponse) GetMaxFirmMultiplier() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.MaxFirmMultiplier
 }

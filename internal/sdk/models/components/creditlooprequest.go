@@ -450,6 +450,8 @@ type CreditLoopRequest struct {
 	EmodeCategory optionalnullable.OptionalNullable[int64] `json:"emode_category,omitzero"`
 	// If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
+	// If true, build a display ESTIMATE: swap legs always route through the default aggregator and no firm RFQ quotes are requested (quote_expires_at stays null). Set it on every call made while a user is exploring parameters, and leave it false only for the build they actually intend to sign — firm quotes are single-use maker commitments, and requesting them for displays that are never executed degrades the pricing this API is offered.
+	Preview *bool `json:"preview,omitzero"`
 }
 
 func (c *CreditLoopRequest) GetOwner() string {
@@ -555,4 +557,11 @@ func (c *CreditLoopRequest) GetGasSponsorship() *bool {
 		return nil
 	}
 	return c.GasSponsorship
+}
+
+func (c *CreditLoopRequest) GetPreview() *bool {
+	if c == nil {
+		return nil
+	}
+	return c.Preview
 }
