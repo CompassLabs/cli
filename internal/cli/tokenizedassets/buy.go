@@ -23,7 +23,6 @@ var buyCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The owner's wallet address. [required]"},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "ethereum_sepolia"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, ethereum_sepolia) [required]"},
 	{FlagName: "gas-sponsorship", Shorthand: "g", FieldPath: "GasSponsorship", Kind: flagutil.FlagKindBool, Optional: true, Description: "When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction."},
-	{FlagName: "wisdomtree", Shorthand: "w", FieldPath: "Wisdomtree", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"wisdomtree,omitempty"`, Description: "WisdomTree Connect API credentials, required only when trading a WisdomTree money-market fund. Each organization authenticates with its own credentials, which are exchanged for a short-lived token to look up the settlement wallet for this trade. They are never stored and are masked in logs."},
 	{FlagName: "fee", Shorthand: "f", FieldPath: "Fee", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"fee,omitempty"`, Description: "Optional partner fee charged when selling (exiting). It is taken from the payout-token (USDC) proceeds and sent to your fee recipient inside the same execution."},
 }
 
