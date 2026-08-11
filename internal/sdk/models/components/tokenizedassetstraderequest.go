@@ -208,6 +208,8 @@ type TokenizedAssetsTradeRequest struct {
 	Chain Chain `json:"chain"`
 	// When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
+	// WisdomTree Connect API credentials, required only when trading a WisdomTree money-market fund. Each organization authenticates with its own credentials, which are exchanged for a short-lived token to look up the settlement wallet for this trade. They are never stored and are masked in logs.
+	Wisdomtree optionalnullable.OptionalNullable[WisdomTreeCredentials] `json:"wisdomtree,omitzero"`
 	// Optional partner fee charged when selling (exiting). It is taken from the payout-token (USDC) proceeds and sent to your fee recipient inside the same execution.
 	Fee optionalnullable.OptionalNullable[TokenizedAssetsFee] `json:"fee,omitzero"`
 }
@@ -270,6 +272,13 @@ func (t *TokenizedAssetsTradeRequest) GetGasSponsorship() *bool {
 		return nil
 	}
 	return t.GasSponsorship
+}
+
+func (t *TokenizedAssetsTradeRequest) GetWisdomtree() optionalnullable.OptionalNullable[WisdomTreeCredentials] {
+	if t == nil {
+		return nil
+	}
+	return t.Wisdomtree
 }
 
 func (t *TokenizedAssetsTradeRequest) GetFee() optionalnullable.OptionalNullable[TokenizedAssetsFee] {
