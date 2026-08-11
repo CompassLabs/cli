@@ -14,7 +14,7 @@ type CreditUnloopPreview struct {
 	TotalCollateralWithdrawn string `json:"total_collateral_withdrawn"`
 	// Guaranteed minimum total debt repaid (borrow-token units); actual can only be higher (swap fills above the floor repay more).
 	TotalDebtRepaid string `json:"total_debt_repaid"`
-	// Pair collateral left supplied after the unwind (token units). On a full close this is 0, except when non-pair Aave debt still needs this collateral as backing — then the final sweep is capped and this reports the residual left supplied.
+	// Pair collateral left supplied after the unwind (token units). On a full close this is 0 when the sweep can take everything; when the final sweep must be an exact amount (non-pair Aave debt needs backing, or a shared reserve caps it) this reports the residual left supplied, including a dust-scale rounding margin.
 	EndingCollateral string `json:"ending_collateral"`
 	// Projected remaining debt (borrow-token units); 0 on a full close.
 	EndingDebt string `json:"ending_debt"`
