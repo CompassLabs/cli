@@ -11,7 +11,7 @@ import (
 type EarnBalancesResponse struct {
 	// The derived earn account address.
 	EarnAccountAddress string `json:"earn_account_address"`
-	// Token balances keyed by token symbol.
+	// Token balances keyed by token symbol. Symbols are not unique on-chain: when two tokens collide, each key becomes 'SYMBOL (0xAddress)' — match on token_address for exactness.
 	Balances map[string]CompassAPIBackendV2ModelsBalancesTokenBalance `json:"balances,omitzero"`
 	// Total USD value of all balances (sum of available values).
 	TotalUsdValue optionalnullable.OptionalNullable[string] `json:"total_usd_value,omitzero"`

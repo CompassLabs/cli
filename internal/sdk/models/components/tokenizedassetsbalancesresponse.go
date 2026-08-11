@@ -15,7 +15,7 @@ import (
 type TokenizedAssetsBalancesResponse struct {
 	// The derived Tokenized Assets Account address.
 	TokenizedAssetsAccountAddress string `json:"tokenized_assets_account_address"`
-	// Token balances keyed by symbol. Each entry includes the current balance, its USD value, and transfer history.
+	// Token balances keyed by symbol. Each entry includes the current balance, its USD value, and transfer history. Symbols are not unique on-chain: when two tokens collide, each key becomes 'SYMBOL (0xAddress)' — match on token_address for exactness.
 	Balances map[string]CompassAPIBackendV2ModelsBalancesTokenBalance `json:"balances,omitzero"`
 	// Total USD value of all priced balances.
 	TotalUsdValue optionalnullable.OptionalNullable[string] `json:"total_usd_value,omitzero"`
