@@ -14,6 +14,10 @@ type WisdomTreeCredentials struct {
 	ClientID string `json:"client_id"`
 	// WisdomTree Connect client secret for your organization.
 	ClientSecret string `json:"client_secret"`
+	// WisdomTree Connect username for your organization's account.
+	Username string `json:"username"`
+	// WisdomTree Connect password for your organization's account.
+	Password string `json:"password"`
 }
 
 func (w *WisdomTreeCredentials) GetClientID() string {
@@ -28,4 +32,18 @@ func (w *WisdomTreeCredentials) GetClientSecret() string {
 		return ""
 	}
 	return w.ClientSecret
+}
+
+func (w *WisdomTreeCredentials) GetUsername() string {
+	if w == nil {
+		return ""
+	}
+	return w.Username
+}
+
+func (w *WisdomTreeCredentials) GetPassword() string {
+	if w == nil {
+		return ""
+	}
+	return w.Password
 }
