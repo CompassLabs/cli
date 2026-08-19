@@ -39,13 +39,13 @@ type CreditUnloopResponse struct {
 	Transaction optionalnullable.OptionalNullable[UnsignedTransaction] `json:"transaction,omitzero"`
 	// EIP-712 typed data for gas-sponsored execution. Present when gas_sponsorship=true.
 	Eip712 optionalnullable.OptionalNullable[BatchedSafeOperationsResponseOutput] `json:"eip_712,omitzero"`
-	// Projected end state of the unwind, computed on GUARANTEED swap floors.
-	Preview CreditUnloopPreview `json:"preview"`
+	// Projected end state, computed on guaranteed swap floors. Null only on pricing='firm' preview responses whose unwind the firm venue cannot serve: no leg was priced on any venue, and the response carries the firm_available advisory alone.
+	Preview *CreditUnloopPreview `json:"preview"`
 	// Which venue priced the swap leg(s): 'one_inch' (market route, slippage-bounded floors) or 'bebop' (firm quotes, one per swap leg, each partially filled at the leg's size). On preview=true responses, 'bebop' means the numbers are INDICATIVE, computed from the firm venue's live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks.
 	SwapProvider *CreditUnloopResponseSwapProvider `json:"swap_provider,omitzero"`
 	// Deadline of the firm swap quotes (the earliest across the unwind's swap legs) — sign and broadcast before it or the transaction reverts on-chain; refresh by re-calling this endpoint (discard the previous payload). Present only on executable swap_provider='bebop' builds; null on previews (no quote is spent for a preview).
 	QuoteExpiresAt optionalnullable.OptionalNullable[time.Time] `json:"quote_expires_at,omitzero"`
-	// Preview-only advisory: whether a firm-quote venue can serve this unwind's swap legs (estimated without spending any quote). Present only on preview=true responses; null otherwise.
+	// Preview-only advisory: whether a firm-quote venue can serve this unwind's swap legs (estimated without spending any quote). Present only on preview=true responses; null otherwise. Computed on every policy — including pricing='market', whose preview numbers stay market-priced — so a client that opted out can keep the boundary visible.
 	FirmAvailable optionalnullable.OptionalNullable[bool] `json:"firm_available,omitzero"`
 }
 
@@ -74,9 +74,9 @@ func (c *CreditUnloopResponse) GetEip712() optionalnullable.OptionalNullable[Bat
 	return c.Eip712
 }
 
-func (c *CreditUnloopResponse) GetPreview() CreditUnloopPreview {
+func (c *CreditUnloopResponse) GetPreview() *CreditUnloopPreview {
 	if c == nil {
-		return CreditUnloopPreview{}
+		return nil
 	}
 	return c.Preview
 }

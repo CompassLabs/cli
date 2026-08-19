@@ -411,19 +411,19 @@ func (u CreditLoopRequestMaxSlippagePercent) MarshalJSON() ([]byte, error) {
 	return nil, errors.New("could not marshal union type CreditLoopRequestMaxSlippagePercent: all fields are null")
 }
 
-// Pricing - Swap-leg routing policy. 'auto': firm quotes where a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route — previews whose target the firm venue cannot serve return the coverage advisory alone (preview=null, zero aggregator calls), and executions fail with a typed error instead of silently substituting market pricing. 'market': never route through the firm venue; every leg is priced by the aggregator and bounded by max_slippage_percent (which firm legs ignore). 'firm' is incompatible with gas_sponsorship (sponsored loops force market routing).
-type Pricing string
+// CreditLoopRequestPricing - Swap-leg routing policy. 'auto': firm quotes where a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route — previews whose target the firm venue cannot serve return the coverage advisory alone (preview=null, zero aggregator calls), and executions fail with a typed error instead of silently substituting market pricing. 'market': never route through the firm venue; every leg is priced by the aggregator and bounded by max_slippage_percent (which firm legs ignore). 'firm' is incompatible with gas_sponsorship (sponsored loops force market routing).
+type CreditLoopRequestPricing string
 
 const (
-	PricingAuto   Pricing = "auto"
-	PricingFirm   Pricing = "firm"
-	PricingMarket Pricing = "market"
+	CreditLoopRequestPricingAuto   CreditLoopRequestPricing = "auto"
+	CreditLoopRequestPricingFirm   CreditLoopRequestPricing = "firm"
+	CreditLoopRequestPricingMarket CreditLoopRequestPricing = "market"
 )
 
-func (e Pricing) ToPointer() *Pricing {
+func (e CreditLoopRequestPricing) ToPointer() *CreditLoopRequestPricing {
 	return &e
 }
-func (e *Pricing) UnmarshalJSON(data []byte) error {
+func (e *CreditLoopRequestPricing) UnmarshalJSON(data []byte) error {
 	var v string
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
@@ -434,10 +434,10 @@ func (e *Pricing) UnmarshalJSON(data []byte) error {
 	case "firm":
 		fallthrough
 	case "market":
-		*e = Pricing(v)
+		*e = CreditLoopRequestPricing(v)
 		return nil
 	default:
-		return fmt.Errorf("invalid value for Pricing: %v", v)
+		return fmt.Errorf("invalid value for CreditLoopRequestPricing: %v", v)
 	}
 }
 
@@ -485,7 +485,7 @@ type CreditLoopRequest struct {
 	// If true, build a display ESTIMATE: no firm RFQ quote is ever requested (quote_expires_at stays null) and no transaction is returned. How the estimate is priced follows `pricing`: on a firm-covered pair under 'auto' or 'firm' it is computed from the firm venue's live price levels (swap_provider='bebop', indicative); otherwise swap legs are priced by the default aggregator. Set it on every call made while a user is exploring parameters, and leave it false only for the build they actually intend to sign — firm quotes are single-use maker commitments, and requesting them for displays that are never executed degrades the pricing this API is offered.
 	Preview *bool `json:"preview,omitzero"`
 	// Swap-leg routing policy. 'auto': firm quotes where a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route — previews whose target the firm venue cannot serve return the coverage advisory alone (preview=null, zero aggregator calls), and executions fail with a typed error instead of silently substituting market pricing. 'market': never route through the firm venue; every leg is priced by the aggregator and bounded by max_slippage_percent (which firm legs ignore). 'firm' is incompatible with gas_sponsorship (sponsored loops force market routing).
-	Pricing *Pricing `json:"pricing,omitzero"`
+	Pricing *CreditLoopRequestPricing `json:"pricing,omitzero"`
 }
 
 func (c *CreditLoopRequest) GetOwner() string {
@@ -600,7 +600,7 @@ func (c *CreditLoopRequest) GetPreview() *bool {
 	return c.Preview
 }
 
-func (c *CreditLoopRequest) GetPricing() *Pricing {
+func (c *CreditLoopRequest) GetPricing() *CreditLoopRequestPricing {
 	if c == nil {
 		return nil
 	}

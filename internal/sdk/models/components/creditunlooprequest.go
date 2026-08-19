@@ -231,6 +231,36 @@ func (u CreditUnloopRequestMaxSlippagePercent) MarshalJSON() ([]byte, error) {
 	return nil, errors.New("could not marshal union type CreditUnloopRequestMaxSlippagePercent: all fields are null")
 }
 
+// CreditUnloopRequestPricing - Swap-leg routing policy. 'auto': firm quotes where a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route — previews the firm venue cannot serve return the firm_available advisory alone (preview=null, zero aggregator calls), and executions fail with a typed error instead of silently substituting market pricing. 'market': never route through the firm venue; every leg is priced by the aggregator. max_slippage_percent applies on EVERY policy — unlike the loop, firm unwinds consume it to size the guaranteed withdraw/repay floors (the fills themselves are exact). 'firm' is incompatible with gas_sponsorship (sponsored unwinds force market routing).
+type CreditUnloopRequestPricing string
+
+const (
+	CreditUnloopRequestPricingAuto   CreditUnloopRequestPricing = "auto"
+	CreditUnloopRequestPricingFirm   CreditUnloopRequestPricing = "firm"
+	CreditUnloopRequestPricingMarket CreditUnloopRequestPricing = "market"
+)
+
+func (e CreditUnloopRequestPricing) ToPointer() *CreditUnloopRequestPricing {
+	return &e
+}
+func (e *CreditUnloopRequestPricing) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "auto":
+		fallthrough
+	case "firm":
+		fallthrough
+	case "market":
+		*e = CreditUnloopRequestPricing(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for CreditUnloopRequestPricing: %v", v)
+	}
+}
+
 // CreditUnloopRequest - Unwind a leveraged loop: repeatedly withdraw collateral, swap it back to
 // the borrow token at a guaranteed minimum output, and repay — all in ONE
 // atomic transaction from the Credit Account.
@@ -268,8 +298,10 @@ type CreditUnloopRequest struct {
 	AllowPartial *bool `json:"allow_partial,omitzero"`
 	// If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
-	// If true, build a display estimate only: the swap legs are priced at market rate and no single-use firm quote is ever spent. Set it on every parameter-exploration call and omit it only on the build the user is about to sign.
+	// If true, build a display estimate only — no single-use firm quote is ever spent. On a firm-covered unwind (pricing 'auto' or 'firm') the numbers are firm-INDICATIVE, priced off the firm venue's live maker levels (swap_provider='bebop'); otherwise they are market-priced with slippage-bounded floors. Under pricing='firm' a preview the firm venue cannot serve returns the advisory alone (preview=null + firm_available). Set it on every parameter-exploration call and omit it only on the build the user is about to sign.
 	Preview *bool `json:"preview,omitzero"`
+	// Swap-leg routing policy. 'auto': firm quotes where a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route — previews the firm venue cannot serve return the firm_available advisory alone (preview=null, zero aggregator calls), and executions fail with a typed error instead of silently substituting market pricing. 'market': never route through the firm venue; every leg is priced by the aggregator. max_slippage_percent applies on EVERY policy — unlike the loop, firm unwinds consume it to size the guaranteed withdraw/repay floors (the fills themselves are exact). 'firm' is incompatible with gas_sponsorship (sponsored unwinds force market routing).
+	Pricing *CreditUnloopRequestPricing `json:"pricing,omitzero"`
 }
 
 func (c *CreditUnloopRequest) GetOwner() string {
@@ -368,4 +400,11 @@ func (c *CreditUnloopRequest) GetPreview() *bool {
 		return nil
 	}
 	return c.Preview
+}
+
+func (c *CreditUnloopRequest) GetPricing() *CreditUnloopRequestPricing {
+	if c == nil {
+		return nil
+	}
+	return c.Pricing
 }
