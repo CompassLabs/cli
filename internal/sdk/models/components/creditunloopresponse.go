@@ -10,12 +10,12 @@ import (
 	"time"
 )
 
-// CreditUnloopResponseSwapProvider - Identifies which route priced the swap leg(s): a DEX AGGREGATOR (pool liquidity, slippage-bounded floors) or a FIRM provider (quotes, one per swap leg, each partially filled at the leg's size). On preview=true responses a firm value means the numbers are INDICATIVE, computed from live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED (under 'auto' a firm build can fall back to market transparently), and `quote_expires_at` is absent on every preview — so neither substitutes for this field.
+// CreditUnloopResponseSwapProvider - Identifies which route priced the swap leg(s): 'market' — a DEX aggregator (pool liquidity, slippage-bounded floors) — or 'firm' — quotes, one per swap leg, each partially filled at the leg's size. On preview=true responses 'firm' means the numbers are INDICATIVE, computed from live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED (under 'auto' a firm build can fall back to market transparently), and `quote_expires_at` is absent on every preview — so neither substitutes for this field.
 type CreditUnloopResponseSwapProvider string
 
 const (
-	CreditUnloopResponseSwapProviderOneInch CreditUnloopResponseSwapProvider = "one_inch"
-	CreditUnloopResponseSwapProviderBebop   CreditUnloopResponseSwapProvider = "bebop"
+	CreditUnloopResponseSwapProviderMarket CreditUnloopResponseSwapProvider = "market"
+	CreditUnloopResponseSwapProviderFirm   CreditUnloopResponseSwapProvider = "firm"
 )
 
 func (e CreditUnloopResponseSwapProvider) ToPointer() *CreditUnloopResponseSwapProvider {
@@ -26,7 +26,7 @@ func (e CreditUnloopResponseSwapProvider) ToPointer() *CreditUnloopResponseSwapP
 func (e *CreditUnloopResponseSwapProvider) IsExact() bool {
 	if e != nil {
 		switch *e {
-		case "one_inch", "bebop":
+		case "market", "firm":
 			return true
 		}
 	}
@@ -41,7 +41,7 @@ type CreditUnloopResponse struct {
 	Eip712 optionalnullable.OptionalNullable[BatchedSafeOperationsResponseOutput] `json:"eip_712,omitzero"`
 	// Projected end state, computed on guaranteed swap floors. Null only on pricing='firm' preview responses whose unwind the firm venue cannot serve: no leg was priced on any venue, and the response carries the firm_available advisory alone.
 	Preview *CreditUnloopPreview `json:"preview"`
-	// Identifies which route priced the swap leg(s): a DEX AGGREGATOR (pool liquidity, slippage-bounded floors) or a FIRM provider (quotes, one per swap leg, each partially filled at the leg's size). On preview=true responses a firm value means the numbers are INDICATIVE, computed from live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED (under 'auto' a firm build can fall back to market transparently), and `quote_expires_at` is absent on every preview — so neither substitutes for this field.
+	// Identifies which route priced the swap leg(s): 'market' — a DEX aggregator (pool liquidity, slippage-bounded floors) — or 'firm' — quotes, one per swap leg, each partially filled at the leg's size. On preview=true responses 'firm' means the numbers are INDICATIVE, computed from live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED (under 'auto' a firm build can fall back to market transparently), and `quote_expires_at` is absent on every preview — so neither substitutes for this field.
 	SwapProvider *CreditUnloopResponseSwapProvider `json:"swap_provider,omitzero"`
 	// Deadline of the firm swap quotes (the earliest across the unwind's swap legs) — sign and broadcast before it or the transaction reverts on-chain; refresh by re-calling this endpoint (discard the previous payload). Present only on executable firm-priced builds; null on previews (no quote is spent for a preview).
 	QuoteExpiresAt optionalnullable.OptionalNullable[time.Time] `json:"quote_expires_at,omitzero"`

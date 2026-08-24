@@ -10,12 +10,12 @@ import (
 	"time"
 )
 
-// CreditLoopResponseSwapProvider - Identifies which route priced the swap leg(s): a DEX AGGREGATOR (iterative loop across pool liquidity, slippage-bounded floors) or a FIRM provider (zero-slippage quotes, one per swap leg, each partially filled at the leg's size — exact fills, zero dust). On preview=true responses a firm value means the numbers are INDICATIVE, computed from live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED (under 'auto' a firm build can fall back to market transparently), and `quote_expires_at` is absent on every preview — so neither substitutes for this field.
+// CreditLoopResponseSwapProvider - Identifies which route priced the swap leg(s): 'market' — a DEX aggregator (iterative loop across pool liquidity, slippage-bounded floors) — or 'firm' — zero-slippage quotes, one per swap leg, each partially filled at the leg's size (exact fills, zero dust). On preview=true responses 'firm' means the numbers are INDICATIVE, computed from live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED (under 'auto' a firm build can fall back to market transparently), and `quote_expires_at` is absent on every preview — so neither substitutes for this field.
 type CreditLoopResponseSwapProvider string
 
 const (
-	CreditLoopResponseSwapProviderOneInch CreditLoopResponseSwapProvider = "one_inch"
-	CreditLoopResponseSwapProviderBebop   CreditLoopResponseSwapProvider = "bebop"
+	CreditLoopResponseSwapProviderMarket CreditLoopResponseSwapProvider = "market"
+	CreditLoopResponseSwapProviderFirm   CreditLoopResponseSwapProvider = "firm"
 )
 
 func (e CreditLoopResponseSwapProvider) ToPointer() *CreditLoopResponseSwapProvider {
@@ -26,7 +26,7 @@ func (e CreditLoopResponseSwapProvider) ToPointer() *CreditLoopResponseSwapProvi
 func (e *CreditLoopResponseSwapProvider) IsExact() bool {
 	if e != nil {
 		switch *e {
-		case "one_inch", "bebop":
+		case "market", "firm":
 			return true
 		}
 	}
@@ -41,7 +41,7 @@ type CreditLoopResponse struct {
 	Eip712 optionalnullable.OptionalNullable[BatchedSafeOperationsResponseOutput] `json:"eip_712,omitzero"`
 	// Projected end state, computed on guaranteed swap floors. Null only on pricing='firm' preview responses whose target the firm venue cannot serve: no leg was priced on any venue, and the response carries the coverage advisory (max_firm_multiplier) alone.
 	Preview *CreditLoopPreview `json:"preview"`
-	// Identifies which route priced the swap leg(s): a DEX AGGREGATOR (iterative loop across pool liquidity, slippage-bounded floors) or a FIRM provider (zero-slippage quotes, one per swap leg, each partially filled at the leg's size — exact fills, zero dust). On preview=true responses a firm value means the numbers are INDICATIVE, computed from live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED (under 'auto' a firm build can fall back to market transparently), and `quote_expires_at` is absent on every preview — so neither substitutes for this field.
+	// Identifies which route priced the swap leg(s): 'market' — a DEX aggregator (iterative loop across pool liquidity, slippage-bounded floors) — or 'firm' — zero-slippage quotes, one per swap leg, each partially filled at the leg's size (exact fills, zero dust). On preview=true responses 'firm' means the numbers are INDICATIVE, computed from live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED (under 'auto' a firm build can fall back to market transparently), and `quote_expires_at` is absent on every preview — so neither substitutes for this field.
 	SwapProvider *CreditLoopResponseSwapProvider `json:"swap_provider,omitzero"`
 	// Deadline of the firm swap quotes (the earliest across the loop's swap legs) — sign and broadcast before it or the transaction reverts on-chain; refresh by re-calling this endpoint (discard the previous payload). Present only on executable firm-priced builds; null on previews (no quote is spent for a preview).
 	QuoteExpiresAt optionalnullable.OptionalNullable[time.Time] `json:"quote_expires_at,omitzero"`
