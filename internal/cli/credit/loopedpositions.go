@@ -26,7 +26,7 @@ func initLoopedPositionsCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "looped-positions",
 		Short:   "List looped (leveraged) credit positions",
-		Long:    "List looped (leveraged) positions for a credit account owner.\n\nDetects loops from the account's on-chain history: a transaction containing\nlending + borrowing + swap legs is a loop transaction. Returns one position\nper Morpho market / Aave collateral+debt reserve pair, each with its complete\nper-transaction history, lifetime totals, and live on-chain state (health\nfactor, USD values, leverage) for open positions. Covers Aave V3 and Morpho\nBlue.",
+		Long:    "List the leveraged positions held by an owner's Credit Account.\n\nPositions are reconstructed from on-chain history rather than from API calls,\nso a loop assembled by hand through /v2/credit/bundle is recognised the same\nway as one opened through /v2/credit/loop. Only activity inside the Credit\nAccount is visible — leverage the owner holds directly in their wallet is not.\n\nSee the [Leveraged Looping guide](https://docs.compasslabs.ai/v2/Products/Looping)\nfor protocol coverage and how to read leverage, health factor and net APY.",
 		Example: "  compass credit looped-positions --chain base --owner 0x06A9aF046187895AcFc7258450B15397CAc67400",
 		RunE:    runLoopedPositionsCmd,
 		Aliases: []string{"lp"},

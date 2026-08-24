@@ -4,14 +4,15 @@ List looped (leveraged) credit positions
 
 ### Synopsis
 
-List looped (leveraged) positions for a credit account owner.
+List the leveraged positions held by an owner's Credit Account.
 
-Detects loops from the account's on-chain history: a transaction containing
-lending + borrowing + swap legs is a loop transaction. Returns one position
-per Morpho market / Aave collateral+debt reserve pair, each with its complete
-per-transaction history, lifetime totals, and live on-chain state (health
-factor, USD values, leverage) for open positions. Covers Aave V3 and Morpho
-Blue.
+Positions are reconstructed from on-chain history rather than from API calls,
+so a loop assembled by hand through /v2/credit/bundle is recognised the same
+way as one opened through /v2/credit/loop. Only activity inside the Credit
+Account is visible — leverage the owner holds directly in their wallet is not.
+
+See the [Leveraged Looping guide](https://docs.compasslabs.ai/v2/Products/Looping)
+for protocol coverage and how to read leverage, health factor and net APY.
 
 ```
 compass credit looped-positions [flags]

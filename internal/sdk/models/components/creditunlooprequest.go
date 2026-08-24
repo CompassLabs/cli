@@ -12,7 +12,7 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
-// CreditUnloopRequestChain - Blockchain network.
+// CreditUnloopRequestChain - Blockchain network. Not every protocol is deployed on every chain — see the protocol field — and a chain with no credit venue at all returns a 422 naming the chains that do.
 type CreditUnloopRequestChain string
 
 const (
@@ -267,16 +267,29 @@ func (e *CreditUnloopRequestPricing) UnmarshalJSON(data []byte) error {
 type CreditUnloopRequest struct {
 	// The address that owns the Credit Account.
 	Owner string `json:"owner"`
-	// Blockchain network.
+	// Blockchain network. Not every protocol is deployed on every chain — see the protocol field — and a chain with no credit venue at all returns a 422 naming the chains that do.
 	Chain CreditUnloopRequestChain `json:"chain"`
 	// Which lending protocol a credit action targets.
 	//
 	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
-	// field) keep hitting the unchanged Aave code path. ``MORPHO`` identifies Morpho
-	// Blue lending markets by their bytes32 ``market_id``. ``EULER`` identifies Euler
-	// V2 markets by their EVK ``collateral_vault`` + ``borrow_vault`` addresses and
-	// supports isolated per-sub-account positions (``sub_account_id``). All three
-	// support the loop/unloop leverage endpoints.
+	// field) keep hitting the unchanged Aave code path; markets are named by token
+	// symbol. ``MORPHO`` identifies Morpho Blue lending markets by their bytes32
+	// ``market_id``. ``EULER`` identifies Euler V2 markets by their EVK
+	// ``collateral_vault`` + ``borrow_vault`` addresses and supports isolated
+	// per-sub-account positions (``sub_account_id``).
+	//
+	// Deployment is per chain, so a valid protocol can still 422 on a given chain:
+	// AAVE on Ethereum, Base, Arbitrum, BSC and HyperEVM (where it is Hyperlend, the
+	// chain's Aave V3 deployment); MORPHO on Ethereum, Base, Arbitrum and HyperEVM
+	// (where it is Felix); EULER on Ethereum, Base, Arbitrum and BSC.
+	//
+	// All three support ``/v2/credit/loop`` and ``/v2/credit/unloop``. EULER does
+	// NOT: ``/v2/credit/rebalance`` rejects it with a 422, and
+	// ``/v2/credit/looped_positions`` covers only AAVE and MORPHO — an Euler loop is
+	// silently absent there rather than an error, so read it from
+	// ``/v2/credit/positions`` instead. (EULER still appears in the
+	// ``looped_positions`` response enum because this enum is shared; it is never
+	// emitted.)
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
 	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
@@ -294,11 +307,11 @@ type CreditUnloopRequest struct {
 	TargetMultiplier optionalnullable.OptionalNullable[CreditUnloopRequestTargetMultiplier] `json:"target_multiplier,omitzero"`
 	// Per-swap slippage tolerance in percent. Unwind dust is bounded by this per iteration, so tighter slippage means less dust.
 	MaxSlippagePercent *CreditUnloopRequestMaxSlippagePercent `json:"max_slippage_percent,omitzero"`
-	// If the target cannot be reached in one transaction (e.g. a position opened very close to the liquidation threshold), return the maximum-progress plan (preview.fully_unwound=false) instead of a 400. A second unloop call, now from a much lower leverage, finishes the job.
+	// If the target cannot be reached in one transaction, return the maximum-progress plan (preview.fully_unwound=false) instead of a 400. This can happen because every withdrawal is sized to keep the health factor at or above 1.02 at that step, so a position opened very close to its liquidation threshold runs out of headroom before the target is met. A second unloop call, now from a much lower leverage, finishes the job.
 	AllowPartial *bool `json:"allow_partial,omitzero"`
 	// If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
-	// If true, build a display estimate only — no single-use firm quote is ever spent. On a firm-covered unwind (pricing 'auto' or 'firm') the numbers are firm-INDICATIVE, priced off the firm venue's live maker levels (swap_provider='bebop'); otherwise they are market-priced with slippage-bounded floors. Under pricing='firm' a preview the firm venue cannot serve returns the advisory alone (preview=null + firm_available). Set it on every parameter-exploration call and omit it only on the build the user is about to sign.
+	// If true, build a display estimate only — no single-use firm quote is ever spent. NOTE that this guarantees only that no firm quote was spent — it does not guarantee an absent transaction: on an unwind no firm provider covers, and under pricing=market, the call still falls through to the aggregator and returns a signable transaction. On a firm-covered unwind (pricing 'auto' or 'firm') the numbers are firm-INDICATIVE, priced off the firm provider's live maker levels; otherwise they are market-priced with slippage-bounded floors. Under pricing='firm' a preview no firm provider can serve returns the advisory alone (preview=null + firm_available). Set it on every parameter-exploration call and omit it only on the build the user is about to sign.
 	Preview *bool `json:"preview,omitzero"`
 	// Swap-leg routing policy. 'auto': firm quotes where a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route — previews the firm venue cannot serve return the firm_available advisory alone (preview=null, zero aggregator calls), and executions fail with a typed error instead of silently substituting market pricing. 'market': never route through the firm venue; every leg is priced by the aggregator. max_slippage_percent applies on EVERY policy — unlike the loop, firm unwinds consume it to size the guaranteed withdraw/repay floors (the fills themselves are exact). 'firm' is incompatible with gas_sponsorship (sponsored unwinds force market routing).
 	Pricing *CreditUnloopRequestPricing `json:"pricing,omitzero"`

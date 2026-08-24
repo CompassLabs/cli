@@ -12,7 +12,7 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
-// CreditLoopRequestChain - Blockchain network.
+// CreditLoopRequestChain - Blockchain network. Not every protocol is deployed on every chain — see the protocol field — and a chain with no credit venue at all returns a 422 naming the chains that do.
 type CreditLoopRequestChain string
 
 const (
@@ -58,7 +58,7 @@ const (
 	InitialCollateralAmountTypeStr    InitialCollateralAmountType = "str"
 )
 
-// InitialCollateralAmount - Collateral (in token units) already held in the Credit Account to seed the loop.
+// InitialCollateralAmount - Collateral (in token units) that the Credit Account must ALREADY hold when this is called — the loop never pulls from the owner's wallet mid-transaction. Fund the account first via /v2/credit/transfer (action=DEPOSIT).
 type InitialCollateralAmount struct {
 	Number *float64 `queryParam:"inline" union:"member"`
 	Str    *string  `queryParam:"inline" union:"member"`
@@ -238,7 +238,7 @@ const (
 	LoanToValueTypeStr    LoanToValueType = "str"
 )
 
-// LoanToValue - Per-iteration borrow LTV in percent. Must not exceed the protocol's maximum for the market (Aave reserve/e-mode LTV; Morpho LLTV with a safety margin); borrows are sized slightly inside the requested value so no leg sits on the protocol's revert boundary.
+// LoanToValue - Per-iteration borrow LTV in percent. Must not exceed the protocol's maximum for the market (Aave reserve/e-mode LTV; Morpho LLTV with a safety margin; Euler's borrow LTV for the collateral vault); borrows are sized slightly inside the requested value so no leg sits on the protocol's revert boundary.
 type LoanToValue struct {
 	Number *float64 `queryParam:"inline" union:"member"`
 	Str    *string  `queryParam:"inline" union:"member"`
@@ -447,16 +447,29 @@ func (e *CreditLoopRequestPricing) UnmarshalJSON(data []byte) error {
 type CreditLoopRequest struct {
 	// The address that owns the Credit Account.
 	Owner string `json:"owner"`
-	// Blockchain network.
+	// Blockchain network. Not every protocol is deployed on every chain — see the protocol field — and a chain with no credit venue at all returns a 422 naming the chains that do.
 	Chain CreditLoopRequestChain `json:"chain"`
 	// Which lending protocol a credit action targets.
 	//
 	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
-	// field) keep hitting the unchanged Aave code path. ``MORPHO`` identifies Morpho
-	// Blue lending markets by their bytes32 ``market_id``. ``EULER`` identifies Euler
-	// V2 markets by their EVK ``collateral_vault`` + ``borrow_vault`` addresses and
-	// supports isolated per-sub-account positions (``sub_account_id``). All three
-	// support the loop/unloop leverage endpoints.
+	// field) keep hitting the unchanged Aave code path; markets are named by token
+	// symbol. ``MORPHO`` identifies Morpho Blue lending markets by their bytes32
+	// ``market_id``. ``EULER`` identifies Euler V2 markets by their EVK
+	// ``collateral_vault`` + ``borrow_vault`` addresses and supports isolated
+	// per-sub-account positions (``sub_account_id``).
+	//
+	// Deployment is per chain, so a valid protocol can still 422 on a given chain:
+	// AAVE on Ethereum, Base, Arbitrum, BSC and HyperEVM (where it is Hyperlend, the
+	// chain's Aave V3 deployment); MORPHO on Ethereum, Base, Arbitrum and HyperEVM
+	// (where it is Felix); EULER on Ethereum, Base, Arbitrum and BSC.
+	//
+	// All three support ``/v2/credit/loop`` and ``/v2/credit/unloop``. EULER does
+	// NOT: ``/v2/credit/rebalance`` rejects it with a 422, and
+	// ``/v2/credit/looped_positions`` covers only AAVE and MORPHO — an Euler loop is
+	// silently absent there rather than an error, so read it from
+	// ``/v2/credit/positions`` instead. (EULER still appears in the
+	// ``looped_positions`` response enum because this enum is shared; it is never
+	// emitted.)
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
 	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
@@ -470,19 +483,19 @@ type CreditLoopRequest struct {
 	CollateralToken string `json:"collateral_token"`
 	// Token borrowed each iteration and swapped back to the collateral token. For MORPHO it must be the market's loan token.
 	BorrowToken string `json:"borrow_token"`
-	// Collateral (in token units) already held in the Credit Account to seed the loop.
+	// Collateral (in token units) that the Credit Account must ALREADY hold when this is called — the loop never pulls from the owner's wallet mid-transaction. Fund the account first via /v2/credit/transfer (action=DEPOSIT).
 	InitialCollateralAmount InitialCollateralAmount `json:"initial_collateral_amount"`
 	// Target leverage: total collateral exposure = multiplier × initial_collateral_amount. Must be achievable at the requested loan_to_value (max ≈ 0.9 / (1 − LTV)).
 	Multiplier Multiplier `json:"multiplier"`
-	// Per-iteration borrow LTV in percent. Must not exceed the protocol's maximum for the market (Aave reserve/e-mode LTV; Morpho LLTV with a safety margin); borrows are sized slightly inside the requested value so no leg sits on the protocol's revert boundary.
+	// Per-iteration borrow LTV in percent. Must not exceed the protocol's maximum for the market (Aave reserve/e-mode LTV; Morpho LLTV with a safety margin; Euler's borrow LTV for the collateral vault); borrows are sized slightly inside the requested value so no leg sits on the protocol's revert boundary.
 	LoanToValue LoanToValue `json:"loan_to_value"`
 	// Per-swap slippage tolerance in percent. Loop dust is bounded by this per iteration, so tighter slippage means less dust.
 	MaxSlippagePercent *CreditLoopRequestMaxSlippagePercent `json:"max_slippage_percent,omitzero"`
-	// Aave only: e-mode category to enable before looping (higher LTV for correlated pairs, e.g. ETH-correlated).
+	// Aave only: e-mode category to enable before looping (higher LTV for correlated pairs, e.g. ETH-correlated). Both tokens must belong to the category or the build returns a 422. On Hyperlend (chain=hyperevm) category 1 is the HYPE-correlated set covering wstHYPE and WHYPE.
 	EmodeCategory optionalnullable.OptionalNullable[int64] `json:"emode_category,omitzero"`
 	// If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
-	// If true, build a display ESTIMATE: no firm RFQ quote is ever requested (quote_expires_at stays null) and no transaction is returned. How the estimate is priced follows `pricing`: on a firm-covered pair under 'auto' or 'firm' it is computed from the firm venue's live price levels (swap_provider='bebop', indicative); otherwise swap legs are priced by the default aggregator. Set it on every call made while a user is exploring parameters, and leave it false only for the build they actually intend to sign — firm quotes are single-use maker commitments, and requesting them for displays that are never executed degrades the pricing this API is offered.
+	// If true, build a display ESTIMATE: no firm RFQ quote is ever requested (quote_expires_at stays null). NOTE that this guarantees only that no firm quote was spent — it does not guarantee an absent transaction: on a pair no firm provider covers, and under pricing=market, the call still falls through to the aggregator and returns a signable transaction. How the estimate is priced follows `pricing`: on a firm-covered pair under 'auto' or 'firm' it is computed from the firm provider's live price levels (indicative); otherwise swap legs are priced by the default aggregator. Set it on every call made while a user is exploring parameters, and leave it false only for the build they actually intend to sign — firm quotes are single-use maker commitments, and requesting them for displays that are never executed degrades the pricing this API is offered.
 	Preview *bool `json:"preview,omitzero"`
 	// Swap-leg routing policy. 'auto': firm quotes where a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route — previews whose target the firm venue cannot serve return the coverage advisory alone (preview=null, zero aggregator calls), and executions fail with a typed error instead of silently substituting market pricing. 'market': never route through the firm venue; every leg is priced by the aggregator and bounded by max_slippage_percent (which firm legs ignore). 'firm' is incompatible with gas_sponsorship (sponsored loops force market routing).
 	Pricing *CreditLoopRequestPricing `json:"pricing,omitzero"`

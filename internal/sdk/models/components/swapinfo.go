@@ -12,7 +12,7 @@ import (
 //
 // Evidence is token-filtered and executor-proof: the sold (debt) token left the
 // account to a non-protocol counterparty and the bought (collateral) token
-// arrived from a non-protocol counterparty. 1inch fills often settle from an
+// arrived from a non-protocol counterparty. Aggregator fills often settle from an
 // executor contract, so the router is recorded only when it happens to be the
 // outbound counterparty — it is never required for detection.
 type SwapInfo struct {
@@ -28,7 +28,7 @@ type SwapInfo struct {
 	BoughtSymbol string `json:"bought_symbol"`
 	// Amount of the bought token.
 	BoughtAmount string `json:"bought_amount"`
-	// The outbound counterparty when it is the 1inch aggregation router. Null when the swap settled from an executor contract (informational only — never required to detect the swap).
+	// The outbound counterparty when it is the swap router itself. Null when the swap settled from an executor contract (informational only — never required to detect the swap).
 	Router optionalnullable.OptionalNullable[string] `json:"router,omitzero"`
 }
 

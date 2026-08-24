@@ -4,46 +4,15 @@ Unwind a leveraged loop
 
 ### Synopsis
 
-Unwind an Aave or Morpho loop in ONE atomic transaction.
+Unwind a leveraged position in ONE atomic transaction.
 
-Repeatedly withdraws collateral, swaps it to the borrow token at a GUARANTEED
-minimum output (enforced on-chain), and repays. The floor discipline means a
-swap filling anywhere within the slippage tolerance can never break a later
-step; any positive surplus stays in the Credit Account as borrow-token dust
-(the preview reports the bound as estimated_max_dust).
+Withdraw collateral, swap it back to the borrow token, repay, repeat — until
+the position reaches target_multiplier, or until the debt is cleared exactly
+if you omit it. If any step fails the whole transaction reverts.
 
-When the collateral token is itself an ERC-4626 vault share (e.g. a Morpho
-vault token like steakUSDC), each conversion redeems the shares through the
-vault at net asset value and swaps the underlying asset to the borrow token
-instead of swapping the share token on a DEX; a direct share-token route is
-only ever used when it prices within 1% of net asset value.
-
-Omit target_multiplier for a full close: the debt is cleared exactly —
-accrued interest included — and the pair collateral is returned to the Credit
-Account. Pass 1 to clear the debt but keep the collateral supplied, or a value
-above 1 to delever to that multiplier (it must be below the position's current
-multiplier).
-
-Each withdrawal is sized to keep the position's health factor ≥ 1.02 at that
-step, so a position opened very close to the liquidation threshold may need
-more than one transaction to fully close — set allow_partial=true to return
-the maximum single-transaction progress (preview.fully_unwound=false), then
-call unloop again to finish. Very large unwinds relative to pool depth can
-still exceed the slippage tolerance through their own cumulative price impact.
-
-Positions are unwound as far as the swap router can route; on a router-minimum
-stop the engine still withdraws all collateral not needed to back the residual,
-and completes a true full close whenever the unwind's own guaranteed swap
-surpluses (or the Credit Account's idle balance) cover the remainder — a
-residual below the router's minimum routable size never fails the call, it is
-reported honestly in the preview (fully_unwound=false).
-
-When other open Aave loops share this position's collateral reserve, a full
-close withdraws only this position's attributed share of the pooled collateral
-(event-ledger bookkeeping), leaving the rest supplied for the other positions.
-
-For protocol=MORPHO pass a market_id from /v2/credit/morpho_markets; inspect
-open loops via /v2/credit/looped_positions.
+See the [Leveraged Looping guide](https://docs.compasslabs.ai/v2/Products/Looping)
+for chain coverage, vault-share collateral, shared Aave reserves and the full
+error list.
 
 ```
 compass credit unloop [flags]
@@ -58,11 +27,11 @@ compass credit unloop [flags]
 ### Options
 
 ```
-  -a, --allow-partial                 If the target cannot be reached in one transaction (e.g. a position opened very close to the liquidation threshold), return the maximum-progress plan (preview.fully_unwound=false) instead of a 400. A second unloop call, now from a much lower leverage, finishes the job.
+  -a, --allow-partial                 If the target cannot be reached in one transaction, return the maximum-progress plan (preview.fully_unwound=false) instead of a 400. This can happen because every withdrawal is sized to keep the health factor at or above 1.02 at that step, so a position opened very close to its liquidation threshold runs out of headroom before the target is met. A second unloop call, now from a much lower leverage, finishes the job.
       --body string                   Request body as JSON (alternative to individual flags). Can also be provided via stdin.
       --borrow-token string           Token borrowed in the loop; withdrawn collateral is swapped back to it and used to repay. For MORPHO it must be the market's loan token. [required]
       --borrow-vault string           Euler only: the EVK vault the loop borrowed from (the sub-account's controller). Required when protocol=EULER.
-      --chain string                  Blockchain network. (options: arbitrum, base, bsc, ethereum, hyperevm, tempo) [required]
+      --chain string                  Blockchain network. Not every protocol is deployed on every chain — see the protocol field — and a chain with no credit venue at all returns a 422 naming the chains that do. (options: arbitrum, base, bsc, ethereum, hyperevm, tempo) [required]
       --collateral-token string       Token supplied as collateral in the loop being unwound. For MORPHO it must be the market's collateral token. [required]
       --collateral-vault string       Euler only: the EVK vault the loop's collateral is in. Required when protocol=EULER.
   -g, --gas-sponsorship               If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
@@ -70,16 +39,29 @@ compass credit unloop [flags]
       --market-id string              Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
       --max-slippage-percent string   JSON value (one of: number | string)
       --owner string                  The address that owns the Credit Account. [required]
-      --preview                       If true, build a display estimate only — no single-use firm quote is ever spent. On a firm-covered unwind (pricing 'auto' or 'firm') the numbers are firm-INDICATIVE, priced off the firm venue's live maker levels (swap_provider='bebop'); otherwise they are market-priced with slippage-bounded floors. Under pricing='firm' a preview the firm venue cannot serve returns the advisory alone (preview=null + firm_available). Set it on every parameter-exploration call and omit it only on the build the user is about to sign.
+      --preview                       If true, build a display estimate only — no single-use firm quote is ever spent. NOTE that this guarantees only that no firm quote was spent — it does not guarantee an absent transaction: on an unwind no firm provider covers, and under pricing=market, the call still falls through to the aggregator and returns a signable transaction. On a firm-covered unwind (pricing 'auto' or 'firm') the numbers are firm-INDICATIVE, priced off the firm provider's live maker levels; otherwise they are market-priced with slippage-bounded floors. Under pricing='firm' a preview no firm provider can serve returns the advisory alone (preview=null + firm_available). Set it on every parameter-exploration call and omit it only on the build the user is about to sign.
       --pricing string                Swap-leg routing policy. 'auto': firm quotes where a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route — previews the firm venue cannot serve return the firm_available advisory alone (preview=null, zero aggregator calls), and executions fail with a typed error instead of silently substituting market pricing. 'market': never route through the firm venue; every leg is priced by the aggregator. max_slippage_percent applies on EVERY policy — unlike the loop, firm unwinds consume it to size the guaranteed withdraw/repay floors (the fills themselves are exact). 'firm' is incompatible with gas_sponsorship (sponsored unwinds force market routing). (options: auto, firm, market)
       --protocol                      Which lending protocol a credit action targets.
                                       
                                       AAVE`` is the default so existing callers (which never send a ``protocol``
-                                      field) keep hitting the unchanged Aave code path. ``MORPHO`` identifies Morpho
-                                      Blue lending markets by their bytes32 ``market_id``. ``EULER`` identifies Euler
-                                      V2 markets by their EVK ``collateral_vault`` + ``borrow_vault`` addresses and
-                                      supports isolated per-sub-account positions (``sub_account_id``). All three
-                                      support the loop/unloop leverage endpoints. (options: AAVE, EULER, MORPHO)
+                                      field) keep hitting the unchanged Aave code path; markets are named by token
+                                      symbol. ``MORPHO`` identifies Morpho Blue lending markets by their bytes32
+                                      ``market_id``. ``EULER`` identifies Euler V2 markets by their EVK
+                                      ``collateral_vault`` + ``borrow_vault`` addresses and supports isolated
+                                      per-sub-account positions (``sub_account_id``).
+                                      
+                                      Deployment is per chain, so a valid protocol can still 422 on a given chain:
+                                      AAVE on Ethereum, Base, Arbitrum, BSC and HyperEVM (where it is Hyperlend, the
+                                      chain's Aave V3 deployment); MORPHO on Ethereum, Base, Arbitrum and HyperEVM
+                                      (where it is Felix); EULER on Ethereum, Base, Arbitrum and BSC.
+                                      
+                                      All three support ``/v2/credit/loop`` and ``/v2/credit/unloop``. EULER does
+                                      NOT: ``/v2/credit/rebalance`` rejects it with a 422, and
+                                      ``/v2/credit/looped_positions`` covers only AAVE and MORPHO — an Euler loop is
+                                      silently absent there rather than an error, so read it from
+                                      ``/v2/credit/positions`` instead. (EULER still appears in the
+                                      ``looped_positions`` response enum because this enum is shared; it is never
+                                      emitted.) (options: AAVE, EULER, MORPHO)
   -s, --sub-account-id int            Euler only: the EVC sub-account (0-255) holding the looped position to unwind. 0 is the Credit Account itself.
   -t, --target-multiplier string      JSON value (one of: number | string)
 ```

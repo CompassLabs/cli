@@ -113,11 +113,24 @@ type CreditSupplyParams struct {
 	// Which lending protocol a credit action targets.
 	//
 	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
-	// field) keep hitting the unchanged Aave code path. ``MORPHO`` identifies Morpho
-	// Blue lending markets by their bytes32 ``market_id``. ``EULER`` identifies Euler
-	// V2 markets by their EVK ``collateral_vault`` + ``borrow_vault`` addresses and
-	// supports isolated per-sub-account positions (``sub_account_id``). All three
-	// support the loop/unloop leverage endpoints.
+	// field) keep hitting the unchanged Aave code path; markets are named by token
+	// symbol. ``MORPHO`` identifies Morpho Blue lending markets by their bytes32
+	// ``market_id``. ``EULER`` identifies Euler V2 markets by their EVK
+	// ``collateral_vault`` + ``borrow_vault`` addresses and supports isolated
+	// per-sub-account positions (``sub_account_id``).
+	//
+	// Deployment is per chain, so a valid protocol can still 422 on a given chain:
+	// AAVE on Ethereum, Base, Arbitrum, BSC and HyperEVM (where it is Hyperlend, the
+	// chain's Aave V3 deployment); MORPHO on Ethereum, Base, Arbitrum and HyperEVM
+	// (where it is Felix); EULER on Ethereum, Base, Arbitrum and BSC.
+	//
+	// All three support ``/v2/credit/loop`` and ``/v2/credit/unloop``. EULER does
+	// NOT: ``/v2/credit/rebalance`` rejects it with a 422, and
+	// ``/v2/credit/looped_positions`` covers only AAVE and MORPHO — an Euler loop is
+	// silently absent there rather than an error, so read it from
+	// ``/v2/credit/positions`` instead. (EULER still appears in the
+	// ``looped_positions`` response enum because this enum is shared; it is never
+	// emitted.)
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Euler only: the EVK collateral vault to supply into. Required when protocol=EULER.
 	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`

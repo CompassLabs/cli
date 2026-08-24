@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// CreditLoopResponseSwapProvider - Which venue priced the swap leg(s): 'one_inch' (iterative loop, slippage-bounded floors) or 'bebop' (firm zero-slippage quotes, one per swap leg, each partially filled at the leg's size — exact fills, zero dust). On preview=true responses, 'bebop' means the numbers are INDICATIVE, computed from the firm venue's live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks.
+// CreditLoopResponseSwapProvider - Identifies which route priced the swap leg(s): a DEX AGGREGATOR (iterative loop across pool liquidity, slippage-bounded floors) or a FIRM provider (zero-slippage quotes, one per swap leg, each partially filled at the leg's size — exact fills, zero dust). On preview=true responses a firm value means the numbers are INDICATIVE, computed from live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED (under 'auto' a firm build can fall back to market transparently), and `quote_expires_at` is absent on every preview — so neither substitutes for this field.
 type CreditLoopResponseSwapProvider string
 
 const (
@@ -35,15 +35,15 @@ func (e *CreditLoopResponseSwapProvider) IsExact() bool {
 
 // CreditLoopResponse - The atomic loop transaction plus its guaranteed-floor preview.
 type CreditLoopResponse struct {
-	// Unsigned transaction for direct execution by the owner. Present when gas_sponsorship=false — except firm-priced previews (preview=true with swap_provider='bebop'), which carry numbers only: the firm quotes are fetched at execution time, so there is no payload to sign yet.
+	// Unsigned transaction for direct execution by the owner. Present when gas_sponsorship=false — except firm-priced previews (preview=true on a firm-priced build), which carry numbers only: the firm quotes are fetched at execution time, so there is no payload to sign yet.
 	Transaction optionalnullable.OptionalNullable[UnsignedTransaction] `json:"transaction,omitzero"`
 	// EIP-712 typed data for gas-sponsored execution. Present when gas_sponsorship=true.
 	Eip712 optionalnullable.OptionalNullable[BatchedSafeOperationsResponseOutput] `json:"eip_712,omitzero"`
 	// Projected end state, computed on guaranteed swap floors. Null only on pricing='firm' preview responses whose target the firm venue cannot serve: no leg was priced on any venue, and the response carries the coverage advisory (max_firm_multiplier) alone.
 	Preview *CreditLoopPreview `json:"preview"`
-	// Which venue priced the swap leg(s): 'one_inch' (iterative loop, slippage-bounded floors) or 'bebop' (firm zero-slippage quotes, one per swap leg, each partially filled at the leg's size — exact fills, zero dust). On preview=true responses, 'bebop' means the numbers are INDICATIVE, computed from the firm venue's live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks.
+	// Identifies which route priced the swap leg(s): a DEX AGGREGATOR (iterative loop across pool liquidity, slippage-bounded floors) or a FIRM provider (zero-slippage quotes, one per swap leg, each partially filled at the leg's size — exact fills, zero dust). On preview=true responses a firm value means the numbers are INDICATIVE, computed from live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED (under 'auto' a firm build can fall back to market transparently), and `quote_expires_at` is absent on every preview — so neither substitutes for this field.
 	SwapProvider *CreditLoopResponseSwapProvider `json:"swap_provider,omitzero"`
-	// Deadline of the firm swap quotes (the earliest across the loop's swap legs) — sign and broadcast before it or the transaction reverts on-chain; refresh by re-calling this endpoint (discard the previous payload). Present only on executable swap_provider='bebop' builds; null on previews (no quote is spent for a preview).
+	// Deadline of the firm swap quotes (the earliest across the loop's swap legs) — sign and broadcast before it or the transaction reverts on-chain; refresh by re-calling this endpoint (discard the previous payload). Present only on executable firm-priced builds; null on previews (no quote is spent for a preview).
 	QuoteExpiresAt optionalnullable.OptionalNullable[time.Time] `json:"quote_expires_at,omitzero"`
 	// Multiplier bound firm zero-slippage quotes can fill for the requested position size, LTV and target (estimated without spending any quote). The requested multiplier is firm-servable iff it is <= this value; above it the loop executes at market rate with slippage-bounded floors instead. Present only on preview=true responses when a firm-quote venue covers the pair; null otherwise. Recompute per parameter change - minimum-size floors make reachability target-dependent.
 	MaxFirmMultiplier optionalnullable.OptionalNullable[string] `json:"max_firm_multiplier,omitzero"`

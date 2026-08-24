@@ -4,43 +4,20 @@ Rebalance the leveraged credit book
 
 ### Synopsis
 
-Rebalance the leveraged credit book in ONE atomic transaction.
+Move one or more leveraged positions to the state you want, in ONE atomic
+transaction.
 
-List only the positions to change — anything not named is left untouched;
-remove a position with close=true. Each target states an end state:
-target_equity_usd (net USD committed) × target_multiplier.
+List the positions to change and the end state you want for each. The API
+works out whether that means opening, growing, shrinking, delevering or
+closing, and does them all together.
 
-Releasing targets run first (each unwind/delever frees tokens into the Credit
-Account), the freed tokens are then routed by swaps at a GUARANTEED minimum
-output (enforced on-chain), and consuming targets run last — so moving a
-levered position between markets, token pairs, or protocols (Aave ↔ Morpho) is
-simply a close plus an open in the same transaction. Conversions involving an
-ERC-4626 vault-share token (e.g. a Morpho vault token like steakUSDC) go
-through the vault's own deposit/redeem at net asset value rather than a DEX
-swap of the share token.
+Money freed by shrinking or closing one position pays for growing or opening
+another, so shifting funds between positions needs no new deposit. Any
+shortfall is taken from the Credit Account's idle balance, and the call
+returns 422 if that does not cover it either.
 
-Net book growth is funded from the Credit Account's existing idle balance —
-fund it first via /v2/credit/transfer; a net release stays in the Credit
-Account as idle balance. Any swap surplus above the guaranteed floors also
-stays in the Credit Account (preview.estimated_max_dust) — recoverable, never
-lost.
-
-A book already at its target returns transaction: null with the preview — the
-call is idempotent and safe to drive from a converge-to-target loop.
-
-A rebalance too large for one transaction is rejected with a 422 — split it
-into two calls. Every deleveraging step keeps the health factor ≥ 1.02 and
-every leveraging step respects the protocol's borrow limits; Aave targets share
-one account-level health factor, which the preview reports.
-
-Dust tails and routing swaps below the swap router's minimum routable size do
-not fail the call: a releasing target that cannot fully unwind returns its
-honest residual in the preview, and an unroutable routing swap is skipped
-(its uncovered amount only 422s the rebalance if it breaches the funding
-tolerance).
-
-For protocol=MORPHO pass a market_id from /v2/credit/morpho_markets; inspect the
-current book via /v2/credit/looped_positions.
+See the [Leveraged Looping guide](https://docs.compasslabs.ai/v2/Products/Looping)
+for protocol and chain coverage, capital routing and the full error list.
 
 ```
 compass credit rebalance [flags]

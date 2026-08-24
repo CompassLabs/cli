@@ -9,7 +9,7 @@ Borrow an asset from Aave using a Credit Account.
 Bundles an optional swap, collateral supply, and borrow into a single atomic Safe transaction.
 
 - If `token_in` equals `collateral_token`, the tokens are supplied directly as collateral.
-- If `token_in` differs from `collateral_token`, a swap is performed first via 1inch.
+- If `token_in` differs from `collateral_token`, a market swap is performed first.
 
 The Credit Account must already be created via `/v2/credit/create_account` and funded with `token_in`.
 
@@ -48,11 +48,24 @@ compass credit borrow [flags]
       --protocol                    Which lending protocol a credit action targets.
                                     
                                     AAVE`` is the default so existing callers (which never send a ``protocol``
-                                    field) keep hitting the unchanged Aave code path. ``MORPHO`` identifies Morpho
-                                    Blue lending markets by their bytes32 ``market_id``. ``EULER`` identifies Euler
-                                    V2 markets by their EVK ``collateral_vault`` + ``borrow_vault`` addresses and
-                                    supports isolated per-sub-account positions (``sub_account_id``). All three
-                                    support the loop/unloop leverage endpoints. (options: AAVE, EULER, MORPHO)
+                                    field) keep hitting the unchanged Aave code path; markets are named by token
+                                    symbol. ``MORPHO`` identifies Morpho Blue lending markets by their bytes32
+                                    ``market_id``. ``EULER`` identifies Euler V2 markets by their EVK
+                                    ``collateral_vault`` + ``borrow_vault`` addresses and supports isolated
+                                    per-sub-account positions (``sub_account_id``).
+                                    
+                                    Deployment is per chain, so a valid protocol can still 422 on a given chain:
+                                    AAVE on Ethereum, Base, Arbitrum, BSC and HyperEVM (where it is Hyperlend, the
+                                    chain's Aave V3 deployment); MORPHO on Ethereum, Base, Arbitrum and HyperEVM
+                                    (where it is Felix); EULER on Ethereum, Base, Arbitrum and BSC.
+                                    
+                                    All three support ``/v2/credit/loop`` and ``/v2/credit/unloop``. EULER does
+                                    NOT: ``/v2/credit/rebalance`` rejects it with a 422, and
+                                    ``/v2/credit/looped_positions`` covers only AAVE and MORPHO — an Euler loop is
+                                    silently absent there rather than an error, so read it from
+                                    ``/v2/credit/positions`` instead. (EULER still appears in the
+                                    ``looped_positions`` response enum because this enum is shared; it is never
+                                    emitted.) (options: AAVE, EULER, MORPHO)
       --slippage string             JSON value (one of: number | string)
       --sub-account-id int          Euler only: EVC sub-account (0–255) to isolate this position. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health, letting one Credit Account hold multiple isolated Euler positions. Defaults to 0. Ignored for Aave/Morpho.
   -t, --token-in string             Token currently held in the Credit Account to use as input. If the same as collateral_token, no swap is performed. Omit together with amount_in and collateral_token to borrow against existing collateral.

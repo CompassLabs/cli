@@ -387,14 +387,15 @@ func (s *Credit) Balances(ctx context.Context, request operations.V2CreditBalanc
 }
 
 // LoopedPositions - List looped (leveraged) credit positions
-// List looped (leveraged) positions for a credit account owner.
+// List the leveraged positions held by an owner's Credit Account.
 //
-// Detects loops from the account's on-chain history: a transaction containing
-// lending + borrowing + swap legs is a loop transaction. Returns one position
-// per Morpho market / Aave collateral+debt reserve pair, each with its complete
-// per-transaction history, lifetime totals, and live on-chain state (health
-// factor, USD values, leverage) for open positions. Covers Aave V3 and Morpho
-// Blue.
+// Positions are reconstructed from on-chain history rather than from API calls,
+// so a loop assembled by hand through /v2/credit/bundle is recognised the same
+// way as one opened through /v2/credit/loop. Only activity inside the Credit
+// Account is visible — leverage the owner holds directly in their wallet is not.
+//
+// See the [Leveraged Looping guide](https://docs.compasslabs.ai/v2/Products/Looping)
+// for protocol coverage and how to read leverage, health factor and net APY.
 func (s *Credit) LoopedPositions(ctx context.Context, request operations.V2CreditLoopedPositionsRequest, opts ...operations.Option) (*operations.V2CreditLoopedPositionsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
@@ -1116,7 +1117,7 @@ func (s *Credit) CreateAccount(ctx context.Context, request components.CreateCre
 // Bundles an optional swap, collateral supply, and borrow into a single atomic Safe transaction.
 //
 // - If `token_in` equals `collateral_token`, the tokens are supplied directly as collateral.
-// - If `token_in` differs from `collateral_token`, a swap is performed first via 1inch.
+// - If `token_in` differs from `collateral_token`, a market swap is performed first.
 //
 // The Credit Account must already be created via `/v2/credit/create_account` and funded with `token_in`.
 func (s *Credit) Borrow(ctx context.Context, request components.CreditBorrowRequest, opts ...operations.Option) (*operations.V2CreditBorrowResponse, error) {
@@ -1295,30 +1296,16 @@ func (s *Credit) Borrow(ctx context.Context, request components.CreditBorrowRequ
 }
 
 // Loop - Open a leveraged loop
-// Open a leveraged loop into an Aave or Morpho market in ONE atomic transaction.
+// Open a leveraged position in ONE atomic transaction.
 //
-// Repeatedly supplies collateral, borrows at the requested loan-to-value, and
-// swaps the borrow back to collateral. Each iteration's supply uses the swap's
-// GUARANTEED minimum output (enforced on-chain), so a fill anywhere within the
-// slippage tolerance can never break a later step; any positive surplus stays
-// in the Credit Account (the preview reports the bound as estimated_max_dust).
-// Very large loops relative to pool depth can still exceed the slippage
-// tolerance through their own cumulative price impact — size accordingly or
-// raise max_slippage_percent. Conversely, the geometric tail can shrink below
-// the swap router's minimum routable size; when it does the loop simply ends
-// early on that supply — the achieved multiplier is still guaranteed within
-// 0.5% of the request or the call returns a clean 400.
+// Supply collateral, borrow against it, swap the borrowed token back to
+// collateral, repeat — until total collateral reaches multiplier x
+// initial_collateral_amount. If any step fails the whole transaction reverts,
+// so a position is never left half-built.
 //
-// When the collateral token is itself an ERC-4626 vault share (e.g. a Morpho
-// vault token like steakUSDC), each conversion swaps the borrow token to the
-// vault's underlying asset and mints the shares via the vault's own deposit at
-// net asset value instead of swapping the share token on a DEX — share tokens
-// have no honest DEX route. A direct share-token route is only ever used when
-// it prices within 1% of net asset value.
-//
-// The Credit Account must already hold initial_collateral_amount of
-// collateral_token. For protocol=MORPHO pass a market_id from
-// /v2/credit/morpho_markets.
+// See the [Leveraged Looping guide](https://docs.compasslabs.ai/v2/Products/Looping)
+// for chain coverage, market discovery, vault-share collateral, HyperEVM
+// specifics and the full error list.
 func (s *Credit) Loop(ctx context.Context, request components.CreditLoopRequest, opts ...operations.Option) (*operations.V2CreditLoopResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
@@ -1495,46 +1482,15 @@ func (s *Credit) Loop(ctx context.Context, request components.CreditLoopRequest,
 }
 
 // Unloop - Unwind a leveraged loop
-// Unwind an Aave or Morpho loop in ONE atomic transaction.
+// Unwind a leveraged position in ONE atomic transaction.
 //
-// Repeatedly withdraws collateral, swaps it to the borrow token at a GUARANTEED
-// minimum output (enforced on-chain), and repays. The floor discipline means a
-// swap filling anywhere within the slippage tolerance can never break a later
-// step; any positive surplus stays in the Credit Account as borrow-token dust
-// (the preview reports the bound as estimated_max_dust).
+// Withdraw collateral, swap it back to the borrow token, repay, repeat — until
+// the position reaches target_multiplier, or until the debt is cleared exactly
+// if you omit it. If any step fails the whole transaction reverts.
 //
-// When the collateral token is itself an ERC-4626 vault share (e.g. a Morpho
-// vault token like steakUSDC), each conversion redeems the shares through the
-// vault at net asset value and swaps the underlying asset to the borrow token
-// instead of swapping the share token on a DEX; a direct share-token route is
-// only ever used when it prices within 1% of net asset value.
-//
-// Omit target_multiplier for a full close: the debt is cleared exactly —
-// accrued interest included — and the pair collateral is returned to the Credit
-// Account. Pass 1 to clear the debt but keep the collateral supplied, or a value
-// above 1 to delever to that multiplier (it must be below the position's current
-// multiplier).
-//
-// Each withdrawal is sized to keep the position's health factor ≥ 1.02 at that
-// step, so a position opened very close to the liquidation threshold may need
-// more than one transaction to fully close — set allow_partial=true to return
-// the maximum single-transaction progress (preview.fully_unwound=false), then
-// call unloop again to finish. Very large unwinds relative to pool depth can
-// still exceed the slippage tolerance through their own cumulative price impact.
-//
-// Positions are unwound as far as the swap router can route; on a router-minimum
-// stop the engine still withdraws all collateral not needed to back the residual,
-// and completes a true full close whenever the unwind's own guaranteed swap
-// surpluses (or the Credit Account's idle balance) cover the remainder — a
-// residual below the router's minimum routable size never fails the call, it is
-// reported honestly in the preview (fully_unwound=false).
-//
-// When other open Aave loops share this position's collateral reserve, a full
-// close withdraws only this position's attributed share of the pooled collateral
-// (event-ledger bookkeeping), leaving the rest supplied for the other positions.
-//
-// For protocol=MORPHO pass a market_id from /v2/credit/morpho_markets; inspect
-// open loops via /v2/credit/looped_positions.
+// See the [Leveraged Looping guide](https://docs.compasslabs.ai/v2/Products/Looping)
+// for chain coverage, vault-share collateral, shared Aave reserves and the full
+// error list.
 func (s *Credit) Unloop(ctx context.Context, request components.CreditUnloopRequest, opts ...operations.Option) (*operations.V2CreditUnloopResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
@@ -1711,43 +1667,20 @@ func (s *Credit) Unloop(ctx context.Context, request components.CreditUnloopRequ
 }
 
 // Rebalance the leveraged credit book
-// Rebalance the leveraged credit book in ONE atomic transaction.
+// Move one or more leveraged positions to the state you want, in ONE atomic
+// transaction.
 //
-// List only the positions to change — anything not named is left untouched;
-// remove a position with close=true. Each target states an end state:
-// target_equity_usd (net USD committed) × target_multiplier.
+// List the positions to change and the end state you want for each. The API
+// works out whether that means opening, growing, shrinking, delevering or
+// closing, and does them all together.
 //
-// Releasing targets run first (each unwind/delever frees tokens into the Credit
-// Account), the freed tokens are then routed by swaps at a GUARANTEED minimum
-// output (enforced on-chain), and consuming targets run last — so moving a
-// levered position between markets, token pairs, or protocols (Aave ↔ Morpho) is
-// simply a close plus an open in the same transaction. Conversions involving an
-// ERC-4626 vault-share token (e.g. a Morpho vault token like steakUSDC) go
-// through the vault's own deposit/redeem at net asset value rather than a DEX
-// swap of the share token.
+// Money freed by shrinking or closing one position pays for growing or opening
+// another, so shifting funds between positions needs no new deposit. Any
+// shortfall is taken from the Credit Account's idle balance, and the call
+// returns 422 if that does not cover it either.
 //
-// Net book growth is funded from the Credit Account's existing idle balance —
-// fund it first via /v2/credit/transfer; a net release stays in the Credit
-// Account as idle balance. Any swap surplus above the guaranteed floors also
-// stays in the Credit Account (preview.estimated_max_dust) — recoverable, never
-// lost.
-//
-// A book already at its target returns transaction: null with the preview — the
-// call is idempotent and safe to drive from a converge-to-target loop.
-//
-// A rebalance too large for one transaction is rejected with a 422 — split it
-// into two calls. Every deleveraging step keeps the health factor ≥ 1.02 and
-// every leveraging step respects the protocol's borrow limits; Aave targets share
-// one account-level health factor, which the preview reports.
-//
-// Dust tails and routing swaps below the swap router's minimum routable size do
-// not fail the call: a releasing target that cannot fully unwind returns its
-// honest residual in the preview, and an unroutable routing swap is skipped
-// (its uncovered amount only 422s the rebalance if it breaches the funding
-// tolerance).
-//
-// For protocol=MORPHO pass a market_id from /v2/credit/morpho_markets; inspect the
-// current book via /v2/credit/looped_positions.
+// See the [Leveraged Looping guide](https://docs.compasslabs.ai/v2/Products/Looping)
+// for protocol and chain coverage, capital routing and the full error list.
 func (s *Credit) Rebalance(ctx context.Context, request components.CreditRebalanceRequest, opts ...operations.Option) (*operations.V2CreditRebalanceResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
@@ -2116,7 +2049,7 @@ func (s *Credit) Transfer(ctx context.Context, request components.CreditTransfer
 // Bundles repayment, collateral withdrawal, and an optional swap into a single atomic Safe transaction.
 //
 // - If `token_out` is None or equals `withdraw_token`, the withdrawn collateral is kept as-is.
-// - If `token_out` differs from `withdraw_token`, a swap is performed after withdrawal via 1inch.
+// - If `token_out` differs from `withdraw_token`, a market swap is performed after withdrawal.
 //
 // The Credit Account must already have a borrow position created via `/v2/credit/borrow`.
 // The repay_token must be available in the Credit Account (or pulled from EOA via Permit2).
