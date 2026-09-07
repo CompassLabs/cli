@@ -56,7 +56,6 @@ type CompassCLI struct {
 	Credit           *Credit
 	PerpetualTrading *PerpetualTrading
 	TokenizedAssets  *TokenizedAssets
-	Onramp           *Onramp
 
 	sdkConfiguration config.SDKConfiguration
 	hooks            *hooks.Hooks
@@ -158,7 +157,6 @@ func New(opts ...SDKOption) *CompassCLI {
 	sdk.Credit = newCredit(sdk, sdk.sdkConfiguration, sdk.hooks)
 	sdk.PerpetualTrading = newPerpetualTrading(sdk, sdk.sdkConfiguration, sdk.hooks)
 	sdk.TokenizedAssets = newTokenizedAssets(sdk, sdk.sdkConfiguration, sdk.hooks)
-	sdk.Onramp = newOnramp(sdk, sdk.sdkConfiguration, sdk.hooks)
 
 	return sdk
 }

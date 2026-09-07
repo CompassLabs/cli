@@ -38,7 +38,6 @@ compass [flags]
 * [compass earn](compass_earn.md)	 - Operations for earn
 * [compass explore](compass_explore.md)	 - Interactively browse and run commands
 * [compass gas-sponsorship](compass_gas-sponsorship.md)	 - Operations for gas-sponsorship
-* [compass onramp](compass_onramp.md)	 - Operations for onramp
 * [compass perpetual-trading](compass_perpetual-trading.md)	 - Operations for perpetual-trading
 * [compass tokenized-assets](compass_tokenized-assets.md)	 - Operations for tokenized-assets
 * [compass version](compass_version.md)	 - Print the CLI version
