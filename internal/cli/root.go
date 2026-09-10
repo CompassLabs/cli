@@ -9,6 +9,7 @@ import (
 	"github.com/CompassLabs/cli/internal/cli/gassponsorship"
 	"github.com/CompassLabs/cli/internal/cli/risk"
 	"github.com/CompassLabs/cli/internal/cli/perpetualtrading"
+	"github.com/CompassLabs/cli/internal/cli/riskyield"
 	"github.com/CompassLabs/cli/internal/cli/tokenizedassets"
 	"github.com/CompassLabs/cli/internal/config"
 	"github.com/CompassLabs/cli/internal/explorer"
@@ -65,6 +66,9 @@ func NewRootCommand() (*cobra.Command, error) {
 	}
 	if err := tokenizedassets.InitTokenizedAssetsRoot(rootCmd); err != nil {
 		return nil, fmt.Errorf("init tokenized-assets: %w", err)
+	}
+	if err := riskyield.InitRiskYieldRoot(rootCmd); err != nil {
+		return nil, fmt.Errorf("init risk-yield: %w", err)
 	}
 	if err := initConfigureCmd(rootCmd); err != nil {
 		return nil, fmt.Errorf("init configure: %w", err)

@@ -21,7 +21,7 @@ var sellCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "amount-in", Shorthand: "a", FieldPath: "AmountIn", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "slippage", Shorthand: "s", FieldPath: "Slippage", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The owner's wallet address. [required]"},
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "ethereum_sepolia"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, ethereum_sepolia) [required]"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "robinhood", "ethereum_sepolia"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia) [required]"},
 	{FlagName: "gas-sponsorship", Shorthand: "g", FieldPath: "GasSponsorship", Kind: flagutil.FlagKindBool, Optional: true, Description: "When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction."},
 	{FlagName: "wisdomtree", Shorthand: "w", FieldPath: "Wisdomtree", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"wisdomtree,omitempty"`, Description: "WisdomTree Connect API credentials, required only when trading a WisdomTree money-market fund. Each organization authenticates with its own credentials, which are exchanged for a short-lived token to look up the settlement wallet for this trade. They are never stored and are masked in logs."},
 	{FlagName: "fee", Shorthand: "f", FieldPath: "Fee", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"fee,omitempty"`, Description: "Optional partner fee charged when selling (exiting). It is taken from the payout-token (USDC) proceeds and sent to your fee recipient inside the same execution."},
@@ -33,7 +33,7 @@ func initSellCmd(parent *cobra.Command) error {
 		Use:     "sell",
 		Short:   "Sell an RWA yield token",
 		Long:    "Sell an RWA yield token, redeem from an IXS managed vault, or sell a Centrifuge\ndeRWA token, back to a stablecoin.\n\nSet `token_in` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`), a Centrifuge\ndeRWA symbol (e.g. `deSPXA`), or an IXS **vault address**. Midas redemptions\nand Centrifuge deRWA swaps are instant and settle in the same transaction; an\nIXS redemption is **asynchronous** — it files a `requestRedeem`\n(`settlement: async`) the vault operator settles off-chain later, so poll\n`GET /v2/tokenized_assets/redemptions` for status. The transaction executes\ninside the product account (owner signs, or EIP-712 with `gas_sponsorship`).",
-		Example: "  compass tokenized-assets sell --token-in <value> --token-out <value> --amount-in 8512.47 --owner <value> --chain arbitrum",
+		Example: "  compass tokenized-assets sell --token-in <value> --token-out <value> --amount-in 8512.47 --owner <value> --chain hyperevm",
 		RunE:    runSellCmd,
 	}
 	flagutil.RegisterFlags(cmd, sellCmdMeta)

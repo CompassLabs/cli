@@ -39,6 +39,7 @@ compass [flags]
 * [compass explore](compass_explore.md)	 - Interactively browse and run commands
 * [compass gas-sponsorship](compass_gas-sponsorship.md)	 - Operations for gas-sponsorship
 * [compass perpetual-trading](compass_perpetual-trading.md)	 - Operations for perpetual-trading
+* [compass risk-yield](compass_risk-yield.md)	 - Operations for risk-yield
 * [compass tokenized-assets](compass_tokenized-assets.md)	 - Operations for tokenized-assets
 * [compass version](compass_version.md)	 - Print the CLI version
 * [compass whoami](compass_whoami.md)	 - Display current authentication configuration

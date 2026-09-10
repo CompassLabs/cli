@@ -243,6 +243,22 @@ Configuration is stored in `~/.config/compass/config.yaml`.
 * [`buy`](docs/compass_tokenized-assets_buy.md) - Buy an RWA yield token
 * [`sell`](docs/compass_tokenized-assets_sell.md) - Sell an RWA yield token
 
+### [risk-yield](docs/compass_risk-yield.md)
+
+* [`risk-yield-tokens`](docs/compass_risk-yield_risk-yield-tokens.md) - List tokens
+* [`risk-yield-pools`](docs/compass_risk-yield_risk-yield-pools.md) - List pools
+* [`risk-yield-pools-pool-id`](docs/compass_risk-yield_risk-yield-pools-pool-id.md) - Get pool detail
+* [`risk-yield-positions`](docs/compass_risk-yield_risk-yield-positions.md) - List LP positions
+* [`risk-yield-risk-scenarios`](docs/compass_risk-yield_risk-yield-risk-scenarios.md) - Model impermanent loss
+* [`risk-yield-create-account`](docs/compass_risk-yield_risk-yield-create-account.md) - Create account
+* [`risk-yield-transfer`](docs/compass_risk-yield_risk-yield-transfer.md) - Transfer tokens to/from account
+* [`risk-yield-swap`](docs/compass_risk-yield_risk-yield-swap.md) - Swap tokens
+* [`risk-yield-mint`](docs/compass_risk-yield_risk-yield-mint.md) - Open a position
+* [`risk-yield-increase`](docs/compass_risk-yield_risk-yield-increase.md) - Add to a position
+* [`risk-yield-decrease`](docs/compass_risk-yield_risk-yield-decrease.md) - Withdraw from a position
+* [`risk-yield-collect`](docs/compass_risk-yield_risk-yield-collect.md) - Collect fees
+* [`risk-yield-rebalance`](docs/compass_risk-yield_risk-yield-rebalance.md) - Rebalance a position
+
 </details>
 <!-- End Available Commands [operations] -->
 

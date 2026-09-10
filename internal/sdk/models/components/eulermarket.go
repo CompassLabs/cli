@@ -27,6 +27,8 @@ type EulerMarket struct {
 	BorrowApy optionalnullable.OptionalNullable[string] `json:"borrow_apy,omitzero"`
 	// Current supply APY for this market (yield for supplying the asset), in percentage (e.g. 3.45 means 3.45%). Null if the rate is unavailable.
 	SupplyApy optionalnullable.OptionalNullable[string] `json:"supply_apy,omitzero"`
+	// What the borrowable asset earns inside its own price, in percentage, trailing 7 days. Debt owed in such a token grows by this on top of borrow_apy — a borrower's true cost is their sum. Null means unmeasured, NOT zero.
+	IntrinsicApy optionalnullable.OptionalNullable[string] `json:"intrinsic_apy,omitzero"`
 	// Asset available to borrow right now (vault cash), in token units. A borrow larger than this reverts even if the account is healthy.
 	AvailableLiquidity string `json:"available_liquidity"`
 	// Total asset supplied to this market, in token units.
@@ -35,6 +37,10 @@ type EulerMarket struct {
 	TotalBorrowAssets string `json:"total_borrow_assets"`
 	// Borrowed share of supplied assets, in percentage 0-100.
 	Utilization string `json:"utilization"`
+	// Total asset supplied to this market in USD (total_supply_assets priced by the shared request-time feed). Null when the price feed can't quote the asset — size in token units instead.
+	TvlUsd optionalnullable.OptionalNullable[string] `json:"tvl_usd,omitzero"`
+	// Asset available to borrow right now in USD (available_liquidity priced by the shared request-time feed; vault cash equals supplied minus borrowed). Null when the price feed can't quote the asset.
+	LiquidityUsd optionalnullable.OptionalNullable[string] `json:"liquidity_usd,omitzero"`
 	// Maximum total supply allowed, in token units. Null when the market is uncapped.
 	SupplyCap optionalnullable.OptionalNullable[string] `json:"supply_cap,omitzero"`
 	// Maximum total borrow allowed, in token units. A borrow that would breach this reverts even when cash exists. Null when uncapped.
@@ -117,6 +123,13 @@ func (e *EulerMarket) GetSupplyApy() optionalnullable.OptionalNullable[string] {
 	return e.SupplyApy
 }
 
+func (e *EulerMarket) GetIntrinsicApy() optionalnullable.OptionalNullable[string] {
+	if e == nil {
+		return nil
+	}
+	return e.IntrinsicApy
+}
+
 func (e *EulerMarket) GetAvailableLiquidity() string {
 	if e == nil {
 		return ""
@@ -143,6 +156,20 @@ func (e *EulerMarket) GetUtilization() string {
 		return ""
 	}
 	return e.Utilization
+}
+
+func (e *EulerMarket) GetTvlUsd() optionalnullable.OptionalNullable[string] {
+	if e == nil {
+		return nil
+	}
+	return e.TvlUsd
+}
+
+func (e *EulerMarket) GetLiquidityUsd() optionalnullable.OptionalNullable[string] {
+	if e == nil {
+		return nil
+	}
+	return e.LiquidityUsd
 }
 
 func (e *EulerMarket) GetSupplyCap() optionalnullable.OptionalNullable[string] {

@@ -21,6 +21,7 @@ const (
 	V2EarnSwapQuoteChainHyperevm        V2EarnSwapQuoteChain = "hyperevm"
 	V2EarnSwapQuoteChainTempo           V2EarnSwapQuoteChain = "tempo"
 	V2EarnSwapQuoteChainBsc             V2EarnSwapQuoteChain = "bsc"
+	V2EarnSwapQuoteChainRobinhood       V2EarnSwapQuoteChain = "robinhood"
 	V2EarnSwapQuoteChainEthereumSepolia V2EarnSwapQuoteChain = "ethereum_sepolia"
 )
 
@@ -44,6 +45,8 @@ func (e *V2EarnSwapQuoteChain) UnmarshalJSON(data []byte) error {
 	case "tempo":
 		fallthrough
 	case "bsc":
+		fallthrough
+	case "robinhood":
 		fallthrough
 	case "ethereum_sepolia":
 		*e = V2EarnSwapQuoteChain(v)

@@ -24,6 +24,8 @@ type EulerMarketCollateral struct {
 	LiquidationLtv string `json:"liquidation_ltv"`
 	// Current supply APY earned on this collateral while it backs a loan, in percentage (e.g. 3.5 means 3.5%). Null if the rate is unavailable.
 	SupplyApy optionalnullable.OptionalNullable[string] `json:"supply_apy,omitzero"`
+	// What the collateral token earns inside its own price, in percentage: an ERC-4626 share's vault yield, a staking token's rewards, or an RWA token's NAV accrual, trailing 7 days. Earned on top of supply_apy — the collateral leg's whole yield is their sum. Null means unmeasured, NOT zero: a plain token (USDC, cbBTC) earns nothing and a yield-bearing one may simply not be indexed yet.
+	IntrinsicApy optionalnullable.OptionalNullable[string] `json:"intrinsic_apy,omitzero"`
 }
 
 func (e *EulerMarketCollateral) GetVault() string {
@@ -80,4 +82,11 @@ func (e *EulerMarketCollateral) GetSupplyApy() optionalnullable.OptionalNullable
 		return nil
 	}
 	return e.SupplyApy
+}
+
+func (e *EulerMarketCollateral) GetIntrinsicApy() optionalnullable.OptionalNullable[string] {
+	if e == nil {
+		return nil
+	}
+	return e.IntrinsicApy
 }

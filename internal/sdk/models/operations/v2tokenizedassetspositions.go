@@ -19,6 +19,7 @@ const (
 	V2TokenizedAssetsPositionsChainHyperevm        V2TokenizedAssetsPositionsChain = "hyperevm"
 	V2TokenizedAssetsPositionsChainTempo           V2TokenizedAssetsPositionsChain = "tempo"
 	V2TokenizedAssetsPositionsChainBsc             V2TokenizedAssetsPositionsChain = "bsc"
+	V2TokenizedAssetsPositionsChainRobinhood       V2TokenizedAssetsPositionsChain = "robinhood"
 	V2TokenizedAssetsPositionsChainEthereumSepolia V2TokenizedAssetsPositionsChain = "ethereum_sepolia"
 )
 
@@ -42,6 +43,8 @@ func (e *V2TokenizedAssetsPositionsChain) UnmarshalJSON(data []byte) error {
 	case "tempo":
 		fallthrough
 	case "bsc":
+		fallthrough
+	case "robinhood":
 		fallthrough
 	case "ethereum_sepolia":
 		*e = V2TokenizedAssetsPositionsChain(v)
