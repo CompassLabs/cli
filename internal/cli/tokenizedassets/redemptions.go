@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -27,7 +26,11 @@ func initRedemptionsCmd(parent *cobra.Command) error {
 		Short:   "List redemption requests",
 		Long:    "Get an owner's IXS managed-vault redemption requests and their status.\n\nIXS vault sells are asynchronous — `/transact/sell` files a `requestRedeem`\nthat the vault operator settles off-chain later. This reconstructs the owner's\nrequests live from the vault (Compass stores no async state), reporting each as\n`pending`, `finalized`, or `rejected`. IXS vaults live on BNB Smart Chain\n(`chain=bsc`, vault `ixv1`).",
 		Example: "  compass tokenized-assets redemptions --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B",
+		Args:    cobra.NoArgs,
 		RunE:    runRedemptionsCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_tokenized_assets_redemptions",
+		},
 	}
 	flagutil.RegisterFlags(cmd, redemptionsCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsRedemptionsRequest](redemptionsCmdMeta); err != nil {
@@ -42,14 +45,9 @@ func runRedemptionsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, redemptionsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, redemptionsCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsRedemptionsRequest](cmd, redemptionsCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

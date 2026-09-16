@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -25,8 +24,12 @@ func initPositionsAllCmd(parent *cobra.Command) error {
 		Short:   "List earn positions across all chains",
 		Long:    "List all Earn positions across all supported chains (Ethereum, Base, Arbitrum).\n\nReturns positions grouped by chain, with per-chain and total USD values.\nEach chain includes Aave, vault, and Pendle PT positions. Chains where\nthe user has no earn account return empty position lists.\n\nUse this endpoint for a cross-chain portfolio overview instead of making\nseparate calls per chain to /positions.",
 		Example: "  compass earn positions-all --owner 0x01E62835dd7F52173546A325294762143eE4a882",
+		Args:    cobra.NoArgs,
 		RunE:    runPositionsAllCmd,
 		Aliases: []string{"pa"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_earn_positions_all",
+		},
 	}
 	flagutil.RegisterFlags(cmd, positionsAllCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2EarnPositionsAllRequest](positionsAllCmdMeta); err != nil {
@@ -41,14 +44,9 @@ func runPositionsAllCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, positionsAllCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, positionsAllCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2EarnPositionsAllRequest](cmd, positionsAllCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

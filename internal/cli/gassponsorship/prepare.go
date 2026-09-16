@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -19,7 +18,7 @@ var prepareCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The wallet address that owns the Product Account. [required]"},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "robinhood", "ethereum_sepolia"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia) [required]"},
 	{FlagName: "product", Shorthand: "p", FieldPath: "Product", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"earn", "credit", "tokenized_assets"}, Description: "Which product the gas sponsorship is for. Determines which Product Account (Safe) address to use. (options: earn, credit, tokenized_assets)"},
-	{FlagName: "eip-712", Shorthand: "e", FieldPath: "Eip712", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, TypeDescription: "JSON value (one of: { domain: object, types: object, message: object } | { types: object, domain: object, message: object })"}},
+	{FlagName: "eip-712", Shorthand: "e", FieldPath: "Eip712", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, TypeDescription: "JSON value (one of: { \"domain\": object, \"types\": object, \"message\": object } | { \"types\": object, \"domain\": object, \"message\": object })"}},
 	{FlagName: "signature", FieldPath: "Signature", Kind: flagutil.FlagKindString, Required: true, Description: "The EIP-712 signed typed data signature. [required]"},
 	{FlagName: "sender", FieldPath: "Sender", Kind: flagutil.FlagKindString, Required: true, Description: "The address of the wallet which will send the transaction. [required]"},
 }
@@ -30,14 +29,25 @@ func initPrepareCmd(parent *cobra.Command) error {
 		Use:     "prepare",
 		Short:   "Prepare gas-sponsored transaction",
 		Long:    "Prepare a gas-sponsored transaction from signed EIP-712 typed data.\n\nSubmit the `owner`'s off-chain signature along with the EIP-712 typed data that was signed. Returns an unsigned transaction for the `sender` to sign and broadcast.\n\n**How gas sponsorship works:**\n1. Call an endpoint with `gas_sponsorship=true` (e.g., [/earn/transfer](https://docs.compasslabs.ai/v2/api-reference/earn/transfer-tokens-tofrom-account), [/earn/manage](https://docs.compasslabs.ai/v2/api-reference/earn/manage-earn-position), [/credit/transfer](https://docs.compasslabs.ai/v2/api-reference/credit/transfer-tokens-tofrom-account)) to get EIP-712 typed data\n2. Owner signs the typed data off-chain\n3. Submit signature + typed data to this endpoint\n4. Sender signs and broadcasts the returned transaction, paying gas on behalf of the owner\n\n**Note:** For gas-sponsored deposits via [/earn/transfer](https://docs.compasslabs.ai/v2/api-reference/earn/transfer-tokens-tofrom-account) or [/credit/transfer](https://docs.compasslabs.ai/v2/api-reference/credit/transfer-tokens-tofrom-account), the owner must first set up a Permit2 allowance using [/approve_transfer](https://docs.compasslabs.ai/v2/api-reference/gas-sponsorship/approve-token-transfer) (once per token).",
-		Example: "  compass gas-sponsorship prepare --owner 0xCE1A77F0abff993d6d3D04d44b70831c6924fb40 --chain arbitrum --eip-712 '{\"domain\":{\"name\":\"USD Coin\",\"version\":\"2\",\"chainId\":42161,\"verifyingContract\":\"0xaf88d065e77c8cC2239327C5EDb3A432268e5831\"},\"types\":{\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"},{\"name\":\"verifyingContract\",\"type\":\"address\"}],\"Permit\":[{\"name\":\"owner\",\"type\":\"address\"},{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\"},{\"name\":\"nonce\",\"type\":\"uint256\"},{\"name\":\"deadline\",\"type\":\"uint256\"}]},\"primaryType\":\"Permit\",\"message\":{\"owner\":\"0xCE1A77F0abff993d6d3D04d44b70831c6924fb40\",\"spender\":\"0x000000000022D473030F116dDEE9F6B43aC78BA3\",\"value\":\"115792089237316195423570985008687907853269984665640564039457584007913129639935\",\"nonce\":\"0\",\"deadline\":\"1762269774\"} }' --signature 0x160d2709ae195f591daa33ad6ab1fb18b8762a39d8c4466c4cbe95cf6881fc3d54d469710ef0e7fd64ecff47c1ba5741d7254903bfaebdacea5aa8289f81ba9a1c --sender 0x02122Ac49b0Be2e0eAD957F2D080805A0127Aa9d",
+		Example: "  compass gas-sponsorship prepare --owner 0xCE1A77F0abff993d6d3D04d44b70831c6924fb40 --chain arbitrum --eip-712 '{\"domain\":{\"name\":\"USD Coin\",\"version\":\"2\",\"chainId\":42161,\"verifyingContract\":\"0xaf88d065e77c8cC2239327C5EDb3A432268e5831\"},\"types\":{\"EIP712Domain\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"version\",\"type\":\"string\"},{\"name\":\"chainId\",\"type\":\"uint256\"},{\"name\":\"verifyingContract\",\"type\":\"address\"}],\"Permit\":[{\"name\":\"owner\",\"type\":\"address\"},{\"name\":\"spender\",\"type\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\"},{\"name\":\"nonce\",\"type\":\"uint256\"},{\"name\":\"deadline\",\"type\":\"uint256\"}]},\"primaryType\":\"Permit\",\"message\":{\"owner\":\"0xCE1A77F0abff993d6d3D04d44b70831c6924fb40\",\"spender\":\"0x000000000022D473030F116dDEE9F6B43aC78BA3\",\"value\":\"115792089237316195423570985008687907853269984665640564039457584007913129639935\",\"nonce\":\"0\",\"deadline\":\"1762269774\"\x7d\x7d' --signature 0x160d2709ae195f591daa33ad6ab1fb18b8762a39d8c4466c4cbe95cf6881fc3d54d469710ef0e7fd64ecff47c1ba5741d7254903bfaebdacea5aa8289f81ba9a1c --sender 0x02122Ac49b0Be2e0eAD957F2D080805A0127Aa9d",
+		Args:    cobra.NoArgs,
 		RunE:    runPrepareCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_gas_sponsorship_prepare",
+		},
 	}
 	flagutil.RegisterFlags(cmd, prepareCmdMeta)
 	if err := flagutil.ValidateMeta[components.SponsorGasRequest](prepareCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for prepare: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, prepareCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for prepare: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -47,14 +57,12 @@ func runPrepareCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, prepareCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, prepareCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_gas_sponsorship_prepare")
 	}
 	request, err := flagutil.BuildRequest[components.SponsorGasRequest](cmd, prepareCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

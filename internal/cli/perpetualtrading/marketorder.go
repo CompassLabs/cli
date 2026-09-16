@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -20,7 +19,7 @@ var marketOrderCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "asset", Shorthand: "a", FieldPath: "Asset", Kind: flagutil.FlagKindString, Required: true, Description: "Asset ticker symbol (e.g. AAPL, GOLD, EUR) [required]"},
 	{FlagName: "side", FieldPath: "Side", Kind: flagutil.FlagKindString, Required: true, Description: "Order side: 'buy' or 'sell' [required]"},
 	{FlagName: "size", FieldPath: "Size", Kind: flagutil.FlagKindString, Required: true, Description: "Number of contracts (human-readable) [required]"},
-	{FlagName: "slippage-percent", FieldPath: "SlippagePercent", Kind: flagutil.FlagKindFloat64, Optional: true, Description: "Max slippage percentage for price protection"},
+	{FlagName: "slippage-percent", FieldPath: "SlippagePercent", Kind: flagutil.FlagKindFloat64, Optional: true, HasMinimum: true, Minimum: 0, HasMaximum: true, Maximum: 100, Description: "Max slippage percentage for price protection"},
 	{FlagName: "reduce-only", Shorthand: "r", FieldPath: "ReduceOnly", Kind: flagutil.FlagKindBool, Optional: true, Description: "If true, order can only reduce an existing position"},
 	{FlagName: "builder", Shorthand: "b", FieldPath: "Builder", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"builder,omitempty"`, Description: "Optional builder fee. When provided, the order action carries the builder address and fee — the end-user must have already approved this builder via /approve_builder_fee up to at least this rate. Omit (or pass null) to place the order with no builder fee."},
 }
@@ -32,14 +31,25 @@ func initMarketOrderCmd(parent *cobra.Command) error {
 		Short:   "Place market order",
 		Long:    "Prepare a market order on a perpetual trading market.\n\nReturns EIP-712 typed data for the user to sign. After signing, submit\nthe signature via the /execute endpoint. Executes as an IOC order at the\ncurrent mark price with slippage protection.",
 		Example: "  compass perpetual-trading market-order --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --asset AAPL --side buy --size 10.0",
+		Args:    cobra.NoArgs,
 		RunE:    runMarketOrderCmd,
 		Aliases: []string{"mo"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_perpetual_trading_market_order",
+		},
 	}
 	flagutil.RegisterFlags(cmd, marketOrderCmdMeta)
 	if err := flagutil.ValidateMeta[components.PerpetualTradingMarketOrderRequest](marketOrderCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for market-order: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, marketOrderCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for market-order: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -49,14 +59,12 @@ func runMarketOrderCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, marketOrderCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, marketOrderCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_perpetual_trading_market_order")
 	}
 	request, err := flagutil.BuildRequest[components.PerpetualTradingMarketOrderRequest](cmd, marketOrderCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

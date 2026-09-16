@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -27,14 +26,25 @@ func initEnsureLeverageCmd(parent *cobra.Command) error {
 		Short:   "Ensure 1x cross leverage",
 		Long:    "Check leverage and prepare an updateLeverage action if not 1x cross.\n\nIf the asset is already at 1x cross leverage, returns leverage_ok=true\nwith null typed_data — no signing needed. Otherwise, returns EIP-712\ntyped data for the user to sign. After signing, submit the signature\nvia the /execute endpoint.",
 		Example: "  compass perpetual-trading ensure-leverage --owner <value> --asset <value>",
+		Args:    cobra.NoArgs,
 		RunE:    runEnsureLeverageCmd,
 		Aliases: []string{"el"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_perpetual_trading_ensure_leverage",
+		},
 	}
 	flagutil.RegisterFlags(cmd, ensureLeverageCmdMeta)
 	if err := flagutil.ValidateMeta[components.PerpetualTradingEnsureLeverageRequest](ensureLeverageCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for ensure-leverage: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, ensureLeverageCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for ensure-leverage: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -44,14 +54,12 @@ func runEnsureLeverageCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, ensureLeverageCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, ensureLeverageCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_perpetual_trading_ensure_leverage")
 	}
 	request, err := flagutil.BuildRequest[components.PerpetualTradingEnsureLeverageRequest](cmd, ensureLeverageCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

@@ -92,7 +92,27 @@ echo "post-regen: applying ${#patches[@]} patch(es) from $patch_dir"
 for p in "${patches[@]}"; do
   name=$(basename "$p")
   if ! git apply --whitespace=nowarn "$p"; then
-    echo "  ✗ $name — patch no longer applies; regenerate it (see header of post-regen.sh)" >&2
+    echo "  ✗ $name — patch does not apply" >&2
+    # Two very different causes land here and guessing wrong costs an
+    # afternoon, so name them. Check the cheap one first: if cli-sdk/ is
+    # clean against HEAD then Speakeasy generated NOTHING (it exits 0 when
+    # a target is not licensed), which means these patches are already in
+    # the committed tree and are perfectly healthy. Only a dirty tree means
+    # real template drift. Exit 1 either way — this is a better diagnosis,
+    # NOT the tolerance the header forbids.
+    # Scope to the GENERATED trees only. cli-sdk/scripts/ is hand-written
+    # (it holds these very patches), so including it would read a local
+    # edit to this script as evidence of a regen.
+    if [ -z "$(git status --porcelain -- cli-sdk/internal cli-sdk/cmd)" ]; then
+      echo "     CAUSE: cli-sdk/internal+cmd are unmodified vs HEAD, so" >&2
+      echo "     nothing was regenerated and these patches are ALREADY" >&2
+      echo "     applied to the committed tree." >&2
+      echo "     Do NOT regenerate them. Fix the generation step instead" >&2
+      echo "     (e.g. an unlicensed Speakeasy target)." >&2
+    else
+      echo "     CAUSE: Speakeasy's template changed the surrounding code." >&2
+      echo "     Regenerate this patch — recipe in the header of this script." >&2
+    fi
     exit 1
   fi
   echo "  ✓ $name"

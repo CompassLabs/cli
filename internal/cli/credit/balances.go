@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -26,7 +25,11 @@ func initBalancesCmd(parent *cobra.Command) error {
 		Short:   "Get credit account token balances",
 		Long:    "Get token balances and transfer history for a credit account.\n\nReturns all token balances held by the credit account derived from the owner address,\nalong with complete transfer history and USD valuations.",
 		Example: "  compass credit balances --chain base --owner 0x01E62835dd7F52173546A325294762143eE4a882",
+		Args:    cobra.NoArgs,
 		RunE:    runBalancesCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_credit_balances",
+		},
 	}
 	flagutil.RegisterFlags(cmd, balancesCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2CreditBalancesRequest](balancesCmdMeta); err != nil {
@@ -41,14 +44,9 @@ func runBalancesCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, balancesCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, balancesCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2CreditBalancesRequest](cmd, balancesCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

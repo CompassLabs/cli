@@ -9,9 +9,11 @@ import (
 
 func InitPerpetualTradingRoot(parent *cobra.Command) error {
 	var PerpetualTradingCmd = &cobra.Command{
-		Use:   "perpetual-trading",
-		Short: "Operations for perpetual-trading",
-		Long:  "Operations for perpetual-trading",
+		Use:         "perpetual-trading",
+		Short:       "Operations for perpetual-trading",
+		Long:        "Operations for perpetual-trading",
+		Args:        cobra.NoArgs,
+		Annotations: map[string]string{"speakeasy_cli_group": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if usage.UsageRequested(cmd) {
 				return usage.EmitSchema(cmd, cmd.OutOrStdout())

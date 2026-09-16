@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -28,14 +27,25 @@ func initBundleCmd(parent *cobra.Command) error {
 		Use:     "bundle",
 		Short:   "Execute multiple earn actions",
 		Long:    "Combine multiple actions into a single atomic transaction.\n\nBundle swaps and venue deposits/withdrawals into one transaction executed through the Earn Account. This saves gas compared to executing actions separately and ensures all actions succeed or fail together.\n\n**Example:** Swap AUSD to USDC, then deposit USDC into a vault - all in one transaction.\n\n**Fees:** Manage actions (deposits/withdrawals) support optional fee configuration, same as the standalone manage endpoint.\n\n**Gas sponsorship:** Set `gas_sponsorship=true` to receive EIP-712 typed data. Owner signs the typed data, then submit to [/gas_sponsorship/prepare](https://docs.compasslabs.ai/v2/api-reference/gas-sponsorship/prepare-gas-sponsored-transaction).",
-		Example: "  compass earn bundle --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --chain ethereum --actions '[{\"body\":{\"action_type\":\"V2_TRANSFER_FROM_EOA\",\"token\":\"USDC\",\"amount\":\"100\",\"permit2_signature\":\"0x...\",\"permit2_nonce\":1706000000,\"permit2_deadline\":1706001800} },{\"body\":{\"action_type\":\"V2_SWAP\",\"token_in\":\"USDC\",\"token_out\":\"AUSD\",\"amount_in\":\"100\",\"slippage\":\"0.5\"} },{\"body\":{\"action_type\":\"V2_MANAGE\",\"venue\":{\"type\":\"VAULT\",\"vault_address\":\"0x1B4cd53a1A8e5F50aB6320EF34E5fB4D3df7B6f6\"},\"action\":\"DEPOSIT\",\"amount\":\"100\"} }]'",
+		Example: "  compass earn bundle --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --chain ethereum --actions '[{\"body\":{\"action_type\":\"V2_TRANSFER_FROM_EOA\",\"token\":\"USDC\",\"amount\":\"100\",\"permit2_signature\":\"0x...\",\"permit2_nonce\":1706000000,\"permit2_deadline\":1706001800\x7d\x7d,{\"body\":{\"action_type\":\"V2_SWAP\",\"token_in\":\"USDC\",\"token_out\":\"AUSD\",\"amount_in\":\"100\",\"slippage\":\"0.5\"\x7d\x7d,{\"body\":{\"action_type\":\"V2_MANAGE\",\"venue\":{\"type\":\"VAULT\",\"vault_address\":\"0x1B4cd53a1A8e5F50aB6320EF34E5fB4D3df7B6f6\"},\"action\":\"DEPOSIT\",\"amount\":\"100\"\x7d\x7d]'",
+		Args:    cobra.NoArgs,
 		RunE:    runBundleCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_earn_bundle",
+		},
 	}
 	flagutil.RegisterFlags(cmd, bundleCmdMeta)
 	if err := flagutil.ValidateMeta[components.V2BundleRequest](bundleCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for bundle: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, bundleCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for bundle: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -45,14 +55,12 @@ func runBundleCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, bundleCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, bundleCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_earn_bundle")
 	}
 	request, err := flagutil.BuildRequest[components.V2BundleRequest](cmd, bundleCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

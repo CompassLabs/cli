@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -22,7 +21,7 @@ var borrowCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "collateral-vault", FieldPath: "CollateralVault", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"collateral_vault,omitempty"`, Description: "Euler only: the EVK collateral vault to supply into. Required when protocol=EULER and supplying collateral."},
 	{FlagName: "borrow-vault", FieldPath: "BorrowVault", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"borrow_vault,omitempty"`, Description: "Euler only: the EVK vault to borrow from. Required when protocol=EULER."},
 	{FlagName: "market-id", Shorthand: "m", FieldPath: "MarketID", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"market_id,omitempty"`, Description: "Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO."},
-	{FlagName: "sub-account-id", FieldPath: "SubAccountID", Kind: flagutil.FlagKindInt64, Optional: true, Description: "Euler only: EVC sub-account (0–255) to isolate this position. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health, letting one Credit Account hold multiple isolated Euler positions. Defaults to 0. Ignored for Aave/Morpho."},
+	{FlagName: "sub-account-id", FieldPath: "SubAccountID", Kind: flagutil.FlagKindInt64, Optional: true, HasMinimum: true, Minimum: 0, HasMaximum: true, Maximum: 255, Description: "Euler only: EVC sub-account (0–255) to isolate this position. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health, letting one Credit Account hold multiple isolated Euler positions. Defaults to 0. Ignored for Aave/Morpho."},
 	{FlagName: "token-in", Shorthand: "t", FieldPath: "TokenIn", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"token_in,omitempty"`, Description: "Token currently held in the Credit Account to use as input. If the same as collateral_token, no swap is performed. Omit together with amount_in and collateral_token to borrow against existing collateral."},
 	{FlagName: "amount-in", Shorthand: "a", FieldPath: "AmountIn", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "collateral-token", FieldPath: "CollateralToken", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"collateral_token,omitempty"`, Description: "Aave reserve token to supply as collateral. Omit together with token_in and amount_in for borrow-only mode."},
@@ -44,13 +43,24 @@ func initBorrowCmd(parent *cobra.Command) error {
 		Short:   "Borrow against collateral",
 		Long:    "Borrow an asset from Aave using a Credit Account.\n\nBundles an optional swap, collateral supply, and borrow into a single atomic Safe transaction.\n\n- If `token_in` equals `collateral_token`, the tokens are supplied directly as collateral.\n- If `token_in` differs from `collateral_token`, a market swap is performed first.\n\nThe Credit Account must already be created via `/v2/credit/create_account` and funded with `token_in`.",
 		Example: "  compass credit borrow --owner 0xfeEb60eBf707DAA8248277058eb8D28EaeCF5425 --chain base --borrow-token WETH --borrow-amount 0.01",
+		Args:    cobra.NoArgs,
 		RunE:    runBorrowCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_credit_borrow",
+		},
 	}
 	flagutil.RegisterFlags(cmd, borrowCmdMeta)
 	if err := flagutil.ValidateMeta[components.CreditBorrowRequest](borrowCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for borrow: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, borrowCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for borrow: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -60,14 +70,12 @@ func runBorrowCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, borrowCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, borrowCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_credit_borrow")
 	}
 	request, err := flagutil.BuildRequest[components.CreditBorrowRequest](cmd, borrowCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

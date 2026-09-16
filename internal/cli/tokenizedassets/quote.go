@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -29,13 +28,24 @@ func initQuoteCmd(parent *cobra.Command) error {
 		Short:   "Quote an order",
 		Long:    "Preview a buy/sell quote for a tokenized **equity** (Ondo, e.g. `TSLAon`).\n\nRead-only price preview: returns the expected input/output amounts and a\nsystem-recommended slippage tolerance to carry into `/order`. Equities only —\nRWA yield tokens (Midas) have no quote step and are rejected with `422 Wrong\ntrade flow`; trade them via `/transact/buy` and `/transact/sell`.",
 		Example: "  compass tokenized-assets quote --from-token <value> --to-token <value> --amount 226.42 --owner <value>",
+		Args:    cobra.NoArgs,
 		RunE:    runQuoteCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_tokenized_assets_quote",
+		},
 	}
 	flagutil.RegisterFlags(cmd, quoteCmdMeta)
 	if err := flagutil.ValidateMeta[components.TokenizedAssetsQuoteRequest](quoteCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for quote: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, quoteCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for quote: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -45,14 +55,12 @@ func runQuoteCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, quoteCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, quoteCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_tokenized_assets_quote")
 	}
 	request, err := flagutil.BuildRequest[components.TokenizedAssetsQuoteRequest](cmd, quoteCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

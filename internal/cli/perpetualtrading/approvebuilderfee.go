@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -27,14 +26,25 @@ func initApproveBuilderFeeCmd(parent *cobra.Command) error {
 		Short:   "Approve builder fee",
 		Long:    "Prepare builder fee approval for the perpetual trading DEX.\n\nThis is a one-time action required before placing the first trade.\nReturns EIP-712 typed data for the user to sign. After signing, submit\nthe signature via the /execute endpoint.",
 		Example: "  compass perpetual-trading approve-builder-fee --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --builder '{\"address\":\"0x88806A71D74AD0a510B350545C9AE490912F0888\",\"max_fee_rate\":\"0.01%\"}'",
+		Args:    cobra.NoArgs,
 		RunE:    runApproveBuilderFeeCmd,
 		Aliases: []string{"abf"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_perpetual_trading_approve_builder_fee",
+		},
 	}
 	flagutil.RegisterFlags(cmd, approveBuilderFeeCmdMeta)
 	if err := flagutil.ValidateMeta[components.PerpetualTradingApproveBuilderFeeRequest](approveBuilderFeeCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for approve-builder-fee: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, approveBuilderFeeCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for approve-builder-fee: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -44,14 +54,12 @@ func runApproveBuilderFeeCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, approveBuilderFeeCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, approveBuilderFeeCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_perpetual_trading_approve_builder_fee")
 	}
 	request, err := flagutil.BuildRequest[components.PerpetualTradingApproveBuilderFeeRequest](cmd, approveBuilderFeeCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

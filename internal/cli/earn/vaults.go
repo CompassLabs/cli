@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -18,7 +17,7 @@ var vaultsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "order-by", FieldPath: "OrderBy", Kind: flagutil.FlagKindString, Required: true, Description: "The field to order the results by. [required]"},
 	{FlagName: "direction", FieldPath: "Direction", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"asc", "desc"}, Description: "The direction to order the results by. (options: asc, desc)"},
 	{FlagName: "offset", FieldPath: "Offset", Kind: flagutil.FlagKindInt64, Optional: true, Description: "The offset of the first item to return."},
-	{FlagName: "limit", Shorthand: "l", FieldPath: "Limit", Kind: flagutil.FlagKindInt64, Optional: true, Description: "The number of items to return."},
+	{FlagName: "limit", Shorthand: "l", FieldPath: "Limit", Kind: flagutil.FlagKindInt64, Optional: true, HasMaximum: true, Maximum: 1000, Description: "The number of items to return."},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=chain"`, Description: "Optional chain filter. If not provided, returns vaults for all chains. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia)"},
 	{FlagName: "asset-symbol", Shorthand: "a", FieldPath: "AssetSymbol", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=asset_symbol"`, Description: "Filter vaults by underlying asset symbol (e.g., 'USDC', 'WETH')."},
 	{FlagName: "min-tvl-usd", FieldPath: "MinTvlUsd", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
@@ -33,7 +32,11 @@ func initVaultsCmd(parent *cobra.Command) error {
 		Short:   "List vaults",
 		Long:    "List ERC-4626 yield vaults across DeFi venues.\n\nReturns vault data including APY, TVL, and underlying asset information. Use this endpoint to discover yield opportunities, compare rates across venues, or build vault selection interfaces.\n\nSupports dozens of vaults and markets like Morpho and other ERC-4626 compatible yield venues.\n\nTo deposit into a vault, use the [manage endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/manage-earn-position) with `venue_type=VAULTS`.",
 		Example: "  compass earn vaults --order-by tvl_usd",
+		Args:    cobra.NoArgs,
 		RunE:    runVaultsCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_earn_vaults",
+		},
 	}
 	flagutil.RegisterFlags(cmd, vaultsCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2EarnVaultsRequest](vaultsCmdMeta); err != nil {
@@ -48,14 +51,9 @@ func runVaultsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, vaultsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, vaultsCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2EarnVaultsRequest](cmd, vaultsCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

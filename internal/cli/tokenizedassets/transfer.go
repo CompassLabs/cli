@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -32,13 +31,24 @@ func initTransferCmd(parent *cobra.Command) error {
 		Short:   "Transfer tokens to/from account",
 		Long:    "Move tokens between the owner's wallet and their Tokenized Assets Account.\n\n`DEPOSIT` funds the account from the owner's wallet; `WITHDRAW` sends tokens\nback. Supports gas sponsorship: with `gas_sponsorship=true` the owner signs\nEIP-712 typed data (a Permit2 permit on deposit, a product-account transaction\non withdrawal) and a sponsor broadcasts; otherwise the owner broadcasts the\ntransaction directly.",
 		Example: "  compass tokenized-assets transfer --owner 0x9bDC45AA15FdFFc52E103EA05c260c494A5638f7 --token USDC --amount 100 --action DEPOSIT",
+		Args:    cobra.NoArgs,
 		RunE:    runTransferCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_tokenized_assets_transfer",
+		},
 	}
 	flagutil.RegisterFlags(cmd, transferCmdMeta)
 	if err := flagutil.ValidateMeta[components.TokenizedAssetsTransferRequest](transferCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for transfer: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, transferCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for transfer: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -48,14 +58,12 @@ func runTransferCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, transferCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, transferCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_tokenized_assets_transfer")
 	}
 	request, err := flagutil.BuildRequest[components.TokenizedAssetsTransferRequest](cmd, transferCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

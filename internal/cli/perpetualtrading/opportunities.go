@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -29,7 +28,11 @@ func initOpportunitiesCmd(parent *cobra.Command) error {
 		Short:   "List perpetual trading markets",
 		Long:    "List available perpetual trading markets with key metrics.\n\nReturns perp markets (stocks, commodities, forex) with open interest,\n24h volume, funding rate, and max leverage. Supports filtering by category,\nminimum OI/volume, and sorting.\n\nOnly perpetual trading assets are returned — crypto perps are excluded.",
 		Example: "  compass perpetual-trading opportunities",
+		Args:    cobra.NoArgs,
 		RunE:    runOpportunitiesCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_perpetual_trading_opportunities",
+		},
 	}
 	flagutil.RegisterFlags(cmd, opportunitiesCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2PerpetualTradingOpportunitiesRequest](opportunitiesCmdMeta); err != nil {
@@ -44,14 +47,9 @@ func runOpportunitiesCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, opportunitiesCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, opportunitiesCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2PerpetualTradingOpportunitiesRequest](cmd, opportunitiesCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

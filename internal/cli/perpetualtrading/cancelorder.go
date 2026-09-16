@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -29,14 +28,25 @@ func initCancelOrderCmd(parent *cobra.Command) error {
 		Short:   "Cancel order",
 		Long:    "Prepare an order cancellation.\n\nReturns EIP-712 typed data for the user to sign. After signing, submit\nthe signature via the /execute endpoint.",
 		Example: "  compass perpetual-trading cancel-order --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --asset AAPL",
+		Args:    cobra.NoArgs,
 		RunE:    runCancelOrderCmd,
 		Aliases: []string{"co"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_perpetual_trading_cancel_order",
+		},
 	}
 	flagutil.RegisterFlags(cmd, cancelOrderCmdMeta)
 	if err := flagutil.ValidateMeta[components.PerpetualTradingCancelOrderRequest](cancelOrderCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for cancel-order: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, cancelOrderCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for cancel-order: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -46,14 +56,12 @@ func runCancelOrderCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, cancelOrderCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, cancelOrderCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_perpetual_trading_cancel_order")
 	}
 	request, err := flagutil.BuildRequest[components.PerpetualTradingCancelOrderRequest](cmd, cancelOrderCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -28,13 +27,24 @@ func initWithdrawCmd(parent *cobra.Command) error {
 		Short:   "Withdraw USDC from perpetual trading account",
 		Long:    "Prepare a USDC withdrawal from Hyperliquid to Arbitrum.\n\nReturns EIP-712 typed data for the user to sign. After signing, submit\nthe signature via the /execute endpoint. Withdrawal processing takes\nminutes to hours depending on bridge conditions.",
 		Example: "  compass perpetual-trading withdraw --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --amount 100.0",
+		Args:    cobra.NoArgs,
 		RunE:    runWithdrawCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_perpetual_trading_withdraw",
+		},
 	}
 	flagutil.RegisterFlags(cmd, withdrawCmdMeta)
 	if err := flagutil.ValidateMeta[components.PerpetualTradingWithdrawRequest](withdrawCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for withdraw: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, withdrawCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for withdraw: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -44,14 +54,12 @@ func runWithdrawCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, withdrawCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, withdrawCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_perpetual_trading_withdraw")
 	}
 	request, err := flagutil.BuildRequest[components.PerpetualTradingWithdrawRequest](cmd, withdrawCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

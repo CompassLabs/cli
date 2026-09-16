@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -32,13 +31,24 @@ func initTransferCmd(parent *cobra.Command) error {
 		Short:   "Transfer tokens to/from Credit Account",
 		Long:    "Transfer tokens between the owner's EOA and their Credit Account.\n\n**DEPOSIT** (EOA → Credit Account):\n- With `gas_sponsorship=true`: returns Permit2 EIP-712 typed data to sign. The gas sponsor\n  calls `permitTransferFrom` to pull tokens (1 signature).\n- With `gas_sponsorship=false`: returns an unsigned ERC-20 transfer transaction.\n\n**WITHDRAW** (Credit Account → EOA):\n- With `gas_sponsorship=true`: returns SafeTx EIP-712 typed data to sign. The gas sponsor\n  broadcasts the `execTransaction` (1 signature).\n- With `gas_sponsorship=false`: returns an unsigned `execTransaction`.",
 		Example: "  compass credit transfer --owner 0x4A83fec8c6A9A25Be28f3242a16dBaD0ab00f3a6 --chain base --token USDC --amount 100 --action DEPOSIT",
+		Args:    cobra.NoArgs,
 		RunE:    runTransferCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_credit_transfer",
+		},
 	}
 	flagutil.RegisterFlags(cmd, transferCmdMeta)
 	if err := flagutil.ValidateMeta[components.CreditTransferRequest](transferCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for transfer: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, transferCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for transfer: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -48,14 +58,12 @@ func runTransferCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, transferCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, transferCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_credit_transfer")
 	}
 	request, err := flagutil.BuildRequest[components.CreditTransferRequest](cmd, transferCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -30,8 +29,12 @@ func initSwapQuoteCmd(parent *cobra.Command) error {
 		Short:   "Quote a swap",
 		Long:    "Estimate the output of a swap without building a transaction.\n\nReturns the expected amount of `token_out` received for selling `amount_in`\nof `token_in`, routed via 1inch. This is read-only: it does not build a\ntransaction, require an account, or check balances.\n\nUse it to gauge exit liquidity and price impact for a token before entering\na position — for example, to warn when a market's underlying asset cannot be\nswapped back to a stablecoin without large slippage.",
 		Example: "  compass earn swap-quote --chain base --token-in WETH --amount-in 1",
+		Args:    cobra.NoArgs,
 		RunE:    runSwapQuoteCmd,
 		Aliases: []string{"sq"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_earn_swap_quote",
+		},
 	}
 	flagutil.RegisterFlags(cmd, swapQuoteCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2EarnSwapQuoteRequest](swapQuoteCmdMeta); err != nil {
@@ -46,14 +49,9 @@ func runSwapQuoteCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, swapQuoteCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, swapQuoteCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2EarnSwapQuoteRequest](cmd, swapQuoteCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

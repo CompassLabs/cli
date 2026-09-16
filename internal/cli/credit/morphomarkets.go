@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -16,7 +15,7 @@ import (
 
 var morphoMarketsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "offset", FieldPath: "Offset", Kind: flagutil.FlagKindInt64, Optional: true, Description: "The offset of the first item to return."},
-	{FlagName: "limit", Shorthand: "l", FieldPath: "Limit", Kind: flagutil.FlagKindInt64, Optional: true, Description: "The number of items to return."},
+	{FlagName: "limit", Shorthand: "l", FieldPath: "Limit", Kind: flagutil.FlagKindInt64, Optional: true, HasMaximum: true, Maximum: 1000, Description: "The number of items to return."},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"arbitrum", "base", "bsc", "ethereum", "hyperevm", "tempo"}, Description: "options: arbitrum, base, bsc, ethereum, hyperevm, tempo [required]"},
 	{FlagName: "order-by", FieldPath: "OrderBy", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"tvl_usd", "liquidity_usd", "lltv"}, Description: "Field to order the markets by before paginating. (options: tvl_usd, liquidity_usd, lltv)"},
 	{FlagName: "direction", FieldPath: "Direction", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"asc", "desc"}, Description: "Order direction (asc/desc). (options: asc, desc)"},
@@ -29,8 +28,12 @@ func initMorphoMarketsCmd(parent *cobra.Command) error {
 		Short:   "List curated Morpho markets",
 		Long:    "List curated Morpho Blue lending markets for a chain.\n\nMorpho Blue is permissionless, so credit actions identify a market by its\nbytes32 market id. This returns the curated market set with live LLTV,\nsupply/borrow APY, utilization, and available liquidity -- read on-chain per\nrequest -- so callers know which market_id to use and what it currently costs.",
 		Example: "  compass credit morpho-markets --chain ethereum",
+		Args:    cobra.NoArgs,
 		RunE:    runMorphoMarketsCmd,
 		Aliases: []string{"mm"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_credit_morpho_markets",
+		},
 	}
 	flagutil.RegisterFlags(cmd, morphoMarketsCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2CreditMorphoMarketsRequest](morphoMarketsCmdMeta); err != nil {
@@ -45,14 +48,9 @@ func runMorphoMarketsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, morphoMarketsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, morphoMarketsCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2CreditMorphoMarketsRequest](cmd, morphoMarketsCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

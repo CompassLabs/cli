@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -26,7 +25,11 @@ func initBalancesCmd(parent *cobra.Command) error {
 		Short:   "Get token balances",
 		Long:    "Get a Tokenized Assets Account's full token ledger.\n\nReturns every token the account has held — including zero balances from fully-exited\npositions and USDC funding — each with its USD value and transfer history (a\nsuperset of `/positions`). Pass `chain=base` or `chain=bsc` for Base or BNB Smart\nChain holdings.",
 		Example: "  compass tokenized-assets balances --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B",
+		Args:    cobra.NoArgs,
 		RunE:    runBalancesCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_tokenized_assets_balances",
+		},
 	}
 	flagutil.RegisterFlags(cmd, balancesCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsBalancesRequest](balancesCmdMeta); err != nil {
@@ -41,14 +44,9 @@ func runBalancesCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, balancesCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, balancesCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsBalancesRequest](cmd, balancesCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

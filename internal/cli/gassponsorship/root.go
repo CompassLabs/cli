@@ -9,9 +9,11 @@ import (
 
 func InitGasSponsorshipRoot(parent *cobra.Command) error {
 	var GasSponsorshipCmd = &cobra.Command{
-		Use:   "gas-sponsorship",
-		Short: "Operations for gas-sponsorship",
-		Long:  "Operations for gas-sponsorship",
+		Use:         "gas-sponsorship",
+		Short:       "Operations for gas-sponsorship",
+		Long:        "Operations for gas-sponsorship",
+		Args:        cobra.NoArgs,
+		Annotations: map[string]string{"speakeasy_cli_group": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if usage.UsageRequested(cmd) {
 				return usage.EmitSchema(cmd, cmd.OutOrStdout())

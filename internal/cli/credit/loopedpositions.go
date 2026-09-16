@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -26,8 +25,12 @@ func initLoopedPositionsCmd(parent *cobra.Command) error {
 		Short:   "List looped (leveraged) credit positions",
 		Long:    "List the leveraged positions held by an owner's Credit Account.\n\nPositions are reconstructed from on-chain history rather than from API calls,\nso a loop assembled by hand through /v2/credit/bundle is recognised the same\nway as one opened through /v2/credit/loop. Only activity inside the Credit\nAccount is visible — leverage the owner holds directly in their wallet is not.\n\nSee the [Leveraged Looping guide](https://docs.compasslabs.ai/v2/Products/Looping)\nfor protocol coverage and how to read leverage, health factor and net APY.",
 		Example: "  compass credit looped-positions --chain base --owner 0x06A9aF046187895AcFc7258450B15397CAc67400",
+		Args:    cobra.NoArgs,
 		RunE:    runLoopedPositionsCmd,
 		Aliases: []string{"lp"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_credit_looped_positions",
+		},
 	}
 	flagutil.RegisterFlags(cmd, loopedPositionsCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2CreditLoopedPositionsRequest](loopedPositionsCmdMeta); err != nil {
@@ -42,14 +45,9 @@ func runLoopedPositionsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, loopedPositionsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, loopedPositionsCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2CreditLoopedPositionsRequest](cmd, loopedPositionsCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

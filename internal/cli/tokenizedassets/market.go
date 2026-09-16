@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -28,7 +27,11 @@ func initMarketCmd(parent *cobra.Command) error {
 		Short:   "Get a market",
 		Long:    "Get extended detail for a single market — an Ondo **equity** (e.g. `TSLAon`), a\nMidas **RWA yield token** (e.g. `mTBILL`), or an IXS **managed vault** (e.g.\n`ixv1`).\n\nAdds richer market data on top of the `/markets` listing, plus an optional\nOHLC candle series: pass matching `interval` and `range` query params to\ninclude `candles` (available for equities, Midas tokens except `mBTC`, and IXS\nvaults; omit both for detail without candles).",
 		Example: "  compass tokenized-assets market --symbol <value>",
+		Args:    cobra.NoArgs,
 		RunE:    runMarketCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_tokenized_assets_markets_{symbol}",
+		},
 	}
 	flagutil.RegisterFlags(cmd, marketCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsMarketsSymbolRequest](marketCmdMeta); err != nil {
@@ -43,14 +46,9 @@ func runMarketCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, marketCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, marketCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsMarketsSymbolRequest](cmd, marketCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

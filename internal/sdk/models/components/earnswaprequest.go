@@ -203,9 +203,8 @@ func (u EarnSwapRequestSlippage) MarshalJSON() ([]byte, error) {
 	return nil, errors.New("could not marshal union type EarnSwapRequestSlippage: all fields are null")
 }
 
-// EarnSwapRequest - Request model for swap endpoint.
-//
-// Inherits swap params and adds context fields (owner, chain, gas_sponsorship).
+// EarnSwapRequest - Swap one token held in the Earn Account for another, in a single atomic
+// transaction.
 type EarnSwapRequest struct {
 	// Action type identifier for swap operations.
 	//lint:ignore U1000 accessed via reflection for JSON marshaling

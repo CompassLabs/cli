@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -29,16 +28,27 @@ var swapCmdMeta = []flagutil.FlagMeta{
 func initSwapCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "swap",
-		Short:   "Swap tokens within Earn Account",
-		Long:    "Swap tokens within an Earn Account.\n\nUse this endpoint to exchange one token for another without transferring funds out of the Earn Account.\n\nThe swap executes atomically within the Earn Account and can be combined with other actions using the [bundle endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/execute-multiple-earn-actions). For example, swap ETH to USDC, then deposit USDC into a vault—all in one transaction.\n\nReturns either an unsigned transaction (when `gas_sponsorship=false`) or EIP-712 typed data for off-chain signing (when `gas_sponsorship=true`). For gas-sponsored swaps, submit the signed typed data to `/gas_sponsorship/prepare`.",
+		Short:   "Swap tokens",
+		Long:    "Swap one token for another inside an Earn Account.\n\nExchanges tokens the Earn Account already holds in a single atomic\ntransaction, so funds never leave it, and can be chained with other actions\nthrough the [bundle endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/execute-multiple-earn-actions)\n(for example, swap ETH to USDC and deposit the USDC into a vault at once).\nReturns an unsigned transaction to sign and the expected output amount.",
 		Example: "  compass earn swap --token-in USDC --token-out USDT --amount-in 0.01 --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --chain base",
+		Args:    cobra.NoArgs,
 		RunE:    runSwapCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_earn_swap",
+		},
 	}
 	flagutil.RegisterFlags(cmd, swapCmdMeta)
 	if err := flagutil.ValidateMeta[components.EarnSwapRequest](swapCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for swap: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, swapCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for swap: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -48,14 +58,12 @@ func runSwapCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, swapCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, swapCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_earn_swap")
 	}
 	request, err := flagutil.BuildRequest[components.EarnSwapRequest](cmd, swapCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

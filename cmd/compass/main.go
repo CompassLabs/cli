@@ -3,11 +3,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
 	"github.com/CompassLabs/cli/internal/cli"
-	"github.com/CompassLabs/cli/internal/output"
+	"github.com/CompassLabs/cli/internal/clierrors"
 )
 
 // version and buildTime can be set at build time using Go linker flags:
@@ -25,13 +26,10 @@ func main() {
 	}
 
 	if err := cli.Execute(); err != nil {
-		// output.Error() already prints a human-friendly version of API
-		// errors before returning. Without this guard, the raw err.Error()
-		// (e.g. "API error occurred: Status 400\n{json body}") is printed a
-		// second/third time below.
-		if !output.IsAlreadyPrinted(err) {
+		var rendered interface{ Rendered() bool }
+		if !errors.As(err, &rendered) || !rendered.Rendered() {
 			fmt.Fprintln(os.Stderr, err)
 		}
-		os.Exit(1)
+		os.Exit(clierrors.ExitCode(err))
 	}
 }

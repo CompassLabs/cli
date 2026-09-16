@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -27,13 +26,24 @@ func initDepositCmd(parent *cobra.Command) error {
 		Short:   "Deposit USDC to perpetual trading account",
 		Long:    "Prepare a USDC deposit from Arbitrum via EIP-2612 Permit.\n\nReturns EIP-712 typed data for the user to sign off-chain (no gas needed).\nCompass does NOT broadcast the bridge tx — the integrator's own sponsor\nwallet calls batchedDepositWithPermit on the HL Bridge2 contract on\nArbitrum after the user signs. See api_docs/v2/Products/Perpetual-Trading.mdx\n\"Deposit USDC\" section for the bridge-broadcast code.",
 		Example: "  compass perpetual-trading deposit --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --amount 100.0",
+		Args:    cobra.NoArgs,
 		RunE:    runDepositCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_perpetual_trading_deposit",
+		},
 	}
 	flagutil.RegisterFlags(cmd, depositCmdMeta)
 	if err := flagutil.ValidateMeta[components.PerpetualTradingDepositRequest](depositCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for deposit: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, depositCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for deposit: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -43,14 +53,12 @@ func runDepositCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, depositCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, depositCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_perpetual_trading_deposit")
 	}
 	request, err := flagutil.BuildRequest[components.PerpetualTradingDepositRequest](cmd, depositCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

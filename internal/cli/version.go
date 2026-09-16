@@ -4,6 +4,7 @@ package cli
 
 import (
 	"fmt"
+	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/usage"
 	"github.com/spf13/cobra"
 )
@@ -13,7 +14,7 @@ import (
 // which propagates the value here (see cmd/compass/main.go):
 //
 //	go build -ldflags "-X main.version=x.y.z" ./cmd/compass
-var Version = "0.0.4"
+var Version = "0.1.0"
 
 // BuildTime is optionally set at build time via ldflags targeting the main package.
 var BuildTime string
@@ -29,9 +30,17 @@ The version defaults to the SDK version set during generation, but can be
 overridden at build time using Go linker flags:
 
   go build -ldflags "-X main.version=x.y.z -X main.buildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)" ./cmd/compass`,
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if usage.UsageRequested(cmd) {
 				return usage.EmitSchema(cmd, cmd.OutOrStdout())
+			}
+			if output.IsMachineMode(cmd) {
+				info := map[string]any{"name": "compass", "version": Version}
+				if BuildTime != "" {
+					info["build_time"] = BuildTime
+				}
+				return output.LocalResult(cmd, info)
 			}
 			if _, err := fmt.Fprintf(cmd.OutOrStdout(), "compass %s\n", Version); err != nil {
 				return err

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -29,7 +28,11 @@ func initMarketsCmd(parent *cobra.Command) error {
 		Short:   "List markets",
 		Long:    "List the tradable tokenized-asset catalog.\n\nAggregates all four providers — Ondo (tokenized US equities), Midas (RWA\nyield tokens), IXS (managed vaults), and Centrifuge (deRWA wrappers) — into\na single list with live USD pricing, plus APY and TVL for yield assets.\nFilter by provider, asset class, or chain, and narrow the results with a\nsector `category` or free-text `search`.",
 		Example: "  compass tokenized-assets markets",
+		Args:    cobra.NoArgs,
 		RunE:    runMarketsCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_tokenized_assets_markets",
+		},
 	}
 	flagutil.RegisterFlags(cmd, marketsCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsMarketsRequest](marketsCmdMeta); err != nil {
@@ -44,14 +47,9 @@ func runMarketsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, marketsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, marketsCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsMarketsRequest](cmd, marketsCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

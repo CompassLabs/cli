@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -16,7 +15,7 @@ import (
 
 var aaveMarketsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=chain"`, Description: "Optional chain filter. If not provided, returns rates for all chains. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia)"},
-	{FlagName: "days", FieldPath: "Days", Kind: flagutil.FlagKindInt64, Optional: true, Description: "Window in days used to compute `supply_apy_avg` / `borrow_apy_avg`. Mirrors the `days` parameter of the v1 `/v1/aave/avg_rate` endpoint."},
+	{FlagName: "days", FieldPath: "Days", Kind: flagutil.FlagKindInt64, Optional: true, HasMinimum: true, Minimum: 1, HasMaximum: true, Maximum: 30, Description: "Window in days used to compute `supply_apy_avg` / `borrow_apy_avg`. Mirrors the `days` parameter of the v1 `/v1/aave/avg_rate` endpoint."},
 }
 
 // initAaveMarketsCmd initializes the aave-markets command.
@@ -26,8 +25,12 @@ func initAaveMarketsCmd(parent *cobra.Command) error {
 		Short:   "List aave markets",
 		Long:    "List Aave lending markets with supply and borrow rates.\n\nReturns rates organized by token symbol, with chain-specific data for each token. Each token includes rates for all chains where it's available, plus information about which chain offers the highest supply APY.\n\nAPY values are returned in percentage format (e.g., 4.5 means 4.5%). Tokens with zero APY on both supply and borrow are excluded.\n\nTo deposit into an Aave market, use the [manage endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/manage-earn-position) with `venue_type=AAVE`.",
 		Example: "  compass earn aave-markets",
+		Args:    cobra.NoArgs,
 		RunE:    runAaveMarketsCmd,
 		Aliases: []string{"am"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_earn_aave_markets",
+		},
 	}
 	flagutil.RegisterFlags(cmd, aaveMarketsCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2EarnAaveMarketsRequest](aaveMarketsCmdMeta); err != nil {
@@ -42,14 +45,9 @@ func runAaveMarketsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, aaveMarketsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, aaveMarketsCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2EarnAaveMarketsRequest](cmd, aaveMarketsCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

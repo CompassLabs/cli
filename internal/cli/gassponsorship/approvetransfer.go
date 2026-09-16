@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -29,14 +28,25 @@ func initApproveTransferCmd(parent *cobra.Command) error {
 		Short:   "Approve token transfer",
 		Long:    "Set up a one-time Permit2 allowance for gas-sponsored token transfers.\n\nRequired when using [/earn/transfer](https://docs.compasslabs.ai/v2/api-reference/earn/transfer-tokens-tofrom-account) or [/credit/transfer](https://docs.compasslabs.ai/v2/api-reference/credit/transfer-tokens-tofrom-account) with `gas_sponsorship=true`. This allowance only needs to be set up once per token.\n\n**With gas sponsorship (`gas_sponsorship=true`):**\n- Returns EIP-712 typed data for the owner to sign off-chain\n- Submit signature + typed data to [/prepare](https://docs.compasslabs.ai/v2/api-reference/gas-sponsorship/prepare-gas-sponsored-transaction)\n- Only works for tokens that support EIP-2612 permit (e.g., USDC)\n\nSome tokens, like USDT and WETH, do not support EIP-2612 permit. For these tokens, set `gas_sponsorship=false` to receive an unsigned transaction that the owner must sign, submit, and pay gas for.",
 		Example: "  compass gas-sponsorship approve-transfer --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --chain base --token USDT",
+		Args:    cobra.NoArgs,
 		RunE:    runApproveTransferCmd,
 		Aliases: []string{"at"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_gas_sponsorship_approve_transfer",
+		},
 	}
 	flagutil.RegisterFlags(cmd, approveTransferCmdMeta)
 	if err := flagutil.ValidateMeta[components.ApproveTransferRequest](approveTransferCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for approve-transfer: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, approveTransferCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for approve-transfer: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -46,14 +56,12 @@ func runApproveTransferCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, approveTransferCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, approveTransferCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_gas_sponsorship_approve_transfer")
 	}
 	request, err := flagutil.BuildRequest[components.ApproveTransferRequest](cmd, approveTransferCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

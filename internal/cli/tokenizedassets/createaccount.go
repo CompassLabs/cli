@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -29,14 +28,25 @@ func initCreateAccountCmd(parent *cobra.Command) error {
 		Short:   "Create account",
 		Long:    "Create a Tokenized Assets Account for a wallet address.\n\nBefore trading tokenized assets, the owner must create a Tokenized Assets\nAccount. Each wallet address has one Tokenized Assets Account per chain.\n\nReturns an unsigned transaction to create the account. The `sender` signs\nand broadcasts this transaction.\n\n**If owner pays gas:** Set `sender` to the owner's address.\n\n**If someone else pays gas:** Set `sender` to the wallet that will sign and\nbroadcast the transaction on behalf of the owner.",
 		Example: "  compass tokenized-assets create-account --sender 0x18b42407AbC163f595410Ffe773BB98Db40B48F7 --owner 0x18b42407AbC163f595410Ffe773BB98Db40B48F7",
+		Args:    cobra.NoArgs,
 		RunE:    runCreateAccountCmd,
 		Aliases: []string{"ca"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_tokenized_assets_create_account",
+		},
 	}
 	flagutil.RegisterFlags(cmd, createAccountCmdMeta)
 	if err := flagutil.ValidateMeta[components.CreateTokenizedAssetsAccountRequest](createAccountCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for create-account: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, createAccountCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for create-account: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -46,14 +56,12 @@ func runCreateAccountCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, createAccountCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, createAccountCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_tokenized_assets_create_account")
 	}
 	request, err := flagutil.BuildRequest[components.CreateTokenizedAssetsAccountRequest](cmd, createAccountCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

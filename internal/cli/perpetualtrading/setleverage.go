@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -28,14 +27,25 @@ func initSetLeverageCmd(parent *cobra.Command) error {
 		Short:   "Set leverage (defaults to market maximum)",
 		Long:    "Check leverage and prepare an updateLeverage action to the requested value.\n\nIf `leverage` is omitted, targets the asset's maximum leverage for that\nmarket. If the asset is already at the requested leverage, returns\nleverage_ok=true with null typed_data — no signing needed. Otherwise,\nreturns EIP-712 typed data for the user to sign. After signing, submit the\nsignature via the /execute endpoint.",
 		Example: "  compass perpetual-trading set-leverage --owner <value> --asset <value>",
+		Args:    cobra.NoArgs,
 		RunE:    runSetLeverageCmd,
 		Aliases: []string{"sl"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_perpetual_trading_set_leverage",
+		},
 	}
 	flagutil.RegisterFlags(cmd, setLeverageCmdMeta)
 	if err := flagutil.ValidateMeta[components.PerpetualTradingSetLeverageRequest](setLeverageCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for set-leverage: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, setLeverageCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for set-leverage: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -45,14 +55,12 @@ func runSetLeverageCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, setLeverageCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, setLeverageCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_perpetual_trading_set_leverage")
 	}
 	request, err := flagutil.BuildRequest[components.PerpetualTradingSetLeverageRequest](cmd, setLeverageCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

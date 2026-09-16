@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -26,7 +25,11 @@ func initPositionsCmd(parent *cobra.Command) error {
 		Short:   "List earn positions",
 		Long:    "List all Earn positions for a given owner with PnL tracking.\n\nReturns position data including current balance, cost basis, and profit and loss.\nUse this endpoint to display portfolio performance, track yields over time, or build\nposition management interfaces.\n\nPositions are tracked across all venue types (vaults and Aave markets). Each\nposition includes the venue address, deposited amount, and performance metrics.",
 		Example: "  compass earn positions --chain base --owner 0x01E62835dd7F52173546A325294762143eE4a882",
+		Args:    cobra.NoArgs,
 		RunE:    runPositionsCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_earn_positions",
+		},
 	}
 	flagutil.RegisterFlags(cmd, positionsCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2EarnPositionsRequest](positionsCmdMeta); err != nil {
@@ -41,14 +44,9 @@ func runPositionsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, positionsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, positionsCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2EarnPositionsRequest](cmd, positionsCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -20,7 +19,7 @@ var orderCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "to-token", Shorthand: "t", FieldPath: "ToToken", Kind: flagutil.FlagKindString, Required: true, Description: "Token the sender is receiving. Same accepted forms as `from_token`. [required]"},
 	{FlagName: "amount", Shorthand: "a", FieldPath: "Amount", Kind: flagutil.FlagKindString, Required: true, Description: "Human-readable amount of `from_token` to swap (decimal string). Decimals are applied server-side. [required]"},
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "Wallet that owns the Tokenized Assets Account. The product account address is derived deterministically from this owner. The owner signs the EIP-712 payloads returned by this endpoint (the optional approval and the order itself). [required]"},
-	{FlagName: "slippage-bps", Shorthand: "s", FieldPath: "SlippageBps", Kind: flagutil.FlagKindInt64, Optional: true, Description: "Max acceptable slippage in basis points (1 bp = 0.01%). Range 1-5000 (0.01%-50%); defaults to 50 (0.5%). The upper bound is intentionally wide so callers can clear the wide auction floors quoted for thinly-traded tokenized stocks."},
+	{FlagName: "slippage-bps", Shorthand: "s", FieldPath: "SlippageBps", Kind: flagutil.FlagKindInt64, Optional: true, HasMinimum: true, Minimum: 1, HasMaximum: true, Maximum: 5000, Description: "Max acceptable slippage in basis points (1 bp = 0.01%). Range 1-5000 (0.01%-50%); defaults to 50 (0.5%). The upper bound is intentionally wide so callers can clear the wide auction floors quoted for thinly-traded tokenized stocks."},
 }
 
 // initOrderCmd initializes the order command.
@@ -30,13 +29,24 @@ func initOrderCmd(parent *cobra.Command) error {
 		Short:   "Build an order",
 		Long:    "Build a tokenized-**equity** (Ondo) buy/sell order; the product account is the\nmaker.\n\nReturns everything needed to place the order in one round-trip: a price quote,\na one-time token approval to sign (only until the settlement contract is\napproved), and the order payload the owner signs off-chain. Only the approval\never touches the chain — the signed order is relayed to market makers, never\nbroadcast. Equities only; RWA yield tokens use `/transact/buy` and\n`/transact/sell`.",
 		Example: "  compass tokenized-assets order --from-token <value> --to-token <value> --amount 853.30 --owner <value>",
+		Args:    cobra.NoArgs,
 		RunE:    runOrderCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_tokenized_assets_order",
+		},
 	}
 	flagutil.RegisterFlags(cmd, orderCmdMeta)
 	if err := flagutil.ValidateMeta[components.TokenizedAssetsBuildOrderRequest](orderCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for order: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, orderCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for order: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -46,14 +56,12 @@ func runOrderCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, orderCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, orderCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_tokenized_assets_order")
 	}
 	request, err := flagutil.BuildRequest[components.TokenizedAssetsBuildOrderRequest](cmd, orderCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -22,7 +21,7 @@ var unloopCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "market-id", FieldPath: "MarketID", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"market_id,omitempty"`, Description: "Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO."},
 	{FlagName: "collateral-vault", FieldPath: "CollateralVault", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"collateral_vault,omitempty"`, Description: "Euler only: the EVK vault the loop's collateral is in. Required when protocol=EULER."},
 	{FlagName: "borrow-vault", FieldPath: "BorrowVault", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"borrow_vault,omitempty"`, Description: "Euler only: the EVK vault the loop borrowed from (the sub-account's controller). Required when protocol=EULER."},
-	{FlagName: "sub-account-id", Shorthand: "s", FieldPath: "SubAccountID", Kind: flagutil.FlagKindInt64, Optional: true, Description: "Euler only: the EVC sub-account (0-255) holding the looped position to unwind. 0 is the Credit Account itself."},
+	{FlagName: "sub-account-id", Shorthand: "s", FieldPath: "SubAccountID", Kind: flagutil.FlagKindInt64, Optional: true, HasMinimum: true, Minimum: 0, HasMaximum: true, Maximum: 255, Description: "Euler only: the EVC sub-account (0-255) holding the looped position to unwind. 0 is the Credit Account itself."},
 	{FlagName: "collateral-token", FieldPath: "CollateralToken", Kind: flagutil.FlagKindString, Required: true, Description: "Token supplied as collateral in the loop being unwound. For MORPHO it must be the market's collateral token. [required]"},
 	{FlagName: "borrow-token", FieldPath: "BorrowToken", Kind: flagutil.FlagKindString, Required: true, Description: "Token borrowed in the loop; withdrawn collateral is swapped back to it and used to repay. For MORPHO it must be the market's loan token. [required]"},
 	{FlagName: "target-multiplier", Shorthand: "t", FieldPath: "TargetMultiplier", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
@@ -40,13 +39,24 @@ func initUnloopCmd(parent *cobra.Command) error {
 		Short:   "Unwind a leveraged loop",
 		Long:    "Unwind a leveraged position in ONE atomic transaction.\n\nWithdraw collateral, swap it back to the borrow token, repay, repeat — until\nthe position reaches target_multiplier, or until the debt is cleared exactly\nif you omit it. If any step fails the whole transaction reverts.\n\nSee the [Leveraged Looping guide](https://docs.compasslabs.ai/v2/Products/Looping)\nfor chain coverage, vault-share collateral, shared Aave reserves and the full\nerror list.",
 		Example: "  compass credit unloop --owner 0x0E407CdeBD8e078E6966ef6740540d25F5897082 --chain ethereum --collateral-token WETH --borrow-token USDC",
+		Args:    cobra.NoArgs,
 		RunE:    runUnloopCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_credit_unloop",
+		},
 	}
 	flagutil.RegisterFlags(cmd, unloopCmdMeta)
 	if err := flagutil.ValidateMeta[components.CreditUnloopRequest](unloopCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for unloop: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, unloopCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for unloop: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -56,14 +66,12 @@ func runUnloopCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, unloopCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, unloopCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_credit_unloop")
 	}
 	request, err := flagutil.BuildRequest[components.CreditUnloopRequest](cmd, unloopCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

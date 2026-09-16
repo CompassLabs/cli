@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -25,8 +24,12 @@ func initEulerMarketsCmd(parent *cobra.Command) error {
 		Short:   "List curated Euler markets",
 		Long:    "List curated Euler V2 credit markets for a chain.\n\nEuler is permissionless, so credit borrow/repay identify a market by EVK vault\naddress. This returns the borrow markets from Euler's Governed Perspective (the\nDAO-vetted vault set) -- each with the collateral vaults it accepts and their\nLTVs -- so callers know which borrow_vault / collateral_vault to use.",
 		Example: "  compass credit euler-markets --chain ethereum",
+		Args:    cobra.NoArgs,
 		RunE:    runEulerMarketsCmd,
 		Aliases: []string{"em"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_credit_euler_markets",
+		},
 	}
 	flagutil.RegisterFlags(cmd, eulerMarketsCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2CreditEulerMarketsRequest](eulerMarketsCmdMeta); err != nil {
@@ -41,14 +44,9 @@ func runEulerMarketsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, eulerMarketsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, eulerMarketsCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2CreditEulerMarketsRequest](cmd, eulerMarketsCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -26,14 +25,25 @@ func initEnableUnifiedAccountCmd(parent *cobra.Command) error {
 		Short:   "Enable unified account mode",
 		Long:    "Check account mode and prepare the enable-unified-account action if needed.\n\nIf the account is already in unified mode (or portfolio margin), returns\nthe current mode with null typed_data — no signing needed. Otherwise,\nreturns EIP-712 typed data for the user to sign. After signing, submit\nthe signature via the /execute endpoint.",
 		Example: "  compass perpetual-trading enable-unified-account --owner <value>",
+		Args:    cobra.NoArgs,
 		RunE:    runEnableUnifiedAccountCmd,
 		Aliases: []string{"eua"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_perpetual_trading_enable_unified_account",
+		},
 	}
 	flagutil.RegisterFlags(cmd, enableUnifiedAccountCmdMeta)
 	if err := flagutil.ValidateMeta[components.PerpetualTradingEnableUnifiedAccountRequest](enableUnifiedAccountCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for enable-unified-account: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, enableUnifiedAccountCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for enable-unified-account: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -43,14 +53,12 @@ func runEnableUnifiedAccountCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, enableUnifiedAccountCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, enableUnifiedAccountCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_perpetual_trading_enable_unified_account")
 	}
 	request, err := flagutil.BuildRequest[components.PerpetualTradingEnableUnifiedAccountRequest](cmd, enableUnifiedAccountCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

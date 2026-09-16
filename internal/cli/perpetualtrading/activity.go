@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -26,7 +25,11 @@ func initActivityCmd(parent *cobra.Command) error {
 		Short:   "Aggregated Hyperliquid activity for a user",
 		Long:    "Return positions, fills, open orders, and (optionally) builder approval\nstate for an end-user in one normalized payload.\n\nEach section is fetched in parallel from the Hyperliquid `info` API.\nIf a single upstream call fails the corresponding section returns ``null``\nand an entry is added to ``partial_errors``; if every section fails the\nendpoint responds with 502.\n\nPass ``builder`` to additionally include the user's current approved max\nfee rate for that builder (used by dashboards to decide whether to prompt\nthe user to sign an `approveBuilderFee` action).",
 		Example: "  compass perpetual-trading activity --owner 0x06A9aF046187895AcFc7258450B15397CAc67400",
+		Args:    cobra.NoArgs,
 		RunE:    runActivityCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_perpetual_trading_activity",
+		},
 	}
 	flagutil.RegisterFlags(cmd, activityCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2PerpetualTradingActivityRequest](activityCmdMeta); err != nil {
@@ -41,14 +44,9 @@ func runActivityCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, activityCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, activityCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2PerpetualTradingActivityRequest](cmd, activityCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -34,14 +33,25 @@ func initLimitOrderCmd(parent *cobra.Command) error {
 		Short:   "Place limit order",
 		Long:    "Prepare a limit order on a perpetual trading market.\n\nReturns EIP-712 typed data for the user to sign. After signing, submit\nthe signature via the /execute endpoint. Supports GTC and ALO time-in-force.",
 		Example: "  compass perpetual-trading limit-order --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --asset AAPL --side buy --size 10.0 --price 190.00",
+		Args:    cobra.NoArgs,
 		RunE:    runLimitOrderCmd,
 		Aliases: []string{"lo"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_perpetual_trading_limit_order",
+		},
 	}
 	flagutil.RegisterFlags(cmd, limitOrderCmdMeta)
 	if err := flagutil.ValidateMeta[components.PerpetualTradingLimitOrderRequest](limitOrderCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for limit-order: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, limitOrderCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for limit-order: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -51,14 +61,12 @@ func runLimitOrderCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, limitOrderCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, limitOrderCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_perpetual_trading_limit_order")
 	}
 	request, err := flagutil.BuildRequest[components.PerpetualTradingLimitOrderRequest](cmd, limitOrderCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

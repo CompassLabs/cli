@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -28,14 +27,25 @@ func initBundleCmd(parent *cobra.Command) error {
 		Use:     "bundle",
 		Short:   "Execute multiple credit actions",
 		Long:    "Compose individual credit operations (supply, withdraw, borrow, repay, swap, transfer)\ninto a single atomic Safe transaction.\n\nThe Credit Account must already be created via `/v2/credit/create_account`.",
-		Example: "  compass credit bundle --owner <value> --chain arbitrum --actions '[{\"body\":{\"action_type\":\"V2_TRANSFER_FROM_EOA\",\"token\":\"<value>\",\"amount\":\"709.93\",\"permit2_signature\":\"<value>\",\"permit2_nonce\":210517,\"permit2_deadline\":120606} }]'",
+		Example: "  compass credit bundle --owner <value> --chain arbitrum --actions '[{\"body\":{\"action_type\":\"V2_TRANSFER_FROM_EOA\",\"token\":\"<value>\",\"amount\":\"709.93\",\"permit2_signature\":\"<value>\",\"permit2_nonce\":210517,\"permit2_deadline\":120606\x7d\x7d]'",
+		Args:    cobra.NoArgs,
 		RunE:    runBundleCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_credit_bundle",
+		},
 	}
 	flagutil.RegisterFlags(cmd, bundleCmdMeta)
 	if err := flagutil.ValidateMeta[components.CreditBundleRequest](bundleCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for bundle: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, bundleCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for bundle: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -45,14 +55,12 @@ func runBundleCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, bundleCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, bundleCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_credit_bundle")
 	}
 	request, err := flagutil.BuildRequest[components.CreditBundleRequest](cmd, bundleCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

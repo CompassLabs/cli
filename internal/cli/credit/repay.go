@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -22,7 +21,7 @@ var repayCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "borrow-vault", Shorthand: "b", FieldPath: "BorrowVault", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"borrow_vault,omitempty"`, Description: "Euler only: the EVK vault the debt is owed to (repay target). Required when protocol=EULER."},
 	{FlagName: "market-id", Shorthand: "m", FieldPath: "MarketID", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"market_id,omitempty"`, Description: "Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO."},
 	{FlagName: "collateral-vault", FieldPath: "CollateralVault", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"collateral_vault,omitempty"`, Description: "Euler only: the EVK collateral vault to withdraw from. Required when protocol=EULER and withdrawing collateral."},
-	{FlagName: "sub-account-id", FieldPath: "SubAccountID", Kind: flagutil.FlagKindInt64, Optional: true, Description: "Euler only: EVC sub-account (0–255) holding the debt to repay. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health. Defaults to 0. Ignored for Aave/Morpho."},
+	{FlagName: "sub-account-id", FieldPath: "SubAccountID", Kind: flagutil.FlagKindInt64, Optional: true, HasMinimum: true, Minimum: 0, HasMaximum: true, Maximum: 255, Description: "Euler only: EVC sub-account (0–255) holding the debt to repay. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health. Defaults to 0. Ignored for Aave/Morpho."},
 	{FlagName: "repay-token", FieldPath: "RepayToken", Kind: flagutil.FlagKindString, Required: true, Description: "The borrowed asset to repay (e.g. WETH). Must match the debt position's token. [required]"},
 	{FlagName: "repay-amount", FieldPath: "RepayAmount", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "interest-rate-mode", Shorthand: "i", FieldPath: "InterestRateMode", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"stable", "variable"}, Description: "On AAVE there are 2 different interest modes.\n\nA stable (but typically higher rate), or a variable rate. (options: stable, variable)"},
@@ -43,13 +42,24 @@ func initRepayCmd(parent *cobra.Command) error {
 		Short:   "Repay debt and withdraw collateral",
 		Long:    "Repay an Aave debt and withdraw collateral from a Credit Account.\n\nBundles repayment, collateral withdrawal, and an optional swap into a single atomic Safe transaction.\n\n- If `token_out` is None or equals `withdraw_token`, the withdrawn collateral is kept as-is.\n- If `token_out` differs from `withdraw_token`, a market swap is performed after withdrawal.\n\nThe Credit Account must already have a borrow position created via `/v2/credit/borrow`.\nThe repay_token must be available in the Credit Account (or pulled from EOA via Permit2).",
 		Example: "  compass credit repay --owner 0x831Ad0C52C77708DA5D49dc8278C966dfdD4ddA1 --chain base --repay-token WETH --repay-amount 0.01",
+		Args:    cobra.NoArgs,
 		RunE:    runRepayCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_credit_repay",
+		},
 	}
 	flagutil.RegisterFlags(cmd, repayCmdMeta)
 	if err := flagutil.ValidateMeta[components.CreditRepayRequest](repayCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for repay: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, repayCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for repay: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -59,14 +69,12 @@ func runRepayCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, repayCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, repayCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_credit_repay")
 	}
 	request, err := flagutil.BuildRequest[components.CreditRepayRequest](cmd, repayCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

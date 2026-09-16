@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -26,7 +25,11 @@ func initPositionsCmd(parent *cobra.Command) error {
 		Short:   "List positions",
 		Long:    "Get an owner's tokenized-asset holdings, priced and aggregated.\n\nReturns positions across every asset family the account holds — Ondo equities,\nMidas RWA yield tokens, and IXS managed vaults — each valued in USD (equities\nfrom the Ondo feed, RWA at the latest indexed NAV) with a `total_usd` total.\nThe account is derived from `owner`; pass `chain` for Base (Midas) or BNB Smart\nChain (IXS) holdings.",
 		Example: "  compass tokenized-assets positions --owner 0x29F20a192328eF1aD35e1564aBFf4Be9C5ce5f7B",
+		Args:    cobra.NoArgs,
 		RunE:    runPositionsCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_tokenized_assets_positions",
+		},
 	}
 	flagutil.RegisterFlags(cmd, positionsCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsPositionsRequest](positionsCmdMeta); err != nil {
@@ -41,14 +44,9 @@ func runPositionsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, positionsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, positionsCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsPositionsRequest](cmd, positionsCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

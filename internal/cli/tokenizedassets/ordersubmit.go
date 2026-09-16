@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -30,14 +29,25 @@ func initOrderSubmitCmd(parent *cobra.Command) error {
 		Short:   "Submit a signed order",
 		Long:    "Submit a signed equity order to the market-maker network for settlement.\n\nRelays the payload from `/order` plus the owner's signature, and returns the\norder hash. Poll `GET /order/{order_hash}` to track its lifecycle (`pending` →\n`filled` / `expired` / `cancelled`).",
 		Example: "  compass tokenized-assets order-submit --signed-order '{\"key\":\"<value>\"}' --signature <value> --extension m2a --quote-id <id>",
+		Args:    cobra.NoArgs,
 		RunE:    runOrderSubmitCmd,
 		Aliases: []string{"osu"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_tokenized_assets_order_submit",
+		},
 	}
 	flagutil.RegisterFlags(cmd, orderSubmitCmdMeta)
 	if err := flagutil.ValidateMeta[components.TokenizedAssetsSubmitOrderRequest](orderSubmitCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for order-submit: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, orderSubmitCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for order-submit: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -47,14 +57,12 @@ func runOrderSubmitCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, orderSubmitCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, orderSubmitCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_tokenized_assets_order_submit")
 	}
 	request, err := flagutil.BuildRequest[components.TokenizedAssetsSubmitOrderRequest](cmd, orderSubmitCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

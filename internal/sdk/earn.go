@@ -1967,14 +1967,14 @@ func (s *Earn) Manage(ctx context.Context, request components.EarnManageRequest,
 
 }
 
-// Swap tokens within Earn Account
-// Swap tokens within an Earn Account.
+// Swap tokens
+// Swap one token for another inside an Earn Account.
 //
-// Use this endpoint to exchange one token for another without transferring funds out of the Earn Account.
-//
-// The swap executes atomically within the Earn Account and can be combined with other actions using the [bundle endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/execute-multiple-earn-actions). For example, swap ETH to USDC, then deposit USDC into a vault—all in one transaction.
-//
-// Returns either an unsigned transaction (when `gas_sponsorship=false`) or EIP-712 typed data for off-chain signing (when `gas_sponsorship=true`). For gas-sponsored swaps, submit the signed typed data to `/gas_sponsorship/prepare`.
+// Exchanges tokens the Earn Account already holds in a single atomic
+// transaction, so funds never leave it, and can be chained with other actions
+// through the [bundle endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/execute-multiple-earn-actions)
+// (for example, swap ETH to USDC and deposit the USDC into a vault at once).
+// Returns an unsigned transaction to sign and the expected output amount.
 func (s *Earn) Swap(ctx context.Context, request components.EarnSwapRequest, opts ...operations.Option) (*operations.V2EarnSwapResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{

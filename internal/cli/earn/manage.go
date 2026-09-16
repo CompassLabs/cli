@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -16,14 +15,14 @@ import (
 )
 
 var manageCmdMeta = []flagutil.FlagMeta{
-	{FlagName: "venue", Shorthand: "v", FieldPath: "Venue", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: true, DiscriminatorKey: "Type", TypeDescription: "JSON value (variants: AAVE: { token: string }, PENDLE_PT: { market_address: string, token: string, max_slippage_percent: number }, VAULT: { vault_address: string })", Variants: []flagutil.UnionVariantMeta{
+	{FlagName: "venue", Shorthand: "v", FieldPath: "Venue", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: true, DiscriminatorKey: "Type", TypeDescription: "JSON value (variants: AAVE: { \"token\": string }, PENDLE_PT: { \"market_address\": string, ... }, VAULT: { \"vault_address\": string })", Variants: []flagutil.UnionVariantMeta{
 		{DiscriminatorValue: "AAVE", FlagName: "venue.aave", FieldName: "AaveVenue", CanExpand: true, Description: "AaveVenue variant as JSON", Fields: []flagutil.FlagMeta{
 			{FlagName: "venue.aave.token", FieldPath: "Token", Kind: flagutil.FlagKindString, Required: true, Description: "The reserve token for the Aave pool you are interacting with. [required]"},
 		}},
 		{DiscriminatorValue: "PENDLE_PT", FlagName: "venue.pendle-pt", FieldName: "PendlePTVenue", CanExpand: true, Description: "PendlePTVenue variant as JSON", Fields: []flagutil.FlagMeta{
 			{FlagName: "venue.pendle-pt.market-address", FieldPath: "MarketAddress", Kind: flagutil.FlagKindString, Required: true, Description: "The Pendle market address identifying which PT to trade. [required]"},
 			{FlagName: "venue.pendle-pt.token", FieldPath: "Token", Kind: flagutil.FlagKindString, Optional: true, Description: "The token to exchange for PT (only used for DEPOSIT/buy). For WITHDRAW/sell, this field must not be provided - withdrawals always return the underlying asset to ensure accurate yield fee calculation."},
-			{FlagName: "venue.pendle-pt.max-slippage-percent", FieldPath: "MaxSlippagePercent", Kind: flagutil.FlagKindFloat64, Optional: true, Description: "Maximum slippage allowed in percent (e.g., 1 means 1% slippage)."},
+			{FlagName: "venue.pendle-pt.max-slippage-percent", FieldPath: "MaxSlippagePercent", Kind: flagutil.FlagKindFloat64, Optional: true, HasMinimum: true, Minimum: 0, HasMaximum: true, Maximum: 10, Description: "Maximum slippage allowed in percent (e.g., 1 means 1% slippage)."},
 		}},
 		{DiscriminatorValue: "VAULT", FlagName: "venue.vault", FieldName: "VaultVenue", CanExpand: true, Description: "VaultVenue variant as JSON", Fields: []flagutil.FlagMeta{
 			{FlagName: "venue.vault.vault-address", FieldPath: "VaultAddress", Kind: flagutil.FlagKindString, Required: true, Description: "The vault address you are interacting with for this action. [required]"},
@@ -44,13 +43,24 @@ func initManageCmd(parent *cobra.Command) error {
 		Short:   "Manage earn position",
 		Long:    "Deposit into or withdraw from a yield venue.\n\nUse `DEPOSIT` to move tokens from the Earn Account into a vault, Aave market, or Pendle PT position. Use `WITHDRAW` to move tokens back from a venue into the Earn Account.\n\n**Venue types:**\n- `VAULT`: ERC-4626 vaults (see [/vaults](https://docs.compasslabs.ai/v2/api-reference/earn/list-vaults) for available options)\n- `AAVE`: Aave lending pools (see [/aave_markets](https://docs.compasslabs.ai/v2/api-reference/earn/list-aave-markets) for available options)\n- `PENDLE_PT`: Pendle Principal Tokens (see [/pendle_markets](https://docs.compasslabs.ai/v2/api-reference/earn/list-pendle-markets) for available options)\n\n**Fees:** A fee can be configured and deducted from the transaction amount (not supported for PENDLE_PT):\n- `FIXED`: A fixed token amount (e.g., 0.1 means 0.1 tokens)\n- `PERCENTAGE`: A percentage of the amount (e.g., 1.5 means 1.5%)\n- `PERFORMANCE`: A percentage of realized profit (withdrawals only)\n\n**Gas sponsorship:** Set `gas_sponsorship=true` to receive EIP-712 typed data. Owner signs the typed data, then submit to [/gas_sponsorship/prepare](https://docs.compasslabs.ai/v2/api-reference/gas-sponsorship/prepare-gas-sponsored-transaction).",
 		Example: "  compass earn manage --venue '{\"type\":\"VAULT\",\"vault_address\":\"0x7BfA7C4f149E7415b73bdeDfe609237e29CBF34A\"}' --action DEPOSIT --amount 0.01 --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --chain base",
+		Args:    cobra.NoArgs,
 		RunE:    runManageCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_earn_manage",
+		},
 	}
 	flagutil.RegisterFlags(cmd, manageCmdMeta)
 	if err := flagutil.ValidateMeta[components.EarnManageRequest](manageCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for manage: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, manageCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for manage: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -60,14 +70,12 @@ func runManageCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, manageCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, manageCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_earn_manage")
 	}
 	request, err := flagutil.BuildRequest[components.EarnManageRequest](cmd, manageCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

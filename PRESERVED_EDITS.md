@@ -89,7 +89,8 @@ cli-sdk/scripts/
     ├── 01-output.patch                # output/output.go fixes
     ├── 02-pretty.patch                # output/pretty.go fixes
     ├── 03-flagutil.patch              # flagutil/metadata.go fixes
-    └── 04-main.patch                  # cmd/compass/main.go fixes
+    ├── 03a-flagutil-desc.patch        # flagutil descriptions
+    └── 05-version.patch               # version stamping
 ```
 
 Naming convention: `NN-<package>.patch`. One patch per generated file
@@ -100,14 +101,22 @@ only that file's fixes are affected.
 
 | Patch | Bugs fixed |
 |---|---|
-| `01-output.patch` | `bytes` import + `indentJSONIfValid` + raw-JSON-passthrough indent; `printTable` envelope unwrap + helpers (from `31c3769d8`); FastAPI `{"detail":[...]}` prettifier; YAML/TOON JSON round-trip; error-body fallback; error de-duplication via `AlreadyPrinted` wrap |
+| `01-output.patch` | `indentJSONIfValid` + raw-JSON-passthrough indent; `printTable` envelope unwrap + helpers (from `31c3769d8`); FastAPI `{"detail":[...]}` prettifier |
 | `02-pretty.patch` | Pretty mode delegates list-shaped responses to `printTable` (from `31c3769d8`) |
 | `03-flagutil.patch` | `--dry-run` no longer bypasses required-flag check; bare string flag values auto-quoted (so `--chain base` works) |
-| `04-main.patch` | `cmd/compass/main.go` checks `output.IsAlreadyPrinted` before reprinting — completes the error-dup fix |
 
 The helpers each patch depends on live in (2) — e.g. `01-output.patch`
-calls `normalizeForEncoding` and `formatFastAPIDetail`, both defined
-in `internal/output/overrides.go`.
+calls `formatFastAPIDetail`, defined in `internal/output/overrides.go`.
+
+History (rebased 2026-09-16 against the template that ships classified
+error rendering, run 35082329099): Speakeasy's generator absorbed the
+YAML/TOON JSON round-trip (`marshalYAML`/`encodeTOON`), the error-body
+fallback (`extractErrorBody` now reads the retained raw HTTP body via
+`peekRawBody`), and the error de-duplication (`markRendered`/`IsRendered`
+plus the `Rendered() bool` guard in generated `cmd/compass/main.go`). That
+retired `01a-output-error.patch` and `04-main.patch` and shrank `01`; the
+now-unused `AlreadyPrinted`/`IsAlreadyPrinted`/`normalizeForEncoding`
+helpers stay in `overrides.go` for compatibility.
 
 ### How the script behaves on failure
 

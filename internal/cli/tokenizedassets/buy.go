@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -34,13 +33,24 @@ func initBuyCmd(parent *cobra.Command) error {
 		Short:   "Buy an RWA yield token",
 		Long:    "Buy an RWA yield token, deposit into an IXS managed vault, or buy a Centrifuge\ndeRWA token, with a stablecoin in one transaction.\n\nSet `token_out` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`), a Centrifuge\ndeRWA symbol (e.g. `deSPXA`), or an IXS **vault address** (its shares aren't a\nregistered symbol). The account spends a stablecoin it already holds (fund it\nwith a plain transfer first) and settles inside the product account — an\nunsigned transaction the owner signs, or EIP-712 with `gas_sponsorship`. All\nthree settle instantly. Equities use the order flow (`/quote`, `/order`).",
 		Example: "  compass tokenized-assets buy --token-in <value> --token-out <value> --amount-in 4533.23 --owner <value> --chain ethereum",
+		Args:    cobra.NoArgs,
 		RunE:    runBuyCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_tokenized_assets_transact_buy",
+		},
 	}
 	flagutil.RegisterFlags(cmd, buyCmdMeta)
 	if err := flagutil.ValidateMeta[components.TokenizedAssetsTradeRequest](buyCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for buy: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, buyCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for buy: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -50,14 +60,12 @@ func runBuyCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, buyCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, buyCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_tokenized_assets_transact_buy")
 	}
 	request, err := flagutil.BuildRequest[components.TokenizedAssetsTradeRequest](cmd, buyCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

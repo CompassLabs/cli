@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -15,9 +14,9 @@ import (
 )
 
 var candlesCmdMeta = []flagutil.FlagMeta{
-	{FlagName: "symbol", FieldPath: "Symbol", Kind: flagutil.FlagKindString, Required: true, Description: "Asset ticker (e.g. AAPL, GOLD, EUR). The xyz: HIP-3 DEX prefix is added server-side if not already present. [required]"},
+	{FlagName: "symbol", FieldPath: "Symbol", Kind: flagutil.FlagKindString, Required: true, MinLength: 1, Description: "Asset ticker (e.g. AAPL, GOLD, EUR). The xyz: HIP-3 DEX prefix is added server-side if not already present. [required]"},
 	{FlagName: "interval", Shorthand: "i", FieldPath: "Interval", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"1m", "5m", "15m", "1h", "4h", "1d", "1w"}, Description: "Candle interval: 1m, 5m, 15m, 1h, 4h, 1d, 1w (options: 1m, 5m, 15m, 1h, 4h, 1d, 1w) [required]"},
-	{FlagName: "limit", Shorthand: "l", FieldPath: "Limit", Kind: flagutil.FlagKindInt64, Optional: true, Description: "Number of candles to return (max 5000, capped by Hyperliquid)."},
+	{FlagName: "limit", Shorthand: "l", FieldPath: "Limit", Kind: flagutil.FlagKindInt64, Optional: true, HasMinimum: true, Minimum: 1, HasMaximum: true, Maximum: 5000, Description: "Number of candles to return (max 5000, capped by Hyperliquid)."},
 	{FlagName: "start-time", FieldPath: "StartTime", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=start_time"`, Description: "Optional start of the candle window in unix milliseconds. If omitted, computed as end_time - limit * interval."},
 	{FlagName: "end-time", Shorthand: "e", FieldPath: "EndTime", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=end_time"`, Description: "Optional end of the candle window in unix milliseconds. Defaults to now."},
 }
@@ -29,7 +28,11 @@ func initCandlesCmd(parent *cobra.Command) error {
 		Short:   "Get OHLCV candles",
 		Long:    "Return OHLCV candles for a single asset and interval.\n\nWraps Hyperliquid's ``candleSnapshot`` info type and adds the xyz: HIP-3 DEX\nprefix server-side so the SDK only needs the bare ticker (e.g. ``AAPL``).\nCandle ``time`` is returned in unix seconds, ready for TradingView\nlightweight-charts. Cached for 15 seconds per (symbol, interval, window).",
 		Example: "  compass perpetual-trading candles --symbol AAPL --interval 1h",
+		Args:    cobra.NoArgs,
 		RunE:    runCandlesCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_perpetual_trading_candles",
+		},
 	}
 	flagutil.RegisterFlags(cmd, candlesCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2PerpetualTradingCandlesRequest](candlesCmdMeta); err != nil {
@@ -44,14 +47,9 @@ func runCandlesCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, candlesCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, candlesCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2PerpetualTradingCandlesRequest](cmd, candlesCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

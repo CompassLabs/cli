@@ -2,7 +2,7 @@
 
 package sdk
 
-// Generated from OpenAPI doc version 0.0.1 and generator version 2.935.1
+// Generated from OpenAPI doc version 0.0.1 and generator version 2.937.18
 
 import (
 	"context"
@@ -56,7 +56,6 @@ type CompassCLI struct {
 	Credit           *Credit
 	PerpetualTrading *PerpetualTrading
 	TokenizedAssets  *TokenizedAssets
-	RiskYield        *RiskYield
 
 	sdkConfiguration config.SDKConfiguration
 	hooks            *hooks.Hooks
@@ -132,11 +131,11 @@ func WithTimeout(timeout time.Duration) SDKOption {
 // New creates a new instance of the SDK with the provided options
 func New(opts ...SDKOption) *CompassCLI {
 	sdk := &CompassCLI{
-		SDKVersion: "0.0.4",
+		SDKVersion: "0.1.0",
 		sdkConfiguration: config.SDKConfiguration{
-			UserAgent:         "speakeasy-sdk/go 0.0.4 2.935.1 0.0.1 github.com/CompassLabs/cli/internal/sdk",
-			SDKVersion:        "0.0.4",
-			GenVersion:        "2.935.1",
+			UserAgent:         "speakeasy-sdk/go 0.1.0 2.937.18 0.0.1 github.com/CompassLabs/cli/internal/sdk",
+			SDKVersion:        "0.1.0",
+			GenVersion:        "2.937.18",
 			OpenAPIDocVersion: "0.0.1",
 			ServerList:        ServerList,
 		},
@@ -158,7 +157,6 @@ func New(opts ...SDKOption) *CompassCLI {
 	sdk.Credit = newCredit(sdk, sdk.sdkConfiguration, sdk.hooks)
 	sdk.PerpetualTrading = newPerpetualTrading(sdk, sdk.sdkConfiguration, sdk.hooks)
 	sdk.TokenizedAssets = newTokenizedAssets(sdk, sdk.sdkConfiguration, sdk.hooks)
-	sdk.RiskYield = newRiskYield(sdk, sdk.sdkConfiguration, sdk.hooks)
 
 	return sdk
 }

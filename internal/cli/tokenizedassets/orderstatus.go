@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -25,8 +24,12 @@ func initOrderStatusCmd(parent *cobra.Command) error {
 		Short:   "Get order status",
 		Long:    "Poll the lifecycle state of a submitted equity order (Ondo).\n\nReports `pending`, `filled`, `expired`, or `cancelled`, with fill details as\nthey arrive. Equity orders only — RWA yield swaps settle in one transaction and\nhave no lifecycle to poll.",
 		Example: "  compass tokenized-assets order-status --order-hash <value>",
+		Args:    cobra.NoArgs,
 		RunE:    runOrderStatusCmd,
 		Aliases: []string{"os"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_tokenized_assets_order_{order_hash}",
+		},
 	}
 	flagutil.RegisterFlags(cmd, orderStatusCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsOrderOrderHashRequest](orderStatusCmdMeta); err != nil {
@@ -41,14 +44,9 @@ func runOrderStatusCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, orderStatusCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, orderStatusCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsOrderOrderHashRequest](cmd, orderStatusCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

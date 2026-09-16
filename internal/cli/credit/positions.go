@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -26,7 +25,11 @@ func initPositionsCmd(parent *cobra.Command) error {
 		Short:   "List credit positions",
 		Long:    "List all Credit positions for a given owner.\n\nReturns a unified list of positions (collateral and debt) and an account summary\nwith health factor and LTV. Each position includes event history.",
 		Example: "  compass credit positions --chain base --owner 0x01E62835dd7F52173546A325294762143eE4a882",
+		Args:    cobra.NoArgs,
 		RunE:    runPositionsCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_credit_positions",
+		},
 	}
 	flagutil.RegisterFlags(cmd, positionsCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2CreditPositionsRequest](positionsCmdMeta); err != nil {
@@ -41,14 +44,9 @@ func runPositionsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, positionsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, positionsCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2CreditPositionsRequest](cmd, positionsCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

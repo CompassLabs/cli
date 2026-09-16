@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -22,7 +21,7 @@ var loopCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "market-id", FieldPath: "MarketID", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"market_id,omitempty"`, Description: "Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO."},
 	{FlagName: "collateral-vault", FieldPath: "CollateralVault", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"collateral_vault,omitempty"`, Description: "Euler only: the EVK vault address collateral is supplied to (from /v2/credit/euler_markets). Required when protocol=EULER."},
 	{FlagName: "borrow-vault", FieldPath: "BorrowVault", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"borrow_vault,omitempty"`, Description: "Euler only: the EVK vault address borrowed from (the sub-account's controller). Required when protocol=EULER."},
-	{FlagName: "sub-account-id", Shorthand: "s", FieldPath: "SubAccountID", Kind: flagutil.FlagKindInt64, Optional: true, Description: "Euler only: the EVC sub-account (0-255) holding this isolated looped position. 0 is the Credit Account itself."},
+	{FlagName: "sub-account-id", Shorthand: "s", FieldPath: "SubAccountID", Kind: flagutil.FlagKindInt64, Optional: true, HasMinimum: true, Minimum: 0, HasMaximum: true, Maximum: 255, Description: "Euler only: the EVC sub-account (0-255) holding this isolated looped position. 0 is the Credit Account itself."},
 	{FlagName: "collateral-token", FieldPath: "CollateralToken", Kind: flagutil.FlagKindString, Required: true, Description: "Token supplied as collateral each iteration. Must already be in the Credit Account for the initial amount. For MORPHO it must be the market's collateral token. [required]"},
 	{FlagName: "borrow-token", FieldPath: "BorrowToken", Kind: flagutil.FlagKindString, Required: true, Description: "Token borrowed each iteration and swapped back to the collateral token. For MORPHO it must be the market's loan token. [required]"},
 	{FlagName: "initial-collateral-amount", Shorthand: "i", FieldPath: "InitialCollateralAmount", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, TypeDescription: "JSON value (one of: number | string)"}},
@@ -42,13 +41,24 @@ func initLoopCmd(parent *cobra.Command) error {
 		Short:   "Open a leveraged loop",
 		Long:    "Open a leveraged position in ONE atomic transaction.\n\nSupply collateral, borrow against it, swap the borrowed token back to\ncollateral, repeat — until total collateral reaches multiplier x\ninitial_collateral_amount. If any step fails the whole transaction reverts,\nso a position is never left half-built.\n\nSee the [Leveraged Looping guide](https://docs.compasslabs.ai/v2/Products/Looping)\nfor chain coverage, market discovery, vault-share collateral, HyperEVM\nspecifics and the full error list.",
 		Example: "  compass credit loop --owner 0x5e5b00ed886A6879C2B934612D2312975427fcAf --chain ethereum --collateral-token WETH --borrow-token USDC --initial-collateral-amount 1",
+		Args:    cobra.NoArgs,
 		RunE:    runLoopCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_credit_loop",
+		},
 	}
 	flagutil.RegisterFlags(cmd, loopCmdMeta)
 	if err := flagutil.ValidateMeta[components.CreditLoopRequest](loopCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for loop: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, loopCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for loop: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -58,14 +68,12 @@ func runLoopCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, loopCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, loopCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_credit_loop")
 	}
 	request, err := flagutil.BuildRequest[components.CreditLoopRequest](cmd, loopCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

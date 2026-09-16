@@ -1,5 +1,5 @@
 diff --git a/cli-sdk/internal/output/pretty.go b/cli-sdk/internal/output/pretty.go
-index 942a964..56f0395 100644
+index 53df76308..ed937fc2d 100644
 --- a/cli-sdk/internal/output/pretty.go
 +++ b/cli-sdk/internal/output/pretty.go
 @@ -13,7 +13,17 @@ import (
@@ -17,6 +17,6 @@ index 942a964..56f0395 100644
 +		return printTable(w, content)
 +	}
 +
- 	// First marshal to JSON, then parse into generic types so we have a
- 	// uniform representation regardless of the concrete Go struct.
- 	data, err := marshalJSON(content)
+ 	parsed, err := normalizeForOutput(content)
+ 	if err != nil {
+ 		return err

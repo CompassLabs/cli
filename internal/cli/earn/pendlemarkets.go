@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -18,7 +17,7 @@ var pendleMarketsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "order-by", FieldPath: "OrderBy", Kind: flagutil.FlagKindString, Required: true, Description: "The field to order the results by. [required]"},
 	{FlagName: "direction", FieldPath: "Direction", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"asc", "desc"}, Description: "The direction to order the results by. (options: asc, desc)"},
 	{FlagName: "offset", FieldPath: "Offset", Kind: flagutil.FlagKindInt64, Optional: true, Description: "The offset of the first item to return."},
-	{FlagName: "limit", Shorthand: "l", FieldPath: "Limit", Kind: flagutil.FlagKindInt64, Optional: true, Description: "The number of items to return."},
+	{FlagName: "limit", Shorthand: "l", FieldPath: "Limit", Kind: flagutil.FlagKindInt64, Optional: true, HasMaximum: true, Maximum: 1000, Description: "The number of items to return."},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=chain"`, Description: "Optional chain filter. If not provided, returns markets for all chains. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia)"},
 	{FlagName: "underlying-symbol", Shorthand: "u", FieldPath: "UnderlyingSymbol", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=underlying_symbol"`, Description: "Filter markets by underlying asset symbol (e.g., 'USDC', 'WETH')."},
 	{FlagName: "min-tvl-usd", Shorthand: "m", FieldPath: "MinTvlUsd", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
@@ -31,8 +30,12 @@ func initPendleMarketsCmd(parent *cobra.Command) error {
 		Short:   "List pendle markets",
 		Long:    "List Pendle yield trading markets with TVL and implied APY.\n\nReturns Pendle market data including Principal Token (PT), Standardized Yield (SY),\nand Yield Token (YT) addresses, along with market expiry, TVL, and implied APY.\n\nUse this endpoint to discover yield trading opportunities, compare rates across\nPendle markets, or build market selection interfaces.\n\nAPY values are returned in percentage format (e.g., 5.25 means 5.25%). Markets\nwithout complete metadata or statistics are excluded.",
 		Example: "  compass earn pendle-markets --order-by tvl_usd",
+		Args:    cobra.NoArgs,
 		RunE:    runPendleMarketsCmd,
 		Aliases: []string{"pm"},
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_earn_pendle_markets",
+		},
 	}
 	flagutil.RegisterFlags(cmd, pendleMarketsCmdMeta)
 	if err := flagutil.ValidateMeta[operations.V2EarnPendleMarketsRequest](pendleMarketsCmdMeta); err != nil {
@@ -47,14 +50,9 @@ func runPendleMarketsCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, pendleMarketsCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, pendleMarketsCmdMeta); err != nil {
-			return err
-		}
-	}
 	req, err := flagutil.BuildRequest[operations.V2EarnPendleMarketsRequest](cmd, pendleMarketsCmdMeta, "", "")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {

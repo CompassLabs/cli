@@ -135,42 +135,42 @@ func (u V2EarnVaultsMinTvlUsd) MarshalJSON() ([]byte, error) {
 	return nil, errors.New("could not marshal union type V2EarnVaultsMinTvlUsd: all fields are null")
 }
 
-type V2EarnVaultsMinLiquidityUsdType string
+type MinLiquidityUsdType string
 
 const (
-	V2EarnVaultsMinLiquidityUsdTypeNumber V2EarnVaultsMinLiquidityUsdType = "number"
-	V2EarnVaultsMinLiquidityUsdTypeStr    V2EarnVaultsMinLiquidityUsdType = "str"
+	MinLiquidityUsdTypeNumber MinLiquidityUsdType = "number"
+	MinLiquidityUsdTypeStr    MinLiquidityUsdType = "str"
 )
 
-// V2EarnVaultsMinLiquidityUsd - Minimum available liquidity in USD. Vaults below this are excluded.
-type V2EarnVaultsMinLiquidityUsd struct {
+// MinLiquidityUsd - Minimum available liquidity in USD. Vaults below this are excluded.
+type MinLiquidityUsd struct {
 	Number *float64 `queryParam:"inline" union:"member"`
 	Str    *string  `queryParam:"inline" union:"member"`
 
-	Type V2EarnVaultsMinLiquidityUsdType
+	Type MinLiquidityUsdType
 }
 
-func CreateV2EarnVaultsMinLiquidityUsdNumber(number float64) V2EarnVaultsMinLiquidityUsd {
-	typ := V2EarnVaultsMinLiquidityUsdTypeNumber
+func CreateMinLiquidityUsdNumber(number float64) MinLiquidityUsd {
+	typ := MinLiquidityUsdTypeNumber
 
-	return V2EarnVaultsMinLiquidityUsd{
+	return MinLiquidityUsd{
 		Number: &number,
 		Type:   typ,
 	}
 }
 
-func CreateV2EarnVaultsMinLiquidityUsdStr(str string) V2EarnVaultsMinLiquidityUsd {
-	typ := V2EarnVaultsMinLiquidityUsdTypeStr
+func CreateMinLiquidityUsdStr(str string) MinLiquidityUsd {
+	typ := MinLiquidityUsdTypeStr
 
-	return V2EarnVaultsMinLiquidityUsd{
+	return MinLiquidityUsd{
 		Str:  &str,
 		Type: typ,
 	}
 }
 
-func (u *V2EarnVaultsMinLiquidityUsd) UnmarshalJSON(data []byte) (err error) {
+func (u *MinLiquidityUsd) UnmarshalJSON(data []byte) (err error) {
 	previous := *u
-	*u = V2EarnVaultsMinLiquidityUsd{}
+	*u = MinLiquidityUsd{}
 	defer func() {
 		if err != nil {
 			*u = previous
@@ -183,7 +183,7 @@ func (u *V2EarnVaultsMinLiquidityUsd) UnmarshalJSON(data []byte) (err error) {
 	var number float64 = float64(0)
 	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
 		candidates = append(candidates, utils.UnionCandidate{
-			Type:  V2EarnVaultsMinLiquidityUsdTypeNumber,
+			Type:  MinLiquidityUsdTypeNumber,
 			Value: &number,
 		})
 	}
@@ -191,36 +191,36 @@ func (u *V2EarnVaultsMinLiquidityUsd) UnmarshalJSON(data []byte) (err error) {
 	var str string = ""
 	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
 		candidates = append(candidates, utils.UnionCandidate{
-			Type:  V2EarnVaultsMinLiquidityUsdTypeStr,
+			Type:  MinLiquidityUsdTypeStr,
 			Value: &str,
 		})
 	}
 
 	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for V2EarnVaultsMinLiquidityUsd", string(data))
+		return fmt.Errorf("could not unmarshal `%s` into any supported union types for MinLiquidityUsd", string(data))
 	}
 
 	// Pick the best candidate using multi-stage filtering
 	best := utils.PickBestUnionCandidate(candidates, data)
 	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for V2EarnVaultsMinLiquidityUsd", string(data))
+		return fmt.Errorf("could not unmarshal `%s` into any supported union types for MinLiquidityUsd", string(data))
 	}
 
 	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(V2EarnVaultsMinLiquidityUsdType)
+	u.Type = best.Type.(MinLiquidityUsdType)
 	switch best.Type {
-	case V2EarnVaultsMinLiquidityUsdTypeNumber:
+	case MinLiquidityUsdTypeNumber:
 		u.Number = best.Value.(*float64)
 		return nil
-	case V2EarnVaultsMinLiquidityUsdTypeStr:
+	case MinLiquidityUsdTypeStr:
 		u.Str = best.Value.(*string)
 		return nil
 	}
 
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for V2EarnVaultsMinLiquidityUsd", string(data))
+	return fmt.Errorf("could not unmarshal `%s` into any supported union types for MinLiquidityUsd", string(data))
 }
 
-func (u V2EarnVaultsMinLiquidityUsd) MarshalJSON() ([]byte, error) {
+func (u MinLiquidityUsd) MarshalJSON() ([]byte, error) {
 	if u.Number != nil {
 		return utils.MarshalJSON(u.Number, "", true)
 	}
@@ -229,7 +229,7 @@ func (u V2EarnVaultsMinLiquidityUsd) MarshalJSON() ([]byte, error) {
 		return utils.MarshalJSON(u.Str, "", true)
 	}
 
-	return nil, errors.New("could not marshal union type V2EarnVaultsMinLiquidityUsd: all fields are null")
+	return nil, errors.New("could not marshal union type MinLiquidityUsd: all fields are null")
 }
 
 type MinDepositCapUsdType string
@@ -345,7 +345,7 @@ type V2EarnVaultsRequest struct {
 	// Minimum TVL in USD. Vaults with TVL below this value will be excluded.
 	MinTvlUsd optionalnullable.OptionalNullable[V2EarnVaultsMinTvlUsd] `queryParam:"style=form,explode=true,name=min_tvl_usd"`
 	// Minimum available liquidity in USD. Vaults below this are excluded.
-	MinLiquidityUsd optionalnullable.OptionalNullable[V2EarnVaultsMinLiquidityUsd] `queryParam:"style=form,explode=true,name=min_liquidity_usd"`
+	MinLiquidityUsd optionalnullable.OptionalNullable[MinLiquidityUsd] `queryParam:"style=form,explode=true,name=min_liquidity_usd"`
 	// Minimum deposit capacity in USD. Vaults below this are excluded. Set to 0 to exclude paused vaults.
 	MinDepositCapUsd optionalnullable.OptionalNullable[MinDepositCapUsd] `queryParam:"style=form,explode=true,name=min_deposit_cap_usd"`
 }
@@ -399,7 +399,7 @@ func (v *V2EarnVaultsRequest) GetMinTvlUsd() optionalnullable.OptionalNullable[V
 	return v.MinTvlUsd
 }
 
-func (v *V2EarnVaultsRequest) GetMinLiquidityUsd() optionalnullable.OptionalNullable[V2EarnVaultsMinLiquidityUsd] {
+func (v *V2EarnVaultsRequest) GetMinLiquidityUsd() optionalnullable.OptionalNullable[MinLiquidityUsd] {
 	if v == nil {
 		return nil
 	}

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
-	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
@@ -30,13 +29,24 @@ func initRebalanceCmd(parent *cobra.Command) error {
 		Short:   "Rebalance the leveraged credit book",
 		Long:    "Move one or more leveraged positions to the state you want, in ONE atomic\ntransaction.\n\nList the positions to change and the end state you want for each. The API\nworks out whether that means opening, growing, shrinking, delevering or\nclosing, and does them all together.\n\nMoney freed by shrinking or closing one position pays for growing or opening\nanother, so shifting funds between positions needs no new deposit. Any\nshortfall is taken from the Credit Account's idle balance, and the call\nreturns 422 if that does not cover it either.\n\nSee the [Leveraged Looping guide](https://docs.compasslabs.ai/v2/Products/Looping)\nfor protocol and chain coverage, capital routing and the full error list.",
 		Example: "  compass credit rebalance --owner 0x4D3c07d1db7E4A9E44285fae9810d6549655bc74 --chain ethereum --targets '[{\"protocol\":\"AAVE\",\"collateral_token\":\"WETH\",\"borrow_token\":\"USDC\",\"target_multiplier\":2}]'",
+		Args:    cobra.NoArgs,
 		RunE:    runRebalanceCmd,
+		Annotations: map[string]string{
+			"speakeasy_operation": "v2_credit_rebalance",
+		},
 	}
 	flagutil.RegisterFlags(cmd, rebalanceCmdMeta)
 	if err := flagutil.ValidateMeta[components.CreditRebalanceRequest](rebalanceCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for rebalance: %w", err)
 	}
-	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin.")
+	cmd.Flags().String("body", "", "Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.")
+	_ = flagutil.AnnotatePromptFlag(cmd, "body", flagutil.PromptFlagSpec{Kind: "json", BodyFlag: true})
+	cmd.Annotations[flagutil.AnnotationWholeBodyFlag] = "body"
+	if err := flagutil.AnnotateBodyFields(cmd, rebalanceCmdMeta, "", "body"); err != nil {
+		return fmt.Errorf("annotate body fields for rebalance: %w", err)
+	}
+	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
+	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -46,14 +56,12 @@ func runRebalanceCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
 	}
-	if interactive.ShouldPrompt(cmd, rebalanceCmdMeta) {
-		if err := interactive.PromptAndSetFlags(cmd, rebalanceCmdMeta); err != nil {
-			return err
-		}
+	if requested, _ := cmd.Flags().GetBool("schema"); requested {
+		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_credit_rebalance")
 	}
 	request, err := flagutil.BuildRequest[components.CreditRebalanceRequest](cmd, rebalanceCmdMeta, "", "body")
 	if err != nil {
-		return err
+		return flagutil.WithCLIValidation(err)
 	}
 	s, err := client.NewClient(cmd)
 	if err != nil {
