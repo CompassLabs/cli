@@ -243,7 +243,7 @@ func (e *CreditSwapRequestChain) UnmarshalJSON(data []byte) error {
 	}
 }
 
-// CreditSwapRequestPricing - Swap routing policy. 'auto': a firm zero-slippage quote when a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route; an uncovered pair fails with a typed error instead of silently substituting market pricing. 'market': never route through the firm venue; the swap is priced by the aggregator and bounded by `slippage` (which firm fills ignore). 'firm' is incompatible with gas_sponsorship (sponsored swaps force market routing).
+// CreditSwapRequestPricing - Swap routing policy. 'auto': a firm zero-slippage quote when a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route; an uncovered pair fails with a typed error instead of silently substituting market pricing — previews included: a preview the firm provider's live price levels cannot price returns the same typed error rather than market numbers. 'market': never route through the firm venue; the swap is priced by the aggregator and bounded by `slippage` (which firm fills ignore). 'firm' is incompatible with gas_sponsorship (sponsored swaps force market routing).
 type CreditSwapRequestPricing string
 
 const (
@@ -294,7 +294,9 @@ type CreditSwapRequest struct {
 	Chain CreditSwapRequestChain `json:"chain"`
 	// Optionally request gas sponsorship. If `true`, EIP-712 typed data will be returned that must be signed by the `owner` and submitted to the 'Prepare gas-sponsored transaction' endpoint (`/gas_sponsorship/prepare`). Gas-sponsored builds always execute at market rate.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
-	// Swap routing policy. 'auto': a firm zero-slippage quote when a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route; an uncovered pair fails with a typed error instead of silently substituting market pricing. 'market': never route through the firm venue; the swap is priced by the aggregator and bounded by `slippage` (which firm fills ignore). 'firm' is incompatible with gas_sponsorship (sponsored swaps force market routing).
+	// If true, build a display ESTIMATE: no firm RFQ quote is ever requested (quote_expires_at stays null). NOTE that this guarantees only that no firm quote was spent — it does not guarantee an absent payload: under 'auto' when the firm provider does not cover or cannot currently price the pair, and always under pricing=market, the call falls through to the aggregator and returns a signable market build (an unsigned transaction, or EIP-712 typed data when gas_sponsorship=true), without requiring the account to hold token_in yet. How the estimate is priced follows `pricing`: on a firm-covered pair whose size the firm provider's live price levels can serve, 'auto' and 'firm' price it from those levels (indicative, transaction stays null — re-call with preview=false for the signable build); otherwise it comes from the market build above (pricing='firm' instead refuses with a typed error). Set it on every call made while a user is exploring parameters, and leave it false only for the build they actually intend to sign — firm quotes are single-use maker commitments, and requesting them for displays that are never executed degrades the pricing this API is offered.
+	Preview *bool `json:"preview,omitzero"`
+	// Swap routing policy. 'auto': a firm zero-slippage quote when a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route; an uncovered pair fails with a typed error instead of silently substituting market pricing — previews included: a preview the firm provider's live price levels cannot price returns the same typed error rather than market numbers. 'market': never route through the firm venue; the swap is priced by the aggregator and bounded by `slippage` (which firm fills ignore). 'firm' is incompatible with gas_sponsorship (sponsored swaps force market routing).
 	Pricing *CreditSwapRequestPricing `json:"pricing,omitzero"`
 }
 
@@ -360,6 +362,13 @@ func (c *CreditSwapRequest) GetGasSponsorship() *bool {
 		return nil
 	}
 	return c.GasSponsorship
+}
+
+func (c *CreditSwapRequest) GetPreview() *bool {
+	if c == nil {
+		return nil
+	}
+	return c.Preview
 }
 
 func (c *CreditSwapRequest) GetPricing() *CreditSwapRequestPricing {

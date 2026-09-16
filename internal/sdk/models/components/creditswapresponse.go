@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// CreditSwapResponseSwapProvider - Identifies which route priced the swap. 'market': a DEX aggregator, slippage-bounded. 'firm': a zero-slippage quote that fills exactly or reverts. Always present. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED, and under 'auto' a firm build can fall back to market transparently.
+// CreditSwapResponseSwapProvider - Identifies which route priced the swap. 'market': a DEX aggregator, slippage-bounded. 'firm': a zero-slippage quote that fills exactly or reverts. On preview=true responses 'firm' means the estimate is INDICATIVE, computed from live maker price levels without spending any quote; execution fetches the firm quote at signing time. Always present. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED, and under 'auto' a firm build can fall back to market transparently.
 type CreditSwapResponseSwapProvider string
 
 const (
@@ -34,15 +34,15 @@ func (e *CreditSwapResponseSwapProvider) IsExact() bool {
 // CreditSwapResponse - The swap transaction to sign, plus which route priced it and how long
 // that price holds.
 type CreditSwapResponse struct {
-	// Unsigned transaction for direct execution. Present when gas_sponsorship=false.
+	// Unsigned transaction for direct execution. Present when gas_sponsorship=false — except firm-priced previews (preview=true responses reporting swap_provider='firm'), which carry the estimate only: the firm quote is fetched at execution time, so there is no payload to sign yet. A preview whose response reports swap_provider='market' does carry this signable payload.
 	Transaction optionalnullable.OptionalNullable[UnsignedTransaction] `json:"transaction,omitzero"`
 	// EIP-712 typed data for gas-sponsored execution. Present when gas_sponsorship=true.
 	Eip712 optionalnullable.OptionalNullable[BatchedSafeOperationsResponseOutput] `json:"eip_712,omitzero"`
-	// Estimated amount of output token received from the swap. Exact on firm builds (a firm quote fills at this amount or reverts). On market builds it is a quote-time estimate, and `slippage` sets how far below it the transaction's enforced minimum output sits.
+	// Estimated amount of output token received from the swap. Exact on executable firm builds (a firm quote fills at this amount or reverts). On market builds it is a quote-time estimate, and `slippage` sets how far below it the transaction's enforced minimum output sits. On preview=true responses reporting 'firm' it is INDICATIVE — computed from the firm provider's live price levels without spending a quote.
 	EstimatedAmountOut string `json:"estimated_amount_out"`
-	// Identifies which route priced the swap. 'market': a DEX aggregator, slippage-bounded. 'firm': a zero-slippage quote that fills exactly or reverts. Always present. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED, and under 'auto' a firm build can fall back to market transparently.
+	// Identifies which route priced the swap. 'market': a DEX aggregator, slippage-bounded. 'firm': a zero-slippage quote that fills exactly or reverts. On preview=true responses 'firm' means the estimate is INDICATIVE, computed from live maker price levels without spending any quote; execution fetches the firm quote at signing time. Always present. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED, and under 'auto' a firm build can fall back to market transparently.
 	SwapProvider *CreditSwapResponseSwapProvider `json:"swap_provider,omitzero"`
-	// Deadline of the firm swap quote. Sign and broadcast before it or the transaction reverts on-chain; refresh by re-calling this endpoint (discard the previous payload). Null on market builds.
+	// Deadline of the firm swap quote. Sign and broadcast before it or the transaction reverts on-chain; refresh by re-calling this endpoint (discard the previous payload). Null on market builds and on every preview (a preview never holds a firm quote).
 	QuoteExpiresAt optionalnullable.OptionalNullable[time.Time] `json:"quote_expires_at,omitzero"`
 }
 
