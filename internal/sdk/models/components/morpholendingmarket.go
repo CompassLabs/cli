@@ -4,6 +4,7 @@ package components
 
 import (
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
+	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
 // MorphoLendingMarket - A Morpho Blue lending market: one isolated (collateral, loan) pair.
@@ -36,6 +37,15 @@ type MorphoLendingMarket struct {
 	CollateralIntrinsicApy optionalnullable.OptionalNullable[string] `json:"collateral_intrinsic_apy,omitzero"`
 	// What the LOAN token earns inside its own price, in percentage, trailing 7 days. Debt owed in such a token grows by this on top of borrow_apy — a borrower's true cost is their sum. Null means unmeasured, NOT zero.
 	LoanIntrinsicApy optionalnullable.OptionalNullable[string] `json:"loan_intrinsic_apy,omitzero"`
+	// Set to 'fixed' when collateral_intrinsic_apy is locked in until a maturity date rather than measured over a trailing window, as it is for a principal token. Clients should label such a rate as fixed to maturity instead of a 7-day average. Absent for every other market.
+	//lint:ignore U1000 accessed via reflection for JSON marshaling
+	collateralYieldKind optionalnullable.OptionalNullable[string] `const:"fixed" json:"collateral_yield_kind,omitzero"`
+	// Maturity date of the principal-token collateral, ISO-8601 UTC. Present only on principal-token markets.
+	PtMaturity optionalnullable.OptionalNullable[string] `json:"pt_maturity,omitzero"`
+	// Whether the principal-token collateral has passed its maturity. Matured markets stay listed so open positions can still be unwound, so clients should use this to disable opening rather than to hide the row. Present only on principal-token markets.
+	PtExpired optionalnullable.OptionalNullable[bool] `json:"pt_expired,omitzero"`
+	// Whether a NEW loop may be opened on this principal-token market. False once the market is matured or too close to maturity to earn back a loop's entry cost. Computed server-side, so clients need no copy of the threshold. Present only on principal-token markets.
+	PtLoopable optionalnullable.OptionalNullable[bool] `json:"pt_loopable,omitzero"`
 	// Borrowed share of supplied assets, in percentage 0-100.
 	Utilization string `json:"utilization"`
 	// Total loan tokens supplied to the market, in token units.
@@ -50,6 +60,17 @@ type MorphoLendingMarket struct {
 	TvlUsd optionalnullable.OptionalNullable[string] `json:"tvl_usd,omitzero"`
 	// Available liquidity (supplied - borrowed) in USD, sourced from the indexer. Null if the indexer hasn't priced this market yet.
 	LiquidityUsd optionalnullable.OptionalNullable[string] `json:"liquidity_usd,omitzero"`
+}
+
+func (m MorphoLendingMarket) MarshalJSON() ([]byte, error) {
+	return utils.MarshalJSON(m, "", false)
+}
+
+func (m *MorphoLendingMarket) UnmarshalJSON(data []byte) error {
+	if err := utils.UnmarshalJSON(data, &m, "", false, nil); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (m *MorphoLendingMarket) GetMarketID() string {
@@ -148,6 +169,32 @@ func (m *MorphoLendingMarket) GetLoanIntrinsicApy() optionalnullable.OptionalNul
 		return nil
 	}
 	return m.LoanIntrinsicApy
+}
+
+func (m *MorphoLendingMarket) GetCollateralYieldKind() optionalnullable.OptionalNullable[string] {
+	var tmp string = "fixed"
+	return optionalnullable.From[string](&tmp)
+}
+
+func (m *MorphoLendingMarket) GetPtMaturity() optionalnullable.OptionalNullable[string] {
+	if m == nil {
+		return nil
+	}
+	return m.PtMaturity
+}
+
+func (m *MorphoLendingMarket) GetPtExpired() optionalnullable.OptionalNullable[bool] {
+	if m == nil {
+		return nil
+	}
+	return m.PtExpired
+}
+
+func (m *MorphoLendingMarket) GetPtLoopable() optionalnullable.OptionalNullable[bool] {
+	if m == nil {
+		return nil
+	}
+	return m.PtLoopable
 }
 
 func (m *MorphoLendingMarket) GetUtilization() string {

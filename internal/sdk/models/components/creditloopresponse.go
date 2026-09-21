@@ -39,6 +39,8 @@ type CreditLoopResponse struct {
 	Eip712 optionalnullable.OptionalNullable[BatchedSafeOperationsResponseOutput] `json:"eip_712,omitzero"`
 	// Projected end state, computed on guaranteed swap floors. Null only on pricing='firm' preview responses whose target the firm venue cannot serve: no leg was priced on any venue, and the response carries the coverage advisory (max_firm_multiplier) alone.
 	Preview *CreditLoopPreview `json:"preview"`
+	// Maturity of the Pendle principal token supplied as collateral, ISO-8601 UTC. Present only for principal-token collateral, whose yield is fixed until this date; after it the position can be unwound (by redemption at par) but not increased.
+	PtMaturity optionalnullable.OptionalNullable[string] `json:"pt_maturity,omitzero"`
 	// Identifies which route priced the swap leg(s): 'market' — a DEX aggregator (iterative loop across pool liquidity, slippage-bounded floors) — or 'firm' — zero-slippage quotes, one per swap leg, each partially filled at the leg's size (exact fills, zero dust). On preview=true responses 'firm' means the numbers are INDICATIVE, computed from live maker price levels without spending any quote; execution fetches the firm quotes at signing time. Always present, including on fallbacks. This is the authoritative firm-vs-market signal and clients do need to read it: `pricing` is only what was REQUESTED (under 'auto' a firm build can fall back to market transparently), and `quote_expires_at` is absent on every preview — so neither substitutes for this field.
 	SwapProvider *CreditLoopResponseSwapProvider `json:"swap_provider,omitzero"`
 	// Deadline of the firm swap quotes (the earliest across the loop's swap legs) — sign and broadcast before it or the transaction reverts on-chain; refresh by re-calling this endpoint (discard the previous payload). Present only on executable firm-priced builds; null on previews (no quote is spent for a preview).
@@ -77,6 +79,13 @@ func (c *CreditLoopResponse) GetPreview() *CreditLoopPreview {
 		return nil
 	}
 	return c.Preview
+}
+
+func (c *CreditLoopResponse) GetPtMaturity() optionalnullable.OptionalNullable[string] {
+	if c == nil {
+		return nil
+	}
+	return c.PtMaturity
 }
 
 func (c *CreditLoopResponse) GetSwapProvider() *CreditLoopResponseSwapProvider {
