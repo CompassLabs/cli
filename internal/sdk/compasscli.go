@@ -2,7 +2,7 @@
 
 package sdk
 
-// Generated from OpenAPI doc version 0.0.1 and generator version 2.937.18
+// Generated from OpenAPI doc version 0.0.1 and generator version 2.938.0
 
 import (
 	"context"
@@ -133,9 +133,9 @@ func New(opts ...SDKOption) *CompassCLI {
 	sdk := &CompassCLI{
 		SDKVersion: "0.1.0",
 		sdkConfiguration: config.SDKConfiguration{
-			UserAgent:         "speakeasy-sdk/go 0.1.0 2.937.18 0.0.1 github.com/CompassLabs/cli/internal/sdk",
+			UserAgent:         "speakeasy-sdk/go 0.1.0 2.938.0 0.0.1 github.com/CompassLabs/cli/internal/sdk",
 			SDKVersion:        "0.1.0",
-			GenVersion:        "2.937.18",
+			GenVersion:        "2.938.0",
 			OpenAPIDocVersion: "0.0.1",
 			ServerList:        ServerList,
 		},

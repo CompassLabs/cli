@@ -14,6 +14,8 @@ type PerpetualTradingOpportunity struct {
 	MarkPrice string `json:"mark_price"`
 	// Oracle reference price
 	OraclePrice string `json:"oracle_price"`
+	// Price 24 hours ago, for computing 24h price change (0 for newly listed markets)
+	PrevDayPrice string `json:"prev_day_price"`
 	// Open interest in USD
 	OpenInterest string `json:"open_interest"`
 	// 24-hour trading volume in USD
@@ -59,6 +61,13 @@ func (p *PerpetualTradingOpportunity) GetOraclePrice() string {
 		return ""
 	}
 	return p.OraclePrice
+}
+
+func (p *PerpetualTradingOpportunity) GetPrevDayPrice() string {
+	if p == nil {
+		return ""
+	}
+	return p.PrevDayPrice
 }
 
 func (p *PerpetualTradingOpportunity) GetOpenInterest() string {
