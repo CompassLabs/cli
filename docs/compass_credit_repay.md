@@ -55,9 +55,8 @@ compass credit repay [flags]
                                     chain's Aave V3 deployment); MORPHO on Ethereum, Base, Arbitrum and HyperEVM
                                     (where it is Felix); EULER on Ethereum, Base, Arbitrum and BSC.
                                     
-                                    All three support ``/v2/credit/loop``, ``/v2/credit/unloop`` and
-                                    ``/v2/credit/looped_positions``. The one gap is ``/v2/credit/rebalance``,
-                                    which rejects EULER with a 422. (options: AAVE, EULER, MORPHO)
+                                    All three support ``/v2/credit/loop``, ``/v2/credit/unloop``,
+                                    ``/v2/credit/looped_positions`` and ``/v2/credit/rebalance``. (options: AAVE, EULER, MORPHO)
       --repay-amount string         JSON value (one of: number | string)
       --repay-token string          The borrowed asset to repay (e.g. WETH). Must match the debt position's token. [required]
       --schema                      Print the exact JSON Schema of the request body and exit

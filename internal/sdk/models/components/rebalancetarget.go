@@ -320,12 +320,17 @@ type RebalanceTarget struct {
 	// chain's Aave V3 deployment); MORPHO on Ethereum, Base, Arbitrum and HyperEVM
 	// (where it is Felix); EULER on Ethereum, Base, Arbitrum and BSC.
 	//
-	// All three support ``/v2/credit/loop``, ``/v2/credit/unloop`` and
-	// ``/v2/credit/looped_positions``. The one gap is ``/v2/credit/rebalance``,
-	// which rejects EULER with a 422.
+	// All three support ``/v2/credit/loop``, ``/v2/credit/unloop``,
+	// ``/v2/credit/looped_positions`` and ``/v2/credit/rebalance``.
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
 	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
+	// Euler only: the EVK vault the collateral is supplied to (from /v2/credit/euler_markets). Required when protocol=EULER.
+	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
+	// Euler only: the EVK vault borrowed from (the sub-account's controller). Required when protocol=EULER.
+	BorrowVault optionalnullable.OptionalNullable[string] `json:"borrow_vault,omitzero"`
+	// Euler only: the EVC sub-account (0-255) this position lives in. Omit it and the plan resolves it from the live book: the sub-account already holding this vault pair, else the lowest free sub-account for a new position. The resolved id is echoed in the preview. Pass it explicitly when the same pair is open on several sub-accounts.
+	SubAccountID optionalnullable.OptionalNullable[int64] `json:"sub_account_id,omitzero"`
 	// Token supplied as collateral for this position. For MORPHO it must be the market's collateral token.
 	CollateralToken string `json:"collateral_token"`
 	// Token borrowed against the collateral for this position. For MORPHO it must be the market's loan token.
@@ -352,6 +357,27 @@ func (r *RebalanceTarget) GetMarketID() optionalnullable.OptionalNullable[string
 		return nil
 	}
 	return r.MarketID
+}
+
+func (r *RebalanceTarget) GetCollateralVault() optionalnullable.OptionalNullable[string] {
+	if r == nil {
+		return nil
+	}
+	return r.CollateralVault
+}
+
+func (r *RebalanceTarget) GetBorrowVault() optionalnullable.OptionalNullable[string] {
+	if r == nil {
+		return nil
+	}
+	return r.BorrowVault
+}
+
+func (r *RebalanceTarget) GetSubAccountID() optionalnullable.OptionalNullable[int64] {
+	if r == nil {
+		return nil
+	}
+	return r.SubAccountID
 }
 
 func (r *RebalanceTarget) GetCollateralToken() string {

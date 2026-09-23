@@ -26,9 +26,8 @@ type AccountSummary struct {
 	// chain's Aave V3 deployment); MORPHO on Ethereum, Base, Arbitrum and HyperEVM
 	// (where it is Felix); EULER on Ethereum, Base, Arbitrum and BSC.
 	//
-	// All three support ``/v2/credit/loop``, ``/v2/credit/unloop`` and
-	// ``/v2/credit/looped_positions``. The one gap is ``/v2/credit/rebalance``,
-	// which rejects EULER with a 422.
+	// All three support ``/v2/credit/loop``, ``/v2/credit/unloop``,
+	// ``/v2/credit/looped_positions`` and ``/v2/credit/rebalance``.
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Euler only: the EVC sub-account (0–255) this summary describes. Euler health is per-sub-account. Null for Aave/Morpho.
 	SubAccountID optionalnullable.OptionalNullable[int64] `json:"sub_account_id,omitzero"`

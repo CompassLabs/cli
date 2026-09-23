@@ -135,9 +135,8 @@ type CreditBorrowParams struct {
 	// chain's Aave V3 deployment); MORPHO on Ethereum, Base, Arbitrum and HyperEVM
 	// (where it is Felix); EULER on Ethereum, Base, Arbitrum and BSC.
 	//
-	// All three support ``/v2/credit/loop``, ``/v2/credit/unloop`` and
-	// ``/v2/credit/looped_positions``. The one gap is ``/v2/credit/rebalance``,
-	// which rejects EULER with a 422.
+	// All three support ``/v2/credit/loop``, ``/v2/credit/unloop``,
+	// ``/v2/credit/looped_positions`` and ``/v2/credit/rebalance``.
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Euler only: the EVK vault to borrow from. Required when protocol=EULER.
 	BorrowVault optionalnullable.OptionalNullable[string] `json:"borrow_vault,omitzero"`

@@ -7,7 +7,7 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
-// RebalanceTargetPreviewHealthFactorScope - 'market' for Morpho (isolated per-market health). 'account' for Aave: collateral is pooled, so all collateral backs all debt and this health factor is shared by every Aave position on the account.
+// RebalanceTargetPreviewHealthFactorScope - 'market' for Morpho and Euler (isolated health: per Morpho market, per Euler EVC sub-account). 'account' for Aave: collateral is pooled, so all collateral backs all debt and this health factor is shared by every Aave position on the account.
 type RebalanceTargetPreviewHealthFactorScope string
 
 const (
@@ -46,12 +46,17 @@ type RebalanceTargetPreview struct {
 	// chain's Aave V3 deployment); MORPHO on Ethereum, Base, Arbitrum and HyperEVM
 	// (where it is Felix); EULER on Ethereum, Base, Arbitrum and BSC.
 	//
-	// All three support ``/v2/credit/loop``, ``/v2/credit/unloop`` and
-	// ``/v2/credit/looped_positions``. The one gap is ``/v2/credit/rebalance``,
-	// which rejects EULER with a 422.
+	// All three support ``/v2/credit/loop``, ``/v2/credit/unloop``,
+	// ``/v2/credit/looped_positions`` and ``/v2/credit/rebalance``.
 	Protocol CreditProtocol `json:"protocol"`
 	// Morpho only: the bytes32 market id of this position.
 	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
+	// Euler only: the EVC sub-account (0-255) this position lives in — the id the request named, or the one the plan resolved when the target omitted it. Feed it back to /v2/credit/unloop and match it on /v2/credit/looped_positions.
+	SubAccountID optionalnullable.OptionalNullable[int64] `json:"sub_account_id,omitzero"`
+	// Euler only: the EVK vault holding the collateral (echoes the request target).
+	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
+	// Euler only: the EVK controller vault the debt is owed to (echoes the request target).
+	BorrowVault optionalnullable.OptionalNullable[string] `json:"borrow_vault,omitzero"`
 	// Collateral token address (echoes the request target; joins against /v2/credit/looped_positions).
 	CollateralToken string `json:"collateral_token"`
 	// Borrow token address (echoes the request target).
@@ -72,7 +77,7 @@ type RebalanceTargetPreview struct {
 	ResultingMultiplier string `json:"resulting_multiplier"`
 	// Projected health factor of this position after the rebalance. Never overstated at the 1.0 boundary — a liquidatable position is never presented as safe. See health_factor_scope for what it covers.
 	ResultingHealthFactor string `json:"resulting_health_factor"`
-	// 'market' for Morpho (isolated per-market health). 'account' for Aave: collateral is pooled, so all collateral backs all debt and this health factor is shared by every Aave position on the account.
+	// 'market' for Morpho and Euler (isolated health: per Morpho market, per Euler EVC sub-account). 'account' for Aave: collateral is pooled, so all collateral backs all debt and this health factor is shared by every Aave position on the account.
 	HealthFactorScope RebalanceTargetPreviewHealthFactorScope `json:"health_factor_scope"`
 	// Upper bound of surplus this target's own swaps can leave in the Credit Account (sum of each swap's quote minus its guaranteed floor). Routing swaps are counted book-level, not here. It accumulates in the Credit Account, is recoverable, and is never lost.
 	EstimatedMaxDust string `json:"estimated_max_dust"`
@@ -101,6 +106,27 @@ func (r *RebalanceTargetPreview) GetMarketID() optionalnullable.OptionalNullable
 		return nil
 	}
 	return r.MarketID
+}
+
+func (r *RebalanceTargetPreview) GetSubAccountID() optionalnullable.OptionalNullable[int64] {
+	if r == nil {
+		return nil
+	}
+	return r.SubAccountID
+}
+
+func (r *RebalanceTargetPreview) GetCollateralVault() optionalnullable.OptionalNullable[string] {
+	if r == nil {
+		return nil
+	}
+	return r.CollateralVault
+}
+
+func (r *RebalanceTargetPreview) GetBorrowVault() optionalnullable.OptionalNullable[string] {
+	if r == nil {
+		return nil
+	}
+	return r.BorrowVault
 }
 
 func (r *RebalanceTargetPreview) GetCollateralToken() string {
