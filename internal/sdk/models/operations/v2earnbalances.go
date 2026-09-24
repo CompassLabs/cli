@@ -16,6 +16,7 @@ const (
 	V2EarnBalancesChainBase     V2EarnBalancesChain = "base"
 	V2EarnBalancesChainBsc      V2EarnBalancesChain = "bsc"
 	V2EarnBalancesChainEthereum V2EarnBalancesChain = "ethereum"
+	V2EarnBalancesChainHyperevm V2EarnBalancesChain = "hyperevm"
 	V2EarnBalancesChainTempo    V2EarnBalancesChain = "tempo"
 )
 
@@ -35,6 +36,8 @@ func (e *V2EarnBalancesChain) UnmarshalJSON(data []byte) error {
 	case "bsc":
 		fallthrough
 	case "ethereum":
+		fallthrough
+	case "hyperevm":
 		fallthrough
 	case "tempo":
 		*e = V2EarnBalancesChain(v)

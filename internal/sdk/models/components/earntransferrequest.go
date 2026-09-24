@@ -10,6 +10,45 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
+// EarnTransferRequestChain - Blockchain network
+type EarnTransferRequestChain string
+
+const (
+	EarnTransferRequestChainArbitrum EarnTransferRequestChain = "arbitrum"
+	EarnTransferRequestChainBase     EarnTransferRequestChain = "base"
+	EarnTransferRequestChainBsc      EarnTransferRequestChain = "bsc"
+	EarnTransferRequestChainEthereum EarnTransferRequestChain = "ethereum"
+	EarnTransferRequestChainHyperevm EarnTransferRequestChain = "hyperevm"
+	EarnTransferRequestChainTempo    EarnTransferRequestChain = "tempo"
+)
+
+func (e EarnTransferRequestChain) ToPointer() *EarnTransferRequestChain {
+	return &e
+}
+func (e *EarnTransferRequestChain) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "arbitrum":
+		fallthrough
+	case "base":
+		fallthrough
+	case "bsc":
+		fallthrough
+	case "ethereum":
+		fallthrough
+	case "hyperevm":
+		fallthrough
+	case "tempo":
+		*e = EarnTransferRequestChain(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for EarnTransferRequestChain: %v", v)
+	}
+}
+
 type EarnTransferRequestAmountType string
 
 const (
@@ -137,8 +176,8 @@ func (e *EarnTransferRequestAction) UnmarshalJSON(data []byte) error {
 type EarnTransferRequest struct {
 	// The owner's wallet address.
 	Owner string `json:"owner"`
-	// The chain to use.
-	Chain Chain `json:"chain"`
+	// Blockchain network
+	Chain EarnTransferRequestChain `json:"chain"`
 	// The token you would like to transfer.
 	Token string `json:"token"`
 	// The amount of 'token' to transfer.
@@ -160,9 +199,9 @@ func (e *EarnTransferRequest) GetOwner() string {
 	return e.Owner
 }
 
-func (e *EarnTransferRequest) GetChain() Chain {
+func (e *EarnTransferRequest) GetChain() EarnTransferRequestChain {
 	if e == nil {
-		return Chain("")
+		return EarnTransferRequestChain("")
 	}
 	return e.Chain
 }

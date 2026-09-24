@@ -3,6 +3,7 @@
 package components
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
@@ -203,6 +204,45 @@ func (u EarnSwapRequestSlippage) MarshalJSON() ([]byte, error) {
 	return nil, errors.New("could not marshal union type EarnSwapRequestSlippage: all fields are null")
 }
 
+// EarnSwapRequestChain - Target blockchain network where the swap will execute.
+type EarnSwapRequestChain string
+
+const (
+	EarnSwapRequestChainArbitrum EarnSwapRequestChain = "arbitrum"
+	EarnSwapRequestChainBase     EarnSwapRequestChain = "base"
+	EarnSwapRequestChainBsc      EarnSwapRequestChain = "bsc"
+	EarnSwapRequestChainEthereum EarnSwapRequestChain = "ethereum"
+	EarnSwapRequestChainHyperevm EarnSwapRequestChain = "hyperevm"
+	EarnSwapRequestChainTempo    EarnSwapRequestChain = "tempo"
+)
+
+func (e EarnSwapRequestChain) ToPointer() *EarnSwapRequestChain {
+	return &e
+}
+func (e *EarnSwapRequestChain) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "arbitrum":
+		fallthrough
+	case "base":
+		fallthrough
+	case "bsc":
+		fallthrough
+	case "ethereum":
+		fallthrough
+	case "hyperevm":
+		fallthrough
+	case "tempo":
+		*e = EarnSwapRequestChain(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for EarnSwapRequestChain: %v", v)
+	}
+}
+
 // EarnSwapRequest - Swap one token held in the Earn Account for another, in a single atomic
 // transaction.
 type EarnSwapRequest struct {
@@ -219,8 +259,8 @@ type EarnSwapRequest struct {
 	Slippage *EarnSwapRequestSlippage `json:"slippage,omitzero"`
 	// The owner's wallet address.
 	Owner string `json:"owner"`
-	// The chain to use.
-	Chain Chain `json:"chain"`
+	// Target blockchain network where the swap will execute.
+	Chain EarnSwapRequestChain `json:"chain"`
 	// Optionally request gas sponsorship. If `true`, EIP-712 typed data will be returned that must be signed by the `owner` and submitted to the 'Prepare gas-sponsored transaction' endpoint (`/gas_sponsorship/prepare`).
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
 }
@@ -275,9 +315,9 @@ func (e *EarnSwapRequest) GetOwner() string {
 	return e.Owner
 }
 
-func (e *EarnSwapRequest) GetChain() Chain {
+func (e *EarnSwapRequest) GetChain() EarnSwapRequestChain {
 	if e == nil {
-		return Chain("")
+		return EarnSwapRequestChain("")
 	}
 	return e.Chain
 }

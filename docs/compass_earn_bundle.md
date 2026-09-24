@@ -29,7 +29,7 @@ compass earn bundle [flags]
 ```
   -a, --actions string    List of actions to bundle. Actions are executed in order. [required]
       --body string       Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.
-  -c, --chain string      The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia) [required]
+  -c, --chain string      Target blockchain network where the bundled actions will execute. (options: arbitrum, base, bsc, ethereum, hyperevm, tempo) [required]
   -g, --gas-sponsorship   If true, returns EIP-712 typed data for gas sponsorship. The owner must sign this data and submit to /gas_sponsorship/prepare.
   -h, --help              help for bundle
       --owner string      The owner's wallet address that controls the Earn Account. [required]

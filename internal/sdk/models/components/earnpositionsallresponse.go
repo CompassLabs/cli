@@ -11,7 +11,7 @@ import (
 // Each chain key maps to an EarnPositionsResponse containing that chain's
 // aave, vaults, and pendle_pt positions with per-chain total_usd_value.
 type EarnPositionsAllResponse struct {
-	// Positions grouped by chain. Keys: 'ethereum', 'base', 'arbitrum'.
+	// Positions grouped by chain. Keys: 'ethereum', 'base', 'arbitrum', 'hyperevm'. Every key is present; chains without a deployed earn account carry empty lists.
 	Chains map[string]EarnPositionsResponse `json:"chains"`
 	// Total USD value of all positions across all chains.
 	TotalUsdValue optionalnullable.OptionalNullable[string] `json:"total_usd_value,omitzero"`

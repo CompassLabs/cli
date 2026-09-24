@@ -2,6 +2,50 @@
 
 package components
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
+// V2BundleRequestChain - Target blockchain network where the bundled actions will execute.
+type V2BundleRequestChain string
+
+const (
+	V2BundleRequestChainArbitrum V2BundleRequestChain = "arbitrum"
+	V2BundleRequestChainBase     V2BundleRequestChain = "base"
+	V2BundleRequestChainBsc      V2BundleRequestChain = "bsc"
+	V2BundleRequestChainEthereum V2BundleRequestChain = "ethereum"
+	V2BundleRequestChainHyperevm V2BundleRequestChain = "hyperevm"
+	V2BundleRequestChainTempo    V2BundleRequestChain = "tempo"
+)
+
+func (e V2BundleRequestChain) ToPointer() *V2BundleRequestChain {
+	return &e
+}
+func (e *V2BundleRequestChain) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "arbitrum":
+		fallthrough
+	case "base":
+		fallthrough
+	case "bsc":
+		fallthrough
+	case "ethereum":
+		fallthrough
+	case "hyperevm":
+		fallthrough
+	case "tempo":
+		*e = V2BundleRequestChain(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for V2BundleRequestChain: %v", v)
+	}
+}
+
 // V2BundleRequest - Request to execute multiple earn actions in a single atomic transaction.
 //
 // ## Supported Action Types
@@ -47,8 +91,8 @@ package components
 type V2BundleRequest struct {
 	// The owner's wallet address that controls the Earn Account.
 	Owner string `json:"owner"`
-	// The chain to use.
-	Chain Chain `json:"chain"`
+	// Target blockchain network where the bundled actions will execute.
+	Chain V2BundleRequestChain `json:"chain"`
 	// List of actions to bundle. Actions are executed in order.
 	Actions []V2UserOperation `json:"actions"`
 	// If true, returns EIP-712 typed data for gas sponsorship. The owner must sign this data and submit to /gas_sponsorship/prepare.
@@ -62,9 +106,9 @@ func (v *V2BundleRequest) GetOwner() string {
 	return v.Owner
 }
 
-func (v *V2BundleRequest) GetChain() Chain {
+func (v *V2BundleRequest) GetChain() V2BundleRequestChain {
 	if v == nil {
-		return Chain("")
+		return V2BundleRequestChain("")
 	}
 	return v.Chain
 }

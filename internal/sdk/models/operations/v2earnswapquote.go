@@ -11,18 +11,16 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
-// V2EarnSwapQuoteChain - The chain to use.
+// V2EarnSwapQuoteChain - Target blockchain network.
 type V2EarnSwapQuoteChain string
 
 const (
-	V2EarnSwapQuoteChainBase            V2EarnSwapQuoteChain = "base"
-	V2EarnSwapQuoteChainEthereum        V2EarnSwapQuoteChain = "ethereum"
-	V2EarnSwapQuoteChainArbitrum        V2EarnSwapQuoteChain = "arbitrum"
-	V2EarnSwapQuoteChainHyperevm        V2EarnSwapQuoteChain = "hyperevm"
-	V2EarnSwapQuoteChainTempo           V2EarnSwapQuoteChain = "tempo"
-	V2EarnSwapQuoteChainBsc             V2EarnSwapQuoteChain = "bsc"
-	V2EarnSwapQuoteChainRobinhood       V2EarnSwapQuoteChain = "robinhood"
-	V2EarnSwapQuoteChainEthereumSepolia V2EarnSwapQuoteChain = "ethereum_sepolia"
+	V2EarnSwapQuoteChainArbitrum V2EarnSwapQuoteChain = "arbitrum"
+	V2EarnSwapQuoteChainBase     V2EarnSwapQuoteChain = "base"
+	V2EarnSwapQuoteChainBsc      V2EarnSwapQuoteChain = "bsc"
+	V2EarnSwapQuoteChainEthereum V2EarnSwapQuoteChain = "ethereum"
+	V2EarnSwapQuoteChainHyperevm V2EarnSwapQuoteChain = "hyperevm"
+	V2EarnSwapQuoteChainTempo    V2EarnSwapQuoteChain = "tempo"
 )
 
 func (e V2EarnSwapQuoteChain) ToPointer() *V2EarnSwapQuoteChain {
@@ -34,21 +32,17 @@ func (e *V2EarnSwapQuoteChain) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	switch v {
+	case "arbitrum":
+		fallthrough
 	case "base":
 		fallthrough
-	case "ethereum":
+	case "bsc":
 		fallthrough
-	case "arbitrum":
+	case "ethereum":
 		fallthrough
 	case "hyperevm":
 		fallthrough
 	case "tempo":
-		fallthrough
-	case "bsc":
-		fallthrough
-	case "robinhood":
-		fallthrough
-	case "ethereum_sepolia":
 		*e = V2EarnSwapQuoteChain(v)
 		return nil
 	default:

@@ -246,6 +246,45 @@ func (u EarnManageRequestAmount) MarshalJSON() ([]byte, error) {
 	return nil, errors.New("could not marshal union type EarnManageRequestAmount: all fields are null")
 }
 
+// EarnManageRequestChain - Blockchain network
+type EarnManageRequestChain string
+
+const (
+	EarnManageRequestChainArbitrum EarnManageRequestChain = "arbitrum"
+	EarnManageRequestChainBase     EarnManageRequestChain = "base"
+	EarnManageRequestChainBsc      EarnManageRequestChain = "bsc"
+	EarnManageRequestChainEthereum EarnManageRequestChain = "ethereum"
+	EarnManageRequestChainHyperevm EarnManageRequestChain = "hyperevm"
+	EarnManageRequestChainTempo    EarnManageRequestChain = "tempo"
+)
+
+func (e EarnManageRequestChain) ToPointer() *EarnManageRequestChain {
+	return &e
+}
+func (e *EarnManageRequestChain) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "arbitrum":
+		fallthrough
+	case "base":
+		fallthrough
+	case "bsc":
+		fallthrough
+	case "ethereum":
+		fallthrough
+	case "hyperevm":
+		fallthrough
+	case "tempo":
+		*e = EarnManageRequestChain(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for EarnManageRequestChain: %v", v)
+	}
+}
+
 // EarnManageRequest - Request model for the unified manage endpoint.
 //
 // Inherits from EarnManageParams and adds context fields (owner, chain, etc).
@@ -263,8 +302,8 @@ type EarnManageRequest struct {
 	Fee optionalnullable.OptionalNullable[Fee] `json:"fee,omitzero"`
 	// The primary wallet address that owns and controls the Earn Account.
 	Owner string `json:"owner"`
-	// The chain to use.
-	Chain Chain `json:"chain"`
+	// Blockchain network
+	Chain EarnManageRequestChain `json:"chain"`
 	// Optionally request gas sponsorship. If set to `true`, EIP-712 typed data will be returned that must be signed by the `owner` and submitted to the 'Prepare gas-sponsored transaction' endpoint (`/gas_sponsorship/prepare`).
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
 }
@@ -331,9 +370,9 @@ func (e *EarnManageRequest) GetOwner() string {
 	return e.Owner
 }
 
-func (e *EarnManageRequest) GetChain() Chain {
+func (e *EarnManageRequest) GetChain() EarnManageRequestChain {
 	if e == nil {
-		return Chain("")
+		return EarnManageRequestChain("")
 	}
 	return e.Chain
 }
