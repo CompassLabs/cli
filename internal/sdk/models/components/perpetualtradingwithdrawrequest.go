@@ -2,10 +2,6 @@
 
 package components
 
-import (
-	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
-)
-
 // PerpetualTradingWithdrawRequest - Request to withdraw USDC from HyperEVM perpetual trading account to Arbitrum.
 type PerpetualTradingWithdrawRequest struct {
 	// The user's EOA address (owner of the perpetual trading account)
@@ -13,7 +9,7 @@ type PerpetualTradingWithdrawRequest struct {
 	// USDC amount to withdraw (human-readable, e.g. '500.0')
 	Amount string `json:"amount"`
 	// Arbitrum destination address (defaults to owner if not specified)
-	Destination optionalnullable.OptionalNullable[string] `json:"destination,omitzero"`
+	Destination *string `json:"destination,omitzero"`
 }
 
 func (p *PerpetualTradingWithdrawRequest) GetOwner() string {
@@ -30,7 +26,7 @@ func (p *PerpetualTradingWithdrawRequest) GetAmount() string {
 	return p.Amount
 }
 
-func (p *PerpetualTradingWithdrawRequest) GetDestination() optionalnullable.OptionalNullable[string] {
+func (p *PerpetualTradingWithdrawRequest) GetDestination() *string {
 	if p == nil {
 		return nil
 	}

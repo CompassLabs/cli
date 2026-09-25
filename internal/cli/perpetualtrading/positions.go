@@ -15,7 +15,7 @@ import (
 
 var positionsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "User's EOA address (looks up their perpetual trading product account) [required]"},
-	{FlagName: "asset", Shorthand: "a", FieldPath: "Asset", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=asset"`, Description: "Filter to a specific asset ticker (e.g. AAPL)"},
+	{FlagName: "asset", Shorthand: "a", FieldPath: "Asset", Kind: flagutil.FlagKindString, Optional: true, Description: "Filter to a specific asset ticker (e.g. AAPL)"},
 }
 
 // initPositionsCmd initializes the positions command.

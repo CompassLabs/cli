@@ -18,7 +18,7 @@ var executeCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "action", Shorthand: "a", FieldPath: "Action", Kind: flagutil.FlagKindJSON, Required: true, Annotations: `json:"action"`, Description: "Raw Hyperliquid action from the prepare step [required]"},
 	{FlagName: "nonce", Shorthand: "n", FieldPath: "Nonce", Kind: flagutil.FlagKindInt64, Required: true, Description: "Nonce from the prepare step [required]"},
 	{FlagName: "signature", Shorthand: "s", FieldPath: "Signature", Kind: flagutil.FlagKindString, Required: true, Description: "User's EIP-712 signature (hex, 65 bytes) [required]"},
-	{FlagName: "vault-address", Shorthand: "v", FieldPath: "VaultAddress", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"vault_address,omitempty"`, Description: "Optional vault address"},
+	{FlagName: "vault-address", Shorthand: "v", FieldPath: "VaultAddress", Kind: flagutil.FlagKindString, Optional: true, Description: "Optional vault address"},
 }
 
 // initExecuteCmd initializes the execute command.

@@ -299,11 +299,11 @@ type CreditUnloopRequest struct {
 	// ``/v2/credit/looped_positions`` and ``/v2/credit/rebalance``.
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
-	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
+	MarketID *string `json:"market_id,omitzero"`
 	// Euler only: the EVK vault the loop's collateral is in. Required when protocol=EULER.
-	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
+	CollateralVault *string `json:"collateral_vault,omitzero"`
 	// Euler only: the EVK vault the loop borrowed from (the sub-account's controller). Required when protocol=EULER.
-	BorrowVault optionalnullable.OptionalNullable[string] `json:"borrow_vault,omitzero"`
+	BorrowVault *string `json:"borrow_vault,omitzero"`
 	// Euler only: the EVC sub-account (0-255) holding the looped position to unwind. 0 is the Credit Account itself.
 	SubAccountID *int64 `json:"sub_account_id,omitzero"`
 	// Token supplied as collateral in the loop being unwound. For MORPHO it must be the market's collateral token.
@@ -345,21 +345,21 @@ func (c *CreditUnloopRequest) GetProtocol() *CreditProtocol {
 	return c.Protocol
 }
 
-func (c *CreditUnloopRequest) GetMarketID() optionalnullable.OptionalNullable[string] {
+func (c *CreditUnloopRequest) GetMarketID() *string {
 	if c == nil {
 		return nil
 	}
 	return c.MarketID
 }
 
-func (c *CreditUnloopRequest) GetCollateralVault() optionalnullable.OptionalNullable[string] {
+func (c *CreditUnloopRequest) GetCollateralVault() *string {
 	if c == nil {
 		return nil
 	}
 	return c.CollateralVault
 }
 
-func (c *CreditUnloopRequest) GetBorrowVault() optionalnullable.OptionalNullable[string] {
+func (c *CreditUnloopRequest) GetBorrowVault() *string {
 	if c == nil {
 		return nil
 	}

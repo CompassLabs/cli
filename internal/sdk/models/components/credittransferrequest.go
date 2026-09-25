@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
@@ -187,7 +186,7 @@ type CreditTransferRequest struct {
 	// Optionally request gas sponsorship. If set to `true`, EIP-712 signature data will be returned that must be signed by the `owner` and submitted to the `/gas_sponsorship/prepare` endpoint.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
 	// The address that will call Permit2's permitTransferFrom to execute the transfer. When `action` is 'DEPOSIT' and `gas_sponsorship` is `true`: - If provided, the signature will authorize this address (typically a gas sponsor) to pull tokens. - If not provided, defaults to the Credit Account (Safe) address, allowing the transfer to be included in a bundle transaction where the Safe pulls the tokens itself.
-	Spender optionalnullable.OptionalNullable[string] `json:"spender,omitzero"`
+	Spender *string `json:"spender,omitzero"`
 }
 
 func (c *CreditTransferRequest) GetOwner() string {
@@ -232,7 +231,7 @@ func (c *CreditTransferRequest) GetGasSponsorship() *bool {
 	return c.GasSponsorship
 }
 
-func (c *CreditTransferRequest) GetSpender() optionalnullable.OptionalNullable[string] {
+func (c *CreditTransferRequest) GetSpender() *string {
 	if c == nil {
 		return nil
 	}

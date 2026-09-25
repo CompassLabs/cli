@@ -145,9 +145,9 @@ type V2EarnPendleMarketsRequest struct {
 	// The number of items to return.
 	Limit *int64 `queryParam:"style=form,explode=true,name=limit"`
 	// Optional chain filter. If not provided, returns markets for all chains.
-	Chain optionalnullable.OptionalNullable[components.Chain] `queryParam:"style=form,explode=true,name=chain"`
+	Chain *components.Chain `queryParam:"style=form,explode=true,name=chain"`
 	// Filter markets by underlying asset symbol (e.g., 'USDC', 'WETH').
-	UnderlyingSymbol optionalnullable.OptionalNullable[string] `queryParam:"style=form,explode=true,name=underlying_symbol"`
+	UnderlyingSymbol *string `queryParam:"style=form,explode=true,name=underlying_symbol"`
 	// Minimum TVL in USD. Markets with TVL below this value will be excluded.
 	MinTvlUsd optionalnullable.OptionalNullable[V2EarnPendleMarketsMinTvlUsd] `queryParam:"style=form,explode=true,name=min_tvl_usd"`
 }
@@ -180,14 +180,14 @@ func (v *V2EarnPendleMarketsRequest) GetLimit() *int64 {
 	return v.Limit
 }
 
-func (v *V2EarnPendleMarketsRequest) GetChain() optionalnullable.OptionalNullable[components.Chain] {
+func (v *V2EarnPendleMarketsRequest) GetChain() *components.Chain {
 	if v == nil {
 		return nil
 	}
 	return v.Chain
 }
 
-func (v *V2EarnPendleMarketsRequest) GetUnderlyingSymbol() optionalnullable.OptionalNullable[string] {
+func (v *V2EarnPendleMarketsRequest) GetUnderlyingSymbol() *string {
 	if v == nil {
 		return nil
 	}

@@ -40,6 +40,38 @@ The overlay is input to the generator, so changes here survive every
 regen automatically. **Prefer this layer for anything that can be
 expressed at the spec level.**
 
+### (1b) CLI-only spec transform — for spec shapes the generator mishandles
+
+`api/scripts/speakeasy_and_combined_spec/prepare_openapi_spec_for_cli.py`
+derives `openapi_prepped_for_cli.json` from the shared prepped spec, and
+the `compass-api-v2` source in `/.speakeasy/workflow.yaml` reads that
+file (the SDK sources keep the shared one, so published SDK types are
+unaffected). The CI `prepare-spec` job runs it and ships the result in
+the `openapi-specs` artifact; run it yourself before a local
+`speakeasy run -t compass-cli` (the output is gitignored).
+
+Today it de-nulls every nullable query parameter and the nullable
+string/enum properties at the top level of request-body schemas
+(skipping schemas that responses reuse). Nullable numbers, objects and
+arrays in bodies are left alone: they stay raw JSON flags, which is
+fine because bare numbers, `{...}` and `[...]` are already valid JSON.
+The CLI generator turns every `anyOf: [X, null]` into a raw JSON flag
+("nullable values are not supported in cli clients"), which is why
+`--chain base` used to need JSON quotes. A query string cannot carry
+`null`, and every nullable request field in this API defaults to `None`
+(omitted and `null` are the same thing to the API), so dropping `null`
+loses nothing and the generator emits typed string/enum flags instead.
+Use this layer for generic, rule-based spec rewrites; use the overlay
+for per-operation ones.
+
+Note the release gate: `prepare-spec` decides whether to regenerate by
+comparing the *shared* prepped spec with the one embedded in the last
+published npm package. CLI-only inputs (this transform, the overlay,
+`cli-sdk/.speakeasy/gen.yaml`, the post-regen patches, the version pin)
+are invisible to that comparison, so a change to any of them ships on the
+next spec change or, immediately, via a `generate_combined_spec_and_sdks`
+dispatch with `force_cli_regen=true` and `publish_sdks=true`.
+
 ---
 
 ## (2) New files in unmanaged paths — for new packages and helpers
@@ -59,7 +91,7 @@ Two established examples in the tree:
   `cli-sdk/internal/output/overrides_test.go`,
   `cli-sdk/internal/flagutil/overrides.go` — helpers (and tests) used
   by the patches in (3). Without these files there'd be no place to
-  put `normalizeForEncoding`, `AlreadyPrinted`, `targetsString`,
+  put `normalizeForEncoding`, `AlreadyPrinted`, `friendlyDescription`,
   `formatFastAPIDetail`, `errorStatusCodeFromHTTPMeta` — they'd have
   to live inside the generated files, blowing up patch size.
 
@@ -88,7 +120,6 @@ cli-sdk/scripts/
 └── post-regen/
     ├── 01-output.patch                # output/output.go fixes
     ├── 02-pretty.patch                # output/pretty.go fixes
-    ├── 03-flagutil.patch              # flagutil/metadata.go fixes
     ├── 03a-flagutil-desc.patch        # flagutil descriptions
     └── 05-version.patch               # version stamping
 ```
@@ -103,7 +134,8 @@ only that file's fixes are affected.
 |---|---|
 | `01-output.patch` | `indentJSONIfValid` + raw-JSON-passthrough indent; `printTable` envelope unwrap + helpers (from `31c3769d8`); FastAPI `{"detail":[...]}` prettifier |
 | `02-pretty.patch` | Pretty mode delegates list-shaped responses to `printTable` (from `31c3769d8`) |
-| `03-flagutil.patch` | `--dry-run` no longer bypasses required-flag check; bare string flag values auto-quoted (so `--chain base` works) |
+| `03a-flagutil-desc.patch` | Friendlier help text for `number \| string` amount flags (`friendlyDescription` in `flagutil/overrides.go`) |
+| `05-version.patch` | Top-level `compass --version` flag mirroring the `version` subcommand |
 
 The helpers each patch depends on live in (2) — e.g. `01-output.patch`
 calls `formatFastAPIDetail`, defined in `internal/output/overrides.go`.
@@ -117,6 +149,30 @@ plus the `Rendered() bool` guard in generated `cmd/compass/main.go`). That
 retired `01a-output-error.patch` and `04-main.patch` and shrank `01`; the
 now-unused `AlreadyPrinted`/`IsAlreadyPrinted`/`normalizeForEncoding`
 helpers stay in `overrides.go` for compatibility.
+
+Retired 2026-09-25 (run 36113153934): `03-flagutil.patch` broke again
+when the generator changed the signature of `relaxRequiredForBodyFields`,
+and was removed instead of re-captured. Its bare-string auto-quoting is
+unnecessary now that the CLI-only spec transform (see (1b)) makes those
+flags typed. Its `--dry-run` required-flag guard was dropped. The
+generator's `BuildRequest` relaxes the required checks of *body* fields
+when *no* flag at all was passed (verified on the regenerated binary),
+so a bare `compass earn create-account --dry-run` previews an empty body
+and a bare live call gets a 422 from the API naming the missing fields;
+as soon as any flag is passed, missing required flags error locally as
+before. Path, query and header flags are never relaxed by the current
+template (`relaxRequiredForBodyFields` skips fields carrying a
+`pathParam`/`queryParam`/`header` tag), so a bare
+`compass earn positions --dry-run` still fails with
+"missing required flag: --chain". That body relaxation is worth filing
+with Speakeasy. The retired hunks were also removed from the committed
+`metadata.go` snapshot and the `targetsString` helper was deleted, so
+nothing in mono references them. Note that the committed snapshot
+predates the current template (its relax helper still takes two
+arguments and does not skip param-tagged fields); it is not what ships,
+see the top of this file. The same change pinned `speakeasyVersion` in
+`/.speakeasy/workflow.yaml`, so template drift now only happens when the
+pin is bumped deliberately.
 
 ### How the script behaves on failure
 
@@ -245,11 +301,9 @@ $bin earn earn-vaults --order-by tvl_usd --limit 1 -o toon \
 $bin earn earn-vaults --order-by tvl_usd --limit 1 -o yaml \
   | grep -v "true: " >/dev/null   # YAML round-trip
 $bin earn earn-vaults --order-by tvl_usd --chain base --limit 1 -q '.vaults|length' \
-  | grep -q '^[0-9]'              # bare-string flag quoting
+  | grep -q '^[0-9]'              # typed --chain flag (CLI-only spec transform)
 $bin earn earn-positions-all --owner notanaddress 2>&1 \
   | grep -q "Validation error"    # FastAPI prettifier + single render
-$bin earn earn-create-account --dry-run 2>&1 \
-  | grep -q "missing required"    # dry-run flag check
 $bin earn earn-vaults --order-by tvl_usd --limit 2 -o table 2>&1 \
   | grep -q "VAULT_ADDRESS"       # list-envelope unwrap (31c3769d8 fix)
 ```

@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
-	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
@@ -60,9 +59,9 @@ type V2PerpetualTradingCandlesRequest struct {
 	// Number of candles to return (max 5000, capped by Hyperliquid).
 	Limit *int64 `queryParam:"style=form,explode=true,name=limit"`
 	// Optional start of the candle window in unix milliseconds. If omitted, computed as end_time - limit * interval.
-	StartTime optionalnullable.OptionalNullable[int64] `queryParam:"style=form,explode=true,name=start_time"`
+	StartTime *int64 `queryParam:"style=form,explode=true,name=start_time"`
 	// Optional end of the candle window in unix milliseconds. Defaults to now.
-	EndTime optionalnullable.OptionalNullable[int64] `queryParam:"style=form,explode=true,name=end_time"`
+	EndTime *int64 `queryParam:"style=form,explode=true,name=end_time"`
 }
 
 func (v *V2PerpetualTradingCandlesRequest) GetSymbol() string {
@@ -86,14 +85,14 @@ func (v *V2PerpetualTradingCandlesRequest) GetLimit() *int64 {
 	return v.Limit
 }
 
-func (v *V2PerpetualTradingCandlesRequest) GetStartTime() optionalnullable.OptionalNullable[int64] {
+func (v *V2PerpetualTradingCandlesRequest) GetStartTime() *int64 {
 	if v == nil {
 		return nil
 	}
 	return v.StartTime
 }
 
-func (v *V2PerpetualTradingCandlesRequest) GetEndTime() optionalnullable.OptionalNullable[int64] {
+func (v *V2PerpetualTradingCandlesRequest) GetEndTime() *int64 {
 	if v == nil {
 		return nil
 	}

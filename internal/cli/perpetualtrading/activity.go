@@ -15,7 +15,7 @@ import (
 
 var activityCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "End-user EOA whose activity should be fetched. [required]"},
-	{FlagName: "builder", Shorthand: "b", FieldPath: "Builder", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=builder"`, Description: "Optional builder address. When provided, the response includes the current builder-fee approval state for this (owner, builder) pair."},
+	{FlagName: "builder", Shorthand: "b", FieldPath: "Builder", Kind: flagutil.FlagKindString, Optional: true, Description: "Optional builder address. When provided, the response includes the current builder-fee approval state for this (owner, builder) pair."},
 }
 
 // initActivityCmd initializes the activity command.

@@ -19,7 +19,7 @@ var orderSubmitCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "signature", FieldPath: "Signature", Kind: flagutil.FlagKindString, Required: true, Description: "Owner's EIP-712 signature over `order.safe_message_eip712` from the `/order` response. The signature is validated against the Tokenized Equities Account at fill time, so it must be a signature over the typed-data hash, not the raw order hash. [required]"},
 	{FlagName: "extension", Shorthand: "e", FieldPath: "Extension", Kind: flagutil.FlagKindString, Required: true, Description: "Opaque hex blob from the `/order` response — pass back unchanged. [required]"},
 	{FlagName: "quote-id", FieldPath: "QuoteID", Kind: flagutil.FlagKindString, Required: true, Description: "`order.quote_id` from the `/order` response — pass back unchanged. [required]"},
-	{FlagName: "order-hash", FieldPath: "OrderHash", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"order_hash,omitempty"`, Description: "`order.order_hash` from the `/order` response. Optional but recommended: the upstream relayer occasionally returns a 2xx with an empty body, and supplying the hash lets the API still return a usable handle for status and cancel lookups instead of failing."},
+	{FlagName: "order-hash", FieldPath: "OrderHash", Kind: flagutil.FlagKindString, Optional: true, Description: "`order.order_hash` from the `/order` response. Optional but recommended: the upstream relayer occasionally returns a 2xx with an empty body, and supplying the hash lets the API still return a usable handle for status and cancel lookups instead of failing."},
 }
 
 // initOrderSubmitCmd initializes the order-submit command.

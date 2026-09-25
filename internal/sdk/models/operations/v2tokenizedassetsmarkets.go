@@ -4,52 +4,51 @@ package operations
 
 import (
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
-	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
 type V2TokenizedAssetsMarketsRequest struct {
 	// Filter markets by category (e.g. 'tech', 'finance').
-	Category optionalnullable.OptionalNullable[string] `queryParam:"style=form,explode=true,name=category"`
+	Category *string `queryParam:"style=form,explode=true,name=category"`
 	// Case-insensitive substring match against the on-chain symbol, underlying ticker, and underlying name.
-	Search optionalnullable.OptionalNullable[string] `queryParam:"style=form,explode=true,name=search"`
+	Search *string `queryParam:"style=form,explode=true,name=search"`
 	// Filter by issuer ('ondo' equities, 'midas' RWA yield).
-	Provider optionalnullable.OptionalNullable[components.TokenizedAssetProvider] `queryParam:"style=form,explode=true,name=provider"`
+	Provider *components.TokenizedAssetProvider `queryParam:"style=form,explode=true,name=provider"`
 	// Filter by asset class (EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD).
-	AssetClass optionalnullable.OptionalNullable[components.TokenizedAssetClass] `queryParam:"style=form,explode=true,name=asset_class"`
+	AssetClass *components.TokenizedAssetClass `queryParam:"style=form,explode=true,name=asset_class"`
 	// Filter by network. Equities are Ethereum-only; RWA yield assets exist on Ethereum and Base.
-	Chain optionalnullable.OptionalNullable[components.Chain] `queryParam:"style=form,explode=true,name=chain"`
+	Chain *components.Chain `queryParam:"style=form,explode=true,name=chain"`
 }
 
-func (v *V2TokenizedAssetsMarketsRequest) GetCategory() optionalnullable.OptionalNullable[string] {
+func (v *V2TokenizedAssetsMarketsRequest) GetCategory() *string {
 	if v == nil {
 		return nil
 	}
 	return v.Category
 }
 
-func (v *V2TokenizedAssetsMarketsRequest) GetSearch() optionalnullable.OptionalNullable[string] {
+func (v *V2TokenizedAssetsMarketsRequest) GetSearch() *string {
 	if v == nil {
 		return nil
 	}
 	return v.Search
 }
 
-func (v *V2TokenizedAssetsMarketsRequest) GetProvider() optionalnullable.OptionalNullable[components.TokenizedAssetProvider] {
+func (v *V2TokenizedAssetsMarketsRequest) GetProvider() *components.TokenizedAssetProvider {
 	if v == nil {
 		return nil
 	}
 	return v.Provider
 }
 
-func (v *V2TokenizedAssetsMarketsRequest) GetAssetClass() optionalnullable.OptionalNullable[components.TokenizedAssetClass] {
+func (v *V2TokenizedAssetsMarketsRequest) GetAssetClass() *components.TokenizedAssetClass {
 	if v == nil {
 		return nil
 	}
 	return v.AssetClass
 }
 
-func (v *V2TokenizedAssetsMarketsRequest) GetChain() optionalnullable.OptionalNullable[components.Chain] {
+func (v *V2TokenizedAssetsMarketsRequest) GetChain() *components.Chain {
 	if v == nil {
 		return nil
 	}

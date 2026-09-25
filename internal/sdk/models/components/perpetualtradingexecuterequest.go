@@ -2,10 +2,6 @@
 
 package components
 
-import (
-	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
-)
-
 // PerpetualTradingExecuteRequest - Submit a signed Hyperliquid action for execution.
 type PerpetualTradingExecuteRequest struct {
 	// Raw Hyperliquid action from the prepare step
@@ -15,7 +11,7 @@ type PerpetualTradingExecuteRequest struct {
 	// User's EIP-712 signature (hex, 65 bytes)
 	Signature string `json:"signature"`
 	// Optional vault address
-	VaultAddress optionalnullable.OptionalNullable[string] `json:"vault_address,omitzero"`
+	VaultAddress *string `json:"vault_address,omitzero"`
 }
 
 func (p *PerpetualTradingExecuteRequest) GetAction() map[string]any {
@@ -39,7 +35,7 @@ func (p *PerpetualTradingExecuteRequest) GetSignature() string {
 	return p.Signature
 }
 
-func (p *PerpetualTradingExecuteRequest) GetVaultAddress() optionalnullable.OptionalNullable[string] {
+func (p *PerpetualTradingExecuteRequest) GetVaultAddress() *string {
 	if p == nil {
 		return nil
 	}

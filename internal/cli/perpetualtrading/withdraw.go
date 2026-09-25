@@ -17,7 +17,7 @@ import (
 var withdrawCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The user's EOA address (owner of the perpetual trading account) [required]"},
 	{FlagName: "amount", Shorthand: "a", FieldPath: "Amount", Kind: flagutil.FlagKindString, Required: true, Description: "USDC amount to withdraw (human-readable, e.g. '500.0') [required]"},
-	{FlagName: "destination", FieldPath: "Destination", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `json:"destination,omitempty"`, Description: "Arbitrum destination address (defaults to owner if not specified)"},
+	{FlagName: "destination", FieldPath: "Destination", Kind: flagutil.FlagKindString, Optional: true, Description: "Arbitrum destination address (defaults to owner if not specified)"},
 }
 
 // initWithdrawCmd initializes the withdraw command.

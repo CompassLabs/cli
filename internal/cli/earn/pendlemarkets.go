@@ -18,8 +18,8 @@ var pendleMarketsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "direction", FieldPath: "Direction", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"asc", "desc"}, Description: "The direction to order the results by. (options: asc, desc)"},
 	{FlagName: "offset", FieldPath: "Offset", Kind: flagutil.FlagKindInt64, Optional: true, Description: "The offset of the first item to return."},
 	{FlagName: "limit", Shorthand: "l", FieldPath: "Limit", Kind: flagutil.FlagKindInt64, Optional: true, HasMaximum: true, Maximum: 1000, Description: "The number of items to return."},
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=chain"`, Description: "Optional chain filter. If not provided, returns markets for all chains. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia)"},
-	{FlagName: "underlying-symbol", Shorthand: "u", FieldPath: "UnderlyingSymbol", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=underlying_symbol"`, Description: "Filter markets by underlying asset symbol (e.g., 'USDC', 'WETH')."},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "robinhood", "ethereum_sepolia"}, Description: "Optional chain filter. If not provided, returns markets for all chains. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia)"},
+	{FlagName: "underlying-symbol", Shorthand: "u", FieldPath: "UnderlyingSymbol", Kind: flagutil.FlagKindString, Optional: true, Description: "Filter markets by underlying asset symbol (e.g., 'USDC', 'WETH')."},
 	{FlagName: "min-tvl-usd", Shorthand: "m", FieldPath: "MinTvlUsd", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
 }
 

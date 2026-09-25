@@ -14,11 +14,11 @@ import (
 )
 
 var marketsCmdMeta = []flagutil.FlagMeta{
-	{FlagName: "category", FieldPath: "Category", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=category"`, Description: "Filter markets by category (e.g. 'tech', 'finance')."},
-	{FlagName: "search", Shorthand: "s", FieldPath: "Search", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=search"`, Description: "Case-insensitive substring match against the on-chain symbol, underlying ticker, and underlying name."},
-	{FlagName: "provider", Shorthand: "p", FieldPath: "Provider", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=provider"`, Description: "Filter by issuer ('ondo' equities, 'midas' RWA yield). (options: ondo, midas, ixs, centrifuge, wisdomtree)"},
-	{FlagName: "asset-class", Shorthand: "a", FieldPath: "AssetClass", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=asset_class"`, Description: "Filter by asset class (EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD). (options: EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD, MANAGED_VAULT, DERWA, MONEY_MARKET)"},
-	{FlagName: "chain", FieldPath: "Chain", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=chain"`, Description: "Filter by network. Equities are Ethereum-only; RWA yield assets exist on Ethereum and Base. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia)"},
+	{FlagName: "category", FieldPath: "Category", Kind: flagutil.FlagKindString, Optional: true, Description: "Filter markets by category (e.g. 'tech', 'finance')."},
+	{FlagName: "search", Shorthand: "s", FieldPath: "Search", Kind: flagutil.FlagKindString, Optional: true, Description: "Case-insensitive substring match against the on-chain symbol, underlying ticker, and underlying name."},
+	{FlagName: "provider", Shorthand: "p", FieldPath: "Provider", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"ondo", "midas", "ixs", "centrifuge", "wisdomtree"}, Description: "Filter by issuer ('ondo' equities, 'midas' RWA yield). (options: ondo, midas, ixs, centrifuge, wisdomtree)"},
+	{FlagName: "asset-class", Shorthand: "a", FieldPath: "AssetClass", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"EQUITY", "T_BILLS", "BASIS_TRADE", "BTC_YIELD", "MANAGED_VAULT", "DERWA", "MONEY_MARKET"}, Description: "Filter by asset class (EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD). (options: EQUITY, T_BILLS, BASIS_TRADE, BTC_YIELD, MANAGED_VAULT, DERWA, MONEY_MARKET)"},
+	{FlagName: "chain", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "robinhood", "ethereum_sepolia"}, Description: "Filter by network. Equities are Ethereum-only; RWA yield assets exist on Ethereum and Base. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia)"},
 }
 
 // initMarketsCmd initializes the markets command.

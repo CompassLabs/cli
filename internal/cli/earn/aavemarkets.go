@@ -14,7 +14,7 @@ import (
 )
 
 var aaveMarketsCmdMeta = []flagutil.FlagMeta{
-	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=chain"`, Description: "Optional chain filter. If not provided, returns rates for all chains. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia)"},
+	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "robinhood", "ethereum_sepolia"}, Description: "Optional chain filter. If not provided, returns rates for all chains. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia)"},
 	{FlagName: "days", FieldPath: "Days", Kind: flagutil.FlagKindInt64, Optional: true, HasMinimum: true, Minimum: 1, HasMaximum: true, Maximum: 30, Description: "Window in days used to compute `supply_apy_avg` / `borrow_apy_avg`. Mirrors the `days` parameter of the v1 `/v1/aave/avg_rate` endpoint."},
 }
 

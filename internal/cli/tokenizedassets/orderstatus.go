@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
+	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -20,11 +21,11 @@ var orderStatusCmdMeta = []flagutil.FlagMeta{
 // initOrderStatusCmd initializes the order-status command.
 func initOrderStatusCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "order-status",
+		Use:     "order-status [order-hash]",
 		Short:   "Get order status",
 		Long:    "Poll the lifecycle state of a submitted equity order (Ondo).\n\nReports `pending`, `filled`, `expired`, or `cancelled`, with fill details as\nthey arrive. Equity orders only — RWA yield swaps settle in one transaction and\nhave no lifecycle to poll.",
 		Example: "  compass tokenized-assets order-status --order-hash <value>",
-		Args:    cobra.NoArgs,
+		Args:    flagutil.PositionalFlagArgs,
 		RunE:    runOrderStatusCmd,
 		Aliases: []string{"os"},
 		Annotations: map[string]string{
@@ -35,6 +36,14 @@ func initOrderStatusCmd(parent *cobra.Command) error {
 	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsOrderOrderHashRequest](orderStatusCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for order-status: %w", err)
 	}
+	if err := flagutil.DeclarePositionalFlag(cmd, "order-hash", "string value (or pass it as the [order-hash] argument)", true); err != nil {
+		return err
+	}
+	if err := interactive.Declare(cmd, interactive.CommandSpec{Args: []interactive.ArgSpec{
+		{Name: "order-hash", Summary: "string value", Required: true, SatisfiedBy: []string{"order-hash"}},
+	}}); err != nil {
+		return fmt.Errorf("declare interactive arguments for order-status: %w", err)
+	}
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -43,6 +52,9 @@ func initOrderStatusCmd(parent *cobra.Command) error {
 func runOrderStatusCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
+	}
+	if err := flagutil.ResolvePositionalFlag(cmd, args); err != nil {
+		return err
 	}
 	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsOrderOrderHashRequest](cmd, orderStatusCmdMeta, "", "")
 	if err != nil {

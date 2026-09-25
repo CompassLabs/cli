@@ -24,12 +24,12 @@ compass perpetual-trading candles [flags]
 ### Options
 
 ```
-  -e, --end-time string     Optional end of the candle window in unix milliseconds. Defaults to now.
-  -h, --help                help for candles
-  -i, --interval string     Candle interval: 1m, 5m, 15m, 1h, 4h, 1d, 1w (options: 1m, 5m, 15m, 1h, 4h, 1d, 1w) [required]
-  -l, --limit int           Number of candles to return (max 5000, capped by Hyperliquid).
-      --start-time string   Optional start of the candle window in unix milliseconds. If omitted, computed as end_time - limit * interval.
-      --symbol string       Asset ticker (e.g. AAPL, GOLD, EUR). The xyz: HIP-3 DEX prefix is added server-side if not already present. [required]
+  -e, --end-time int      Optional end of the candle window in unix milliseconds. Defaults to now.
+  -h, --help              help for candles
+  -i, --interval string   Candle interval: 1m, 5m, 15m, 1h, 4h, 1d, 1w (options: 1m, 5m, 15m, 1h, 4h, 1d, 1w) [required]
+  -l, --limit int         Number of candles to return (max 5000, capped by Hyperliquid).
+      --start-time int    Optional start of the candle window in unix milliseconds. If omitted, computed as end_time - limit * interval.
+      --symbol string     Asset ticker (e.g. AAPL, GOLD, EUR). The xyz: HIP-3 DEX prefix is added server-side if not already present. [required]
 ```
 
 ### Options inherited from parent commands

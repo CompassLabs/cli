@@ -12,7 +12,7 @@ actual proceeds, executed by the product account (owner signs, or EIP-712 with
 `gas_sponsorship`).
 
 ```
-compass tokenized-assets order-charge-fee [flags]
+compass tokenized-assets order-charge-fee [order-hash] [flags]
 ```
 
 ### Examples
@@ -32,7 +32,7 @@ compass tokenized-assets order-charge-fee [flags]
                             fees are not computed for spot buy/sell trades. [required]
   -g, --gas-sponsorship     When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction.
   -h, --help                help for order-charge-fee
-      --order-hash string   [required]
+      --order-hash string   string value (or pass it as the [order-hash] argument)
       --owner string        The owner's wallet address; the product account is derived from it. [required]
       --schema              Print the exact JSON Schema of the request body and exit
 ```

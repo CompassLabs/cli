@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
-	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
@@ -252,7 +251,7 @@ type V2EarnSwapQuoteRequest struct {
 	// Token to buy (output). A token symbol (e.g. 'USDC') or any token address.
 	TokenOut *string `queryParam:"style=form,explode=true,name=token_out"`
 	// Optional Pendle SY (Standardized Yield) address. When provided, `token_in` is overridden with the token the PT actually redeems into on withdrawal (the SY asset if it is a valid token-out, else the SY yield token) — use this to gauge a Pendle position's real exit liquidity rather than the reported underlying.
-	SyAddress optionalnullable.OptionalNullable[string] `queryParam:"style=form,explode=true,name=sy_address"`
+	SyAddress *string `queryParam:"style=form,explode=true,name=sy_address"`
 	// Human-readable amount of `token_in` to quote (token units, not wei).
 	AmountIn AmountIn `queryParam:"style=form,explode=true,name=amount_in"`
 	// Maximum slippage tolerance as a percentage (e.g., 1 = 1%).
@@ -280,7 +279,7 @@ func (v *V2EarnSwapQuoteRequest) GetTokenOut() *string {
 	return v.TokenOut
 }
 
-func (v *V2EarnSwapQuoteRequest) GetSyAddress() optionalnullable.OptionalNullable[string] {
+func (v *V2EarnSwapQuoteRequest) GetSyAddress() *string {
 	if v == nil {
 		return nil
 	}

@@ -363,11 +363,11 @@ type CreditRepayRequest struct {
 	// ``/v2/credit/looped_positions`` and ``/v2/credit/rebalance``.
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Euler only: the EVK vault the debt is owed to (repay target). Required when protocol=EULER.
-	BorrowVault optionalnullable.OptionalNullable[string] `json:"borrow_vault,omitzero"`
+	BorrowVault *string `json:"borrow_vault,omitzero"`
 	// Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
-	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
+	MarketID *string `json:"market_id,omitzero"`
 	// Euler only: the EVK collateral vault to withdraw from. Required when protocol=EULER and withdrawing collateral.
-	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
+	CollateralVault *string `json:"collateral_vault,omitzero"`
 	// Euler only: EVC sub-account (0–255) holding the debt to repay. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health. Defaults to 0. Ignored for Aave/Morpho.
 	SubAccountID *int64 `json:"sub_account_id,omitzero"`
 	// The borrowed asset to repay (e.g. WETH). Must match the debt position's token.
@@ -379,17 +379,17 @@ type CreditRepayRequest struct {
 	// A stable (but typically higher rate), or a variable rate.
 	InterestRateMode *InterestRateMode `json:"interest_rate_mode,omitzero"`
 	// Collateral token to withdraw from Aave after repaying debt. Omit together with withdraw_amount for repay-only mode.
-	WithdrawToken optionalnullable.OptionalNullable[string] `json:"withdraw_token,omitzero"`
+	WithdrawToken *string `json:"withdraw_token,omitzero"`
 	// Amount of collateral to withdraw (in token units, not wei). Omit together with withdraw_token for repay-only mode.
 	WithdrawAmount optionalnullable.OptionalNullable[WithdrawAmount] `json:"withdraw_amount,omitzero"`
 	// Desired output token. If different from withdraw_token, a swap is performed after withdrawal. If None, the withdrawn collateral is kept as-is.
-	TokenOut optionalnullable.OptionalNullable[string] `json:"token_out,omitzero"`
+	TokenOut *string `json:"token_out,omitzero"`
 	// Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%). Only used when a swap is needed.
 	Slippage *CreditRepayRequestSlippage `json:"slippage,omitzero"`
 	// If true, returns EIP-712 signature data instead of an unsigned transaction.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
 	// The EOA owner's signature of the Permit2 PermitTransferFrom typed data. When provided, the repay bundle will first pull repay_token from the owner's EOA into the Credit Account via Permit2. Obtain by calling /v2/credit/transfer and signing the returned EIP-712 data.
-	Permit2Signature optionalnullable.OptionalNullable[string] `json:"permit2_signature,omitzero"`
+	Permit2Signature *string `json:"permit2_signature,omitzero"`
 	// The nonce used in the Permit2 signature (from the signed typed data).
 	Permit2Nonce optionalnullable.OptionalNullable[int64] `json:"permit2_nonce,omitzero"`
 	// The deadline timestamp used in the Permit2 signature (from the signed typed data).
@@ -417,21 +417,21 @@ func (c *CreditRepayRequest) GetProtocol() *CreditProtocol {
 	return c.Protocol
 }
 
-func (c *CreditRepayRequest) GetBorrowVault() optionalnullable.OptionalNullable[string] {
+func (c *CreditRepayRequest) GetBorrowVault() *string {
 	if c == nil {
 		return nil
 	}
 	return c.BorrowVault
 }
 
-func (c *CreditRepayRequest) GetMarketID() optionalnullable.OptionalNullable[string] {
+func (c *CreditRepayRequest) GetMarketID() *string {
 	if c == nil {
 		return nil
 	}
 	return c.MarketID
 }
 
-func (c *CreditRepayRequest) GetCollateralVault() optionalnullable.OptionalNullable[string] {
+func (c *CreditRepayRequest) GetCollateralVault() *string {
 	if c == nil {
 		return nil
 	}
@@ -466,7 +466,7 @@ func (c *CreditRepayRequest) GetInterestRateMode() *InterestRateMode {
 	return c.InterestRateMode
 }
 
-func (c *CreditRepayRequest) GetWithdrawToken() optionalnullable.OptionalNullable[string] {
+func (c *CreditRepayRequest) GetWithdrawToken() *string {
 	if c == nil {
 		return nil
 	}
@@ -480,7 +480,7 @@ func (c *CreditRepayRequest) GetWithdrawAmount() optionalnullable.OptionalNullab
 	return c.WithdrawAmount
 }
 
-func (c *CreditRepayRequest) GetTokenOut() optionalnullable.OptionalNullable[string] {
+func (c *CreditRepayRequest) GetTokenOut() *string {
 	if c == nil {
 		return nil
 	}
@@ -501,7 +501,7 @@ func (c *CreditRepayRequest) GetGasSponsorship() *bool {
 	return c.GasSponsorship
 }
 
-func (c *CreditRepayRequest) GetPermit2Signature() optionalnullable.OptionalNullable[string] {
+func (c *CreditRepayRequest) GetPermit2Signature() *string {
 	if c == nil {
 		return nil
 	}

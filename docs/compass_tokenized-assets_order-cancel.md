@@ -11,7 +11,7 @@ broadcasts it directly. Works only on `pending` or `expired` orders, and only
 the account that placed the order can cancel it.
 
 ```
-compass tokenized-assets order-cancel [flags]
+compass tokenized-assets order-cancel [order-hash] [flags]
 ```
 
 ### Examples
@@ -25,7 +25,7 @@ compass tokenized-assets order-cancel [flags]
 ```
       --body string         Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.
   -h, --help                help for order-cancel
-      --order-hash string   [required]
+      --order-hash string   string value (or pass it as the [order-hash] argument)
       --owner string        Wallet that owns the Tokenized Assets Account. The account address derived from this owner must match the order's on-chain maker; the API rejects otherwise (only the order's maker can cancel it). [required]
       --schema              Print the exact JSON Schema of the request body and exit
 ```

@@ -11,7 +11,7 @@ they arrive. Equity orders only — RWA yield swaps settle in one transaction an
 have no lifecycle to poll.
 
 ```
-compass tokenized-assets order-status [flags]
+compass tokenized-assets order-status [order-hash] [flags]
 ```
 
 ### Examples
@@ -24,7 +24,7 @@ compass tokenized-assets order-status [flags]
 
 ```
   -h, --help                help for order-status
-      --order-hash string   [required]
+      --order-hash string   string value (or pass it as the [order-hash] argument)
 ```
 
 ### Options inherited from parent commands

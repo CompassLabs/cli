@@ -4,7 +4,6 @@ package operations
 
 import (
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
-	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
@@ -12,7 +11,7 @@ type V2PerpetualTradingPositionsRequest struct {
 	// User's EOA address (looks up their perpetual trading product account)
 	Owner string `queryParam:"style=form,explode=true,name=owner"`
 	// Filter to a specific asset ticker (e.g. AAPL)
-	Asset optionalnullable.OptionalNullable[string] `queryParam:"style=form,explode=true,name=asset"`
+	Asset *string `queryParam:"style=form,explode=true,name=asset"`
 }
 
 func (v *V2PerpetualTradingPositionsRequest) GetOwner() string {
@@ -22,7 +21,7 @@ func (v *V2PerpetualTradingPositionsRequest) GetOwner() string {
 	return v.Owner
 }
 
-func (v *V2PerpetualTradingPositionsRequest) GetAsset() optionalnullable.OptionalNullable[string] {
+func (v *V2PerpetualTradingPositionsRequest) GetAsset() *string {
 	if v == nil {
 		return nil
 	}

@@ -14,9 +14,9 @@ import (
 )
 
 var opportunitiesCmdMeta = []flagutil.FlagMeta{
-	{FlagName: "min-open-interest", FieldPath: "MinOpenInterest", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=min_open_interest"`, Description: "Filter by minimum open interest in USD"},
-	{FlagName: "min-volume-24h", FieldPath: "MinVolume24h", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=min_volume_24h"`, Description: "Filter by minimum 24h volume in USD"},
-	{FlagName: "category", Shorthand: "c", FieldPath: "Category", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=category"`, Description: "Filter by asset category: stock, commodity, forex (options: stock, commodity, forex)"},
+	{FlagName: "min-open-interest", FieldPath: "MinOpenInterest", Kind: flagutil.FlagKindFloat64, Optional: true, Description: "Filter by minimum open interest in USD"},
+	{FlagName: "min-volume-24h", FieldPath: "MinVolume24h", Kind: flagutil.FlagKindFloat64, Optional: true, Description: "Filter by minimum 24h volume in USD"},
+	{FlagName: "category", Shorthand: "c", FieldPath: "Category", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"stock", "commodity", "forex"}, Description: "Filter by asset category: stock, commodity, forex (options: stock, commodity, forex)"},
 	{FlagName: "sort-by", FieldPath: "SortBy", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"open_interest", "volume_24h", "funding_rate"}, Description: "Sort results by this field (options: open_interest, volume_24h, funding_rate)"},
 	{FlagName: "sort-order", FieldPath: "SortOrder", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"asc", "desc"}, Description: "Sort direction (options: asc, desc)"},
 }

@@ -493,11 +493,11 @@ type CreditLoopRequest struct {
 	// ``/v2/credit/looped_positions`` and ``/v2/credit/rebalance``.
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
-	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
+	MarketID *string `json:"market_id,omitzero"`
 	// Euler only: the EVK vault address collateral is supplied to (from /v2/credit/euler_markets). Required when protocol=EULER.
-	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
+	CollateralVault *string `json:"collateral_vault,omitzero"`
 	// Euler only: the EVK vault address borrowed from (the sub-account's controller). Required when protocol=EULER.
-	BorrowVault optionalnullable.OptionalNullable[string] `json:"borrow_vault,omitzero"`
+	BorrowVault *string `json:"borrow_vault,omitzero"`
 	// Euler only: the EVC sub-account (0-255) holding this isolated looped position. 0 is the Credit Account itself.
 	SubAccountID *int64 `json:"sub_account_id,omitzero"`
 	// Token supplied as collateral each iteration. Must already be in the Credit Account for the initial amount. For MORPHO it must be the market's collateral token.
@@ -543,21 +543,21 @@ func (c *CreditLoopRequest) GetProtocol() *CreditProtocol {
 	return c.Protocol
 }
 
-func (c *CreditLoopRequest) GetMarketID() optionalnullable.OptionalNullable[string] {
+func (c *CreditLoopRequest) GetMarketID() *string {
 	if c == nil {
 		return nil
 	}
 	return c.MarketID
 }
 
-func (c *CreditLoopRequest) GetCollateralVault() optionalnullable.OptionalNullable[string] {
+func (c *CreditLoopRequest) GetCollateralVault() *string {
 	if c == nil {
 		return nil
 	}
 	return c.CollateralVault
 }
 
-func (c *CreditLoopRequest) GetBorrowVault() optionalnullable.OptionalNullable[string] {
+func (c *CreditLoopRequest) GetBorrowVault() *string {
 	if c == nil {
 		return nil
 	}

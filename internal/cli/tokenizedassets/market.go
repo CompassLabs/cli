@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
+	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -16,18 +17,18 @@ import (
 var marketCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "symbol", Shorthand: "s", FieldPath: "Symbol", Kind: flagutil.FlagKindString, Required: true, Description: "[required]"},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "robinhood", "ethereum_sepolia"}, Description: "Network the market is deployed on (defaults to Ethereum). A token deployed on multiple chains (e.g. Midas RWA on Ethereum and Base) is resolved per chain; 404 if the symbol isn't deployed there. Ondo equities are Ethereum-only. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia)"},
-	{FlagName: "interval", Shorthand: "i", FieldPath: "Interval", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=interval"`, Description: "Optional candle interval. Must be paired with `range` and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1min, 5min, 15min, 1hour, 4hour, 12hour, 1day)"},
-	{FlagName: "range", Shorthand: "r", FieldPath: "Range", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=range"`, Description: "Optional lookback window. Must be paired with `interval` and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1day, 1month, 3month, 6month, 1year, all)"},
+	{FlagName: "interval", Shorthand: "i", FieldPath: "Interval", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"1min", "5min", "15min", "1hour", "4hour", "12hour", "1day"}, Description: "Optional candle interval. Must be paired with `range` and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1min, 5min, 15min, 1hour, 4hour, 12hour, 1day)"},
+	{FlagName: "range", Shorthand: "r", FieldPath: "Range", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"1day", "1month", "3month", "6month", "1year", "all"}, Description: "Optional lookback window. Must be paired with `interval` and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1day, 1month, 3month, 6month, 1year, all)"},
 }
 
 // initMarketCmd initializes the market command.
 func initMarketCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "market",
+		Use:     "market [symbol]",
 		Short:   "Get a market",
 		Long:    "Get extended detail for a single market — an Ondo **equity** (e.g. `TSLAon`), a\nMidas **RWA yield token** (e.g. `mTBILL`), or an IXS **managed vault** (e.g.\n`ixv1`).\n\nAdds richer market data on top of the `/markets` listing, plus an optional\nOHLC candle series: pass matching `interval` and `range` query params to\ninclude `candles` (available for equities, Midas tokens except `mBTC`, and IXS\nvaults; omit both for detail without candles).",
 		Example: "  compass tokenized-assets market --symbol <value>",
-		Args:    cobra.NoArgs,
+		Args:    flagutil.PositionalFlagArgs,
 		RunE:    runMarketCmd,
 		Annotations: map[string]string{
 			"speakeasy_operation": "v2_tokenized_assets_markets_{symbol}",
@@ -37,6 +38,14 @@ func initMarketCmd(parent *cobra.Command) error {
 	if err := flagutil.ValidateMeta[operations.V2TokenizedAssetsMarketsSymbolRequest](marketCmdMeta); err != nil {
 		return fmt.Errorf("invalid metadata for market: %w", err)
 	}
+	if err := flagutil.DeclarePositionalFlag(cmd, "symbol", "string value (or pass it as the [symbol] argument)", true); err != nil {
+		return err
+	}
+	if err := interactive.Declare(cmd, interactive.CommandSpec{Args: []interactive.ArgSpec{
+		{Name: "symbol", Summary: "string value", Required: true, SatisfiedBy: []string{"symbol"}},
+	}}); err != nil {
+		return fmt.Errorf("declare interactive arguments for market: %w", err)
+	}
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -45,6 +54,9 @@ func initMarketCmd(parent *cobra.Command) error {
 func runMarketCmd(cmd *cobra.Command, args []string) error {
 	if usage.UsageRequested(cmd) {
 		return usage.EmitSchema(cmd, cmd.OutOrStdout())
+	}
+	if err := flagutil.ResolvePositionalFlag(cmd, args); err != nil {
+		return err
 	}
 	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsMarketsSymbolRequest](cmd, marketCmdMeta, "", "")
 	if err != nil {

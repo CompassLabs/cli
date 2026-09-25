@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/CompassLabs/cli/internal/client"
 	"github.com/CompassLabs/cli/internal/flagutil"
+	"github.com/CompassLabs/cli/internal/interactive"
 	"github.com/CompassLabs/cli/internal/output"
 	"github.com/CompassLabs/cli/internal/sdk"
 	"github.com/CompassLabs/cli/internal/sdk/models/operations"
@@ -21,11 +22,11 @@ var orderCancelCmdMeta = []flagutil.FlagMeta{
 // initOrderCancelCmd initializes the order-cancel command.
 func initOrderCancelCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
-		Use:     "order-cancel",
+		Use:     "order-cancel [order-hash]",
 		Short:   "Cancel an order",
 		Long:    "Cancel an unfilled equity order on-chain.\n\nReturns an EIP-712 payload the owner signs; a sponsor relays it, or the owner\nbroadcasts it directly. Works only on `pending` or `expired` orders, and only\nthe account that placed the order can cancel it.",
 		Example: "  compass tokenized-assets order-cancel --order-hash <value> --owner <value>",
-		Args:    cobra.NoArgs,
+		Args:    flagutil.PositionalFlagArgs,
 		RunE:    runOrderCancelCmd,
 		Aliases: []string{"oc"},
 		Annotations: map[string]string{
@@ -44,6 +45,14 @@ func initOrderCancelCmd(parent *cobra.Command) error {
 	}
 	cmd.Flags().Bool("schema", false, "Print the exact JSON Schema of the request body and exit")
 	_ = flagutil.AnnotatePromptFlag(cmd, "schema", flagutil.PromptFlagSpec{Kind: "bool", DocSurface: true})
+	if err := flagutil.DeclarePositionalFlag(cmd, "order-hash", "string value (or pass it as the [order-hash] argument)", true); err != nil {
+		return err
+	}
+	if err := interactive.Declare(cmd, interactive.CommandSpec{Args: []interactive.ArgSpec{
+		{Name: "order-hash", Summary: "string value", Required: true, SatisfiedBy: []string{"order-hash"}},
+	}}); err != nil {
+		return fmt.Errorf("declare interactive arguments for order-cancel: %w", err)
+	}
 	parent.AddCommand(cmd)
 	return nil
 }
@@ -55,6 +64,9 @@ func runOrderCancelCmd(cmd *cobra.Command, args []string) error {
 	}
 	if requested, _ := cmd.Flags().GetBool("schema"); requested {
 		return usage.EmitBodySchema(cmd.OutOrStdout(), "v2_tokenized_assets_order_{order_hash}_cancel")
+	}
+	if err := flagutil.ResolvePositionalFlag(cmd, args); err != nil {
+		return err
 	}
 	req, err := flagutil.BuildRequest[operations.V2TokenizedAssetsOrderOrderHashCancelRequest](cmd, orderCancelCmdMeta, "Body", "body")
 	if err != nil {

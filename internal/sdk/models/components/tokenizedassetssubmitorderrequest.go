@@ -2,10 +2,6 @@
 
 package components
 
-import (
-	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
-)
-
 // TokenizedAssetsSubmitOrderRequest - Submit an owner-signed order for settlement.
 //
 // The shape echoes what `POST /order` returned plus the owner's
@@ -21,7 +17,7 @@ type TokenizedAssetsSubmitOrderRequest struct {
 	// `order.quote_id` from the `/order` response — pass back unchanged.
 	QuoteID string `json:"quote_id"`
 	// `order.order_hash` from the `/order` response. Optional but recommended: the upstream relayer occasionally returns a 2xx with an empty body, and supplying the hash lets the API still return a usable handle for status and cancel lookups instead of failing.
-	OrderHash optionalnullable.OptionalNullable[string] `json:"order_hash,omitzero"`
+	OrderHash *string `json:"order_hash,omitzero"`
 }
 
 func (t *TokenizedAssetsSubmitOrderRequest) GetSignedOrder() map[string]any {
@@ -52,7 +48,7 @@ func (t *TokenizedAssetsSubmitOrderRequest) GetQuoteID() string {
 	return t.QuoteID
 }
 
-func (t *TokenizedAssetsSubmitOrderRequest) GetOrderHash() optionalnullable.OptionalNullable[string] {
+func (t *TokenizedAssetsSubmitOrderRequest) GetOrderHash() *string {
 	if t == nil {
 		return nil
 	}

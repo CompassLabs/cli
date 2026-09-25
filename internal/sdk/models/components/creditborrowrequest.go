@@ -363,19 +363,19 @@ type CreditBorrowRequest struct {
 	// ``/v2/credit/looped_positions`` and ``/v2/credit/rebalance``.
 	Protocol *CreditProtocol `json:"protocol,omitzero"`
 	// Euler only: the EVK collateral vault to supply into. Required when protocol=EULER and supplying collateral.
-	CollateralVault optionalnullable.OptionalNullable[string] `json:"collateral_vault,omitzero"`
+	CollateralVault *string `json:"collateral_vault,omitzero"`
 	// Euler only: the EVK vault to borrow from. Required when protocol=EULER.
-	BorrowVault optionalnullable.OptionalNullable[string] `json:"borrow_vault,omitzero"`
+	BorrowVault *string `json:"borrow_vault,omitzero"`
 	// Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
-	MarketID optionalnullable.OptionalNullable[string] `json:"market_id,omitzero"`
+	MarketID *string `json:"market_id,omitzero"`
 	// Euler only: EVC sub-account (0–255) to isolate this position. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health, letting one Credit Account hold multiple isolated Euler positions. Defaults to 0. Ignored for Aave/Morpho.
 	SubAccountID *int64 `json:"sub_account_id,omitzero"`
 	// Token currently held in the Credit Account to use as input. If the same as collateral_token, no swap is performed. Omit together with amount_in and collateral_token to borrow against existing collateral.
-	TokenIn optionalnullable.OptionalNullable[string] `json:"token_in,omitzero"`
+	TokenIn *string `json:"token_in,omitzero"`
 	// Amount of token_in to use (in token units, not wei). Omit together with token_in and collateral_token for borrow-only mode.
 	AmountIn optionalnullable.OptionalNullable[CreditBorrowRequestAmountIn] `json:"amount_in,omitzero"`
 	// Aave reserve token to supply as collateral. Omit together with token_in and amount_in for borrow-only mode.
-	CollateralToken optionalnullable.OptionalNullable[string] `json:"collateral_token,omitzero"`
+	CollateralToken *string `json:"collateral_token,omitzero"`
 	// Asset to borrow from Aave.
 	BorrowToken string `json:"borrow_token"`
 	// Amount to borrow (in token units, not wei).
@@ -391,7 +391,7 @@ type CreditBorrowRequest struct {
 	// Optional fee configuration. If provided, a fee will be deducted from the borrowed amount and sent to the specified recipient address.
 	Fee optionalnullable.OptionalNullable[CreditFee] `json:"fee,omitzero"`
 	// The EOA owner's signature of the Permit2 PermitTransferFrom typed data. When provided, the borrow bundle will first pull token_in from the owner's EOA into the Credit Account via Permit2. Obtain by calling /v2/credit/transfer and signing the returned EIP-712 data.
-	Permit2Signature optionalnullable.OptionalNullable[string] `json:"permit2_signature,omitzero"`
+	Permit2Signature *string `json:"permit2_signature,omitzero"`
 	// The nonce used in the Permit2 signature (from the signed typed data).
 	Permit2Nonce optionalnullable.OptionalNullable[int64] `json:"permit2_nonce,omitzero"`
 	// The deadline timestamp used in the Permit2 signature (from the signed typed data).
@@ -430,21 +430,21 @@ func (c *CreditBorrowRequest) GetProtocol() *CreditProtocol {
 	return c.Protocol
 }
 
-func (c *CreditBorrowRequest) GetCollateralVault() optionalnullable.OptionalNullable[string] {
+func (c *CreditBorrowRequest) GetCollateralVault() *string {
 	if c == nil {
 		return nil
 	}
 	return c.CollateralVault
 }
 
-func (c *CreditBorrowRequest) GetBorrowVault() optionalnullable.OptionalNullable[string] {
+func (c *CreditBorrowRequest) GetBorrowVault() *string {
 	if c == nil {
 		return nil
 	}
 	return c.BorrowVault
 }
 
-func (c *CreditBorrowRequest) GetMarketID() optionalnullable.OptionalNullable[string] {
+func (c *CreditBorrowRequest) GetMarketID() *string {
 	if c == nil {
 		return nil
 	}
@@ -458,7 +458,7 @@ func (c *CreditBorrowRequest) GetSubAccountID() *int64 {
 	return c.SubAccountID
 }
 
-func (c *CreditBorrowRequest) GetTokenIn() optionalnullable.OptionalNullable[string] {
+func (c *CreditBorrowRequest) GetTokenIn() *string {
 	if c == nil {
 		return nil
 	}
@@ -472,7 +472,7 @@ func (c *CreditBorrowRequest) GetAmountIn() optionalnullable.OptionalNullable[Cr
 	return c.AmountIn
 }
 
-func (c *CreditBorrowRequest) GetCollateralToken() optionalnullable.OptionalNullable[string] {
+func (c *CreditBorrowRequest) GetCollateralToken() *string {
 	if c == nil {
 		return nil
 	}
@@ -521,7 +521,7 @@ func (c *CreditBorrowRequest) GetFee() optionalnullable.OptionalNullable[CreditF
 	return c.Fee
 }
 
-func (c *CreditBorrowRequest) GetPermit2Signature() optionalnullable.OptionalNullable[string] {
+func (c *CreditBorrowRequest) GetPermit2Signature() *string {
 	if c == nil {
 		return nil
 	}

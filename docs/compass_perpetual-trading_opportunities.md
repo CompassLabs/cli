@@ -25,12 +25,12 @@ compass perpetual-trading opportunities [flags]
 ### Options
 
 ```
-  -c, --category string            Filter by asset category: stock, commodity, forex (options: stock, commodity, forex)
-  -h, --help                       help for opportunities
-      --min-open-interest string   Filter by minimum open interest in USD
-      --min-volume-24h string      Filter by minimum 24h volume in USD
-      --sort-by string             Sort results by this field (options: open_interest, volume_24h, funding_rate)
-      --sort-order string          Sort direction (options: asc, desc)
+  -c, --category string           Filter by asset category: stock, commodity, forex (options: stock, commodity, forex)
+  -h, --help                      help for opportunities
+      --min-open-interest float   Filter by minimum open interest in USD
+      --min-volume-24h float      Filter by minimum 24h volume in USD
+      --sort-by string            Sort results by this field (options: open_interest, volume_24h, funding_rate)
+      --sort-order string         Sort direction (options: asc, desc)
 ```
 
 ### Options inherited from parent commands

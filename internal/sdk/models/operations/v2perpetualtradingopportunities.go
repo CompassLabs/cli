@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
-	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
@@ -69,32 +68,32 @@ func (e *PerpetualTradingSortOrder) UnmarshalJSON(data []byte) error {
 
 type V2PerpetualTradingOpportunitiesRequest struct {
 	// Filter by minimum open interest in USD
-	MinOpenInterest optionalnullable.OptionalNullable[float64] `queryParam:"style=form,explode=true,name=min_open_interest"`
+	MinOpenInterest *float64 `queryParam:"style=form,explode=true,name=min_open_interest"`
 	// Filter by minimum 24h volume in USD
-	MinVolume24h optionalnullable.OptionalNullable[float64] `queryParam:"style=form,explode=true,name=min_volume_24h"`
+	MinVolume24h *float64 `queryParam:"style=form,explode=true,name=min_volume_24h"`
 	// Filter by asset category: stock, commodity, forex
-	Category optionalnullable.OptionalNullable[components.PerpetualTradingCategory] `queryParam:"style=form,explode=true,name=category"`
+	Category *components.PerpetualTradingCategory `queryParam:"style=form,explode=true,name=category"`
 	// Sort results by this field
 	SortBy *PerpetualTradingSortBy `queryParam:"style=form,explode=true,name=sort_by"`
 	// Sort direction
 	SortOrder *PerpetualTradingSortOrder `queryParam:"style=form,explode=true,name=sort_order"`
 }
 
-func (v *V2PerpetualTradingOpportunitiesRequest) GetMinOpenInterest() optionalnullable.OptionalNullable[float64] {
+func (v *V2PerpetualTradingOpportunitiesRequest) GetMinOpenInterest() *float64 {
 	if v == nil {
 		return nil
 	}
 	return v.MinOpenInterest
 }
 
-func (v *V2PerpetualTradingOpportunitiesRequest) GetMinVolume24h() optionalnullable.OptionalNullable[float64] {
+func (v *V2PerpetualTradingOpportunitiesRequest) GetMinVolume24h() *float64 {
 	if v == nil {
 		return nil
 	}
 	return v.MinVolume24h
 }
 
-func (v *V2PerpetualTradingOpportunitiesRequest) GetCategory() optionalnullable.OptionalNullable[components.PerpetualTradingCategory] {
+func (v *V2PerpetualTradingOpportunitiesRequest) GetCategory() *components.PerpetualTradingCategory {
 	if v == nil {
 		return nil
 	}

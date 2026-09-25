@@ -339,9 +339,9 @@ type V2EarnVaultsRequest struct {
 	// The number of items to return.
 	Limit *int64 `queryParam:"style=form,explode=true,name=limit"`
 	// Optional chain filter. If not provided, returns vaults for all chains.
-	Chain optionalnullable.OptionalNullable[components.Chain] `queryParam:"style=form,explode=true,name=chain"`
+	Chain *components.Chain `queryParam:"style=form,explode=true,name=chain"`
 	// Filter vaults by underlying asset symbol (e.g., 'USDC', 'WETH').
-	AssetSymbol optionalnullable.OptionalNullable[string] `queryParam:"style=form,explode=true,name=asset_symbol"`
+	AssetSymbol *string `queryParam:"style=form,explode=true,name=asset_symbol"`
 	// Minimum TVL in USD. Vaults with TVL below this value will be excluded.
 	MinTvlUsd optionalnullable.OptionalNullable[V2EarnVaultsMinTvlUsd] `queryParam:"style=form,explode=true,name=min_tvl_usd"`
 	// Minimum available liquidity in USD. Vaults below this are excluded.
@@ -378,14 +378,14 @@ func (v *V2EarnVaultsRequest) GetLimit() *int64 {
 	return v.Limit
 }
 
-func (v *V2EarnVaultsRequest) GetChain() optionalnullable.OptionalNullable[components.Chain] {
+func (v *V2EarnVaultsRequest) GetChain() *components.Chain {
 	if v == nil {
 		return nil
 	}
 	return v.Chain
 }
 
-func (v *V2EarnVaultsRequest) GetAssetSymbol() optionalnullable.OptionalNullable[string] {
+func (v *V2EarnVaultsRequest) GetAssetSymbol() *string {
 	if v == nil {
 		return nil
 	}

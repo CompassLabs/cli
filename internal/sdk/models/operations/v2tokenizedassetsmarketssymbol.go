@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
-	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
@@ -60,9 +59,9 @@ type V2TokenizedAssetsMarketsSymbolRequest struct {
 	// Network the market is deployed on (defaults to Ethereum). A token deployed on multiple chains (e.g. Midas RWA on Ethereum and Base) is resolved per chain; 404 if the symbol isn't deployed there. Ondo equities are Ethereum-only.
 	Chain *V2TokenizedAssetsMarketsSymbolChain `queryParam:"style=form,explode=true,name=chain"`
 	// Optional candle interval. Must be paired with `range` and form a valid `(interval, range)` pair to include OHLC candles in the response.
-	Interval optionalnullable.OptionalNullable[components.TokenizedAssetsOhlcInterval] `queryParam:"style=form,explode=true,name=interval"`
+	Interval *components.TokenizedAssetsOhlcInterval `queryParam:"style=form,explode=true,name=interval"`
 	// Optional lookback window. Must be paired with `interval` and form a valid `(interval, range)` pair to include OHLC candles in the response.
-	Range optionalnullable.OptionalNullable[components.TokenizedAssetsOhlcRange] `queryParam:"style=form,explode=true,name=range"`
+	Range *components.TokenizedAssetsOhlcRange `queryParam:"style=form,explode=true,name=range"`
 }
 
 func (v *V2TokenizedAssetsMarketsSymbolRequest) GetSymbol() string {
@@ -79,14 +78,14 @@ func (v *V2TokenizedAssetsMarketsSymbolRequest) GetChain() *V2TokenizedAssetsMar
 	return v.Chain
 }
 
-func (v *V2TokenizedAssetsMarketsSymbolRequest) GetInterval() optionalnullable.OptionalNullable[components.TokenizedAssetsOhlcInterval] {
+func (v *V2TokenizedAssetsMarketsSymbolRequest) GetInterval() *components.TokenizedAssetsOhlcInterval {
 	if v == nil {
 		return nil
 	}
 	return v.Interval
 }
 
-func (v *V2TokenizedAssetsMarketsSymbolRequest) GetRange() optionalnullable.OptionalNullable[components.TokenizedAssetsOhlcRange] {
+func (v *V2TokenizedAssetsMarketsSymbolRequest) GetRange() *components.TokenizedAssetsOhlcRange {
 	if v == nil {
 		return nil
 	}

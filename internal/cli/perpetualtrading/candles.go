@@ -17,8 +17,8 @@ var candlesCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "symbol", FieldPath: "Symbol", Kind: flagutil.FlagKindString, Required: true, MinLength: 1, Description: "Asset ticker (e.g. AAPL, GOLD, EUR). The xyz: HIP-3 DEX prefix is added server-side if not already present. [required]"},
 	{FlagName: "interval", Shorthand: "i", FieldPath: "Interval", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"1m", "5m", "15m", "1h", "4h", "1d", "1w"}, Description: "Candle interval: 1m, 5m, 15m, 1h, 4h, 1d, 1w (options: 1m, 5m, 15m, 1h, 4h, 1d, 1w) [required]"},
 	{FlagName: "limit", Shorthand: "l", FieldPath: "Limit", Kind: flagutil.FlagKindInt64, Optional: true, HasMinimum: true, Minimum: 1, HasMaximum: true, Maximum: 5000, Description: "Number of candles to return (max 5000, capped by Hyperliquid)."},
-	{FlagName: "start-time", FieldPath: "StartTime", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=start_time"`, Description: "Optional start of the candle window in unix milliseconds. If omitted, computed as end_time - limit * interval."},
-	{FlagName: "end-time", Shorthand: "e", FieldPath: "EndTime", Kind: flagutil.FlagKindJSON, Optional: true, Annotations: `queryParam:"style=form,explode=true,name=end_time"`, Description: "Optional end of the candle window in unix milliseconds. Defaults to now."},
+	{FlagName: "start-time", FieldPath: "StartTime", Kind: flagutil.FlagKindInt64, Optional: true, Description: "Optional start of the candle window in unix milliseconds. If omitted, computed as end_time - limit * interval."},
+	{FlagName: "end-time", Shorthand: "e", FieldPath: "EndTime", Kind: flagutil.FlagKindInt64, Optional: true, Description: "Optional end of the candle window in unix milliseconds. Defaults to now."},
 }
 
 // initCandlesCmd initializes the candles command.

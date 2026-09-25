@@ -319,6 +319,75 @@ func OverridePromptRequirement(cmd *cobra.Command, name string, required, prompt
 	return nil
 }
 
+const (
+	AnnotationPositionalFlag     = "speakeasy_positional_flag"
+	annotationPositionalRequired = "speakeasy_positional_required"
+)
+
+func DeclarePositionalFlag(cmd *cobra.Command, name, usage string, required bool) error {
+	f := cmd.Flags().Lookup(name)
+	if f == nil {
+		return fmt.Errorf("cannot declare positional for unknown flag --%s", name)
+	}
+	if err := OverridePromptRequirement(cmd, name, false, false); err != nil {
+		return err
+	}
+	f.Usage = usage
+	if cmd.Annotations == nil {
+		cmd.Annotations = map[string]string{}
+	}
+	cmd.Annotations[AnnotationPositionalFlag] = name
+	if required {
+		cmd.Annotations[annotationPositionalRequired] = "true"
+	}
+	return nil
+}
+
+func PositionalFlagArgs(cmd *cobra.Command, args []string) error {
+	name := cmd.Annotations[AnnotationPositionalFlag]
+	if name == "" {
+		return cobra.NoArgs(cmd, args)
+	}
+	if err := cobra.MaximumNArgs(1)(cmd, args); err != nil {
+		return err
+	}
+	if len(args) == 0 {
+		return nil
+	}
+	value := args[0]
+	if FlagChanged(cmd, name) {
+		return fmt.Errorf("pass %s once: as the [%s] argument or via --%s, not both", name, name, name)
+	}
+	// Only reachable after "--": "op -- --dry-run" must not send a live request.
+	if strings.HasPrefix(value, "-") {
+		f := cmd.Flags().Lookup(name)
+		if f.Value.Type() != "int64" && f.Value.Type() != "float64" {
+			return fmt.Errorf("argument %q looks like a flag; pass a value starting with \"-\" as --%s=%s", value, name, value)
+		}
+		if _, err := strconv.ParseFloat(value, 64); err != nil {
+			return fmt.Errorf("argument %q looks like a flag; pass a value starting with \"-\" as --%s=%s", value, name, value)
+		}
+	}
+	return cmd.Flags().Set(name, value)
+}
+
+func ResolvePositionalFlag(cmd *cobra.Command, args []string) error {
+	name := cmd.Annotations[AnnotationPositionalFlag]
+	if name == "" {
+		return nil
+	}
+	// An interactive answer arrives as an argument: Args validation ran before the prompt.
+	if len(args) == 1 && !FlagChanged(cmd, name) {
+		if err := cmd.Flags().Set(name, args[0]); err != nil {
+			return WithCLIValidation(err)
+		}
+	}
+	if !FlagChanged(cmd, name) && cmd.Annotations[annotationPositionalRequired] == "true" {
+		return &MissingRequiredFlagError{FlagName: name, Detail: fmt.Sprintf("(or pass it as the [%s] argument)", name)}
+	}
+	return nil
+}
+
 func SetPromptOptional(cmd *cobra.Command, name string, promptOptional bool) error {
 	f := cmd.Flags().Lookup(name)
 	if f == nil {
@@ -655,7 +724,7 @@ func BuildRequest[T any](cmd *cobra.Command, meta []FlagMeta, bodyFieldPath stri
 	// When body provided via --body flag or stdin, relax Required checks for body fields
 	// so builders don't error for fields already populated
 	if bodyPrePopulated {
-		meta = relaxRequiredForBodyFields(meta, bodyFieldPath, true)
+		meta = relaxRequiredForBodyFields(meta, v.Type(), bodyFieldPath, true)
 	}
 
 	// When the entire struct IS the body (bodyFieldPath == "") and no body was
@@ -671,32 +740,7 @@ func BuildRequest[T any](cmd *cobra.Command, meta []FlagMeta, bodyFieldPath stri
 			}
 		}
 		if !anyChanged {
-			// Original behavior: relax ALL required body fields when the user
-			// passed no flags. Intent was to support truly nullable bodies, but
-			// the side effect was that `compass <write-endpoint> --dry-run`
-			// (or even with no flags at all) silently produced an empty-body
-			// request — bypassing required-flag validation and emitting
-			// confusing internal SDK errors like
-			// "could not marshal union type ...: all fields are null".
-			//
-			// Only relax if the body has no required fields to begin with
-			// (i.e., it really is a nullable body). When at least one field
-			// is required, keep the per-field builders' "missing required
-			// flag: --X" errors as the actionable user-facing message.
-			anyRequired := false
-			for _, m := range meta {
-				if m.Required {
-					anyRequired = true
-					break
-				}
-				if m.Union != nil && !m.Union.Optional {
-					anyRequired = true
-					break
-				}
-			}
-			if !anyRequired {
-				meta = relaxRequiredForBodyFields(meta, "", false)
-			}
+			meta = relaxRequiredForBodyFields(meta, v.Type(), "", false)
 		}
 	}
 
@@ -1253,11 +1297,11 @@ func unmarshalIntoField(field reflect.Value, data []byte) error {
 	return nil
 }
 
-func relaxRequiredForBodyFields(meta []FlagMeta, bodyFieldPath string, clearDefaults bool) []FlagMeta {
+func relaxRequiredForBodyFields(meta []FlagMeta, reqType reflect.Type, bodyFieldPath string, clearDefaults bool) []FlagMeta {
 	result := make([]FlagMeta, len(meta))
 	copy(result, meta)
 	for i := range result {
-		if isBodyFieldPath(result[i].FieldPath, bodyFieldPath) {
+		if isBodyFieldPath(result[i].FieldPath, bodyFieldPath) && requestParamTag(reqType, result[i].FieldPath) == "" {
 			result[i].Required = false
 			if clearDefaults {
 				result[i].HasDefault = false
@@ -1289,6 +1333,31 @@ func isBodyFieldPath(fieldPath, bodyFieldPath string) bool {
 		return true // entire struct is body
 	}
 	return fieldPath == bodyFieldPath || strings.HasPrefix(fieldPath, bodyFieldPath+".")
+}
+
+// Body models tag every location alongside their json/form tags, so those never count as params.
+func requestParamTag(reqType reflect.Type, fieldPath string) string {
+	for reqType.Kind() == reflect.Ptr {
+		reqType = reqType.Elem()
+	}
+	if reqType.Kind() != reflect.Struct {
+		return ""
+	}
+	field, ok := reqType.FieldByName(strings.Split(fieldPath, ".")[0])
+	if !ok {
+		return ""
+	}
+	for _, tag := range []string{"json", "form", "multipartForm"} {
+		if _, ok := field.Tag.Lookup(tag); ok {
+			return ""
+		}
+	}
+	for _, tag := range []string{"pathParam", "queryParam", "header"} {
+		if _, ok := field.Tag.Lookup(tag); ok {
+			return tag
+		}
+	}
+	return ""
 }
 
 // setFieldByPath navigates nested struct fields via a dot-delimited path and sets the leaf value.
@@ -1454,6 +1523,19 @@ func validateRequiredPresence(m FlagMeta, changed bool) error {
 	return nil
 }
 
+// A blank path segment would address the parent collection instead of the item.
+func validateRequiredPathParam(v reflect.Value, m FlagMeta, changed bool, values ...string) error {
+	if !m.Required || !changed || requestParamTag(v.Type(), m.FieldPath) != "pathParam" {
+		return nil
+	}
+	for _, value := range values {
+		if strings.TrimSpace(value) == "" {
+			return WithCLIValidation(fmt.Errorf("invalid value for --%s: blank; path parameters require a non-empty value", m.FlagName))
+		}
+	}
+	return nil
+}
+
 func validateEnumValue(m FlagMeta, val string, changed bool) error {
 	if m.EnumValues == nil {
 		return nil
@@ -1480,6 +1562,9 @@ func buildStringField(cmd *cobra.Command, v reflect.Value, m FlagMeta) error {
 		return err
 	}
 	if err := validateRequiredPresence(m, changed); err != nil {
+		return err
+	}
+	if err := validateRequiredPathParam(v, m, changed, val); err != nil {
 		return err
 	}
 	if shouldSkipUnchanged(m, changed) {
@@ -1551,6 +1636,9 @@ func buildStringArrayField(cmd *cobra.Command, v reflect.Value, m FlagMeta) erro
 	if m.Required && len(val) == 0 {
 		return &MissingRequiredFlagError{FlagName: m.FlagName}
 	}
+	if err := validateRequiredPathParam(v, m, changed, val...); err != nil {
+		return err
+	}
 
 	if !changed {
 		return nil
@@ -1561,6 +1649,9 @@ func buildStringArrayField(cmd *cobra.Command, v reflect.Value, m FlagMeta) erro
 
 func buildDateTimeField(cmd *cobra.Command, v reflect.Value, m FlagMeta) error {
 	val, changed := GetStringFlag(cmd, m.FlagName)
+	if err := validateRequiredPathParam(v, m, changed, val); err != nil {
+		return err
+	}
 	if err := validateRequiredString(m, val); err != nil {
 		return err
 	}
@@ -1603,6 +1694,9 @@ func buildDateTimeField(cmd *cobra.Command, v reflect.Value, m FlagMeta) error {
 
 func buildDateField(cmd *cobra.Command, v reflect.Value, m FlagMeta) error {
 	val, changed := GetStringFlag(cmd, m.FlagName)
+	if err := validateRequiredPathParam(v, m, changed, val); err != nil {
+		return err
+	}
 	if err := validateRequiredString(m, val); err != nil {
 		return err
 	}
@@ -1649,6 +1743,9 @@ func buildDateField(cmd *cobra.Command, v reflect.Value, m FlagMeta) error {
 
 func buildEnumField(cmd *cobra.Command, v reflect.Value, m FlagMeta) error {
 	val, changed := GetStringFlag(cmd, m.FlagName)
+	if err := validateRequiredPathParam(v, m, changed, val); err != nil {
+		return err
+	}
 	if err := validateEnumValue(m, val, changed); err != nil {
 		return err
 	}
@@ -1668,6 +1765,9 @@ func buildEnumField(cmd *cobra.Command, v reflect.Value, m FlagMeta) error {
 
 func buildIntEnumField(cmd *cobra.Command, v reflect.Value, m FlagMeta) error {
 	val, changed := GetStringFlag(cmd, m.FlagName)
+	if err := validateRequiredPathParam(v, m, changed, val); err != nil {
+		return err
+	}
 	if err := validateEnumValue(m, val, changed); err != nil {
 		return err
 	}
@@ -1760,21 +1860,6 @@ func buildJSONField(cmd *cobra.Command, v reflect.Value, m FlagMeta) error {
 	// number. Wrap bare numbers in JSON quotes for user convenience.
 	tag := reflect.StructTag(m.Annotations)
 	if (tag.Get("bigint") == "string" || tag.Get("decimal") == "string") && val != "" && val[0] != '"' && val[0] != '[' && val[0] != '{' {
-		val = `"` + val + `"`
-	}
-	// Speakeasy routes optional string query params through FlagKindJSON, so
-	// the raw value (e.g. `base`) is fed straight into json.Unmarshal —
-	// which fails with "invalid character 'b' looking for beginning of value".
-	// Auto-wrap bare string-targeted values in JSON quotes so users can write
-	// `--chain base` instead of having to remember `--chain '"base"'`. This
-	// mirrors the bigint/decimal handling immediately above. Skips values
-	// that already look JSON-typed (`"`, `[`, `{`) so explicit JSON still
-	// works for power users. Targets handled:
-	//   - bare string (`string` / named alias like `type Chain string`)
-	//   - bare string pointer (`*string`)
-	//   - OptionalNullable[T] where T's underlying kind is string (the
-	//     common Speakeasy shape for optional enum query params)
-	if val != "" && val[0] != '"' && val[0] != '[' && val[0] != '{' && targetsString(fieldType) {
 		val = `"` + val + `"`
 	}
 

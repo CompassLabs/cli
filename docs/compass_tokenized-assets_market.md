@@ -14,7 +14,7 @@ include `candles` (available for equities, Midas tokens except `mBTC`, and IXS
 vaults; omit both for detail without candles).
 
 ```
-compass tokenized-assets market [flags]
+compass tokenized-assets market [symbol] [flags]
 ```
 
 ### Examples
@@ -30,7 +30,7 @@ compass tokenized-assets market [flags]
   -h, --help             help for market
   -i, --interval range   Optional candle interval. Must be paired with range and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1min, 5min, 15min, 1hour, 4hour, 12hour, 1day)
   -r, --range interval   Optional lookback window. Must be paired with interval and form a valid `(interval, range)` pair to include OHLC candles in the response. (options: 1day, 1month, 3month, 6month, 1year, all)
-  -s, --symbol string    [required]
+  -s, --symbol string    string value (or pass it as the [symbol] argument)
 ```
 
 ### Options inherited from parent commands

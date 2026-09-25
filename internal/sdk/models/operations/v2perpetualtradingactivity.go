@@ -4,7 +4,6 @@ package operations
 
 import (
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
-	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
@@ -12,7 +11,7 @@ type V2PerpetualTradingActivityRequest struct {
 	// End-user EOA whose activity should be fetched.
 	Owner string `queryParam:"style=form,explode=true,name=owner"`
 	// Optional builder address. When provided, the response includes the current builder-fee approval state for this (owner, builder) pair.
-	Builder optionalnullable.OptionalNullable[string] `queryParam:"style=form,explode=true,name=builder"`
+	Builder *string `queryParam:"style=form,explode=true,name=builder"`
 }
 
 func (v *V2PerpetualTradingActivityRequest) GetOwner() string {
@@ -22,7 +21,7 @@ func (v *V2PerpetualTradingActivityRequest) GetOwner() string {
 	return v.Owner
 }
 
-func (v *V2PerpetualTradingActivityRequest) GetBuilder() optionalnullable.OptionalNullable[string] {
+func (v *V2PerpetualTradingActivityRequest) GetBuilder() *string {
 	if v == nil {
 		return nil
 	}
