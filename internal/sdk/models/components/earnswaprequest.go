@@ -243,6 +243,36 @@ func (e *EarnSwapRequestChain) UnmarshalJSON(data []byte) error {
 	}
 }
 
+// EarnSwapRequestPricing - Swap routing policy. 'auto': on chains with a market route the swap is priced by the market aggregator and bounded by `slippage` (the default behaviour); on HyperEVM, where only firm pricing is available, it is a firm zero-slippage quote that fills exactly or reverts. 'firm': always a firm quote; refused with a typed 409 when no firm quote covers the pair right now, never silently priced at market. 'market': always the market route; refused with 422 on HyperEVM. Read `swap_provider` on the response for the route that actually priced the build, and `quote_expires_at` for a firm quote's deadline.
+type EarnSwapRequestPricing string
+
+const (
+	EarnSwapRequestPricingAuto   EarnSwapRequestPricing = "auto"
+	EarnSwapRequestPricingFirm   EarnSwapRequestPricing = "firm"
+	EarnSwapRequestPricingMarket EarnSwapRequestPricing = "market"
+)
+
+func (e EarnSwapRequestPricing) ToPointer() *EarnSwapRequestPricing {
+	return &e
+}
+func (e *EarnSwapRequestPricing) UnmarshalJSON(data []byte) error {
+	var v string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	switch v {
+	case "auto":
+		fallthrough
+	case "firm":
+		fallthrough
+	case "market":
+		*e = EarnSwapRequestPricing(v)
+		return nil
+	default:
+		return fmt.Errorf("invalid value for EarnSwapRequestPricing: %v", v)
+	}
+}
+
 // EarnSwapRequest - Swap one token held in the Earn Account for another, in a single atomic
 // transaction.
 type EarnSwapRequest struct {
@@ -261,8 +291,10 @@ type EarnSwapRequest struct {
 	Owner string `json:"owner"`
 	// Target blockchain network where the swap will execute.
 	Chain EarnSwapRequestChain `json:"chain"`
-	// Optionally request gas sponsorship. If `true`, EIP-712 typed data will be returned that must be signed by the `owner` and submitted to the 'Prepare gas-sponsored transaction' endpoint (`/gas_sponsorship/prepare`).
+	// Optionally request gas sponsorship. If `true`, EIP-712 typed data will be returned that must be signed by the `owner` and submitted to the 'Prepare gas-sponsored transaction' endpoint (`/gas_sponsorship/prepare`). Firm-priced builds may be sponsored: the sponsor must broadcast before `quote_expires_at`.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
+	// Swap routing policy. 'auto': on chains with a market route the swap is priced by the market aggregator and bounded by `slippage` (the default behaviour); on HyperEVM, where only firm pricing is available, it is a firm zero-slippage quote that fills exactly or reverts. 'firm': always a firm quote; refused with a typed 409 when no firm quote covers the pair right now, never silently priced at market. 'market': always the market route; refused with 422 on HyperEVM. Read `swap_provider` on the response for the route that actually priced the build, and `quote_expires_at` for a firm quote's deadline.
+	Pricing *EarnSwapRequestPricing `json:"pricing,omitzero"`
 }
 
 func (e EarnSwapRequest) MarshalJSON() ([]byte, error) {
@@ -327,4 +359,11 @@ func (e *EarnSwapRequest) GetGasSponsorship() *bool {
 		return nil
 	}
 	return e.GasSponsorship
+}
+
+func (e *EarnSwapRequest) GetPricing() *EarnSwapRequestPricing {
+	if e == nil {
+		return nil
+	}
+	return e.Pricing
 }

@@ -2,14 +2,39 @@
 
 package components
 
+// EarnSwapQuoteResponseSwapProvider - Which route priced the estimate. 'market': the market aggregator's price-only quote. 'firm': an INDICATIVE price from the firm provider's live levels (HyperEVM), computed without spending a quote; the executable build fetches the firm quote itself. When those levels cannot price `amount_in` the endpoint answers 409 rather than a zero `amount_out`.
+type EarnSwapQuoteResponseSwapProvider string
+
+const (
+	EarnSwapQuoteResponseSwapProviderMarket EarnSwapQuoteResponseSwapProvider = "market"
+	EarnSwapQuoteResponseSwapProviderFirm   EarnSwapQuoteResponseSwapProvider = "firm"
+)
+
+func (e EarnSwapQuoteResponseSwapProvider) ToPointer() *EarnSwapQuoteResponseSwapProvider {
+	return &e
+}
+
+// IsExact returns true if the value matches a known enum value, false otherwise.
+func (e *EarnSwapQuoteResponseSwapProvider) IsExact() bool {
+	if e != nil {
+		switch *e {
+		case "market", "firm":
+			return true
+		}
+	}
+	return false
+}
+
 // EarnSwapQuoteResponse - Estimated output of a read-only swap quote.
 type EarnSwapQuoteResponse struct {
-	// Estimated amount of `token_out` received, in human-readable units. Zero when no route / insufficient liquidity exists for the pair.
+	// Estimated amount of `token_out` received, in human-readable units. On the market route, zero when no route / insufficient liquidity exists for the pair (a definitive answer). On the firm route (HyperEVM) a missing or short price book is a 409 instead, never a zero: unlike a missing route it is transient, so retry.
 	AmountOut string `json:"amount_out"`
 	// The token address actually quoted as input. Usually the requested `token_in`; for Pendle (when `sy_address` is supplied) it is the resolved redeem token, which callers should use to value the input.
 	TokenIn string `json:"token_in"`
 	// The token address quoted as output — what `amount_out` is denominated in (the resolved `token_out` from the request).
 	TokenOut string `json:"token_out"`
+	// Which route priced the estimate. 'market': the market aggregator's price-only quote. 'firm': an INDICATIVE price from the firm provider's live levels (HyperEVM), computed without spending a quote; the executable build fetches the firm quote itself. When those levels cannot price `amount_in` the endpoint answers 409 rather than a zero `amount_out`.
+	SwapProvider *EarnSwapQuoteResponseSwapProvider `json:"swap_provider,omitzero"`
 }
 
 func (e *EarnSwapQuoteResponse) GetAmountOut() string {
@@ -31,4 +56,11 @@ func (e *EarnSwapQuoteResponse) GetTokenOut() string {
 		return ""
 	}
 	return e.TokenOut
+}
+
+func (e *EarnSwapQuoteResponse) GetSwapProvider() *EarnSwapQuoteResponseSwapProvider {
+	if e == nil {
+		return nil
+	}
+	return e.SwapProvider
 }

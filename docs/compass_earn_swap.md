@@ -28,9 +28,10 @@ compass earn swap [flags]
   -a, --amount-in string       JSON value (one of: number | string)
       --body string            Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.
   -c, --chain string           Target blockchain network where the swap will execute. (options: arbitrum, base, bsc, ethereum, hyperevm, tempo) [required]
-  -g, --gas-sponsorship true   Optionally request gas sponsorship. If true, EIP-712 typed data will be returned that must be signed by the `owner` and submitted to the 'Prepare gas-sponsored transaction' endpoint (`/gas_sponsorship/prepare`).
+  -g, --gas-sponsorship true   Optionally request gas sponsorship. If true, EIP-712 typed data will be returned that must be signed by the `owner` and submitted to the 'Prepare gas-sponsored transaction' endpoint (`/gas_sponsorship/prepare`). Firm-priced builds may be sponsored: the sponsor must broadcast before `quote_expires_at`.
   -h, --help                   help for swap
       --owner string           The owner's wallet address. [required]
+  -p, --pricing slippage       Swap routing policy. 'auto': on chains with a market route the swap is priced by the market aggregator and bounded by slippage (the default behaviour); on HyperEVM, where only firm pricing is available, it is a firm zero-slippage quote that fills exactly or reverts. 'firm': always a firm quote; refused with a typed 409 when no firm quote covers the pair right now, never silently priced at market. 'market': always the market route; refused with 422 on HyperEVM. Read `swap_provider` on the response for the route that actually priced the build, and `quote_expires_at` for a firm quote's deadline. (options: auto, firm, market)
       --schema                 Print the exact JSON Schema of the request body and exit
   -s, --slippage string        JSON value (one of: number | string)
       --token-in string        Token to sell (input). Provide a token symbol from a limited set (e.g., 'USDC') or any token address. [required]

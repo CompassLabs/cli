@@ -5,15 +5,43 @@ package components
 import (
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
+	"time"
 )
+
+// EarnSwapResponseSwapProvider - Which route priced the swap. 'market': a DEX aggregator, slippage-bounded. 'firm': a zero-slippage quote that fills exactly or reverts. Always present; this is the authoritative signal, since `pricing` is only what was requested.
+type EarnSwapResponseSwapProvider string
+
+const (
+	EarnSwapResponseSwapProviderMarket EarnSwapResponseSwapProvider = "market"
+	EarnSwapResponseSwapProviderFirm   EarnSwapResponseSwapProvider = "firm"
+)
+
+func (e EarnSwapResponseSwapProvider) ToPointer() *EarnSwapResponseSwapProvider {
+	return &e
+}
+
+// IsExact returns true if the value matches a known enum value, false otherwise.
+func (e *EarnSwapResponseSwapProvider) IsExact() bool {
+	if e != nil {
+		switch *e {
+		case "market", "firm":
+			return true
+		}
+	}
+	return false
+}
 
 type EarnSwapResponse struct {
 	// Unsigned transaction for direct execution. Present when gas_sponsorship=false.
 	Transaction optionalnullable.OptionalNullable[UnsignedTransaction] `json:"transaction,omitzero"`
 	// EIP-712 typed data for gas-sponsored execution. Present when gas_sponsorship=true.
 	Eip712 optionalnullable.OptionalNullable[BatchedSafeOperationsResponseOutput] `json:"eip_712,omitzero"`
-	// Estimated amount of output token received from the swap.
+	// Estimated amount of output token received from the swap. Exact on firm builds (a firm quote fills at this amount or reverts); a quote-time estimate on market builds, where `slippage` sets how far below it the enforced minimum output sits.
 	EstimatedAmountOut string `json:"estimated_amount_out"`
+	// Which route priced the swap. 'market': a DEX aggregator, slippage-bounded. 'firm': a zero-slippage quote that fills exactly or reverts. Always present; this is the authoritative signal, since `pricing` is only what was requested.
+	SwapProvider *EarnSwapResponseSwapProvider `json:"swap_provider,omitzero"`
+	// Deadline of the firm swap quote. The transaction (or the sponsor's broadcast of the signed typed data) must be included before it or the swap reverts on-chain; refresh by re-calling this endpoint and discarding the previous payload. Null on market builds.
+	QuoteExpiresAt optionalnullable.OptionalNullable[time.Time] `json:"quote_expires_at,omitzero"`
 }
 
 func (e EarnSwapResponse) MarshalJSON() ([]byte, error) {
@@ -46,4 +74,18 @@ func (e *EarnSwapResponse) GetEstimatedAmountOut() string {
 		return ""
 	}
 	return e.EstimatedAmountOut
+}
+
+func (e *EarnSwapResponse) GetSwapProvider() *EarnSwapResponseSwapProvider {
+	if e == nil {
+		return nil
+	}
+	return e.SwapProvider
+}
+
+func (e *EarnSwapResponse) GetQuoteExpiresAt() optionalnullable.OptionalNullable[time.Time] {
+	if e == nil {
+		return nil
+	}
+	return e.QuoteExpiresAt
 }

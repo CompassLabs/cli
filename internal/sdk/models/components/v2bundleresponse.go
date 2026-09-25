@@ -5,7 +5,30 @@ package components
 import (
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
+	"time"
 )
+
+type V2BundleResponseSwapProvider string
+
+const (
+	V2BundleResponseSwapProviderMarket V2BundleResponseSwapProvider = "market"
+	V2BundleResponseSwapProviderFirm   V2BundleResponseSwapProvider = "firm"
+)
+
+func (e V2BundleResponseSwapProvider) ToPointer() *V2BundleResponseSwapProvider {
+	return &e
+}
+
+// IsExact returns true if the value matches a known enum value, false otherwise.
+func (e *V2BundleResponseSwapProvider) IsExact() bool {
+	if e != nil {
+		switch *e {
+		case "market", "firm":
+			return true
+		}
+	}
+	return false
+}
 
 type V2BundleResponse struct {
 	// Unsigned transaction for direct execution by the owner. Present when gas_sponsorship=false.
@@ -14,6 +37,10 @@ type V2BundleResponse struct {
 	Eip712 optionalnullable.OptionalNullable[BatchedSafeOperationsResponseOutput] `json:"eip_712,omitzero"`
 	// Number of individual transactions bundled in this execution.
 	ActionsCount int64 `json:"actions_count"`
+	// Which route priced the bundle's V2_SWAP action(s): 'market' (a DEX aggregator, slippage-bounded) or 'firm' (a zero-slippage quote that fills exactly or reverts; the only route on HyperEVM). Null when the bundle carries no swap.
+	SwapProvider optionalnullable.OptionalNullable[V2BundleResponseSwapProvider] `json:"swap_provider,omitzero"`
+	// Deadline of the firm swap quote inside the bundle. The transaction (or the sponsor's broadcast of the signed typed data) must be included before it or the bundle reverts on-chain; rebuild after it passes. Null unless a swap action was firm-priced.
+	QuoteExpiresAt optionalnullable.OptionalNullable[time.Time] `json:"quote_expires_at,omitzero"`
 }
 
 func (v V2BundleResponse) MarshalJSON() ([]byte, error) {
@@ -46,6 +73,20 @@ func (v *V2BundleResponse) GetActionsCount() int64 {
 		return 0
 	}
 	return v.ActionsCount
+}
+
+func (v *V2BundleResponse) GetSwapProvider() optionalnullable.OptionalNullable[V2BundleResponseSwapProvider] {
+	if v == nil {
+		return nil
+	}
+	return v.SwapProvider
+}
+
+func (v *V2BundleResponse) GetQuoteExpiresAt() optionalnullable.OptionalNullable[time.Time] {
+	if v == nil {
+		return nil
+	}
+	return v.QuoteExpiresAt
 }
 
 // #region class-body-v2bundleresponse

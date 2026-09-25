@@ -989,8 +989,11 @@ func (s *Earn) PendleMarkets(ctx context.Context, request operations.V2EarnPendl
 // Estimate the output of a swap without building a transaction.
 //
 // Returns the expected amount of `token_out` received for selling `amount_in`
-// of `token_in`, routed via 1inch. This is read-only: it does not build a
-// transaction, require an account, or check balances.
+// of `token_in`. On chains with a market route this is the market rate; on
+// HyperEVM, where swaps are firm-priced, it is an indicative price from the
+// firm provider's live levels (`swap_provider` tells you which). This is
+// read-only: it does not build a transaction, require an account, or check
+// balances.
 //
 // Use it to gauge exit liquidity and price impact for a token before entering
 // a position — for example, to warn when a market's underlying asset cannot be

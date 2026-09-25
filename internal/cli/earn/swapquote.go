@@ -27,7 +27,7 @@ func initSwapQuoteCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "swap-quote",
 		Short:   "Quote a swap",
-		Long:    "Estimate the output of a swap without building a transaction.\n\nReturns the expected amount of `token_out` received for selling `amount_in`\nof `token_in`, routed via 1inch. This is read-only: it does not build a\ntransaction, require an account, or check balances.\n\nUse it to gauge exit liquidity and price impact for a token before entering\na position — for example, to warn when a market's underlying asset cannot be\nswapped back to a stablecoin without large slippage.",
+		Long:    "Estimate the output of a swap without building a transaction.\n\nReturns the expected amount of `token_out` received for selling `amount_in`\nof `token_in`. On chains with a market route this is the market rate; on\nHyperEVM, where swaps are firm-priced, it is an indicative price from the\nfirm provider's live levels (`swap_provider` tells you which). This is\nread-only: it does not build a transaction, require an account, or check\nbalances.\n\nUse it to gauge exit liquidity and price impact for a token before entering\na position — for example, to warn when a market's underlying asset cannot be\nswapped back to a stablecoin without large slippage.",
 		Example: "  compass earn swap-quote --chain base --token-in WETH --amount-in 1",
 		Args:    cobra.NoArgs,
 		RunE:    runSwapQuoteCmd,
