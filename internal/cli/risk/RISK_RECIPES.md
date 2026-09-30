@@ -12,9 +12,9 @@ All risk metrics derive from these three endpoints. The CLI flags below match wh
 
 | Data | Command | Returns |
 |------|---------|---------|
-| Morpho vaults — TVL, APY, per-market allocations | `compass earn vaults --order-by tvl_usd --chain base --jq '.vaults'` | Array of vaults. Each has `tvl_usd`, `apy_7d`, `apy_30d`, `apy_90d`, `liquidity_usd`, `factory_version`, and `markets[]` — per-market allocations with `collateral_token_symbol`, `loan_token_symbol`, `lltv` (wei-scaled 1e18), `allocation_pct`, `market_id`. |
+| Morpho vaults — TVL, APY, per-market allocations | `compass earn vaults --order-by tvl_usd --chain base --jq '.vaults'` | Array of vaults. Each has `tvl_usd`, `apy_7d`, `apy_30d`, `apy_90d`, `liquidity_usd`, `factory_version`, and `markets[]` — per-market allocations with `collateral_token_symbol`, `loan_token_symbol`, `lltv_percent` (percent, e.g. `"86"`), `lltv` (the same value as a raw 1e18-scaled string, kept for older clients), `allocation_pct`, `market_id`. |
 | Aave markets — for cross-protocol overlap + supply APY | `compass earn aave-markets --chain base --jq '.markets'` | Object keyed by token symbol. Each entry has `chains.<chain>.supply_apy`, `chains.<chain>.borrow_apy` (already in percent-scale, e.g. `"3.4"` = 3.4%). |
-| Pendle markets — for yield decomposition | `compass earn pendle-markets --chain base --jq '.markets'` | Array with `pt_symbol`, `implied_apy`, `tvl_usd`, `expiry`. |
+| Pendle markets — for yield decomposition | `compass earn pendle-markets --order-by tvl_usd --chain base --jq '.markets'` | Array with `pt_symbol`, `implied_apy`, `tvl_usd`, `expiry`. |
 
 ---
 
@@ -61,17 +61,17 @@ compass earn vaults --order-by tvl_usd --chain base \
 
 **Question:** "What's the bad-debt exposure if cbBTC drops 30%?" / "Which markets cross their liquidation threshold at a -X% shock?"
 
-**This is the only metric where math correctness materially matters.** Agents commonly mis-handle the wei-scaling or fall back to a binary LLTV trip-flag — both produce wrong answers. Use the formula below exactly.
+**This is the only metric where math correctness materially matters.** Agents commonly mis-handle the LLTV scale or fall back to a binary LLTV trip-flag — both produce wrong answers. Use the formula below exactly.
 
 **Constants:**
-- `LLTV_DIVISOR = 1e18` — Morpho ships LLTV as a uint256 string scaled by 1e18.
+- `LLTV_DIVISOR = 1e18` — the raw `lltv` field is Morpho's uint256 string scaled by 1e18. Prefer `lltv_percent` (already in percent, the same scale as `lltv` on `compass credit morpho-markets`) and divide by 100 instead.
 - `CURRENT_LTV_FACTOR = 0.85` — assumed average borrower utilization. The API does not yet expose `average_borrow_ltv` per market, so we approximate every borrower as sitting at 85% of LLTV. **This inflates the impact at high shock sizes — surface the caveat in your answer.**
 - `MIN_HIT_USD = 1` — suppress sub-dollar hits as rounding noise.
 
 **Formula** (from `simulateShock` in `cascade.ts`):
 
 For each vault, for each `vault.markets[]` entry where `collateral_token_symbol == <target>`:
-1. `lltv_ratio = parseFloat(market.lltv) / 1e18` — yields a 0..1 ratio.
+1. `lltv_ratio = parseFloat(market.lltv_percent) / 100` (equivalently `parseFloat(market.lltv) / 1e18`) — yields a 0..1 ratio.
 2. `current_ltv = lltv_ratio × 0.85`
 3. `new_ltv = current_ltv / (1 − shock_pct)`, where `shock_pct ∈ [0, 0.99]`. A `-30%` price drop is `shock_pct = 0.30`.
 4. `bad_debt_fraction = new_ltv > 1 ? (1 − 1 / new_ltv) : 0`
@@ -126,7 +126,7 @@ The 4-label legend on `/risk` (Low / Medium / High / Critical) is a visual simpl
 Pendle PT collateral is the only mechanically-distinct yield source the API exposes today. Everything else is bucketed as "borrower demand" — including idle Aave reserves (an approximation; the API doesn't yet tag idle reserves separately).
 
 For each vault `v`:
-1. Build a lookup `pt_apy_by_symbol`: from `earn-pendle-markets` response, map each `pt_symbol` → `implied_apy` (normalize: if raw value < 1, multiply by 100; Pendle ships percent-scale like `"12.5"`, but guard against decimal-scale).
+1. Build a lookup `pt_apy_by_symbol`: from the `earn pendle-markets` response, map each `pt_symbol` → `implied_apy` (normalize: if raw value < 1, multiply by 100; Pendle ships percent-scale like `"12.5"`, but guard against decimal-scale).
 2. For each `v.markets[m]` where `collateral_token_symbol` starts with `PT-` and `allocation_pct > 0`:
    - `capital_m = v.tvl_usd × (m.allocation_pct / 100)`
    - If `pt_apy_by_symbol[m.collateral_token_symbol]` exists:

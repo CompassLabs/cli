@@ -136,8 +136,6 @@ func (u V2EarnPendleMarketsMinTvlUsd) MarshalJSON() ([]byte, error) {
 }
 
 type V2EarnPendleMarketsRequest struct {
-	// The field to order the results by.
-	OrderBy string `queryParam:"style=form,explode=true,name=order_by"`
 	// The direction to order the results by.
 	Direction *V2EarnPendleMarketsDirection `queryParam:"style=form,explode=true,name=direction"`
 	// The offset of the first item to return.
@@ -146,17 +144,12 @@ type V2EarnPendleMarketsRequest struct {
 	Limit *int64 `queryParam:"style=form,explode=true,name=limit"`
 	// Optional chain filter. If not provided, returns markets for all chains.
 	Chain *components.Chain `queryParam:"style=form,explode=true,name=chain"`
+	// Field to order the markets by. One of: tvl_usd, implied_apy. Defaults to tvl_usd; unknown values also fall back to tvl_usd.
+	OrderBy *string `queryParam:"style=form,explode=true,name=order_by"`
 	// Filter markets by underlying asset symbol (e.g., 'USDC', 'WETH').
 	UnderlyingSymbol *string `queryParam:"style=form,explode=true,name=underlying_symbol"`
 	// Minimum TVL in USD. Markets with TVL below this value will be excluded.
 	MinTvlUsd optionalnullable.OptionalNullable[V2EarnPendleMarketsMinTvlUsd] `queryParam:"style=form,explode=true,name=min_tvl_usd"`
-}
-
-func (v *V2EarnPendleMarketsRequest) GetOrderBy() string {
-	if v == nil {
-		return ""
-	}
-	return v.OrderBy
 }
 
 func (v *V2EarnPendleMarketsRequest) GetDirection() *V2EarnPendleMarketsDirection {
@@ -185,6 +178,13 @@ func (v *V2EarnPendleMarketsRequest) GetChain() *components.Chain {
 		return nil
 	}
 	return v.Chain
+}
+
+func (v *V2EarnPendleMarketsRequest) GetOrderBy() *string {
+	if v == nil {
+		return nil
+	}
+	return v.OrderBy
 }
 
 func (v *V2EarnPendleMarketsRequest) GetUnderlyingSymbol() *string {

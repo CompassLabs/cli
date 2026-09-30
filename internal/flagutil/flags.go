@@ -300,6 +300,12 @@ func ShorthandConfusionHint(cmd *cobra.Command, args []string, errMsg string) st
 		case len(arg) == 2 && i+1 < len(args) && !strings.HasPrefix(args[i+1], "-"):
 			value = args[i+1]
 		}
+		if usageAllowsValue(global.Usage, value) {
+			// A value the global flag itself accepts (`-o json` is a valid
+			// --output-format), so the shorthand was used on purpose: do not
+			// turn a missing --order-by or --owner into "Use --order-by json".
+			continue
+		}
 		named := ""
 		for _, c := range candidates {
 			if strings.Contains(errMsg, "--"+c) {

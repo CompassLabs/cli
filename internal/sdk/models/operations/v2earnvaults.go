@@ -330,8 +330,6 @@ func (u MinDepositCapUsd) MarshalJSON() ([]byte, error) {
 }
 
 type V2EarnVaultsRequest struct {
-	// The field to order the results by.
-	OrderBy string `queryParam:"style=form,explode=true,name=order_by"`
 	// The direction to order the results by.
 	Direction *V2EarnVaultsDirection `queryParam:"style=form,explode=true,name=direction"`
 	// The offset of the first item to return.
@@ -340,6 +338,8 @@ type V2EarnVaultsRequest struct {
 	Limit *int64 `queryParam:"style=form,explode=true,name=limit"`
 	// Optional chain filter. If not provided, returns vaults for all chains.
 	Chain *components.Chain `queryParam:"style=form,explode=true,name=chain"`
+	// Field to order the vaults by. One of: tvl_usd, liquidity_usd, deposit_cap_usd, apy_7d, apy_30d, apy_90d. Defaults to tvl_usd; unknown values also fall back to tvl_usd.
+	OrderBy *string `queryParam:"style=form,explode=true,name=order_by"`
 	// Filter vaults by underlying asset symbol (e.g., 'USDC', 'WETH').
 	AssetSymbol *string `queryParam:"style=form,explode=true,name=asset_symbol"`
 	// Minimum TVL in USD. Vaults with TVL below this value will be excluded.
@@ -348,13 +348,6 @@ type V2EarnVaultsRequest struct {
 	MinLiquidityUsd optionalnullable.OptionalNullable[MinLiquidityUsd] `queryParam:"style=form,explode=true,name=min_liquidity_usd"`
 	// Minimum deposit capacity in USD. Vaults below this are excluded. Set to 0 to exclude paused vaults.
 	MinDepositCapUsd optionalnullable.OptionalNullable[MinDepositCapUsd] `queryParam:"style=form,explode=true,name=min_deposit_cap_usd"`
-}
-
-func (v *V2EarnVaultsRequest) GetOrderBy() string {
-	if v == nil {
-		return ""
-	}
-	return v.OrderBy
 }
 
 func (v *V2EarnVaultsRequest) GetDirection() *V2EarnVaultsDirection {
@@ -383,6 +376,13 @@ func (v *V2EarnVaultsRequest) GetChain() *components.Chain {
 		return nil
 	}
 	return v.Chain
+}
+
+func (v *V2EarnVaultsRequest) GetOrderBy() *string {
+	if v == nil {
+		return nil
+	}
+	return v.OrderBy
 }
 
 func (v *V2EarnVaultsRequest) GetAssetSymbol() *string {

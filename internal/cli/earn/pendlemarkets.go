@@ -14,11 +14,11 @@ import (
 )
 
 var pendleMarketsCmdMeta = []flagutil.FlagMeta{
-	{FlagName: "order-by", FieldPath: "OrderBy", Kind: flagutil.FlagKindString, Required: true, Description: "The field to order the results by. [required]"},
 	{FlagName: "direction", FieldPath: "Direction", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"asc", "desc"}, Description: "The direction to order the results by. (options: asc, desc)"},
 	{FlagName: "offset", FieldPath: "Offset", Kind: flagutil.FlagKindInt64, Optional: true, Description: "The offset of the first item to return."},
 	{FlagName: "limit", Shorthand: "l", FieldPath: "Limit", Kind: flagutil.FlagKindInt64, Optional: true, HasMaximum: true, Maximum: 1000, Description: "The number of items to return."},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "robinhood", "ethereum_sepolia"}, Description: "Optional chain filter. If not provided, returns markets for all chains. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia)"},
+	{FlagName: "order-by", FieldPath: "OrderBy", Kind: flagutil.FlagKindString, Optional: true, Description: "Field to order the markets by. One of: tvl_usd, implied_apy. Defaults to tvl_usd; unknown values also fall back to tvl_usd."},
 	{FlagName: "underlying-symbol", Shorthand: "u", FieldPath: "UnderlyingSymbol", Kind: flagutil.FlagKindString, Optional: true, Description: "Filter markets by underlying asset symbol (e.g., 'USDC', 'WETH')."},
 	{FlagName: "min-tvl-usd", Shorthand: "m", FieldPath: "MinTvlUsd", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
 }
@@ -29,7 +29,7 @@ func initPendleMarketsCmd(parent *cobra.Command) error {
 		Use:     "pendle-markets",
 		Short:   "List pendle markets",
 		Long:    "List Pendle yield trading markets with TVL and implied APY.\n\nReturns Pendle market data including Principal Token (PT), Standardized Yield (SY),\nand Yield Token (YT) addresses, along with market expiry, TVL, and implied APY.\n\nUse this endpoint to discover yield trading opportunities, compare rates across\nPendle markets, or build market selection interfaces.\n\nAPY values are returned in percentage format (e.g., 5.25 means 5.25%). Markets\nwithout complete metadata or statistics are excluded.",
-		Example: "  compass earn pendle-markets --order-by tvl_usd",
+		Example: "  compass earn pendle-markets",
 		Args:    cobra.NoArgs,
 		RunE:    runPendleMarketsCmd,
 		Aliases: []string{"pm"},
@@ -73,7 +73,7 @@ func runPendleMarketsCmd(cmd *cobra.Command, args []string) error {
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.Earn.PendleMarkets(cmd.Context(), *req, sdkOpts...)
+	res, err := s.Earn.PendleMarkets(cmd.Context(), req, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}

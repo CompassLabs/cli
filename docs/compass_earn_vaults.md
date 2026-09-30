@@ -19,7 +19,7 @@ compass earn vaults [flags]
 ### Examples
 
 ```
-  compass earn vaults --order-by tvl_usd
+  compass earn vaults
 ```
 
 ### Options
@@ -34,7 +34,7 @@ compass earn vaults [flags]
       --min-liquidity-usd string     JSON value (one of: number | string)
       --min-tvl-usd string           JSON value (one of: number | string)
       --offset int                   The offset of the first item to return.
-      --order-by string              The field to order the results by. [required]
+      --order-by string              Field to order the vaults by. One of: tvl_usd, liquidity_usd, deposit_cap_usd, apy_7d, apy_30d, apy_90d. Defaults to tvl_usd; unknown values also fall back to tvl_usd.
 ```
 
 ### Options inherited from parent commands

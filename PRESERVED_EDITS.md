@@ -89,11 +89,15 @@ Two established examples in the tree:
   itself never gets touched.
 - `cli-sdk/internal/output/overrides.go`,
   `cli-sdk/internal/output/overrides_test.go`,
-  `cli-sdk/internal/flagutil/overrides.go` — helpers (and tests) used
+  `cli-sdk/internal/flagutil/overrides.go`,
+  `cli-sdk/internal/flagutil/overrides_test.go`,
+  `cli-sdk/internal/cli/overrides.go`,
+  `cli-sdk/internal/cli/overrides_test.go` — helpers (and tests) used
   by the patches in (3). Without these files there'd be no place to
   put `normalizeForEncoding`, `AlreadyPrinted`, `friendlyDescription`,
-  `formatFastAPIDetail`, `errorStatusCodeFromHTTPMeta` — they'd have
-  to live inside the generated files, blowing up patch size.
+  `usageAllowsValue`, `unionHelpSections`, `formatFastAPIDetail`,
+  `errorStatusCodeFromHTTPMeta` — they'd have to live inside the
+  generated files, blowing up patch size.
 
 Use this layer for: **new packages, helper functions, helper types,
 unit tests**. Anything that has its own file is here.
@@ -121,7 +125,10 @@ cli-sdk/scripts/
     ├── 01-output.patch                # output/output.go fixes
     ├── 02-pretty.patch                # output/pretty.go fixes
     ├── 03a-flagutil-desc.patch        # flagutil descriptions
-    └── 05-version.patch               # version stamping
+    ├── 04-flagutil-hint.patch         # flagutil shorthand-confusion hint
+    ├── 05-version.patch               # version stamping
+    ├── 06-client-redact.patch         # client diagnostics redaction lists
+    └── 07-cli-help-unions.patch       # cli/root.go help sections for unions
 ```
 
 Naming convention: `NN-<package>.patch`. One patch per generated file
@@ -134,8 +141,11 @@ only that file's fixes are affected.
 |---|---|
 | `01-output.patch` | `indentJSONIfValid` + raw-JSON-passthrough indent; `printTable` envelope unwrap + helpers (from `31c3769d8`); FastAPI `{"detail":[...]}` prettifier |
 | `02-pretty.patch` | Pretty mode delegates list-shaped responses to `printTable` (from `31c3769d8`) |
-| `03a-flagutil-desc.patch` | Friendlier help text for `number \| string` amount flags (`friendlyDescription` in `flagutil/overrides.go`) |
+| `03a-flagutil-desc.patch` | Friendlier help text for `number \| string` amount flags, and Markdown backticks stripped from string/enum/JSON flag descriptions and union type descriptions (the registrations that go through `friendlyDescription` in `flagutil/overrides.go`) so pflag stops using the first back-quoted word as the value type (`--action venue` → `--action string`). Bool, int, float and string-array flags keep their raw description |
+| `04-flagutil-hint.patch` | `ShorthandConfusionHint` no longer fires when the shorthand's value is one the global flag itself accepts: `compass earn pendle-markets -o json` with a missing `--order-by` used to suggest `--order-by json` (`usageAllowsValue` in `flagutil/overrides.go`) |
 | `05-version.patch` | Top-level `compass --version` flag mirroring the `version` subcommand |
+| `06-client-redact.patch` | `--dry-run`/`--debug` previews no longer redact `token` keys and `token*` query parameters: in this API `token`, `token_in`, `token_out` are asset symbols (an Aave deposit preview showed `"token": "[REDACTED]"` for USDC). Credential-shaped names are listed explicitly instead (`access_token`, `refresh_token`, `id_token`, `bearer_token`, `session_token`, `auth_token`, in bodies and query strings), and the `-token` header suffix plus the key/secret/auth/session substrings still apply to headers and query parameters |
+| `07-cli-help-unions.patch` | `--help` renders each discriminated union (`earn manage --venue`) in its own "pick ONE variant" section instead of listing `--venue.aave.token`, `--venue.pendle-pt.market-address` and `--venue.vault.vault-address` together under Required Flags; variant fields read `[required with --venue.aave]` (`unionHelpSections` in `cli/overrides.go`) |
 
 The helpers each patch depends on live in (2) — e.g. `01-output.patch`
 calls `formatFastAPIDetail`, defined in `internal/output/overrides.go`.
@@ -296,16 +306,29 @@ bash cli-sdk/scripts/post-regen.sh
 
 # 3. Smoke battery for the priority fixes.
 bin=$(go -C cli-sdk build -o /tmp/compass-rebuild ./cmd/compass && echo /tmp/compass-rebuild)
-$bin earn earn-vaults --order-by tvl_usd --limit 1 -o toon \
+$bin earn vaults --order-by tvl_usd --limit 1 -o toon \
   | grep -v omitzero >/dev/null   # TOON round-trip
-$bin earn earn-vaults --order-by tvl_usd --limit 1 -o yaml \
+$bin earn vaults --order-by tvl_usd --limit 1 -o yaml \
   | grep -v "true: " >/dev/null   # YAML round-trip
-$bin earn earn-vaults --order-by tvl_usd --chain base --limit 1 -q '.vaults|length' \
+$bin earn vaults --order-by tvl_usd --chain base --limit 1 -q '.vaults|length' \
   | grep -q '^[0-9]'              # typed --chain flag (CLI-only spec transform)
-$bin earn earn-positions-all --owner notanaddress 2>&1 \
+$bin earn positions-all --owner notanaddress 2>&1 \
   | grep -q "Validation error"    # FastAPI prettifier + single render
-$bin earn earn-vaults --order-by tvl_usd --limit 2 -o table 2>&1 \
+$bin earn vaults --order-by tvl_usd --limit 2 -o table 2>&1 \
   | grep -q "VAULT_ADDRESS"       # list-envelope unwrap (31c3769d8 fix)
+
+# The next four need no API key or network.
+$bin earn manage --help 2>&1 \
+  | grep -q "pick ONE variant"    # union help section (07)
+$bin earn manage --help 2>&1 \
+  | grep -q -- "--action string"  # backticks stripped from descriptions (03a)
+hint=$($bin earn positions --chain base -o json --api-key-auth x </dev/null 2>&1)
+echo "$hint" | grep -q "missing required flag: --owner" \
+  && ! echo "$hint" | grep -q "short for"   # the real error, minus the "Use --owner json" hint (04)
+$bin earn manage --venue.aave.token USDC --action DEPOSIT --amount 1 \
+  --owner 0x06A9aF046187895AcFc7258450B15397CAc67400 --chain base \
+  --api-key-auth x --dry-run --no-interactive </dev/null 2>&1 \
+  | grep -q '"token": "USDC"'     # dry-run keeps asset symbols (06)
 ```
 
 If any step fails, the corresponding patch needs revisiting.

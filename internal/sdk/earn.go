@@ -420,7 +420,7 @@ func (s *Earn) PositionsAll(ctx context.Context, request operations.V2EarnPositi
 // Supports dozens of vaults and markets like Morpho and other ERC-4626 compatible yield venues.
 //
 // To deposit into a vault, use the [manage endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/manage-earn-position) with `venue_type=VAULTS`.
-func (s *Earn) Vaults(ctx context.Context, request operations.V2EarnVaultsRequest, opts ...operations.Option) (*operations.V2EarnVaultsResponse, error) {
+func (s *Earn) Vaults(ctx context.Context, request *operations.V2EarnVaultsRequest, opts ...operations.Option) (*operations.V2EarnVaultsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,
@@ -803,7 +803,7 @@ func (s *Earn) AaveMarkets(ctx context.Context, request *operations.V2EarnAaveMa
 //
 // APY values are returned in percentage format (e.g., 5.25 means 5.25%). Markets
 // without complete metadata or statistics are excluded.
-func (s *Earn) PendleMarkets(ctx context.Context, request operations.V2EarnPendleMarketsRequest, opts ...operations.Option) (*operations.V2EarnPendleMarketsResponse, error) {
+func (s *Earn) PendleMarkets(ctx context.Context, request *operations.V2EarnPendleMarketsRequest, opts ...operations.Option) (*operations.V2EarnPendleMarketsResponse, error) {
 	o := operations.Options{}
 	supportedOptions := []string{
 		operations.SupportedOptionTimeout,

@@ -291,9 +291,10 @@ func groupedFlagUsages(flags *pflag.FlagSet) string {
 	required := pflag.NewFlagSet("required", pflag.ContinueOnError)
 	optional := pflag.NewFlagSet("optional", pflag.ContinueOnError)
 	hasGroupAnnotation := false
+	unionFlags, unionSections := unionHelpSections(flags)
 
 	flags.VisitAll(func(f *pflag.Flag) {
-		if f.Hidden {
+		if f.Hidden || unionFlags[f.Name] {
 			return
 		}
 		if ann, ok := f.Annotations["speakeasy:required"]; ok && len(ann) > 0 && ann[0] == "true" {
@@ -307,10 +308,15 @@ func groupedFlagUsages(flags *pflag.FlagSet) string {
 	})
 
 	// Operation commands: Required/Optional sections, with sub-groups when present
-	if required.HasFlags() {
+	if required.HasFlags() || unionSections != "" {
 		var buf strings.Builder
-		buf.WriteString("Required Flags:\n")
-		buf.WriteString(required.FlagUsages())
+		if required.HasFlags() {
+			buf.WriteString("Required Flags:\n")
+			buf.WriteString(required.FlagUsages())
+			buf.WriteString(unionSections)
+		} else {
+			buf.WriteString(strings.TrimPrefix(unionSections, "\n"))
+		}
 		if optional.HasFlags() {
 			if hasGroupAnnotation {
 				buf.WriteString("\n")

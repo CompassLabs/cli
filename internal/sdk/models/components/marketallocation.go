@@ -18,8 +18,10 @@ type MarketAllocation struct {
 	CollateralToken string `json:"collateral_token"`
 	// Symbol of the collateral token (e.g., 'WETH').
 	CollateralTokenSymbol optionalnullable.OptionalNullable[string] `json:"collateral_token_symbol,omitzero"`
-	// Liquidation Loan-To-Value ratio as a raw uint256 string. Divide by 1e18 to get the decimal ratio (e.g., '860000000000000000' = 86%).
+	// Liquidation Loan-To-Value ratio as a raw uint256 string scaled by 1e18 (e.g., '860000000000000000' = 86%). Kept for backward compatibility; prefer `lltv_percent`.
 	Lltv string `json:"lltv"`
+	// Liquidation Loan-To-Value in percent (e.g. 86 means a position is liquidatable once debt exceeds 86% of collateral value). Same scale as `lltv` on /v2/credit/morpho_markets.
+	LltvPercent optionalnullable.OptionalNullable[string] `json:"lltv_percent,omitzero"`
 	// Maximum amount the vault is allowed to supply to this market, as a raw uint184 string in the smallest token unit.
 	SupplyCap optionalnullable.OptionalNullable[string] `json:"supply_cap,omitzero"`
 	// Amount currently supplied by the vault to this market, in the smallest token unit (converted from shares).
@@ -68,6 +70,13 @@ func (m *MarketAllocation) GetLltv() string {
 		return ""
 	}
 	return m.Lltv
+}
+
+func (m *MarketAllocation) GetLltvPercent() optionalnullable.OptionalNullable[string] {
+	if m == nil {
+		return nil
+	}
+	return m.LltvPercent
 }
 
 func (m *MarketAllocation) GetSupplyCap() optionalnullable.OptionalNullable[string] {

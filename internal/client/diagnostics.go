@@ -71,12 +71,21 @@ var sensitiveHeaderSuffixes = []string{
 }
 
 // sensitiveJSONKeys lists JSON field names to redact, normalized to lowercase without separators.
+// Compass-specific: a bare "token" key or query parameter is an asset symbol
+// here (USDC, WETH), as are token_in, token_out, borrow_token and friends, so
+// neither the bare key nor the "token" substring is treated as sensitive.
+// Credential-shaped token names are listed explicitly instead, and the
+// "-token" header suffix plus the key/secret/auth/session substrings still
+// apply to headers and query parameters.
 var sensitiveJSONKeys = map[string]bool{
 	"password":     true,
 	"secret":       true,
-	"token":        true,
 	"accesstoken":  true,
 	"refreshtoken": true,
+	"idtoken":      true,
+	"bearertoken":  true,
+	"sessiontoken": true,
+	"authtoken":    true,
 	"apikey":       true,
 	"privatekey":   true,
 	"clientsecret": true,
@@ -85,7 +94,11 @@ var sensitiveJSONKeys = map[string]bool{
 var sensitiveQueryKeys = map[string]bool{
 	"apikey":       true,
 	"accesstoken":  true,
-	"token":        true,
+	"refreshtoken": true,
+	"idtoken":      true,
+	"bearertoken":  true,
+	"sessiontoken": true,
+	"authtoken":    true,
 	"key":          true,
 	"clientsecret": true,
 	"password":     true,
@@ -94,7 +107,6 @@ var sensitiveQueryKeys = map[string]bool{
 
 var sensitiveNameSubstrings = []string{
 	"key",
-	"token",
 	"secret",
 	"auth",
 	"session",

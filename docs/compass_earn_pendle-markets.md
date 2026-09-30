@@ -22,7 +22,7 @@ compass earn pendle-markets [flags]
 ### Examples
 
 ```
-  compass earn pendle-markets --order-by tvl_usd
+  compass earn pendle-markets
 ```
 
 ### Options
@@ -34,7 +34,7 @@ compass earn pendle-markets [flags]
   -l, --limit int                  The number of items to return.
   -m, --min-tvl-usd string         JSON value (one of: number | string)
       --offset int                 The offset of the first item to return.
-      --order-by string            The field to order the results by. [required]
+      --order-by string            Field to order the markets by. One of: tvl_usd, implied_apy. Defaults to tvl_usd; unknown values also fall back to tvl_usd.
   -u, --underlying-symbol string   Filter markets by underlying asset symbol (e.g., 'USDC', 'WETH').
 ```
 

@@ -612,6 +612,17 @@ Trust the **Description** column over the metavar.
 - **No `--api-key` / `--api-key-auth-key` flag**: the auth flag is `--api-key-auth` (single token).
 - **`COMPASS_API_KEY` doesn't work**; the env var is `COMPASS_API_KEY_AUTH`.
 
+### `token` fields are asset symbols, so previews show them
+
+The Diagnostics section above lists `token` among the JSON fields that
+`--dry-run` and `--debug` redact. In this API `token`, `token_in`,
+`token_out`, `borrow_token` and similar fields are asset symbols or
+addresses (`USDC`, `WETH`), not credentials, so previews print them as-is.
+Credentials are still redacted: the `X-Api-Key` header and any
+`authorization`/`cookie`/`*-token` header, plus `password`, `secret`,
+`api_key`, `access_token`, `refresh_token`, `id_token`, `bearer_token`,
+`session_token` and `auth_token` fields.
+
 ## Executing transactions (signing & broadcasting)
 
 The CLI is **non-custodial**: it never holds keys and never broadcasts. Read commands return data directly; **action** commands (`earn manage`, `credit borrow`, `credit loop`, `tokenized-assets order`, …) return an **unsigned transaction** — or EIP-712 typed data for gas-sponsored and order flows — for *you* to sign and submit. Every action is therefore a two-step "build → sign & send"; there is intentionally no `compass sign` / `compass send` (keeping signing in your own wallet is what makes the CLI non-custodial).

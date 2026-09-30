@@ -14,11 +14,11 @@ import (
 )
 
 var vaultsCmdMeta = []flagutil.FlagMeta{
-	{FlagName: "order-by", FieldPath: "OrderBy", Kind: flagutil.FlagKindString, Required: true, Description: "The field to order the results by. [required]"},
 	{FlagName: "direction", FieldPath: "Direction", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"asc", "desc"}, Description: "The direction to order the results by. (options: asc, desc)"},
 	{FlagName: "offset", FieldPath: "Offset", Kind: flagutil.FlagKindInt64, Optional: true, Description: "The offset of the first item to return."},
 	{FlagName: "limit", Shorthand: "l", FieldPath: "Limit", Kind: flagutil.FlagKindInt64, Optional: true, HasMaximum: true, Maximum: 1000, Description: "The number of items to return."},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "robinhood", "ethereum_sepolia"}, Description: "Optional chain filter. If not provided, returns vaults for all chains. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia)"},
+	{FlagName: "order-by", FieldPath: "OrderBy", Kind: flagutil.FlagKindString, Optional: true, Description: "Field to order the vaults by. One of: tvl_usd, liquidity_usd, deposit_cap_usd, apy_7d, apy_30d, apy_90d. Defaults to tvl_usd; unknown values also fall back to tvl_usd."},
 	{FlagName: "asset-symbol", Shorthand: "a", FieldPath: "AssetSymbol", Kind: flagutil.FlagKindString, Optional: true, Description: "Filter vaults by underlying asset symbol (e.g., 'USDC', 'WETH')."},
 	{FlagName: "min-tvl-usd", FieldPath: "MinTvlUsd", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
 	{FlagName: "min-liquidity-usd", FieldPath: "MinLiquidityUsd", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
@@ -31,7 +31,7 @@ func initVaultsCmd(parent *cobra.Command) error {
 		Use:     "vaults",
 		Short:   "List vaults",
 		Long:    "List ERC-4626 yield vaults across DeFi venues.\n\nReturns vault data including APY, TVL, and underlying asset information. Use this endpoint to discover yield opportunities, compare rates across venues, or build vault selection interfaces.\n\nSupports dozens of vaults and markets like Morpho and other ERC-4626 compatible yield venues.\n\nTo deposit into a vault, use the [manage endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/manage-earn-position) with `venue_type=VAULTS`.",
-		Example: "  compass earn vaults --order-by tvl_usd",
+		Example: "  compass earn vaults",
 		Args:    cobra.NoArgs,
 		RunE:    runVaultsCmd,
 		Annotations: map[string]string{
@@ -74,7 +74,7 @@ func runVaultsCmd(cmd *cobra.Command, args []string) error {
 	if output.WantsRawJSON(cmd) {
 		sdkOpts = append(sdkOpts, operations.WithSkipDeserialization())
 	}
-	res, err := s.Earn.Vaults(cmd.Context(), *req, sdkOpts...)
+	res, err := s.Earn.Vaults(cmd.Context(), req, sdkOpts...)
 	if err != nil {
 		return output.Error(cmd, err)
 	}
