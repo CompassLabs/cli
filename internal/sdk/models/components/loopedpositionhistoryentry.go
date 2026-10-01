@@ -38,6 +38,28 @@ func (e *Classification) IsExact() bool {
 	return false
 }
 
+type FlowBasis string
+
+const (
+	FlowBasisSwap   FlowBasis = "swap"
+	FlowBasisOracle FlowBasis = "oracle"
+)
+
+func (e FlowBasis) ToPointer() *FlowBasis {
+	return &e
+}
+
+// IsExact returns true if the value matches a known enum value, false otherwise.
+func (e *FlowBasis) IsExact() bool {
+	if e != nil {
+		switch *e {
+		case "swap", "oracle":
+			return true
+		}
+	}
+	return false
+}
+
 // LoopedPositionHistoryEntry - One transaction in a looped position's lifetime.
 type LoopedPositionHistoryEntry struct {
 	// Transaction hash.
@@ -54,10 +76,14 @@ type LoopedPositionHistoryEntry struct {
 	CollateralDelta string `json:"collateral_delta"`
 	// Signed change in debt in this transaction (positive = borrowed).
 	DebtDelta string `json:"debt_delta"`
-	// The swap leg detected in this transaction, if any.
+	// The swap leg of a loop (debt sold for collateral) or an unwind (collateral sold for debt), when the transaction shows one.
 	Swap optionalnullable.OptionalNullable[SwapInfo] `json:"swap,omitzero"`
 	// The raw lending events that make up this transaction (Morpho supply_collateral maps to 'supply', withdraw_collateral to 'withdraw').
 	Events []CreditEvent `json:"events,omitzero"`
+	// Equity this transaction put into the position (positive) or took out of it (negative), in the debt token, valued when it landed. 0 for a liquidation, whose loss stays in the position's equity. Null when the transaction could not be valued.
+	EquityFlowQuote optionalnullable.OptionalNullable[string] `json:"equity_flow_quote,omitzero"`
+	// How equity_flow_quote was measured. 'swap': from this transaction's own swap, so the swap's cost shows up in PnL. 'oracle': from the net amounts at the market price; on a loop or unwind that folds the swap's cost into the flow instead. Null for a liquidation and for a transaction that could not be valued.
+	FlowBasis optionalnullable.OptionalNullable[FlowBasis] `json:"flow_basis,omitzero"`
 }
 
 func (l LoopedPositionHistoryEntry) MarshalJSON() ([]byte, error) {
@@ -132,4 +158,18 @@ func (l *LoopedPositionHistoryEntry) GetEvents() []CreditEvent {
 		return nil
 	}
 	return l.Events
+}
+
+func (l *LoopedPositionHistoryEntry) GetEquityFlowQuote() optionalnullable.OptionalNullable[string] {
+	if l == nil {
+		return nil
+	}
+	return l.EquityFlowQuote
+}
+
+func (l *LoopedPositionHistoryEntry) GetFlowBasis() optionalnullable.OptionalNullable[FlowBasis] {
+	if l == nil {
+		return nil
+	}
+	return l.FlowBasis
 }

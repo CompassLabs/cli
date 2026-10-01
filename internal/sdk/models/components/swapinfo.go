@@ -6,21 +6,21 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 )
 
-// SwapInfo - The DEX swap leg detected inside a loop transaction.
+// SwapInfo - The swap leg detected inside a loop or unwind transaction.
 //
-// Evidence is token-filtered and executor-proof: the sold (debt) token left the
-// account to a non-protocol counterparty and the bought (collateral) token
-// arrived from a non-protocol counterparty. Aggregator fills often settle from an
-// executor contract, so the router is recorded only when it happens to be the
-// outbound counterparty — it is never required for detection.
+// Evidence is token-filtered and executor-proof: the sold token left the
+// account to a non-protocol counterparty and the bought token arrived from a
+// non-protocol counterparty. Aggregator fills often settle from an executor
+// contract, so the router is recorded only when it happens to be the outbound
+// counterparty — it is never required for detection.
 type SwapInfo struct {
-	// Token sold in the swap (the borrowed/debt token).
+	// The token leaving the account: the debt token on a loop, the collateral token on an unwind.
 	SoldToken string `json:"sold_token"`
 	// Symbol of the sold token.
 	SoldSymbol string `json:"sold_symbol"`
 	// Amount of the sold token.
 	SoldAmount string `json:"sold_amount"`
-	// Token bought in the swap (the collateral token).
+	// The token arriving in the account: the collateral token on a loop, the debt token on an unwind.
 	BoughtToken string `json:"bought_token"`
 	// Symbol of the bought token.
 	BoughtSymbol string `json:"bought_symbol"`

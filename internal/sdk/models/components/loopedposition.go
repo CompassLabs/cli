@@ -76,6 +76,8 @@ type LoopedPosition struct {
 	Current optionalnullable.OptionalNullable[LoopedPositionCurrentState] `json:"current,omitzero"`
 	// Lifetime totals across all of a looped position's transactions.
 	Totals LoopedPositionTotals `json:"totals"`
+	// Profit or loss since the position opened, for OPEN and CLOSED positions alike. Null when it cannot be stated honestly: the position's recorded history is incomplete (it starts after the opening, or does not add up to what the position holds now), a transaction could not be priced, the position's current value could not be read or separated from another position's, or a transaction's legs cannot be told apart from another position's.
+	Pnl optionalnullable.OptionalNullable[LoopedPositionPnl] `json:"pnl,omitzero"`
 	// All transactions for this position, chronological.
 	History []LoopedPositionHistoryEntry `json:"history,omitzero"`
 }
@@ -187,6 +189,13 @@ func (l *LoopedPosition) GetTotals() LoopedPositionTotals {
 		return LoopedPositionTotals{}
 	}
 	return l.Totals
+}
+
+func (l *LoopedPosition) GetPnl() optionalnullable.OptionalNullable[LoopedPositionPnl] {
+	if l == nil {
+		return nil
+	}
+	return l.Pnl
 }
 
 func (l *LoopedPosition) GetHistory() []LoopedPositionHistoryEntry {
