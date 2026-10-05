@@ -30,9 +30,9 @@ compass earn vaults [flags]
       --direction string             The direction to order the results by. (options: asc, desc)
   -h, --help                         help for vaults
   -l, --limit int                    The number of items to return.
-      --min-deposit-cap-usd string   JSON value (one of: number | string)
-      --min-liquidity-usd string     JSON value (one of: number | string)
-      --min-tvl-usd string           JSON value (one of: number | string)
+      --min-deposit-cap-usd string   Minimum deposit capacity in USD. Vaults below this are excluded. Set to 0 to exclude paused vaults.
+      --min-liquidity-usd string     Minimum available liquidity in USD. Vaults below this are excluded.
+      --min-tvl-usd string           Minimum TVL in USD. Vaults with TVL below this value will be excluded.
       --offset int                   The offset of the first item to return.
       --order-by string              Field to order the vaults by. One of: tvl_usd, liquidity_usd, deposit_cap_usd, apy_7d, apy_30d, apy_90d. Defaults to tvl_usd; unknown values also fall back to tvl_usd.
 ```

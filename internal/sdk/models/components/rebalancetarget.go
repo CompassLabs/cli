@@ -3,302 +3,8 @@
 package components
 
 import (
-	"errors"
-	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
-	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
-
-type TargetEquityUsdType string
-
-const (
-	TargetEquityUsdTypeNumber TargetEquityUsdType = "number"
-	TargetEquityUsdTypeStr    TargetEquityUsdType = "str"
-)
-
-// TargetEquityUsd - SIZE knob: the net value (collateral − debt, in USD) to commit to this position; total collateral ≈ target_equity_usd × target_multiplier. To remove a position use close=true, never target_equity_usd=0.
-type TargetEquityUsd struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type TargetEquityUsdType
-}
-
-func CreateTargetEquityUsdNumber(number float64) TargetEquityUsd {
-	typ := TargetEquityUsdTypeNumber
-
-	return TargetEquityUsd{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateTargetEquityUsdStr(str string) TargetEquityUsd {
-	typ := TargetEquityUsdTypeStr
-
-	return TargetEquityUsd{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *TargetEquityUsd) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = TargetEquityUsd{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  TargetEquityUsdTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  TargetEquityUsdTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for TargetEquityUsd", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for TargetEquityUsd", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(TargetEquityUsdType)
-	switch best.Type {
-	case TargetEquityUsdTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case TargetEquityUsdTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for TargetEquityUsd", string(data))
-}
-
-func (u TargetEquityUsd) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type TargetEquityUsd: all fields are null")
-}
-
-type RebalanceTargetTargetMultiplierType string
-
-const (
-	RebalanceTargetTargetMultiplierTypeNumber RebalanceTargetTargetMultiplierType = "number"
-	RebalanceTargetTargetMultiplierTypeStr    RebalanceTargetTargetMultiplierType = "str"
-)
-
-// RebalanceTargetTargetMultiplier - LEVERAGE knob: total collateral exposure ÷ equity. 1 means unlevered supplied collateral. The protocol maximum is enforced when the plan is built.
-type RebalanceTargetTargetMultiplier struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type RebalanceTargetTargetMultiplierType
-}
-
-func CreateRebalanceTargetTargetMultiplierNumber(number float64) RebalanceTargetTargetMultiplier {
-	typ := RebalanceTargetTargetMultiplierTypeNumber
-
-	return RebalanceTargetTargetMultiplier{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateRebalanceTargetTargetMultiplierStr(str string) RebalanceTargetTargetMultiplier {
-	typ := RebalanceTargetTargetMultiplierTypeStr
-
-	return RebalanceTargetTargetMultiplier{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *RebalanceTargetTargetMultiplier) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = RebalanceTargetTargetMultiplier{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  RebalanceTargetTargetMultiplierTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  RebalanceTargetTargetMultiplierTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for RebalanceTargetTargetMultiplier", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for RebalanceTargetTargetMultiplier", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(RebalanceTargetTargetMultiplierType)
-	switch best.Type {
-	case RebalanceTargetTargetMultiplierTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case RebalanceTargetTargetMultiplierTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for RebalanceTargetTargetMultiplier", string(data))
-}
-
-func (u RebalanceTargetTargetMultiplier) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type RebalanceTargetTargetMultiplier: all fields are null")
-}
-
-type RebalanceTargetMaxSlippagePercentType string
-
-const (
-	RebalanceTargetMaxSlippagePercentTypeNumber RebalanceTargetMaxSlippagePercentType = "number"
-	RebalanceTargetMaxSlippagePercentTypeStr    RebalanceTargetMaxSlippagePercentType = "str"
-)
-
-// RebalanceTargetMaxSlippagePercent - Per-target override of the request-level per-swap slippage tolerance in percent.
-type RebalanceTargetMaxSlippagePercent struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type RebalanceTargetMaxSlippagePercentType
-}
-
-func CreateRebalanceTargetMaxSlippagePercentNumber(number float64) RebalanceTargetMaxSlippagePercent {
-	typ := RebalanceTargetMaxSlippagePercentTypeNumber
-
-	return RebalanceTargetMaxSlippagePercent{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateRebalanceTargetMaxSlippagePercentStr(str string) RebalanceTargetMaxSlippagePercent {
-	typ := RebalanceTargetMaxSlippagePercentTypeStr
-
-	return RebalanceTargetMaxSlippagePercent{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *RebalanceTargetMaxSlippagePercent) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = RebalanceTargetMaxSlippagePercent{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  RebalanceTargetMaxSlippagePercentTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  RebalanceTargetMaxSlippagePercentTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for RebalanceTargetMaxSlippagePercent", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for RebalanceTargetMaxSlippagePercent", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(RebalanceTargetMaxSlippagePercentType)
-	switch best.Type {
-	case RebalanceTargetMaxSlippagePercentTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case RebalanceTargetMaxSlippagePercentTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for RebalanceTargetMaxSlippagePercent", string(data))
-}
-
-func (u RebalanceTargetMaxSlippagePercent) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type RebalanceTargetMaxSlippagePercent: all fields are null")
-}
 
 // RebalanceTarget - The desired end-state of ONE position in the Credit Account.
 //
@@ -336,13 +42,13 @@ type RebalanceTarget struct {
 	// Token borrowed against the collateral for this position. For MORPHO it must be the market's loan token.
 	BorrowToken string `json:"borrow_token"`
 	// SIZE knob: the net value (collateral − debt, in USD) to commit to this position; total collateral ≈ target_equity_usd × target_multiplier. To remove a position use close=true, never target_equity_usd=0.
-	TargetEquityUsd optionalnullable.OptionalNullable[TargetEquityUsd] `json:"target_equity_usd,omitzero"`
+	TargetEquityUsd optionalnullable.OptionalNullable[string] `json:"target_equity_usd,omitzero"`
 	// LEVERAGE knob: total collateral exposure ÷ equity. 1 means unlevered supplied collateral. The protocol maximum is enforced when the plan is built.
-	TargetMultiplier optionalnullable.OptionalNullable[RebalanceTargetTargetMultiplier] `json:"target_multiplier,omitzero"`
+	TargetMultiplier optionalnullable.OptionalNullable[string] `json:"target_multiplier,omitzero"`
 	// If true, fully unwind this position: the debt is cleared exactly (accrued interest included) and the pair collateral is returned to the Credit Account.
 	Close *bool `json:"close,omitzero"`
 	// Per-target override of the request-level per-swap slippage tolerance in percent.
-	MaxSlippagePercent optionalnullable.OptionalNullable[RebalanceTargetMaxSlippagePercent] `json:"max_slippage_percent,omitzero"`
+	MaxSlippagePercent optionalnullable.OptionalNullable[string] `json:"max_slippage_percent,omitzero"`
 }
 
 func (r *RebalanceTarget) GetProtocol() *CreditProtocol {
@@ -394,14 +100,14 @@ func (r *RebalanceTarget) GetBorrowToken() string {
 	return r.BorrowToken
 }
 
-func (r *RebalanceTarget) GetTargetEquityUsd() optionalnullable.OptionalNullable[TargetEquityUsd] {
+func (r *RebalanceTarget) GetTargetEquityUsd() optionalnullable.OptionalNullable[string] {
 	if r == nil {
 		return nil
 	}
 	return r.TargetEquityUsd
 }
 
-func (r *RebalanceTarget) GetTargetMultiplier() optionalnullable.OptionalNullable[RebalanceTargetTargetMultiplier] {
+func (r *RebalanceTarget) GetTargetMultiplier() optionalnullable.OptionalNullable[string] {
 	if r == nil {
 		return nil
 	}
@@ -415,7 +121,7 @@ func (r *RebalanceTarget) GetClose() *bool {
 	return r.Close
 }
 
-func (r *RebalanceTarget) GetMaxSlippagePercent() optionalnullable.OptionalNullable[RebalanceTargetMaxSlippagePercent] {
+func (r *RebalanceTarget) GetMaxSlippagePercent() optionalnullable.OptionalNullable[string] {
 	if r == nil {
 		return nil
 	}

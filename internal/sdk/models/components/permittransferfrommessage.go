@@ -4,6 +4,7 @@ package components
 
 import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
+	"math/big"
 )
 
 type PermitTransferFromMessage struct {
@@ -11,9 +12,9 @@ type PermitTransferFromMessage struct {
 	// Address allowed to transfer (caller of permitTransferFrom)
 	Spender string `json:"spender"`
 	// Unique nonce to prevent replay
-	Nonce int64 `json:"nonce"`
+	Nonce *big.Int `json:"nonce"`
 	// Unix timestamp after which signature expires
-	Deadline int64 `json:"deadline"`
+	Deadline *big.Int `json:"deadline"`
 }
 
 func (p PermitTransferFromMessage) MarshalJSON() ([]byte, error) {
@@ -41,16 +42,16 @@ func (p *PermitTransferFromMessage) GetSpender() string {
 	return p.Spender
 }
 
-func (p *PermitTransferFromMessage) GetNonce() int64 {
+func (p *PermitTransferFromMessage) GetNonce() *big.Int {
 	if p == nil {
-		return 0
+		return big.NewInt(0)
 	}
 	return p.Nonce
 }
 
-func (p *PermitTransferFromMessage) GetDeadline() int64 {
+func (p *PermitTransferFromMessage) GetDeadline() *big.Int {
 	if p == nil {
-		return 0
+		return big.NewInt(0)
 	}
 	return p.Deadline
 }

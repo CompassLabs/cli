@@ -26,7 +26,7 @@ compass credit rebalance [flags]
 ### Examples
 
 ```
-  compass credit rebalance --owner 0x4D3c07d1db7E4A9E44285fae9810d6549655bc74 --chain ethereum --targets '[{"protocol":"AAVE","collateral_token":"WETH","borrow_token":"USDC","target_multiplier":2}]'
+  compass credit rebalance --owner 0x4D3c07d1db7E4A9E44285fae9810d6549655bc74 --chain ethereum --targets '[{"protocol":"AAVE","collateral_token":"WETH","borrow_token":"USDC","target_multiplier":"2"}]'
 ```
 
 ### Options
@@ -36,7 +36,7 @@ compass credit rebalance [flags]
   -c, --chain string                  Blockchain network. Rebalance is not available on HyperEVM yet; use loop/unloop there. (options: arbitrum, base, bsc, ethereum, tempo) [required]
   -g, --gas-sponsorship               If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
   -h, --help                          help for rebalance
-  -m, --max-slippage-percent string   JSON value (one of: number | string)
+  -m, --max-slippage-percent string   Request-level per-swap slippage tolerance in percent (including routing swaps). A per-target max_slippage_percent overrides it where set.
       --owner string                  The address that owns the Credit Account. [required]
       --schema                        Print the exact JSON Schema of the request body and exit
   -t, --targets string                The positions to change. Scoped: only positions named here are touched; any position not listed is left untouched. [required]

@@ -4,10 +4,7 @@ package components
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
-	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
 // CreditUnloopRequestChain - Blockchain network. Not every protocol is deployed on every chain — see the protocol field — and a chain with no credit venue at all returns a 422 naming the chains that do.
@@ -47,200 +44,6 @@ func (e *CreditUnloopRequestChain) UnmarshalJSON(data []byte) error {
 	default:
 		return fmt.Errorf("invalid value for CreditUnloopRequestChain: %v", v)
 	}
-}
-
-type CreditUnloopRequestTargetMultiplierType string
-
-const (
-	CreditUnloopRequestTargetMultiplierTypeNumber CreditUnloopRequestTargetMultiplierType = "number"
-	CreditUnloopRequestTargetMultiplierTypeStr    CreditUnloopRequestTargetMultiplierType = "str"
-)
-
-// CreditUnloopRequestTargetMultiplier - Target leverage after the unwind. Omit (null) for a FULL unwind: the debt is cleared exactly — accrued interest included — and all pair collateral is withdrawn back to the Credit Account. `1` runs the same exact debt close but leaves the collateral supplied (earning). A value greater than 1 delevers the position to that multiplier. Must be below the position's current multiplier.
-type CreditUnloopRequestTargetMultiplier struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type CreditUnloopRequestTargetMultiplierType
-}
-
-func CreateCreditUnloopRequestTargetMultiplierNumber(number float64) CreditUnloopRequestTargetMultiplier {
-	typ := CreditUnloopRequestTargetMultiplierTypeNumber
-
-	return CreditUnloopRequestTargetMultiplier{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateCreditUnloopRequestTargetMultiplierStr(str string) CreditUnloopRequestTargetMultiplier {
-	typ := CreditUnloopRequestTargetMultiplierTypeStr
-
-	return CreditUnloopRequestTargetMultiplier{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *CreditUnloopRequestTargetMultiplier) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = CreditUnloopRequestTargetMultiplier{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditUnloopRequestTargetMultiplierTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditUnloopRequestTargetMultiplierTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditUnloopRequestTargetMultiplier", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditUnloopRequestTargetMultiplier", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(CreditUnloopRequestTargetMultiplierType)
-	switch best.Type {
-	case CreditUnloopRequestTargetMultiplierTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case CreditUnloopRequestTargetMultiplierTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditUnloopRequestTargetMultiplier", string(data))
-}
-
-func (u CreditUnloopRequestTargetMultiplier) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type CreditUnloopRequestTargetMultiplier: all fields are null")
-}
-
-type CreditUnloopRequestMaxSlippagePercentType string
-
-const (
-	CreditUnloopRequestMaxSlippagePercentTypeNumber CreditUnloopRequestMaxSlippagePercentType = "number"
-	CreditUnloopRequestMaxSlippagePercentTypeStr    CreditUnloopRequestMaxSlippagePercentType = "str"
-)
-
-// CreditUnloopRequestMaxSlippagePercent - Per-swap slippage tolerance in percent. Unwind dust is bounded by this per iteration, so tighter slippage means less dust.
-type CreditUnloopRequestMaxSlippagePercent struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type CreditUnloopRequestMaxSlippagePercentType
-}
-
-func CreateCreditUnloopRequestMaxSlippagePercentNumber(number float64) CreditUnloopRequestMaxSlippagePercent {
-	typ := CreditUnloopRequestMaxSlippagePercentTypeNumber
-
-	return CreditUnloopRequestMaxSlippagePercent{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateCreditUnloopRequestMaxSlippagePercentStr(str string) CreditUnloopRequestMaxSlippagePercent {
-	typ := CreditUnloopRequestMaxSlippagePercentTypeStr
-
-	return CreditUnloopRequestMaxSlippagePercent{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *CreditUnloopRequestMaxSlippagePercent) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = CreditUnloopRequestMaxSlippagePercent{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditUnloopRequestMaxSlippagePercentTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditUnloopRequestMaxSlippagePercentTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditUnloopRequestMaxSlippagePercent", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditUnloopRequestMaxSlippagePercent", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(CreditUnloopRequestMaxSlippagePercentType)
-	switch best.Type {
-	case CreditUnloopRequestMaxSlippagePercentTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case CreditUnloopRequestMaxSlippagePercentTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditUnloopRequestMaxSlippagePercent", string(data))
-}
-
-func (u CreditUnloopRequestMaxSlippagePercent) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type CreditUnloopRequestMaxSlippagePercent: all fields are null")
 }
 
 // CreditUnloopRequestPricing - Swap-leg routing policy. 'auto': firm quotes where a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route — previews the firm venue cannot serve return the firm_available advisory alone (preview=null, zero aggregator calls), and executions fail with a typed error instead of silently substituting market pricing. 'market': never route through the firm venue; every leg is priced by the aggregator. max_slippage_percent applies on EVERY policy — unlike the loop, firm unwinds consume it to size the guaranteed withdraw/repay floors (the fills themselves are exact). 'firm' is incompatible with gas_sponsorship (sponsored unwinds force market routing).
@@ -311,9 +114,9 @@ type CreditUnloopRequest struct {
 	// Token borrowed in the loop; withdrawn collateral is swapped back to it and used to repay. For MORPHO it must be the market's loan token.
 	BorrowToken string `json:"borrow_token"`
 	// Target leverage after the unwind. Omit (null) for a FULL unwind: the debt is cleared exactly — accrued interest included — and all pair collateral is withdrawn back to the Credit Account. `1` runs the same exact debt close but leaves the collateral supplied (earning). A value greater than 1 delevers the position to that multiplier. Must be below the position's current multiplier.
-	TargetMultiplier optionalnullable.OptionalNullable[CreditUnloopRequestTargetMultiplier] `json:"target_multiplier,omitzero"`
+	TargetMultiplier *string `json:"target_multiplier,omitzero"`
 	// Per-swap slippage tolerance in percent. Unwind dust is bounded by this per iteration, so tighter slippage means less dust.
-	MaxSlippagePercent *CreditUnloopRequestMaxSlippagePercent `json:"max_slippage_percent,omitzero"`
+	MaxSlippagePercent *string `json:"max_slippage_percent,omitzero"`
 	// If the target cannot be reached in one transaction, return the maximum-progress plan (preview.fully_unwound=false) instead of a 400. This can happen because every withdrawal is sized to keep the health factor at or above 1.02 at that step, so a position opened very close to its liquidation threshold runs out of headroom before the target is met. A second unloop call, now from a much lower leverage, finishes the job.
 	AllowPartial *bool `json:"allow_partial,omitzero"`
 	// If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
@@ -387,14 +190,14 @@ func (c *CreditUnloopRequest) GetBorrowToken() string {
 	return c.BorrowToken
 }
 
-func (c *CreditUnloopRequest) GetTargetMultiplier() optionalnullable.OptionalNullable[CreditUnloopRequestTargetMultiplier] {
+func (c *CreditUnloopRequest) GetTargetMultiplier() *string {
 	if c == nil {
 		return nil
 	}
 	return c.TargetMultiplier
 }
 
-func (c *CreditUnloopRequest) GetMaxSlippagePercent() *CreditUnloopRequestMaxSlippagePercent {
+func (c *CreditUnloopRequest) GetMaxSlippagePercent() *string {
 	if c == nil {
 		return nil
 	}

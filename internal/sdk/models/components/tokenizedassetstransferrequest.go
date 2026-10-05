@@ -4,107 +4,8 @@ package components
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
-
-type TokenizedAssetsTransferRequestAmountType string
-
-const (
-	TokenizedAssetsTransferRequestAmountTypeNumber TokenizedAssetsTransferRequestAmountType = "number"
-	TokenizedAssetsTransferRequestAmountTypeStr    TokenizedAssetsTransferRequestAmountType = "str"
-)
-
-// TokenizedAssetsTransferRequestAmount - The amount of tokens to transfer (in token units, not wei).
-type TokenizedAssetsTransferRequestAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type TokenizedAssetsTransferRequestAmountType
-}
-
-func CreateTokenizedAssetsTransferRequestAmountNumber(number float64) TokenizedAssetsTransferRequestAmount {
-	typ := TokenizedAssetsTransferRequestAmountTypeNumber
-
-	return TokenizedAssetsTransferRequestAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateTokenizedAssetsTransferRequestAmountStr(str string) TokenizedAssetsTransferRequestAmount {
-	typ := TokenizedAssetsTransferRequestAmountTypeStr
-
-	return TokenizedAssetsTransferRequestAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *TokenizedAssetsTransferRequestAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = TokenizedAssetsTransferRequestAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  TokenizedAssetsTransferRequestAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  TokenizedAssetsTransferRequestAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for TokenizedAssetsTransferRequestAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for TokenizedAssetsTransferRequestAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(TokenizedAssetsTransferRequestAmountType)
-	switch best.Type {
-	case TokenizedAssetsTransferRequestAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case TokenizedAssetsTransferRequestAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for TokenizedAssetsTransferRequestAmount", string(data))
-}
-
-func (u TokenizedAssetsTransferRequestAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type TokenizedAssetsTransferRequestAmount: all fields are null")
-}
 
 // TokenizedAssetsTransferRequestAction - Whether you are depositing to or withdrawing from your Tokenized Assets Account.
 type TokenizedAssetsTransferRequestAction string
@@ -141,7 +42,7 @@ type TokenizedAssetsTransferRequest struct {
 	// The token to transfer. Tokenized-asset orders settle in USDC.
 	Token string `json:"token"`
 	// The amount of tokens to transfer (in token units, not wei).
-	Amount TokenizedAssetsTransferRequestAmount `json:"amount"`
+	Amount string `json:"amount"`
 	// Whether you are depositing to or withdrawing from your Tokenized Assets Account.
 	Action TokenizedAssetsTransferRequestAction `json:"action"`
 	// Optionally request gas sponsorship. If set to `true`, EIP-712 signature data will be returned that must be signed by the `owner` and submitted to the `/gas_sponsorship/prepare` endpoint.
@@ -171,9 +72,9 @@ func (t *TokenizedAssetsTransferRequest) GetToken() string {
 	return t.Token
 }
 
-func (t *TokenizedAssetsTransferRequest) GetAmount() TokenizedAssetsTransferRequestAmount {
+func (t *TokenizedAssetsTransferRequest) GetAmount() string {
 	if t == nil {
-		return TokenizedAssetsTransferRequestAmount{}
+		return ""
 	}
 	return t.Amount
 }

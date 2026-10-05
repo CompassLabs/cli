@@ -20,7 +20,7 @@ var pendleMarketsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "robinhood", "ethereum_sepolia"}, Description: "Optional chain filter. If not provided, returns markets for all chains. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia)"},
 	{FlagName: "order-by", FieldPath: "OrderBy", Kind: flagutil.FlagKindString, Optional: true, Description: "Field to order the markets by. One of: tvl_usd, implied_apy. Defaults to tvl_usd; unknown values also fall back to tvl_usd."},
 	{FlagName: "underlying-symbol", Shorthand: "u", FieldPath: "UnderlyingSymbol", Kind: flagutil.FlagKindString, Optional: true, Description: "Filter markets by underlying asset symbol (e.g., 'USDC', 'WETH')."},
-	{FlagName: "min-tvl-usd", Shorthand: "m", FieldPath: "MinTvlUsd", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
+	{FlagName: "min-tvl-usd", Shorthand: "m", FieldPath: "MinTvlUsd", Kind: flagutil.FlagKindString, Optional: true, Description: "Minimum TVL in USD. Markets with TVL below this value will be excluded."},
 }
 
 // initPendleMarketsCmd initializes the pendle-markets command.

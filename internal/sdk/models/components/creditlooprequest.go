@@ -4,10 +4,8 @@ package components
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
-	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
 // CreditLoopRequestChain - Blockchain network. Not every protocol is deployed on every chain — see the protocol field — and a chain with no credit venue at all returns a 422 naming the chains that do.
@@ -47,394 +45,6 @@ func (e *CreditLoopRequestChain) UnmarshalJSON(data []byte) error {
 	default:
 		return fmt.Errorf("invalid value for CreditLoopRequestChain: %v", v)
 	}
-}
-
-type InitialCollateralAmountType string
-
-const (
-	InitialCollateralAmountTypeNumber InitialCollateralAmountType = "number"
-	InitialCollateralAmountTypeStr    InitialCollateralAmountType = "str"
-)
-
-// InitialCollateralAmount - Collateral (in token units) that the Credit Account must ALREADY hold when this is called — the loop never pulls from the owner's wallet mid-transaction. Fund the account first via /v2/credit/transfer (action=DEPOSIT).
-type InitialCollateralAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type InitialCollateralAmountType
-}
-
-func CreateInitialCollateralAmountNumber(number float64) InitialCollateralAmount {
-	typ := InitialCollateralAmountTypeNumber
-
-	return InitialCollateralAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateInitialCollateralAmountStr(str string) InitialCollateralAmount {
-	typ := InitialCollateralAmountTypeStr
-
-	return InitialCollateralAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *InitialCollateralAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = InitialCollateralAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  InitialCollateralAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  InitialCollateralAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for InitialCollateralAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for InitialCollateralAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(InitialCollateralAmountType)
-	switch best.Type {
-	case InitialCollateralAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case InitialCollateralAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for InitialCollateralAmount", string(data))
-}
-
-func (u InitialCollateralAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type InitialCollateralAmount: all fields are null")
-}
-
-type MultiplierType string
-
-const (
-	MultiplierTypeNumber MultiplierType = "number"
-	MultiplierTypeStr    MultiplierType = "str"
-)
-
-// Multiplier - Target leverage: total collateral exposure = multiplier × initial_collateral_amount. Must be achievable at the requested loan_to_value (max ≈ 0.9 / (1 − LTV)).
-type Multiplier struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type MultiplierType
-}
-
-func CreateMultiplierNumber(number float64) Multiplier {
-	typ := MultiplierTypeNumber
-
-	return Multiplier{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateMultiplierStr(str string) Multiplier {
-	typ := MultiplierTypeStr
-
-	return Multiplier{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *Multiplier) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = Multiplier{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  MultiplierTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  MultiplierTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for Multiplier", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for Multiplier", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(MultiplierType)
-	switch best.Type {
-	case MultiplierTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case MultiplierTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for Multiplier", string(data))
-}
-
-func (u Multiplier) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type Multiplier: all fields are null")
-}
-
-type LoanToValueType string
-
-const (
-	LoanToValueTypeNumber LoanToValueType = "number"
-	LoanToValueTypeStr    LoanToValueType = "str"
-)
-
-// LoanToValue - Per-iteration borrow LTV in percent. Must not exceed the protocol's maximum for the market (Aave reserve/e-mode LTV; Morpho LLTV with a safety margin; Euler's borrow LTV for the collateral vault); borrows are sized slightly inside the requested value so no leg sits on the protocol's revert boundary.
-type LoanToValue struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type LoanToValueType
-}
-
-func CreateLoanToValueNumber(number float64) LoanToValue {
-	typ := LoanToValueTypeNumber
-
-	return LoanToValue{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateLoanToValueStr(str string) LoanToValue {
-	typ := LoanToValueTypeStr
-
-	return LoanToValue{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *LoanToValue) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = LoanToValue{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  LoanToValueTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  LoanToValueTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for LoanToValue", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for LoanToValue", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(LoanToValueType)
-	switch best.Type {
-	case LoanToValueTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case LoanToValueTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for LoanToValue", string(data))
-}
-
-func (u LoanToValue) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type LoanToValue: all fields are null")
-}
-
-type CreditLoopRequestMaxSlippagePercentType string
-
-const (
-	CreditLoopRequestMaxSlippagePercentTypeNumber CreditLoopRequestMaxSlippagePercentType = "number"
-	CreditLoopRequestMaxSlippagePercentTypeStr    CreditLoopRequestMaxSlippagePercentType = "str"
-)
-
-// CreditLoopRequestMaxSlippagePercent - Per-swap slippage tolerance in percent. Loop dust is bounded by this per iteration, so tighter slippage means less dust.
-type CreditLoopRequestMaxSlippagePercent struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type CreditLoopRequestMaxSlippagePercentType
-}
-
-func CreateCreditLoopRequestMaxSlippagePercentNumber(number float64) CreditLoopRequestMaxSlippagePercent {
-	typ := CreditLoopRequestMaxSlippagePercentTypeNumber
-
-	return CreditLoopRequestMaxSlippagePercent{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateCreditLoopRequestMaxSlippagePercentStr(str string) CreditLoopRequestMaxSlippagePercent {
-	typ := CreditLoopRequestMaxSlippagePercentTypeStr
-
-	return CreditLoopRequestMaxSlippagePercent{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *CreditLoopRequestMaxSlippagePercent) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = CreditLoopRequestMaxSlippagePercent{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditLoopRequestMaxSlippagePercentTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditLoopRequestMaxSlippagePercentTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditLoopRequestMaxSlippagePercent", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditLoopRequestMaxSlippagePercent", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(CreditLoopRequestMaxSlippagePercentType)
-	switch best.Type {
-	case CreditLoopRequestMaxSlippagePercentTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case CreditLoopRequestMaxSlippagePercentTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditLoopRequestMaxSlippagePercent", string(data))
-}
-
-func (u CreditLoopRequestMaxSlippagePercent) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type CreditLoopRequestMaxSlippagePercent: all fields are null")
 }
 
 // CreditLoopRequestPricing - Swap-leg routing policy. 'auto': firm quotes where a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route — previews whose target the firm venue cannot serve return the coverage advisory alone (preview=null, zero aggregator calls), and executions fail with a typed error instead of silently substituting market pricing. 'market': never route through the firm venue; every leg is priced by the aggregator and bounded by max_slippage_percent (which firm legs ignore). 'firm' is incompatible with gas_sponsorship (sponsored loops force market routing).
@@ -505,13 +115,13 @@ type CreditLoopRequest struct {
 	// Token borrowed each iteration and swapped back to the collateral token. For MORPHO it must be the market's loan token.
 	BorrowToken string `json:"borrow_token"`
 	// Collateral (in token units) that the Credit Account must ALREADY hold when this is called — the loop never pulls from the owner's wallet mid-transaction. Fund the account first via /v2/credit/transfer (action=DEPOSIT).
-	InitialCollateralAmount InitialCollateralAmount `json:"initial_collateral_amount"`
+	InitialCollateralAmount string `json:"initial_collateral_amount"`
 	// Target leverage: total collateral exposure = multiplier × initial_collateral_amount. Must be achievable at the requested loan_to_value (max ≈ 0.9 / (1 − LTV)).
-	Multiplier Multiplier `json:"multiplier"`
+	Multiplier string `json:"multiplier"`
 	// Per-iteration borrow LTV in percent. Must not exceed the protocol's maximum for the market (Aave reserve/e-mode LTV; Morpho LLTV with a safety margin; Euler's borrow LTV for the collateral vault); borrows are sized slightly inside the requested value so no leg sits on the protocol's revert boundary.
-	LoanToValue LoanToValue `json:"loan_to_value"`
+	LoanToValue string `json:"loan_to_value"`
 	// Per-swap slippage tolerance in percent. Loop dust is bounded by this per iteration, so tighter slippage means less dust.
-	MaxSlippagePercent *CreditLoopRequestMaxSlippagePercent `json:"max_slippage_percent,omitzero"`
+	MaxSlippagePercent *string `json:"max_slippage_percent,omitzero"`
 	// Aave only: e-mode category to enable before looping (higher LTV for correlated pairs, e.g. ETH-correlated). Both tokens must belong to the category or the build returns a 422. On Hyperlend (chain=hyperevm) category 1 is the HYPE-correlated set covering wstHYPE and WHYPE.
 	EmodeCategory optionalnullable.OptionalNullable[int64] `json:"emode_category,omitzero"`
 	// If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
@@ -585,28 +195,28 @@ func (c *CreditLoopRequest) GetBorrowToken() string {
 	return c.BorrowToken
 }
 
-func (c *CreditLoopRequest) GetInitialCollateralAmount() InitialCollateralAmount {
+func (c *CreditLoopRequest) GetInitialCollateralAmount() string {
 	if c == nil {
-		return InitialCollateralAmount{}
+		return ""
 	}
 	return c.InitialCollateralAmount
 }
 
-func (c *CreditLoopRequest) GetMultiplier() Multiplier {
+func (c *CreditLoopRequest) GetMultiplier() string {
 	if c == nil {
-		return Multiplier{}
+		return ""
 	}
 	return c.Multiplier
 }
 
-func (c *CreditLoopRequest) GetLoanToValue() LoanToValue {
+func (c *CreditLoopRequest) GetLoanToValue() string {
 	if c == nil {
-		return LoanToValue{}
+		return ""
 	}
 	return c.LoanToValue
 }
 
-func (c *CreditLoopRequest) GetMaxSlippagePercent() *CreditLoopRequestMaxSlippagePercent {
+func (c *CreditLoopRequest) GetMaxSlippagePercent() *string {
 	if c == nil {
 		return nil
 	}

@@ -4,10 +4,8 @@ package operations
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
-	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
@@ -38,103 +36,6 @@ func (e *V2EarnPendleMarketsDirection) UnmarshalJSON(data []byte) error {
 	}
 }
 
-type V2EarnPendleMarketsMinTvlUsdType string
-
-const (
-	V2EarnPendleMarketsMinTvlUsdTypeNumber V2EarnPendleMarketsMinTvlUsdType = "number"
-	V2EarnPendleMarketsMinTvlUsdTypeStr    V2EarnPendleMarketsMinTvlUsdType = "str"
-)
-
-// V2EarnPendleMarketsMinTvlUsd - Minimum TVL in USD. Markets with TVL below this value will be excluded.
-type V2EarnPendleMarketsMinTvlUsd struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type V2EarnPendleMarketsMinTvlUsdType
-}
-
-func CreateV2EarnPendleMarketsMinTvlUsdNumber(number float64) V2EarnPendleMarketsMinTvlUsd {
-	typ := V2EarnPendleMarketsMinTvlUsdTypeNumber
-
-	return V2EarnPendleMarketsMinTvlUsd{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateV2EarnPendleMarketsMinTvlUsdStr(str string) V2EarnPendleMarketsMinTvlUsd {
-	typ := V2EarnPendleMarketsMinTvlUsdTypeStr
-
-	return V2EarnPendleMarketsMinTvlUsd{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *V2EarnPendleMarketsMinTvlUsd) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = V2EarnPendleMarketsMinTvlUsd{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  V2EarnPendleMarketsMinTvlUsdTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  V2EarnPendleMarketsMinTvlUsdTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for V2EarnPendleMarketsMinTvlUsd", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for V2EarnPendleMarketsMinTvlUsd", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(V2EarnPendleMarketsMinTvlUsdType)
-	switch best.Type {
-	case V2EarnPendleMarketsMinTvlUsdTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case V2EarnPendleMarketsMinTvlUsdTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for V2EarnPendleMarketsMinTvlUsd", string(data))
-}
-
-func (u V2EarnPendleMarketsMinTvlUsd) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type V2EarnPendleMarketsMinTvlUsd: all fields are null")
-}
-
 type V2EarnPendleMarketsRequest struct {
 	// The direction to order the results by.
 	Direction *V2EarnPendleMarketsDirection `queryParam:"style=form,explode=true,name=direction"`
@@ -149,7 +50,7 @@ type V2EarnPendleMarketsRequest struct {
 	// Filter markets by underlying asset symbol (e.g., 'USDC', 'WETH').
 	UnderlyingSymbol *string `queryParam:"style=form,explode=true,name=underlying_symbol"`
 	// Minimum TVL in USD. Markets with TVL below this value will be excluded.
-	MinTvlUsd optionalnullable.OptionalNullable[V2EarnPendleMarketsMinTvlUsd] `queryParam:"style=form,explode=true,name=min_tvl_usd"`
+	MinTvlUsd *string `queryParam:"style=form,explode=true,name=min_tvl_usd"`
 }
 
 func (v *V2EarnPendleMarketsRequest) GetDirection() *V2EarnPendleMarketsDirection {
@@ -194,7 +95,7 @@ func (v *V2EarnPendleMarketsRequest) GetUnderlyingSymbol() *string {
 	return v.UnderlyingSymbol
 }
 
-func (v *V2EarnPendleMarketsRequest) GetMinTvlUsd() optionalnullable.OptionalNullable[V2EarnPendleMarketsMinTvlUsd] {
+func (v *V2EarnPendleMarketsRequest) GetMinTvlUsd() *string {
 	if v == nil {
 		return nil
 	}

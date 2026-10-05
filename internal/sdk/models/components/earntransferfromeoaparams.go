@@ -3,108 +3,9 @@
 package components
 
 import (
-	"errors"
-	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
-
-type EarnTransferFromEOAParamsAmountType string
-
-const (
-	EarnTransferFromEOAParamsAmountTypeNumber EarnTransferFromEOAParamsAmountType = "number"
-	EarnTransferFromEOAParamsAmountTypeStr    EarnTransferFromEOAParamsAmountType = "str"
-)
-
-// EarnTransferFromEOAParamsAmount - The amount of tokens to transfer (in token units, not wei).
-type EarnTransferFromEOAParamsAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type EarnTransferFromEOAParamsAmountType
-}
-
-func CreateEarnTransferFromEOAParamsAmountNumber(number float64) EarnTransferFromEOAParamsAmount {
-	typ := EarnTransferFromEOAParamsAmountTypeNumber
-
-	return EarnTransferFromEOAParamsAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateEarnTransferFromEOAParamsAmountStr(str string) EarnTransferFromEOAParamsAmount {
-	typ := EarnTransferFromEOAParamsAmountTypeStr
-
-	return EarnTransferFromEOAParamsAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *EarnTransferFromEOAParamsAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = EarnTransferFromEOAParamsAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnTransferFromEOAParamsAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnTransferFromEOAParamsAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnTransferFromEOAParamsAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnTransferFromEOAParamsAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(EarnTransferFromEOAParamsAmountType)
-	switch best.Type {
-	case EarnTransferFromEOAParamsAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case EarnTransferFromEOAParamsAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnTransferFromEOAParamsAmount", string(data))
-}
-
-func (u EarnTransferFromEOAParamsAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type EarnTransferFromEOAParamsAmount: all fields are null")
-}
 
 // EarnTransferFromEOAParams - Parameters for transferring tokens from EOA to Earn Account via Permit2.
 //
@@ -124,7 +25,7 @@ type EarnTransferFromEOAParams struct {
 	// The token to transfer from EOA to Earn Account.
 	Token string `json:"token"`
 	// The amount of tokens to transfer (in token units, not wei).
-	Amount EarnTransferFromEOAParamsAmount `json:"amount"`
+	Amount string `json:"amount"`
 	// The EOA owner's signature of the Permit2 PermitTransferFrom typed data. Obtain this by calling /v2/earn/transfer with action=DEPOSIT and gas_sponsorship=True, then signing the returned EIP-712 data with the owner's wallet.
 	Permit2Signature string `json:"permit2_signature"`
 	// The nonce used in the Permit2 signature (from the signed typed data).
@@ -155,9 +56,9 @@ func (e *EarnTransferFromEOAParams) GetToken() string {
 	return e.Token
 }
 
-func (e *EarnTransferFromEOAParams) GetAmount() EarnTransferFromEOAParamsAmount {
+func (e *EarnTransferFromEOAParams) GetAmount() string {
 	if e == nil {
-		return EarnTransferFromEOAParamsAmount{}
+		return ""
 	}
 	return e.Amount
 }

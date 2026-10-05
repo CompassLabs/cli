@@ -57,13 +57,13 @@ compass credit repay [flags]
                                     
                                     All three support ``/v2/credit/loop``, ``/v2/credit/unloop``,
                                     ``/v2/credit/looped_positions`` and ``/v2/credit/rebalance``. (options: AAVE, EULER, MORPHO)
-      --repay-amount string         JSON value (one of: number | string)
+      --repay-amount string         Amount of repay_token to repay (in token units, not wei). [required]
       --repay-token string          The borrowed asset to repay (e.g. WETH). Must match the debt position's token. [required]
       --schema                      Print the exact JSON Schema of the request body and exit
-      --slippage string             JSON value (one of: number | string)
+      --slippage string             Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%). Only used when a swap is needed.
       --sub-account-id int          Euler only: EVC sub-account (0–255) holding the debt to repay. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health. Defaults to 0. Ignored for Aave/Morpho.
   -t, --token-out string            Desired output token. If different from withdraw_token, a swap is performed after withdrawal. If None, the withdrawn collateral is kept as-is.
-      --withdraw-amount string      JSON value (one of: number | string)
+      --withdraw-amount string      Amount of collateral to withdraw (in token units, not wei). Omit together with withdraw_token for repay-only mode.
       --withdraw-token string       Collateral token to withdraw from Aave after repaying debt. Omit together with withdraw_amount for repay-only mode.
 ```
 

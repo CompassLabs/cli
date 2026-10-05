@@ -35,6 +35,12 @@ Use it for:
 - **`paths[...].remove: true`** — hide a route from the CLI entirely
   (the existing entries trim 82 v1 and v2/cctp paths down to the v2
   product surface).
+- **Schema `format` fixes** — `format: bigint` on the Permit2
+  `TokenPermissions.amount` and `PermitTransferFromMessage.nonce/deadline`
+  integers. The API declares them as Python ints, which the Go generator
+  mapped to int64; a wei amount above ~9.22e18 made `gas-sponsorship
+  prepare --eip-712` reject the API's own payload. `*big.Int` is exact and
+  still a JSON number on the wire.
 
 The overlay is input to the generator, so changes here survive every
 regen automatically. **Prefer this layer for anything that can be
@@ -55,6 +61,19 @@ string/enum properties at the top level of request-body schemas
 (skipping schemas that responses reuse). Nullable numbers, objects and
 arrays in bodies are left alone: they stay raw JSON flags, which is
 fine because bare numbers, `{...}` and `[...]` are already valid JSON.
+
+It also rewrites every `anyOf: [number, string]` Decimal field reachable
+from a request body (nested bundle actions and fees included, 136 fields
+as of 2026-10-05) plus the `min_*_usd` query parameters to `type: string`.
+The Go union Speakeasy generated for them tried the number branch first,
+so a bare `--amount 0.123456789012345678` went out as
+`0.12345678901234568` and `1000000000000000000000` as `1e+21`; a string
+flag forwards the value verbatim and the API's Decimal fields accept
+strings. Response decoding is unaffected because no response schema
+carries such a union (the script reports any that appears). Finally a
+nullable `const` (`collateral_yield_kind`) becomes a one-value enum:
+Speakeasy marshals a const unconditionally, so the Go output path printed
+`fixed` on every Morpho market the API had omitted it from.
 The CLI generator turns every `anyOf: [X, null]` into a raw JSON flag
 ("nullable values are not supported in cli clients"), which is why
 `--chain base` used to need JSON quotes. A query string cannot carry
@@ -92,12 +111,17 @@ Two established examples in the tree:
   `cli-sdk/internal/flagutil/overrides.go`,
   `cli-sdk/internal/flagutil/overrides_test.go`,
   `cli-sdk/internal/cli/overrides.go`,
-  `cli-sdk/internal/cli/overrides_test.go` — helpers (and tests) used
-  by the patches in (3). Without these files there'd be no place to
-  put `normalizeForEncoding`, `AlreadyPrinted`, `friendlyDescription`,
-  `usageAllowsValue`, `unionHelpSections`, `formatFastAPIDetail`,
-  `errorStatusCodeFromHTTPMeta` — they'd have to live inside the
-  generated files, blowing up patch size.
+  `cli-sdk/internal/cli/overrides_test.go`,
+  `cli-sdk/internal/sdk/sdkinternal/utils/freeform.go`,
+  `cli-sdk/internal/sdk/sdkinternal/utils/freeform_test.go` — helpers
+  (and tests) used by the patches in (3). Without these files there'd be
+  no place to put `normalizeForEncoding`, `AlreadyPrinted`,
+  `friendlyDescription`, `usageAllowsValue`, `unquoteJSONString`,
+  `unionHelpSections`, `formatFastAPIDetail`, `errorStatusCodeFromHTTPMeta`,
+  `unmarshalFreeFormMap`, `setStringFromNumber` — they'd have to live
+  inside the generated files, blowing up patch size. `freeform_test.go`
+  deliberately exercises the call sites patch 08 adds, so `go test
+  ./internal/sdk/...` fails on an unpatched regen.
 
 Use this layer for: **new packages, helper functions, helper types,
 unit tests**. Anything that has its own file is here.
@@ -123,12 +147,15 @@ cli-sdk/scripts/
 ├── post-regen.sh                      # runner, applies all patches in lex order
 └── post-regen/
     ├── 01-output.patch                # output/output.go fixes
+    ├── 01b-output-bigint.patch        # output/output.go: integers beyond int64 stay exact in yaml/toon
     ├── 02-pretty.patch                # output/pretty.go fixes
     ├── 03a-flagutil-desc.patch        # flagutil descriptions
     ├── 04-flagutil-hint.patch         # flagutil shorthand-confusion hint
     ├── 05-version.patch               # version stamping
     ├── 06-client-redact.patch         # client diagnostics redaction lists
-    └── 07-cli-help-unions.patch       # cli/root.go help sections for unions
+    ├── 07-cli-help-unions.patch       # cli/root.go help sections for unions
+    ├── 08-sdk-json-numbers.patch      # sdk utils/json.go exact numbers
+    └── 09-flagutil-unquote.patch      # flagutil string flags strip JSON quotes
 ```
 
 Naming convention: `NN-<package>.patch`. One patch per generated file
@@ -140,12 +167,15 @@ only that file's fixes are affected.
 | Patch | Bugs fixed |
 |---|---|
 | `01-output.patch` | `indentJSONIfValid` + raw-JSON-passthrough indent; `printTable` envelope unwrap + helpers (from `31c3769d8`); FastAPI `{"detail":[...]}` prettifier |
+| `01b-output-bigint.patch` | `nativeNumber` no longer turns an integer lexeme beyond int64 into a float64: encoding/json prints `1e19` back as `10000000000000000000`, so the round-trip check passed, but yaml.v3 and the TOON encoder then rendered the float64 as `1e+19` (a Permit2 `amount` of 10 WETH, exactly the payload an agent copies into `gas-sponsorship prepare`). The callers already fall back to the exact lexeme when `nativeNumber` declines. No unit test: the stale mono snapshot of `output.go` predates `nativeNumber`, so a test would not compile there; the replay harness in `.context/cli-serialization/` covers it |
 | `02-pretty.patch` | Pretty mode delegates list-shaped responses to `printTable` (from `31c3769d8`) |
 | `03a-flagutil-desc.patch` | Friendlier help text for `number \| string` amount flags, and Markdown backticks stripped from string/enum/JSON flag descriptions and union type descriptions (the registrations that go through `friendlyDescription` in `flagutil/overrides.go`) so pflag stops using the first back-quoted word as the value type (`--action venue` → `--action string`). Bool, int, float and string-array flags keep their raw description |
 | `04-flagutil-hint.patch` | `ShorthandConfusionHint` no longer fires when the shorthand's value is one the global flag itself accepts: `compass earn pendle-markets -o json` with a missing `--order-by` used to suggest `--order-by json` (`usageAllowsValue` in `flagutil/overrides.go`) |
 | `05-version.patch` | Top-level `compass --version` flag mirroring the `version` subcommand |
 | `06-client-redact.patch` | `--dry-run`/`--debug` previews no longer redact `token` keys and `token*` query parameters: in this API `token`, `token_in`, `token_out` are asset symbols (an Aave deposit preview showed `"token": "[REDACTED]"` for USDC). Credential-shaped names are listed explicitly instead (`access_token`, `refresh_token`, `id_token`, `bearer_token`, `session_token`, `auth_token`, in bodies and query strings), and the `-token` header suffix plus the key/secret/auth/session substrings still apply to headers and query parameters |
 | `07-cli-help-unions.patch` | `--help` renders each discriminated union (`earn manage --venue`) in its own "pick ONE variant" section instead of listing `--venue.aave.token`, `--venue.pendle-pt.market-address` and `--venue.vault.vault-address` together under Required Flags; variant fields read `[required with --venue.aave]` (`unionHelpSections` in `cli/overrides.go`) |
+| `08-sdk-json-numbers.patch` | Two call sites in `unmarshalValue` (`internal/sdk/sdkinternal/utils/json.go`): a bare JSON number aimed at a string-kinded field keeps its exact lexeme (`setStringFromNumber`), so `--body '{"amount": 0.123456789012345678}'` and bundle `--actions` stay exact now that every Decimal field is a string on the CLI side; and `map[string]any` fields decode with `UseNumber` (`unmarshalFreeFormMap`), so `--action`/`--signed-order` and the `typed_data`/`action`/`order_message` objects of responses keep integers above 2^53 instead of rounding through float64 |
+| `09-flagutil-unquote.patch` | `buildStringField` runs the flag value through `unquoteJSONString`: the JSON-quoted form older docs recommended (`--amount '"0.5"'`, `--borrow-token '"USDC"'`) is accepted instead of being sent with literal quotes and 422ing |
 
 The helpers each patch depends on live in (2) — e.g. `01-output.patch`
 calls `formatFastAPIDetail`, defined in `internal/output/overrides.go`.

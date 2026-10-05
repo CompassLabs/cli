@@ -32,7 +32,7 @@ compass earn pendle-markets [flags]
       --direction string           The direction to order the results by. (options: asc, desc)
   -h, --help                       help for pendle-markets
   -l, --limit int                  The number of items to return.
-  -m, --min-tvl-usd string         JSON value (one of: number | string)
+  -m, --min-tvl-usd string         Minimum TVL in USD. Markets with TVL below this value will be excluded.
       --offset int                 The offset of the first item to return.
       --order-by string            Field to order the markets by. One of: tvl_usd, implied_apy. Defaults to tvl_usd; unknown values also fall back to tvl_usd.
   -u, --underlying-symbol string   Filter markets by underlying asset symbol (e.g., 'USDC', 'WETH').

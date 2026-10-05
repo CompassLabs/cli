@@ -582,6 +582,19 @@ compass earn pendle-markets --order-by tvl_usd --underlying-symbol WETH # ✓
 
 If you pin an **older** build and still hit the `unmarshalling` error, wrap the value in JSON quotes (`'"base"'`) or omit the optional flag. (That error says "response body" but it's flag parsing, not HTTP.)
 
+### Amounts are sent exactly as typed
+
+Every decimal flag (`--amount`, `--amount-in`, `--borrow-amount`, `--slippage`, `--multiplier`, `--min-tvl-usd`, ...) is a plain string flag: the value you type is forwarded to the API verbatim, so full-precision balances survive.
+
+```bash
+compass earn manage --action WITHDRAW --amount 0.123456789012345678 ...   # ✓ sent as "0.123456789012345678"
+compass tokenized-assets sell --amount-in 3.364405139696517111 ...        # ✓ no wei dust
+```
+
+Older builds parsed these flags as `number | string` unions and tried the number first, so a bare value was rounded through float64 (`0.12345678901234568`, `1e+21`) and the only exact form was the JSON-quoted `--amount '"0.5"'`. That quoting is still accepted (the quotes are stripped) but no longer needed. Inside raw JSON (`--body`, `--actions`, `--fee`) both `"amount": "0.5"` and `"amount": 0.5` are sent exactly as written.
+
+Free-form JSON objects passed back to the API (`perpetual-trading execute --action`, `tokenized-assets order-submit --signed-order`) and EIP-712 payloads (`gas-sponsorship prepare --eip-712`) round-trip integers of any size, and `pretty`, `yaml` and `toon` output print them digit for digit; a Permit2 `amount` above 2^63 (about 9.22 units of an 18-decimal token) used to be rejected with `could not unmarshal ... into any supported union types` and printed as `1e+19`.
+
 ### `-o table` unwraps flat list envelopes, not nested ones
 
 List endpoints wrap their array in an envelope, e.g. `earn vaults` returns `{ total, offset, limit, vaults: [...] }`. `-o table` unwraps that automatically — it prints the envelope scalars as a header and renders the inner array as a table:

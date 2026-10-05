@@ -37,7 +37,7 @@ compass credit unloop [flags]
   -g, --gas-sponsorship               If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
   -h, --help                          help for unloop
       --market-id string              Morpho only: the bytes32 market id (from /v2/credit/morpho_markets). Required when protocol=MORPHO.
-      --max-slippage-percent string   JSON value (one of: number | string)
+      --max-slippage-percent string   Per-swap slippage tolerance in percent. Unwind dust is bounded by this per iteration, so tighter slippage means less dust.
       --owner string                  The address that owns the Credit Account. [required]
       --preview                       If true, build a display estimate only — no single-use firm quote is ever spent. NOTE that this guarantees only that no firm quote was spent — it does not guarantee an absent transaction: on an unwind no firm provider covers, and under pricing=market, the call still falls through to the aggregator and returns a signable transaction. On a firm-covered unwind (pricing 'auto' or 'firm') the numbers are firm-INDICATIVE, priced off the firm provider's live maker levels; otherwise they are market-priced with slippage-bounded floors. Under pricing='firm' a preview no firm provider can serve returns the advisory alone (preview=null + firm_available). Set it on every parameter-exploration call and omit it only on the build the user is about to sign.
       --pricing string                Swap-leg routing policy. 'auto': firm quotes where a firm venue covers the pair, transparent fallback to the market aggregator otherwise. 'firm': never price on the market route — previews the firm venue cannot serve return the firm_available advisory alone (preview=null, zero aggregator calls), and executions fail with a typed error instead of silently substituting market pricing. 'market': never route through the firm venue; every leg is priced by the aggregator. max_slippage_percent applies on EVERY policy — unlike the loop, firm unwinds consume it to size the guaranteed withdraw/repay floors (the fills themselves are exact). 'firm' is incompatible with gas_sponsorship (sponsored unwinds force market routing). (options: auto, firm, market)
@@ -59,7 +59,7 @@ compass credit unloop [flags]
                                       ``/v2/credit/looped_positions`` and ``/v2/credit/rebalance``. (options: AAVE, EULER, MORPHO)
       --schema                        Print the exact JSON Schema of the request body and exit
   -s, --sub-account-id int            Euler only: the EVC sub-account (0-255) holding the looped position to unwind. 0 is the Credit Account itself.
-  -t, --target-multiplier string      JSON value (one of: number | string)
+  -t, --target-multiplier 1           Target leverage after the unwind. Omit (null) for a FULL unwind: the debt is cleared exactly — accrued interest included — and all pair collateral is withdrawn back to the Credit Account. 1 runs the same exact debt close but leaves the collateral supplied (earning). A value greater than 1 delevers the position to that multiplier. Must be below the position's current multiplier.
 ```
 
 ### Options inherited from parent commands

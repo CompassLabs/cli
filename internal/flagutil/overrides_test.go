@@ -14,8 +14,29 @@ func TestFriendlyDescriptionStripsBackticks(t *testing.T) {
 
 func TestFriendlyDescriptionRewritesNumberOrString(t *testing.T) {
 	got := friendlyDescription("JSON value (one of: number | string)")
-	if got != `Decimal amount, as a number or quoted string (e.g. 100 or "1.5").` {
+	if got != `Decimal amount; pass it as a JSON string to keep full precision (e.g. "1.5").` {
 		t.Fatalf("unexpected rewrite: %q", got)
+	}
+}
+
+func TestUnquoteJSONString(t *testing.T) {
+	cases := map[string]string{
+		`"USDC"`:                  "USDC",
+		`"0.123456789012345678"`:  "0.123456789012345678",
+		`""`:                      "",
+		`USDC`:                    "USDC",
+		`0.5`:                     "0.5",
+		`"`:                       `"`,
+		`"unterminated`:           `"unterminated`,
+		`"bad\escape"`:            `"bad\escape"`,
+		`"a" "b"`:                 `"a" "b"`,
+		`{"json":"object"}`:       `{"json":"object"}`,
+		`"with \"inner\" quotes"`: `with "inner" quotes`,
+	}
+	for in, want := range cases {
+		if got := unquoteJSONString(in); got != want {
+			t.Errorf("unquoteJSONString(%s) = %q, want %q", in, got, want)
+		}
 	}
 }
 

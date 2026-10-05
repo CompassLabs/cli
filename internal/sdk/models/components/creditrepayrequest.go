@@ -4,10 +4,8 @@ package components
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
-	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
 // CreditRepayRequestChain - Blockchain network.
@@ -49,297 +47,6 @@ func (e *CreditRepayRequestChain) UnmarshalJSON(data []byte) error {
 	}
 }
 
-type RepayAmountType string
-
-const (
-	RepayAmountTypeNumber RepayAmountType = "number"
-	RepayAmountTypeStr    RepayAmountType = "str"
-)
-
-// RepayAmount - Amount of repay_token to repay (in token units, not wei).
-type RepayAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type RepayAmountType
-}
-
-func CreateRepayAmountNumber(number float64) RepayAmount {
-	typ := RepayAmountTypeNumber
-
-	return RepayAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateRepayAmountStr(str string) RepayAmount {
-	typ := RepayAmountTypeStr
-
-	return RepayAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *RepayAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = RepayAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  RepayAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  RepayAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for RepayAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for RepayAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(RepayAmountType)
-	switch best.Type {
-	case RepayAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case RepayAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for RepayAmount", string(data))
-}
-
-func (u RepayAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type RepayAmount: all fields are null")
-}
-
-type WithdrawAmountType string
-
-const (
-	WithdrawAmountTypeNumber WithdrawAmountType = "number"
-	WithdrawAmountTypeStr    WithdrawAmountType = "str"
-)
-
-// WithdrawAmount - Amount of collateral to withdraw (in token units, not wei). Omit together with withdraw_token for repay-only mode.
-type WithdrawAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type WithdrawAmountType
-}
-
-func CreateWithdrawAmountNumber(number float64) WithdrawAmount {
-	typ := WithdrawAmountTypeNumber
-
-	return WithdrawAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateWithdrawAmountStr(str string) WithdrawAmount {
-	typ := WithdrawAmountTypeStr
-
-	return WithdrawAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *WithdrawAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = WithdrawAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  WithdrawAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  WithdrawAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for WithdrawAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for WithdrawAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(WithdrawAmountType)
-	switch best.Type {
-	case WithdrawAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case WithdrawAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for WithdrawAmount", string(data))
-}
-
-func (u WithdrawAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type WithdrawAmount: all fields are null")
-}
-
-type CreditRepayRequestSlippageType string
-
-const (
-	CreditRepayRequestSlippageTypeNumber CreditRepayRequestSlippageType = "number"
-	CreditRepayRequestSlippageTypeStr    CreditRepayRequestSlippageType = "str"
-)
-
-// CreditRepayRequestSlippage - Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%). Only used when a swap is needed.
-type CreditRepayRequestSlippage struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type CreditRepayRequestSlippageType
-}
-
-func CreateCreditRepayRequestSlippageNumber(number float64) CreditRepayRequestSlippage {
-	typ := CreditRepayRequestSlippageTypeNumber
-
-	return CreditRepayRequestSlippage{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateCreditRepayRequestSlippageStr(str string) CreditRepayRequestSlippage {
-	typ := CreditRepayRequestSlippageTypeStr
-
-	return CreditRepayRequestSlippage{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *CreditRepayRequestSlippage) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = CreditRepayRequestSlippage{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditRepayRequestSlippageTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditRepayRequestSlippageTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditRepayRequestSlippage", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditRepayRequestSlippage", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(CreditRepayRequestSlippageType)
-	switch best.Type {
-	case CreditRepayRequestSlippageTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case CreditRepayRequestSlippageTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditRepayRequestSlippage", string(data))
-}
-
-func (u CreditRepayRequestSlippage) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type CreditRepayRequestSlippage: all fields are null")
-}
-
 type CreditRepayRequest struct {
 	// The address that owns the Credit Account.
 	Owner string `json:"owner"`
@@ -373,7 +80,7 @@ type CreditRepayRequest struct {
 	// The borrowed asset to repay (e.g. WETH). Must match the debt position's token.
 	RepayToken string `json:"repay_token"`
 	// Amount of repay_token to repay (in token units, not wei).
-	RepayAmount RepayAmount `json:"repay_amount"`
+	RepayAmount string `json:"repay_amount"`
 	// On AAVE there are 2 different interest modes.
 	//
 	// A stable (but typically higher rate), or a variable rate.
@@ -381,11 +88,11 @@ type CreditRepayRequest struct {
 	// Collateral token to withdraw from Aave after repaying debt. Omit together with withdraw_amount for repay-only mode.
 	WithdrawToken *string `json:"withdraw_token,omitzero"`
 	// Amount of collateral to withdraw (in token units, not wei). Omit together with withdraw_token for repay-only mode.
-	WithdrawAmount optionalnullable.OptionalNullable[WithdrawAmount] `json:"withdraw_amount,omitzero"`
+	WithdrawAmount *string `json:"withdraw_amount,omitzero"`
 	// Desired output token. If different from withdraw_token, a swap is performed after withdrawal. If None, the withdrawn collateral is kept as-is.
 	TokenOut *string `json:"token_out,omitzero"`
 	// Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%). Only used when a swap is needed.
-	Slippage *CreditRepayRequestSlippage `json:"slippage,omitzero"`
+	Slippage *string `json:"slippage,omitzero"`
 	// If true, returns EIP-712 signature data instead of an unsigned transaction.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
 	// The EOA owner's signature of the Permit2 PermitTransferFrom typed data. When provided, the repay bundle will first pull repay_token from the owner's EOA into the Credit Account via Permit2. Obtain by calling /v2/credit/transfer and signing the returned EIP-712 data.
@@ -452,9 +159,9 @@ func (c *CreditRepayRequest) GetRepayToken() string {
 	return c.RepayToken
 }
 
-func (c *CreditRepayRequest) GetRepayAmount() RepayAmount {
+func (c *CreditRepayRequest) GetRepayAmount() string {
 	if c == nil {
-		return RepayAmount{}
+		return ""
 	}
 	return c.RepayAmount
 }
@@ -473,7 +180,7 @@ func (c *CreditRepayRequest) GetWithdrawToken() *string {
 	return c.WithdrawToken
 }
 
-func (c *CreditRepayRequest) GetWithdrawAmount() optionalnullable.OptionalNullable[WithdrawAmount] {
+func (c *CreditRepayRequest) GetWithdrawAmount() *string {
 	if c == nil {
 		return nil
 	}
@@ -487,7 +194,7 @@ func (c *CreditRepayRequest) GetTokenOut() *string {
 	return c.TokenOut
 }
 
-func (c *CreditRepayRequest) GetSlippage() *CreditRepayRequestSlippage {
+func (c *CreditRepayRequest) GetSlippage() *string {
 	if c == nil {
 		return nil
 	}

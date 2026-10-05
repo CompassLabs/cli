@@ -26,9 +26,9 @@ compass credit borrow [flags]
 ### Options
 
 ```
-  -a, --amount-in string            JSON value (one of: number | string)
+  -a, --amount-in string            Amount of token_in to use (in token units, not wei). Omit together with token_in and collateral_token for borrow-only mode.
       --body string                 Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.
-      --borrow-amount string        JSON value (one of: number | string)
+      --borrow-amount string        Amount to borrow (in token units, not wei). [required]
       --borrow-token string         Asset to borrow from Aave. [required]
       --borrow-vault string         Euler only: the EVK vault to borrow from. Required when protocol=EULER.
       --chain string                Blockchain network. (options: arbitrum, base, bsc, ethereum, hyperevm, tempo) [required]
@@ -62,7 +62,7 @@ compass credit borrow [flags]
                                     All three support ``/v2/credit/loop``, ``/v2/credit/unloop``,
                                     ``/v2/credit/looped_positions`` and ``/v2/credit/rebalance``. (options: AAVE, EULER, MORPHO)
       --schema                      Print the exact JSON Schema of the request body and exit
-      --slippage string             JSON value (one of: number | string)
+      --slippage string             Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%). Only used when a swap is needed.
       --sub-account-id int          Euler only: EVC sub-account (0–255) to isolate this position. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health, letting one Credit Account hold multiple isolated Euler positions. Defaults to 0. Ignored for Aave/Morpho.
   -t, --token-in string             Token currently held in the Credit Account to use as input. If the same as collateral_token, no swap is performed. Omit together with amount_in and collateral_token to borrow against existing collateral.
 ```

@@ -482,6 +482,13 @@ func unmarshalValue(value json.RawMessage, v reflect.Value, tag reflect.StructTa
 
 	typ := dereferenceTypePointer(v.Type())
 
+	// 08-sdk-json-numbers.patch: a bare JSON number aimed at a string-kinded
+	// field (every Decimal amount on the CLI side) keeps its exact lexeme.
+	if typ.Kind() == reflect.String && isJSONNumberLiteral(value) {
+		setStringFromNumber(value, v, typ)
+		return nil
+	}
+
 	switch typ.Kind() {
 	case reflect.Int64:
 		var b int64
@@ -535,6 +542,12 @@ func unmarshalValue(value json.RawMessage, v reflect.Value, tag reflect.StructTa
 			return nil
 		}
 	case reflect.Map:
+		// 08-sdk-json-numbers.patch: free-form objects keep big integers and
+		// long decimals (json.Number) instead of rounding through float64.
+		if typ.Elem().Kind() == reflect.Interface {
+			return unmarshalFreeFormMap(value, v)
+		}
+
 		// optionalnullable.OptionalNullable[T] is unwrapped like on the marshal
 		// side, so tag-driven wire formats reach the inner value. A JSON null
 		// never gets this far: it is handled at the top of this function, where

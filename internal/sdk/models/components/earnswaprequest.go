@@ -4,205 +4,10 @@ package components
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
-
-type EarnSwapRequestAmountInType string
-
-const (
-	EarnSwapRequestAmountInTypeNumber EarnSwapRequestAmountInType = "number"
-	EarnSwapRequestAmountInTypeStr    EarnSwapRequestAmountInType = "str"
-)
-
-// EarnSwapRequestAmountIn - Human-readable amount of `token_in` to swap (token units, not wei).
-type EarnSwapRequestAmountIn struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type EarnSwapRequestAmountInType
-}
-
-func CreateEarnSwapRequestAmountInNumber(number float64) EarnSwapRequestAmountIn {
-	typ := EarnSwapRequestAmountInTypeNumber
-
-	return EarnSwapRequestAmountIn{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateEarnSwapRequestAmountInStr(str string) EarnSwapRequestAmountIn {
-	typ := EarnSwapRequestAmountInTypeStr
-
-	return EarnSwapRequestAmountIn{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *EarnSwapRequestAmountIn) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = EarnSwapRequestAmountIn{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnSwapRequestAmountInTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnSwapRequestAmountInTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnSwapRequestAmountIn", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnSwapRequestAmountIn", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(EarnSwapRequestAmountInType)
-	switch best.Type {
-	case EarnSwapRequestAmountInTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case EarnSwapRequestAmountInTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnSwapRequestAmountIn", string(data))
-}
-
-func (u EarnSwapRequestAmountIn) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type EarnSwapRequestAmountIn: all fields are null")
-}
-
-type EarnSwapRequestSlippageType string
-
-const (
-	EarnSwapRequestSlippageTypeNumber EarnSwapRequestSlippageType = "number"
-	EarnSwapRequestSlippageTypeStr    EarnSwapRequestSlippageType = "str"
-)
-
-// EarnSwapRequestSlippage - Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%).
-type EarnSwapRequestSlippage struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type EarnSwapRequestSlippageType
-}
-
-func CreateEarnSwapRequestSlippageNumber(number float64) EarnSwapRequestSlippage {
-	typ := EarnSwapRequestSlippageTypeNumber
-
-	return EarnSwapRequestSlippage{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateEarnSwapRequestSlippageStr(str string) EarnSwapRequestSlippage {
-	typ := EarnSwapRequestSlippageTypeStr
-
-	return EarnSwapRequestSlippage{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *EarnSwapRequestSlippage) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = EarnSwapRequestSlippage{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnSwapRequestSlippageTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnSwapRequestSlippageTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnSwapRequestSlippage", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnSwapRequestSlippage", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(EarnSwapRequestSlippageType)
-	switch best.Type {
-	case EarnSwapRequestSlippageTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case EarnSwapRequestSlippageTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnSwapRequestSlippage", string(data))
-}
-
-func (u EarnSwapRequestSlippage) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type EarnSwapRequestSlippage: all fields are null")
-}
 
 // EarnSwapRequestChain - Target blockchain network where the swap will execute.
 type EarnSwapRequestChain string
@@ -284,9 +89,9 @@ type EarnSwapRequest struct {
 	// Token to buy (output). Provide a token symbol from a limited set (e.g., 'USDT') or any token address.
 	TokenOut string `json:"token_out"`
 	// Human-readable amount of `token_in` to swap (token units, not wei).
-	AmountIn EarnSwapRequestAmountIn `json:"amount_in"`
+	AmountIn string `json:"amount_in"`
 	// Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%).
-	Slippage *EarnSwapRequestSlippage `json:"slippage,omitzero"`
+	Slippage *string `json:"slippage,omitzero"`
 	// The owner's wallet address.
 	Owner string `json:"owner"`
 	// Target blockchain network where the swap will execute.
@@ -326,14 +131,14 @@ func (e *EarnSwapRequest) GetTokenOut() string {
 	return e.TokenOut
 }
 
-func (e *EarnSwapRequest) GetAmountIn() EarnSwapRequestAmountIn {
+func (e *EarnSwapRequest) GetAmountIn() string {
 	if e == nil {
-		return EarnSwapRequestAmountIn{}
+		return ""
 	}
 	return e.AmountIn
 }
 
-func (e *EarnSwapRequest) GetSlippage() *EarnSwapRequestSlippage {
+func (e *EarnSwapRequest) GetSlippage() *string {
 	if e == nil {
 		return nil
 	}

@@ -17,8 +17,8 @@ import (
 var sellCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "token-in", FieldPath: "TokenIn", Kind: flagutil.FlagKindString, Required: true, Description: "Token to spend. For a buy this must be a stablecoin the Midas issuance vault accepts (USDC on every supported network; mBASIS also accepts USDT/DAI on Ethereum). For a sell it is the Midas RWA asset to redeem (e.g. 'mTBILL'). [required]"},
 	{FlagName: "token-out", FieldPath: "TokenOut", Kind: flagutil.FlagKindString, Required: true, Description: "Token to receive. For a buy this is the Midas RWA asset to mint (e.g. 'mTBILL'); for a sell it is the payout stablecoin (USDC). [required]"},
-	{FlagName: "amount-in", Shorthand: "a", FieldPath: "AmountIn", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, TypeDescription: "JSON value (one of: number | string)"}},
-	{FlagName: "slippage", Shorthand: "s", FieldPath: "Slippage", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
+	{FlagName: "amount-in", Shorthand: "a", FieldPath: "AmountIn", Kind: flagutil.FlagKindString, Required: true, Description: "Human-readable amount of `token_in` to trade (token units, not wei). [required]"},
+	{FlagName: "slippage", Shorthand: "s", FieldPath: "Slippage", Kind: flagutil.FlagKindString, Optional: true, Description: "Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%)."},
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The owner's wallet address. [required]"},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "robinhood", "ethereum_sepolia"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia) [required]"},
 	{FlagName: "gas-sponsorship", Shorthand: "g", FieldPath: "GasSponsorship", Kind: flagutil.FlagKindBool, Optional: true, Description: "When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction."},
@@ -32,7 +32,7 @@ func initSellCmd(parent *cobra.Command) error {
 		Use:     "sell",
 		Short:   "Sell an RWA yield token",
 		Long:    "Sell an RWA yield token, redeem from an IXS managed vault, or sell a Centrifuge\ndeRWA token, back to a stablecoin.\n\nSet `token_in` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`), a Centrifuge\ndeRWA symbol (e.g. `deSPXA`), or an IXS **vault address**. Midas redemptions\nand Centrifuge deRWA swaps are instant and settle in the same transaction; an\nIXS redemption is **asynchronous** — it files a `requestRedeem`\n(`settlement: async`) the vault operator settles off-chain later, so poll\n`GET /v2/tokenized_assets/redemptions` for status. The transaction executes\ninside the product account (owner signs, or EIP-712 with `gas_sponsorship`).",
-		Example: "  compass tokenized-assets sell --token-in <value> --token-out <value> --amount-in 8512.47 --owner <value> --chain hyperevm",
+		Example: "  compass tokenized-assets sell --token-in <value> --token-out <value> --amount-in <value> --owner <value> --chain hyperevm",
 		Args:    cobra.NoArgs,
 		RunE:    runSellCmd,
 		Annotations: map[string]string{

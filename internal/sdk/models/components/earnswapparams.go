@@ -3,205 +3,9 @@
 package components
 
 import (
-	"errors"
-	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
-
-type EarnSwapParamsAmountInType string
-
-const (
-	EarnSwapParamsAmountInTypeNumber EarnSwapParamsAmountInType = "number"
-	EarnSwapParamsAmountInTypeStr    EarnSwapParamsAmountInType = "str"
-)
-
-// EarnSwapParamsAmountIn - Human-readable amount of `token_in` to swap (token units, not wei).
-type EarnSwapParamsAmountIn struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type EarnSwapParamsAmountInType
-}
-
-func CreateEarnSwapParamsAmountInNumber(number float64) EarnSwapParamsAmountIn {
-	typ := EarnSwapParamsAmountInTypeNumber
-
-	return EarnSwapParamsAmountIn{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateEarnSwapParamsAmountInStr(str string) EarnSwapParamsAmountIn {
-	typ := EarnSwapParamsAmountInTypeStr
-
-	return EarnSwapParamsAmountIn{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *EarnSwapParamsAmountIn) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = EarnSwapParamsAmountIn{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnSwapParamsAmountInTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnSwapParamsAmountInTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnSwapParamsAmountIn", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnSwapParamsAmountIn", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(EarnSwapParamsAmountInType)
-	switch best.Type {
-	case EarnSwapParamsAmountInTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case EarnSwapParamsAmountInTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnSwapParamsAmountIn", string(data))
-}
-
-func (u EarnSwapParamsAmountIn) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type EarnSwapParamsAmountIn: all fields are null")
-}
-
-type EarnSwapParamsSlippageType string
-
-const (
-	EarnSwapParamsSlippageTypeNumber EarnSwapParamsSlippageType = "number"
-	EarnSwapParamsSlippageTypeStr    EarnSwapParamsSlippageType = "str"
-)
-
-// EarnSwapParamsSlippage - Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%).
-type EarnSwapParamsSlippage struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type EarnSwapParamsSlippageType
-}
-
-func CreateEarnSwapParamsSlippageNumber(number float64) EarnSwapParamsSlippage {
-	typ := EarnSwapParamsSlippageTypeNumber
-
-	return EarnSwapParamsSlippage{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateEarnSwapParamsSlippageStr(str string) EarnSwapParamsSlippage {
-	typ := EarnSwapParamsSlippageTypeStr
-
-	return EarnSwapParamsSlippage{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *EarnSwapParamsSlippage) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = EarnSwapParamsSlippage{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnSwapParamsSlippageTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnSwapParamsSlippageTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnSwapParamsSlippage", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnSwapParamsSlippage", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(EarnSwapParamsSlippageType)
-	switch best.Type {
-	case EarnSwapParamsSlippageTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case EarnSwapParamsSlippageTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnSwapParamsSlippage", string(data))
-}
-
-func (u EarnSwapParamsSlippage) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type EarnSwapParamsSlippage: all fields are null")
-}
 
 // EarnSwapParams - Parameters for swap operations (without context like owner/chain).
 //
@@ -215,9 +19,9 @@ type EarnSwapParams struct {
 	// Token to buy (output). Provide a token symbol from a limited set (e.g., 'USDT') or any token address.
 	TokenOut string `json:"token_out"`
 	// Human-readable amount of `token_in` to swap (token units, not wei).
-	AmountIn EarnSwapParamsAmountIn `json:"amount_in"`
+	AmountIn string `json:"amount_in"`
 	// Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%).
-	Slippage *EarnSwapParamsSlippage `json:"slippage,omitzero"`
+	Slippage *string `json:"slippage,omitzero"`
 }
 
 func (e EarnSwapParams) MarshalJSON() ([]byte, error) {
@@ -249,14 +53,14 @@ func (e *EarnSwapParams) GetTokenOut() string {
 	return e.TokenOut
 }
 
-func (e *EarnSwapParams) GetAmountIn() EarnSwapParamsAmountIn {
+func (e *EarnSwapParams) GetAmountIn() string {
 	if e == nil {
-		return EarnSwapParamsAmountIn{}
+		return ""
 	}
 	return e.AmountIn
 }
 
-func (e *EarnSwapParams) GetSlippage() *EarnSwapParamsSlippage {
+func (e *EarnSwapParams) GetSlippage() *string {
 	if e == nil {
 		return nil
 	}

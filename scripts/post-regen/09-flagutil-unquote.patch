@@ -1,0 +1,12 @@
+diff --git a/cli-sdk/internal/flagutil/metadata.go b/cli-sdk/internal/flagutil/metadata.go
+index e3f650e..17f0749 100644
+--- a/cli-sdk/internal/flagutil/metadata.go
++++ b/cli-sdk/internal/flagutil/metadata.go
+@@ -1558,6 +1558,7 @@ func validateEnumValue(m FlagMeta, val string, changed bool) error {
+ 
+ func buildStringField(cmd *cobra.Command, v reflect.Value, m FlagMeta) error {
+ 	val, changed := GetStringFlag(cmd, m.FlagName)
++	val = unquoteJSONString(val) // 09-flagutil-unquote.patch
+ 	if err := enforceStrictOrWarn(cmd, validateStringLength(m, val, changed)); err != nil {
+ 		return err
+ 	}

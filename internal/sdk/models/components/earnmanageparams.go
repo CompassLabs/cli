@@ -149,103 +149,6 @@ func (e *EarnManageParamsAction) UnmarshalJSON(data []byte) error {
 	}
 }
 
-type EarnManageParamsAmountType string
-
-const (
-	EarnManageParamsAmountTypeNumber EarnManageParamsAmountType = "number"
-	EarnManageParamsAmountTypeStr    EarnManageParamsAmountType = "str"
-)
-
-// EarnManageParamsAmount - Amount of the underlying asset to act on (deposit or withdraw). For VAULT, this is the vault's underlying token; for AAVE, this is the Aave reserve asset; for PENDLE_PT, this is the amount of `token` to spend (DEPOSIT) or PT to sell (WITHDRAW). Provide as a decimal in token units (not wei); must be > 0.
-type EarnManageParamsAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type EarnManageParamsAmountType
-}
-
-func CreateEarnManageParamsAmountNumber(number float64) EarnManageParamsAmount {
-	typ := EarnManageParamsAmountTypeNumber
-
-	return EarnManageParamsAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateEarnManageParamsAmountStr(str string) EarnManageParamsAmount {
-	typ := EarnManageParamsAmountTypeStr
-
-	return EarnManageParamsAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *EarnManageParamsAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = EarnManageParamsAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnManageParamsAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnManageParamsAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnManageParamsAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnManageParamsAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(EarnManageParamsAmountType)
-	switch best.Type {
-	case EarnManageParamsAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case EarnManageParamsAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnManageParamsAmount", string(data))
-}
-
-func (u EarnManageParamsAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type EarnManageParamsAmount: all fields are null")
-}
-
 // EarnManageParams - Parameters for earn manage operations (deposit/withdraw to vault/Aave/Pendle PT).
 //
 // Used by multicall/bundle endpoint to specify manage actions. EarnManageRequest
@@ -259,7 +162,7 @@ type EarnManageParams struct {
 	// Whether you are depositing into or withdrawing from the given Earn `venue`.
 	Action EarnManageParamsAction `json:"action"`
 	// Amount of the underlying asset to act on (deposit or withdraw). For VAULT, this is the vault's underlying token; for AAVE, this is the Aave reserve asset; for PENDLE_PT, this is the amount of `token` to spend (DEPOSIT) or PT to sell (WITHDRAW). Provide as a decimal in token units (not wei); must be > 0.
-	Amount EarnManageParamsAmount `json:"amount"`
+	Amount string `json:"amount"`
 	// Optional fee configuration. If provided, a fee will be applied to the transaction amount and sent to the specified recipient address. The fee can be specified as a percentage of the transaction amount, as a fixed token amount, or as a percentage of realized profit (PERFORMANCE).
 	Fee optionalnullable.OptionalNullable[Fee] `json:"fee,omitzero"`
 }
@@ -305,9 +208,9 @@ func (e *EarnManageParams) GetAction() EarnManageParamsAction {
 	return e.Action
 }
 
-func (e *EarnManageParams) GetAmount() EarnManageParamsAmount {
+func (e *EarnManageParams) GetAmount() string {
 	if e == nil {
-		return EarnManageParamsAmount{}
+		return ""
 	}
 	return e.Amount
 }

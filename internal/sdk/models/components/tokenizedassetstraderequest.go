@@ -3,205 +3,9 @@
 package components
 
 import (
-	"errors"
-	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
-
-type TokenizedAssetsTradeRequestAmountInType string
-
-const (
-	TokenizedAssetsTradeRequestAmountInTypeNumber TokenizedAssetsTradeRequestAmountInType = "number"
-	TokenizedAssetsTradeRequestAmountInTypeStr    TokenizedAssetsTradeRequestAmountInType = "str"
-)
-
-// TokenizedAssetsTradeRequestAmountIn - Human-readable amount of `token_in` to trade (token units, not wei).
-type TokenizedAssetsTradeRequestAmountIn struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type TokenizedAssetsTradeRequestAmountInType
-}
-
-func CreateTokenizedAssetsTradeRequestAmountInNumber(number float64) TokenizedAssetsTradeRequestAmountIn {
-	typ := TokenizedAssetsTradeRequestAmountInTypeNumber
-
-	return TokenizedAssetsTradeRequestAmountIn{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateTokenizedAssetsTradeRequestAmountInStr(str string) TokenizedAssetsTradeRequestAmountIn {
-	typ := TokenizedAssetsTradeRequestAmountInTypeStr
-
-	return TokenizedAssetsTradeRequestAmountIn{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *TokenizedAssetsTradeRequestAmountIn) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = TokenizedAssetsTradeRequestAmountIn{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  TokenizedAssetsTradeRequestAmountInTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  TokenizedAssetsTradeRequestAmountInTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for TokenizedAssetsTradeRequestAmountIn", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for TokenizedAssetsTradeRequestAmountIn", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(TokenizedAssetsTradeRequestAmountInType)
-	switch best.Type {
-	case TokenizedAssetsTradeRequestAmountInTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case TokenizedAssetsTradeRequestAmountInTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for TokenizedAssetsTradeRequestAmountIn", string(data))
-}
-
-func (u TokenizedAssetsTradeRequestAmountIn) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type TokenizedAssetsTradeRequestAmountIn: all fields are null")
-}
-
-type TokenizedAssetsTradeRequestSlippageType string
-
-const (
-	TokenizedAssetsTradeRequestSlippageTypeNumber TokenizedAssetsTradeRequestSlippageType = "number"
-	TokenizedAssetsTradeRequestSlippageTypeStr    TokenizedAssetsTradeRequestSlippageType = "str"
-)
-
-// TokenizedAssetsTradeRequestSlippage - Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%).
-type TokenizedAssetsTradeRequestSlippage struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type TokenizedAssetsTradeRequestSlippageType
-}
-
-func CreateTokenizedAssetsTradeRequestSlippageNumber(number float64) TokenizedAssetsTradeRequestSlippage {
-	typ := TokenizedAssetsTradeRequestSlippageTypeNumber
-
-	return TokenizedAssetsTradeRequestSlippage{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateTokenizedAssetsTradeRequestSlippageStr(str string) TokenizedAssetsTradeRequestSlippage {
-	typ := TokenizedAssetsTradeRequestSlippageTypeStr
-
-	return TokenizedAssetsTradeRequestSlippage{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *TokenizedAssetsTradeRequestSlippage) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = TokenizedAssetsTradeRequestSlippage{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  TokenizedAssetsTradeRequestSlippageTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  TokenizedAssetsTradeRequestSlippageTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for TokenizedAssetsTradeRequestSlippage", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for TokenizedAssetsTradeRequestSlippage", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(TokenizedAssetsTradeRequestSlippageType)
-	switch best.Type {
-	case TokenizedAssetsTradeRequestSlippageTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case TokenizedAssetsTradeRequestSlippageTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for TokenizedAssetsTradeRequestSlippage", string(data))
-}
-
-func (u TokenizedAssetsTradeRequestSlippage) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type TokenizedAssetsTradeRequestSlippage: all fields are null")
-}
 
 // TokenizedAssetsTradeRequest - Buy or sell a swap-traded tokenized asset inside the product account.
 //
@@ -213,9 +17,9 @@ type TokenizedAssetsTradeRequest struct {
 	// Token to receive. For a buy this is the Midas RWA asset to mint (e.g. 'mTBILL'); for a sell it is the payout stablecoin (USDC).
 	TokenOut string `json:"token_out"`
 	// Human-readable amount of `token_in` to trade (token units, not wei).
-	AmountIn TokenizedAssetsTradeRequestAmountIn `json:"amount_in"`
+	AmountIn string `json:"amount_in"`
 	// Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%).
-	Slippage *TokenizedAssetsTradeRequestSlippage `json:"slippage,omitzero"`
+	Slippage *string `json:"slippage,omitzero"`
 	// The owner's wallet address.
 	Owner string `json:"owner"`
 	// The chain to use.
@@ -253,14 +57,14 @@ func (t *TokenizedAssetsTradeRequest) GetTokenOut() string {
 	return t.TokenOut
 }
 
-func (t *TokenizedAssetsTradeRequest) GetAmountIn() TokenizedAssetsTradeRequestAmountIn {
+func (t *TokenizedAssetsTradeRequest) GetAmountIn() string {
 	if t == nil {
-		return TokenizedAssetsTradeRequestAmountIn{}
+		return ""
 	}
 	return t.AmountIn
 }
 
-func (t *TokenizedAssetsTradeRequest) GetSlippage() *TokenizedAssetsTradeRequestSlippage {
+func (t *TokenizedAssetsTradeRequest) GetSlippage() *string {
 	if t == nil {
 		return nil
 	}

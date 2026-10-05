@@ -4,7 +4,6 @@ package operations
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/models/components"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
@@ -49,200 +48,6 @@ func (e *V2EarnSwapQuoteChain) UnmarshalJSON(data []byte) error {
 	}
 }
 
-type AmountInType string
-
-const (
-	AmountInTypeNumber AmountInType = "number"
-	AmountInTypeStr    AmountInType = "str"
-)
-
-// AmountIn - Human-readable amount of `token_in` to quote (token units, not wei).
-type AmountIn struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type AmountInType
-}
-
-func CreateAmountInNumber(number float64) AmountIn {
-	typ := AmountInTypeNumber
-
-	return AmountIn{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateAmountInStr(str string) AmountIn {
-	typ := AmountInTypeStr
-
-	return AmountIn{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *AmountIn) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = AmountIn{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  AmountInTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  AmountInTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for AmountIn", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for AmountIn", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(AmountInType)
-	switch best.Type {
-	case AmountInTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case AmountInTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for AmountIn", string(data))
-}
-
-func (u AmountIn) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type AmountIn: all fields are null")
-}
-
-type SlippageType string
-
-const (
-	SlippageTypeNumber SlippageType = "number"
-	SlippageTypeStr    SlippageType = "str"
-)
-
-// Slippage - Maximum slippage tolerance as a percentage (e.g., 1 = 1%).
-type Slippage struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type SlippageType
-}
-
-func CreateSlippageNumber(number float64) Slippage {
-	typ := SlippageTypeNumber
-
-	return Slippage{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateSlippageStr(str string) Slippage {
-	typ := SlippageTypeStr
-
-	return Slippage{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *Slippage) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = Slippage{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  SlippageTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  SlippageTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for Slippage", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for Slippage", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(SlippageType)
-	switch best.Type {
-	case SlippageTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case SlippageTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for Slippage", string(data))
-}
-
-func (u Slippage) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type Slippage: all fields are null")
-}
-
 type V2EarnSwapQuoteRequest struct {
 	// Target blockchain network.
 	Chain V2EarnSwapQuoteChain `queryParam:"style=form,explode=true,name=chain"`
@@ -253,9 +58,9 @@ type V2EarnSwapQuoteRequest struct {
 	// Optional Pendle SY (Standardized Yield) address. When provided, `token_in` is overridden with the token the PT actually redeems into on withdrawal (the SY asset if it is a valid token-out, else the SY yield token) — use this to gauge a Pendle position's real exit liquidity rather than the reported underlying.
 	SyAddress *string `queryParam:"style=form,explode=true,name=sy_address"`
 	// Human-readable amount of `token_in` to quote (token units, not wei).
-	AmountIn AmountIn `queryParam:"style=form,explode=true,name=amount_in"`
+	AmountIn string `queryParam:"style=form,explode=true,name=amount_in"`
 	// Maximum slippage tolerance as a percentage (e.g., 1 = 1%).
-	Slippage *Slippage `queryParam:"style=form,explode=true,name=slippage"`
+	Slippage *string `queryParam:"style=form,explode=true,name=slippage"`
 }
 
 func (v *V2EarnSwapQuoteRequest) GetChain() V2EarnSwapQuoteChain {
@@ -286,14 +91,14 @@ func (v *V2EarnSwapQuoteRequest) GetSyAddress() *string {
 	return v.SyAddress
 }
 
-func (v *V2EarnSwapQuoteRequest) GetAmountIn() AmountIn {
+func (v *V2EarnSwapQuoteRequest) GetAmountIn() string {
 	if v == nil {
-		return AmountIn{}
+		return ""
 	}
 	return v.AmountIn
 }
 
-func (v *V2EarnSwapQuoteRequest) GetSlippage() *Slippage {
+func (v *V2EarnSwapQuoteRequest) GetSlippage() *string {
 	if v == nil {
 		return nil
 	}

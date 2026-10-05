@@ -3,109 +3,10 @@
 package components
 
 import (
-	"errors"
-	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
-
-type CreditWithdrawParamsAmountType string
-
-const (
-	CreditWithdrawParamsAmountTypeNumber CreditWithdrawParamsAmountType = "number"
-	CreditWithdrawParamsAmountTypeStr    CreditWithdrawParamsAmountType = "str"
-)
-
-// CreditWithdrawParamsAmount - Amount in token units to withdraw.
-type CreditWithdrawParamsAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type CreditWithdrawParamsAmountType
-}
-
-func CreateCreditWithdrawParamsAmountNumber(number float64) CreditWithdrawParamsAmount {
-	typ := CreditWithdrawParamsAmountTypeNumber
-
-	return CreditWithdrawParamsAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateCreditWithdrawParamsAmountStr(str string) CreditWithdrawParamsAmount {
-	typ := CreditWithdrawParamsAmountTypeStr
-
-	return CreditWithdrawParamsAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *CreditWithdrawParamsAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = CreditWithdrawParamsAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditWithdrawParamsAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditWithdrawParamsAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditWithdrawParamsAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditWithdrawParamsAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(CreditWithdrawParamsAmountType)
-	switch best.Type {
-	case CreditWithdrawParamsAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case CreditWithdrawParamsAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditWithdrawParamsAmount", string(data))
-}
-
-func (u CreditWithdrawParamsAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type CreditWithdrawParamsAmount: all fields are null")
-}
 
 // CreditWithdrawParams - Withdraw collateral from Aave via Credit Account.
 type CreditWithdrawParams struct {
@@ -114,7 +15,7 @@ type CreditWithdrawParams struct {
 	// Collateral token to withdraw.
 	Token string `json:"token"`
 	// Amount in token units to withdraw.
-	Amount CreditWithdrawParamsAmount `json:"amount"`
+	Amount string `json:"amount"`
 	// Which lending protocol a credit action targets.
 	//
 	// ``AAVE`` is the default so existing callers (which never send a ``protocol``
@@ -162,9 +63,9 @@ func (c *CreditWithdrawParams) GetToken() string {
 	return c.Token
 }
 
-func (c *CreditWithdrawParams) GetAmount() CreditWithdrawParamsAmount {
+func (c *CreditWithdrawParams) GetAmount() string {
 	if c == nil {
-		return CreditWithdrawParamsAmount{}
+		return ""
 	}
 	return c.Amount
 }

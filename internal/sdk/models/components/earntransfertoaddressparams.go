@@ -3,108 +3,9 @@
 package components
 
 import (
-	"errors"
-	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
-
-type EarnTransferToAddressParamsAmountType string
-
-const (
-	EarnTransferToAddressParamsAmountTypeNumber EarnTransferToAddressParamsAmountType = "number"
-	EarnTransferToAddressParamsAmountTypeStr    EarnTransferToAddressParamsAmountType = "str"
-)
-
-// EarnTransferToAddressParamsAmount - The amount of tokens to transfer (in token units, not wei).
-type EarnTransferToAddressParamsAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type EarnTransferToAddressParamsAmountType
-}
-
-func CreateEarnTransferToAddressParamsAmountNumber(number float64) EarnTransferToAddressParamsAmount {
-	typ := EarnTransferToAddressParamsAmountTypeNumber
-
-	return EarnTransferToAddressParamsAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateEarnTransferToAddressParamsAmountStr(str string) EarnTransferToAddressParamsAmount {
-	typ := EarnTransferToAddressParamsAmountTypeStr
-
-	return EarnTransferToAddressParamsAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *EarnTransferToAddressParamsAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = EarnTransferToAddressParamsAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnTransferToAddressParamsAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnTransferToAddressParamsAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnTransferToAddressParamsAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnTransferToAddressParamsAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(EarnTransferToAddressParamsAmountType)
-	switch best.Type {
-	case EarnTransferToAddressParamsAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case EarnTransferToAddressParamsAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnTransferToAddressParamsAmount", string(data))
-}
-
-func (u EarnTransferToAddressParamsAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type EarnTransferToAddressParamsAmount: all fields are null")
-}
 
 // EarnTransferToAddressParams - Parameters for transferring tokens from product account to an arbitrary address.
 //
@@ -120,7 +21,7 @@ type EarnTransferToAddressParams struct {
 	// The ERC20 token to transfer from the product account.
 	Token string `json:"token"`
 	// The amount of tokens to transfer (in token units, not wei).
-	Amount EarnTransferToAddressParamsAmount `json:"amount"`
+	Amount string `json:"amount"`
 	// The destination address to receive the tokens.
 	Recipient string `json:"recipient"`
 }
@@ -147,9 +48,9 @@ func (e *EarnTransferToAddressParams) GetToken() string {
 	return e.Token
 }
 
-func (e *EarnTransferToAddressParams) GetAmount() EarnTransferToAddressParamsAmount {
+func (e *EarnTransferToAddressParams) GetAmount() string {
 	if e == nil {
-		return EarnTransferToAddressParamsAmount{}
+		return ""
 	}
 	return e.Amount
 }

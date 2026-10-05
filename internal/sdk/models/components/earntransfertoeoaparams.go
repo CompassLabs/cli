@@ -3,108 +3,9 @@
 package components
 
 import (
-	"errors"
-	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
-
-type EarnTransferToEOAParamsAmountType string
-
-const (
-	EarnTransferToEOAParamsAmountTypeNumber EarnTransferToEOAParamsAmountType = "number"
-	EarnTransferToEOAParamsAmountTypeStr    EarnTransferToEOAParamsAmountType = "str"
-)
-
-// EarnTransferToEOAParamsAmount - The amount of tokens to transfer (in token units, not wei).
-type EarnTransferToEOAParamsAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type EarnTransferToEOAParamsAmountType
-}
-
-func CreateEarnTransferToEOAParamsAmountNumber(number float64) EarnTransferToEOAParamsAmount {
-	typ := EarnTransferToEOAParamsAmountTypeNumber
-
-	return EarnTransferToEOAParamsAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateEarnTransferToEOAParamsAmountStr(str string) EarnTransferToEOAParamsAmount {
-	typ := EarnTransferToEOAParamsAmountTypeStr
-
-	return EarnTransferToEOAParamsAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *EarnTransferToEOAParamsAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = EarnTransferToEOAParamsAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnTransferToEOAParamsAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnTransferToEOAParamsAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnTransferToEOAParamsAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnTransferToEOAParamsAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(EarnTransferToEOAParamsAmountType)
-	switch best.Type {
-	case EarnTransferToEOAParamsAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case EarnTransferToEOAParamsAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnTransferToEOAParamsAmount", string(data))
-}
-
-func (u EarnTransferToEOAParamsAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type EarnTransferToEOAParamsAmount: all fields are null")
-}
 
 // EarnTransferToEOAParams - Parameters for transferring tokens from Earn Account to EOA (withdrawal).
 //
@@ -120,7 +21,7 @@ type EarnTransferToEOAParams struct {
 	// The token to transfer from Earn Account to EOA.
 	Token string `json:"token"`
 	// The amount of tokens to transfer (in token units, not wei).
-	Amount EarnTransferToEOAParamsAmount `json:"amount"`
+	Amount string `json:"amount"`
 }
 
 func (e EarnTransferToEOAParams) MarshalJSON() ([]byte, error) {
@@ -145,9 +46,9 @@ func (e *EarnTransferToEOAParams) GetToken() string {
 	return e.Token
 }
 
-func (e *EarnTransferToEOAParams) GetAmount() EarnTransferToEOAParamsAmount {
+func (e *EarnTransferToEOAParams) GetAmount() string {
 	if e == nil {
-		return EarnTransferToEOAParamsAmount{}
+		return ""
 	}
 	return e.Amount
 }

@@ -34,7 +34,7 @@ compass earn manage [flags]
 
 ```
       --action venue                                 Whether you are depositing into or withdrawing from the given Earn venue. (options: DEPOSIT, WITHDRAW) [required]
-      --amount string                                JSON value (one of: number | string)
+      --amount token                                 Amount of the underlying asset to act on (deposit or withdraw). For VAULT, this is the vault's underlying token; for AAVE, this is the Aave reserve asset; for PENDLE_PT, this is the amount of token to spend (DEPOSIT) or PT to sell (WITHDRAW). Provide as a decimal in token units (not wei); must be > 0. [required]
       --body string                                  Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.
   -c, --chain string                                 Blockchain network (options: arbitrum, base, bsc, ethereum, hyperevm, tempo) [required]
   -f, --fee string                                   Optional fee configuration. If provided, a fee will be applied to the transaction amount and sent to the specified recipient address. The fee can be specified as a percentage of the transaction amount, as a fixed token amount, or as a percentage of realized profit (PERFORMANCE).

@@ -17,8 +17,8 @@ import (
 var buyCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "token-in", FieldPath: "TokenIn", Kind: flagutil.FlagKindString, Required: true, Description: "Token to spend. For a buy this must be a stablecoin the Midas issuance vault accepts (USDC on every supported network; mBASIS also accepts USDT/DAI on Ethereum). For a sell it is the Midas RWA asset to redeem (e.g. 'mTBILL'). [required]"},
 	{FlagName: "token-out", FieldPath: "TokenOut", Kind: flagutil.FlagKindString, Required: true, Description: "Token to receive. For a buy this is the Midas RWA asset to mint (e.g. 'mTBILL'); for a sell it is the payout stablecoin (USDC). [required]"},
-	{FlagName: "amount-in", Shorthand: "a", FieldPath: "AmountIn", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, TypeDescription: "JSON value (one of: number | string)"}},
-	{FlagName: "slippage", Shorthand: "s", FieldPath: "Slippage", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
+	{FlagName: "amount-in", Shorthand: "a", FieldPath: "AmountIn", Kind: flagutil.FlagKindString, Required: true, Description: "Human-readable amount of `token_in` to trade (token units, not wei). [required]"},
+	{FlagName: "slippage", Shorthand: "s", FieldPath: "Slippage", Kind: flagutil.FlagKindString, Optional: true, Description: "Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%)."},
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The owner's wallet address. [required]"},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "robinhood", "ethereum_sepolia"}, Description: "The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia) [required]"},
 	{FlagName: "gas-sponsorship", Shorthand: "g", FieldPath: "GasSponsorship", Kind: flagutil.FlagKindBool, Optional: true, Description: "When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction."},
@@ -32,7 +32,7 @@ func initBuyCmd(parent *cobra.Command) error {
 		Use:     "buy",
 		Short:   "Buy an RWA yield token",
 		Long:    "Buy an RWA yield token, deposit into an IXS managed vault, or buy a Centrifuge\ndeRWA token, with a stablecoin in one transaction.\n\nSet `token_out` to a Midas symbol (`mTBILL`, `mBASIS`, `mBTC`), a Centrifuge\ndeRWA symbol (e.g. `deSPXA`), or an IXS **vault address** (its shares aren't a\nregistered symbol). The account spends a stablecoin it already holds (fund it\nwith a plain transfer first) and settles inside the product account — an\nunsigned transaction the owner signs, or EIP-712 with `gas_sponsorship`. All\nthree settle instantly. Equities use the order flow (`/quote`, `/order`).",
-		Example: "  compass tokenized-assets buy --token-in <value> --token-out <value> --amount-in 4533.23 --owner <value> --chain ethereum",
+		Example: "  compass tokenized-assets buy --token-in <value> --token-out <value> --amount-in <value> --owner <value> --chain ethereum",
 		Args:    cobra.NoArgs,
 		RunE:    runBuyCmd,
 		Annotations: map[string]string{

@@ -4,9 +4,7 @@ package components
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
 // CreditRebalanceRequestChain - Blockchain network. Rebalance is not available on HyperEVM yet; use loop/unloop there.
@@ -45,103 +43,6 @@ func (e *CreditRebalanceRequestChain) UnmarshalJSON(data []byte) error {
 	}
 }
 
-type CreditRebalanceRequestMaxSlippagePercentType string
-
-const (
-	CreditRebalanceRequestMaxSlippagePercentTypeNumber CreditRebalanceRequestMaxSlippagePercentType = "number"
-	CreditRebalanceRequestMaxSlippagePercentTypeStr    CreditRebalanceRequestMaxSlippagePercentType = "str"
-)
-
-// CreditRebalanceRequestMaxSlippagePercent - Request-level per-swap slippage tolerance in percent (including routing swaps). A per-target max_slippage_percent overrides it where set.
-type CreditRebalanceRequestMaxSlippagePercent struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type CreditRebalanceRequestMaxSlippagePercentType
-}
-
-func CreateCreditRebalanceRequestMaxSlippagePercentNumber(number float64) CreditRebalanceRequestMaxSlippagePercent {
-	typ := CreditRebalanceRequestMaxSlippagePercentTypeNumber
-
-	return CreditRebalanceRequestMaxSlippagePercent{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateCreditRebalanceRequestMaxSlippagePercentStr(str string) CreditRebalanceRequestMaxSlippagePercent {
-	typ := CreditRebalanceRequestMaxSlippagePercentTypeStr
-
-	return CreditRebalanceRequestMaxSlippagePercent{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *CreditRebalanceRequestMaxSlippagePercent) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = CreditRebalanceRequestMaxSlippagePercent{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditRebalanceRequestMaxSlippagePercentTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditRebalanceRequestMaxSlippagePercentTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditRebalanceRequestMaxSlippagePercent", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditRebalanceRequestMaxSlippagePercent", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(CreditRebalanceRequestMaxSlippagePercentType)
-	switch best.Type {
-	case CreditRebalanceRequestMaxSlippagePercentTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case CreditRebalanceRequestMaxSlippagePercentTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditRebalanceRequestMaxSlippagePercent", string(data))
-}
-
-func (u CreditRebalanceRequestMaxSlippagePercent) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type CreditRebalanceRequestMaxSlippagePercent: all fields are null")
-}
-
 // CreditRebalanceRequest - Rebalance one or more Credit Account positions to their named end-states —
 // lever up or down, grow or shrink equity, open a new position, close an existing
 // one, or migrate (close one and open another) — all in ONE atomic transaction
@@ -154,7 +55,7 @@ type CreditRebalanceRequest struct {
 	// The positions to change. Scoped: only positions named here are touched; any position not listed is left untouched.
 	Targets []RebalanceTarget `json:"targets"`
 	// Request-level per-swap slippage tolerance in percent (including routing swaps). A per-target max_slippage_percent overrides it where set.
-	MaxSlippagePercent *CreditRebalanceRequestMaxSlippagePercent `json:"max_slippage_percent,omitzero"`
+	MaxSlippagePercent *string `json:"max_slippage_percent,omitzero"`
 	// If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
 }
@@ -180,7 +81,7 @@ func (c *CreditRebalanceRequest) GetTargets() []RebalanceTarget {
 	return c.Targets
 }
 
-func (c *CreditRebalanceRequest) GetMaxSlippagePercent() *CreditRebalanceRequestMaxSlippagePercent {
+func (c *CreditRebalanceRequest) GetMaxSlippagePercent() *string {
 	if c == nil {
 		return nil
 	}

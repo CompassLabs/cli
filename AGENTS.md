@@ -84,7 +84,7 @@ Some flag listings show metavars like `--action venue`, `--gas-sponsorship true`
 ### Recipe 1 — Discover the highest-yielding USDC vault on Base, then deposit
 
 ```bash
-# Step 1: find candidates (note the JSON-quoted optional --chain)
+# Step 1: find candidates (plain values everywhere; amounts are forwarded verbatim)
 compass earn vaults \
   --chain base \
   --asset-symbol USDC \

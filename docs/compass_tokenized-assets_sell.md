@@ -22,24 +22,24 @@ compass tokenized-assets sell [flags]
 ### Examples
 
 ```
-  compass tokenized-assets sell --token-in <value> --token-out <value> --amount-in 8512.47 --owner <value> --chain hyperevm
+  compass tokenized-assets sell --token-in <value> --token-out <value> --amount-in <value> --owner <value> --chain hyperevm
 ```
 
 ### Options
 
 ```
-  -a, --amount-in string    JSON value (one of: number | string)
-      --body string         Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.
-  -c, --chain string        The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia) [required]
-  -f, --fee string          Optional partner fee charged when selling (exiting). It is taken from the payout-token (USDC) proceeds and sent to your fee recipient inside the same execution.
-  -g, --gas-sponsorship     When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction.
-  -h, --help                help for sell
-      --owner string        The owner's wallet address. [required]
-      --schema              Print the exact JSON Schema of the request body and exit
-  -s, --slippage string     JSON value (one of: number | string)
-      --token-in string     Token to spend. For a buy this must be a stablecoin the Midas issuance vault accepts (USDC on every supported network; mBASIS also accepts USDT/DAI on Ethereum). For a sell it is the Midas RWA asset to redeem (e.g. 'mTBILL'). [required]
-      --token-out string    Token to receive. For a buy this is the Midas RWA asset to mint (e.g. 'mTBILL'); for a sell it is the payout stablecoin (USDC). [required]
-  -w, --wisdomtree string   WisdomTree Connect API credentials, required only when trading a WisdomTree money-market fund. Each organization authenticates with its own credentials, which are exchanged for a short-lived token to look up the settlement wallet for this trade. They are never stored and are masked in logs.
+  -a, --amount-in token_in   Human-readable amount of token_in to trade (token units, not wei). [required]
+      --body string          Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.
+  -c, --chain string         The chain to use. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia) [required]
+  -f, --fee string           Optional partner fee charged when selling (exiting). It is taken from the payout-token (USDC) proceeds and sent to your fee recipient inside the same execution.
+  -g, --gas-sponsorship      When true, returns an EIP-712 payload for gas-sponsored execution instead of an unsigned transaction.
+  -h, --help                 help for sell
+      --owner string         The owner's wallet address. [required]
+      --schema               Print the exact JSON Schema of the request body and exit
+  -s, --slippage string      Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%).
+      --token-in string      Token to spend. For a buy this must be a stablecoin the Midas issuance vault accepts (USDC on every supported network; mBASIS also accepts USDT/DAI on Ethereum). For a sell it is the Midas RWA asset to redeem (e.g. 'mTBILL'). [required]
+      --token-out string     Token to receive. For a buy this is the Midas RWA asset to mint (e.g. 'mTBILL'); for a sell it is the payout stablecoin (USDC). [required]
+  -w, --wisdomtree string    WisdomTree Connect API credentials, required only when trading a WisdomTree money-market fund. Each organization authenticates with its own credentials, which are exchanged for a short-lived token to look up the settlement wallet for this trade. They are never stored and are masked in logs.
 ```
 
 ### Options inherited from parent commands

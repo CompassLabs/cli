@@ -30,10 +30,10 @@ compass earn swap-quote [flags]
 ### Options
 
 ```
-  -a, --amount-in string      JSON value (one of: number | string)
+  -a, --amount-in token_in    Human-readable amount of token_in to quote (token units, not wei). [required]
   -c, --chain string          Target blockchain network. (options: arbitrum, base, bsc, ethereum, hyperevm, tempo) [required]
   -h, --help                  help for swap-quote
-      --slippage string       JSON value (one of: number | string)
+      --slippage string       Maximum slippage tolerance as a percentage (e.g., 1 = 1%).
       --sy-address token_in   Optional Pendle SY (Standardized Yield) address. When provided, token_in is overridden with the token the PT actually redeems into on withdrawal (the SY asset if it is a valid token-out, else the SY yield token) — use this to gauge a Pendle position's real exit liquidity rather than the reported underlying.
       --token-in string       Token to sell (input). A token symbol (e.g. 'WETH') or any token address. [required]
       --token-out string      Token to buy (output). A token symbol (e.g. 'USDC') or any token address.

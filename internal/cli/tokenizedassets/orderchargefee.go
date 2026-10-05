@@ -27,7 +27,7 @@ func initOrderChargeFeeCmd(parent *cobra.Command) error {
 		Use:     "order-charge-fee [order-hash]",
 		Short:   "Charge a partner fee",
 		Long:    "Charge a partner fee on a filled equity sell order's USDC proceeds.\n\nEquity orders settle off-chain, so fees can't be bundled into the trade — call\nthis after a sell fills and it builds a USDC transfer of your `fee` from the\nactual proceeds, executed by the product account (owner signs, or EIP-712 with\n`gas_sponsorship`).",
-		Example: "  compass tokenized-assets order-charge-fee --order-hash <value> --owner <value> --fee '{\"recipient\":\"<value>\",\"amount\":8619.46,\"denomination\":\"PERCENTAGE\"}'",
+		Example: "  compass tokenized-assets order-charge-fee --order-hash <value> --owner <value> --fee '{\"recipient\":\"<value>\",\"amount\":\"441.70\",\"denomination\":\"PERCENTAGE\"}'",
 		Args:    flagutil.PositionalFlagArgs,
 		RunE:    runOrderChargeFeeCmd,
 		Aliases: []string{"ocf"},

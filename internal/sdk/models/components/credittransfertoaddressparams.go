@@ -3,108 +3,9 @@
 package components
 
 import (
-	"errors"
-	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
-
-type CreditTransferToAddressParamsAmountType string
-
-const (
-	CreditTransferToAddressParamsAmountTypeNumber CreditTransferToAddressParamsAmountType = "number"
-	CreditTransferToAddressParamsAmountTypeStr    CreditTransferToAddressParamsAmountType = "str"
-)
-
-// CreditTransferToAddressParamsAmount - The amount of tokens to transfer (in token units, not wei).
-type CreditTransferToAddressParamsAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type CreditTransferToAddressParamsAmountType
-}
-
-func CreateCreditTransferToAddressParamsAmountNumber(number float64) CreditTransferToAddressParamsAmount {
-	typ := CreditTransferToAddressParamsAmountTypeNumber
-
-	return CreditTransferToAddressParamsAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateCreditTransferToAddressParamsAmountStr(str string) CreditTransferToAddressParamsAmount {
-	typ := CreditTransferToAddressParamsAmountTypeStr
-
-	return CreditTransferToAddressParamsAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *CreditTransferToAddressParamsAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = CreditTransferToAddressParamsAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditTransferToAddressParamsAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditTransferToAddressParamsAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditTransferToAddressParamsAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditTransferToAddressParamsAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(CreditTransferToAddressParamsAmountType)
-	switch best.Type {
-	case CreditTransferToAddressParamsAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case CreditTransferToAddressParamsAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditTransferToAddressParamsAmount", string(data))
-}
-
-func (u CreditTransferToAddressParamsAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type CreditTransferToAddressParamsAmount: all fields are null")
-}
 
 // CreditTransferToAddressParams - Transfer tokens from Credit Account to an arbitrary address.
 //
@@ -116,7 +17,7 @@ type CreditTransferToAddressParams struct {
 	// The ERC20 token to transfer from the Credit Account.
 	Token string `json:"token"`
 	// The amount of tokens to transfer (in token units, not wei).
-	Amount CreditTransferToAddressParamsAmount `json:"amount"`
+	Amount string `json:"amount"`
 	// The destination address to receive the tokens.
 	Recipient string `json:"recipient"`
 }
@@ -143,9 +44,9 @@ func (c *CreditTransferToAddressParams) GetToken() string {
 	return c.Token
 }
 
-func (c *CreditTransferToAddressParams) GetAmount() CreditTransferToAddressParamsAmount {
+func (c *CreditTransferToAddressParams) GetAmount() string {
 	if c == nil {
-		return CreditTransferToAddressParamsAmount{}
+		return ""
 	}
 	return c.Amount
 }

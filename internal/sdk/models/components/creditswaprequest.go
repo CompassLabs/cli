@@ -4,205 +4,10 @@ package components
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
-
-type CreditSwapRequestAmountInType string
-
-const (
-	CreditSwapRequestAmountInTypeNumber CreditSwapRequestAmountInType = "number"
-	CreditSwapRequestAmountInTypeStr    CreditSwapRequestAmountInType = "str"
-)
-
-// CreditSwapRequestAmountIn - Human-readable amount of `token_in` to swap (token units, not wei).
-type CreditSwapRequestAmountIn struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type CreditSwapRequestAmountInType
-}
-
-func CreateCreditSwapRequestAmountInNumber(number float64) CreditSwapRequestAmountIn {
-	typ := CreditSwapRequestAmountInTypeNumber
-
-	return CreditSwapRequestAmountIn{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateCreditSwapRequestAmountInStr(str string) CreditSwapRequestAmountIn {
-	typ := CreditSwapRequestAmountInTypeStr
-
-	return CreditSwapRequestAmountIn{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *CreditSwapRequestAmountIn) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = CreditSwapRequestAmountIn{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditSwapRequestAmountInTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditSwapRequestAmountInTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditSwapRequestAmountIn", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditSwapRequestAmountIn", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(CreditSwapRequestAmountInType)
-	switch best.Type {
-	case CreditSwapRequestAmountInTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case CreditSwapRequestAmountInTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditSwapRequestAmountIn", string(data))
-}
-
-func (u CreditSwapRequestAmountIn) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type CreditSwapRequestAmountIn: all fields are null")
-}
-
-type CreditSwapRequestSlippageType string
-
-const (
-	CreditSwapRequestSlippageTypeNumber CreditSwapRequestSlippageType = "number"
-	CreditSwapRequestSlippageTypeStr    CreditSwapRequestSlippageType = "str"
-)
-
-// CreditSwapRequestSlippage - Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%). Bounds the market route only; a firm quote fills exactly and ignores it.
-type CreditSwapRequestSlippage struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type CreditSwapRequestSlippageType
-}
-
-func CreateCreditSwapRequestSlippageNumber(number float64) CreditSwapRequestSlippage {
-	typ := CreditSwapRequestSlippageTypeNumber
-
-	return CreditSwapRequestSlippage{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateCreditSwapRequestSlippageStr(str string) CreditSwapRequestSlippage {
-	typ := CreditSwapRequestSlippageTypeStr
-
-	return CreditSwapRequestSlippage{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *CreditSwapRequestSlippage) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = CreditSwapRequestSlippage{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditSwapRequestSlippageTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditSwapRequestSlippageTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditSwapRequestSlippage", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditSwapRequestSlippage", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(CreditSwapRequestSlippageType)
-	switch best.Type {
-	case CreditSwapRequestSlippageTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case CreditSwapRequestSlippageTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditSwapRequestSlippage", string(data))
-}
-
-func (u CreditSwapRequestSlippage) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type CreditSwapRequestSlippage: all fields are null")
-}
 
 // CreditSwapRequestChain - Target blockchain network where the swap will execute.
 type CreditSwapRequestChain string
@@ -285,9 +90,9 @@ type CreditSwapRequest struct {
 	// Token to buy (output). Provide a token symbol from a limited set (e.g., 'USDT') or any token address.
 	TokenOut string `json:"token_out"`
 	// Human-readable amount of `token_in` to swap (token units, not wei).
-	AmountIn CreditSwapRequestAmountIn `json:"amount_in"`
+	AmountIn string `json:"amount_in"`
 	// Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%). Bounds the market route only; a firm quote fills exactly and ignores it.
-	Slippage *CreditSwapRequestSlippage `json:"slippage,omitzero"`
+	Slippage *string `json:"slippage,omitzero"`
 	// The owner's wallet address. Their Credit Account must already exist (create it with `/v2/credit/create_account`) and hold `token_in` (deposit with `/v2/credit/transfer`).
 	Owner string `json:"owner"`
 	// Target blockchain network where the swap will execute.
@@ -329,14 +134,14 @@ func (c *CreditSwapRequest) GetTokenOut() string {
 	return c.TokenOut
 }
 
-func (c *CreditSwapRequest) GetAmountIn() CreditSwapRequestAmountIn {
+func (c *CreditSwapRequest) GetAmountIn() string {
 	if c == nil {
-		return CreditSwapRequestAmountIn{}
+		return ""
 	}
 	return c.AmountIn
 }
 
-func (c *CreditSwapRequest) GetSlippage() *CreditSwapRequestSlippage {
+func (c *CreditSwapRequest) GetSlippage() *string {
 	if c == nil {
 		return nil
 	}

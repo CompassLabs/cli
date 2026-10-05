@@ -20,9 +20,9 @@ var vaultsCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"base", "ethereum", "arbitrum", "hyperevm", "tempo", "bsc", "robinhood", "ethereum_sepolia"}, Description: "Optional chain filter. If not provided, returns vaults for all chains. (options: base, ethereum, arbitrum, hyperevm, tempo, bsc, robinhood, ethereum_sepolia)"},
 	{FlagName: "order-by", FieldPath: "OrderBy", Kind: flagutil.FlagKindString, Optional: true, Description: "Field to order the vaults by. One of: tvl_usd, liquidity_usd, deposit_cap_usd, apy_7d, apy_30d, apy_90d. Defaults to tvl_usd; unknown values also fall back to tvl_usd."},
 	{FlagName: "asset-symbol", Shorthand: "a", FieldPath: "AssetSymbol", Kind: flagutil.FlagKindString, Optional: true, Description: "Filter vaults by underlying asset symbol (e.g., 'USDC', 'WETH')."},
-	{FlagName: "min-tvl-usd", FieldPath: "MinTvlUsd", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
-	{FlagName: "min-liquidity-usd", FieldPath: "MinLiquidityUsd", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
-	{FlagName: "min-deposit-cap-usd", FieldPath: "MinDepositCapUsd", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
+	{FlagName: "min-tvl-usd", FieldPath: "MinTvlUsd", Kind: flagutil.FlagKindString, Optional: true, Description: "Minimum TVL in USD. Vaults with TVL below this value will be excluded."},
+	{FlagName: "min-liquidity-usd", FieldPath: "MinLiquidityUsd", Kind: flagutil.FlagKindString, Optional: true, Description: "Minimum available liquidity in USD. Vaults below this are excluded."},
+	{FlagName: "min-deposit-cap-usd", FieldPath: "MinDepositCapUsd", Kind: flagutil.FlagKindString, Optional: true, Description: "Minimum deposit capacity in USD. Vaults below this are excluded. Set to 0 to exclude paused vaults."},
 }
 
 // initVaultsCmd initializes the vaults command.

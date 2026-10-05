@@ -4,107 +4,9 @@ package components
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
-
-type CreditFeeAmountType string
-
-const (
-	CreditFeeAmountTypeNumber CreditFeeAmountType = "number"
-	CreditFeeAmountTypeStr    CreditFeeAmountType = "str"
-)
-
-// CreditFeeAmount - The fee amount. If `denomination` is 'PERCENTAGE', this is a percentage of the transaction amount (e.g., 1.5 for 1.5%). If `denomination` is 'FIXED', this is a fixed amount in token units (e.g., 0.1 for 0.1 tokens). If `denomination` is 'PERFORMANCE', this is a percentage of realized profit calculated using FIFO cost basis (e.g., 10 for 10% of profit).
-type CreditFeeAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type CreditFeeAmountType
-}
-
-func CreateCreditFeeAmountNumber(number float64) CreditFeeAmount {
-	typ := CreditFeeAmountTypeNumber
-
-	return CreditFeeAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateCreditFeeAmountStr(str string) CreditFeeAmount {
-	typ := CreditFeeAmountTypeStr
-
-	return CreditFeeAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *CreditFeeAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = CreditFeeAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditFeeAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditFeeAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditFeeAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditFeeAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(CreditFeeAmountType)
-	switch best.Type {
-	case CreditFeeAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case CreditFeeAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditFeeAmount", string(data))
-}
-
-func (u CreditFeeAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type CreditFeeAmount: all fields are null")
-}
 
 // CreditFeeDenomination - The unit type for the fee amount. Use 'PERCENTAGE' for a percentage-based fee (e.g., 1.5 means 1.5% of the borrow amount), or 'FIXED' for a fixed token amount (e.g., 0.1 means 0.1 tokens).
 type CreditFeeDenomination string
@@ -142,7 +44,7 @@ type CreditFee struct {
 	// The wallet address that will receive the fee.
 	Recipient string `json:"recipient"`
 	// The fee amount. If `denomination` is 'PERCENTAGE', this is a percentage of the transaction amount (e.g., 1.5 for 1.5%). If `denomination` is 'FIXED', this is a fixed amount in token units (e.g., 0.1 for 0.1 tokens). If `denomination` is 'PERFORMANCE', this is a percentage of realized profit calculated using FIFO cost basis (e.g., 10 for 10% of profit).
-	Amount CreditFeeAmount `json:"amount"`
+	Amount string `json:"amount"`
 	// The unit type for the fee amount. Use 'PERCENTAGE' for a percentage-based fee (e.g., 1.5 means 1.5% of the borrow amount), or 'FIXED' for a fixed token amount (e.g., 0.1 means 0.1 tokens).
 	Denomination *CreditFeeDenomination `json:"denomination,omitzero"`
 }
@@ -165,9 +67,9 @@ func (c *CreditFee) GetRecipient() string {
 	return c.Recipient
 }
 
-func (c *CreditFee) GetAmount() CreditFeeAmount {
+func (c *CreditFee) GetAmount() string {
 	if c == nil {
-		return CreditFeeAmount{}
+		return ""
 	}
 	return c.Amount
 }

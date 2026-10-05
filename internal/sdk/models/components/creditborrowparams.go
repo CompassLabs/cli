@@ -3,109 +3,10 @@
 package components
 
 import (
-	"errors"
-	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
-
-type CreditBorrowParamsAmountType string
-
-const (
-	CreditBorrowParamsAmountTypeNumber CreditBorrowParamsAmountType = "number"
-	CreditBorrowParamsAmountTypeStr    CreditBorrowParamsAmountType = "str"
-)
-
-// CreditBorrowParamsAmount - Amount in token units to borrow.
-type CreditBorrowParamsAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type CreditBorrowParamsAmountType
-}
-
-func CreateCreditBorrowParamsAmountNumber(number float64) CreditBorrowParamsAmount {
-	typ := CreditBorrowParamsAmountTypeNumber
-
-	return CreditBorrowParamsAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateCreditBorrowParamsAmountStr(str string) CreditBorrowParamsAmount {
-	typ := CreditBorrowParamsAmountTypeStr
-
-	return CreditBorrowParamsAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *CreditBorrowParamsAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = CreditBorrowParamsAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditBorrowParamsAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditBorrowParamsAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditBorrowParamsAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditBorrowParamsAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(CreditBorrowParamsAmountType)
-	switch best.Type {
-	case CreditBorrowParamsAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case CreditBorrowParamsAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditBorrowParamsAmount", string(data))
-}
-
-func (u CreditBorrowParamsAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type CreditBorrowParamsAmount: all fields are null")
-}
 
 // CreditBorrowParams - Borrow from Aave via Credit Account.
 type CreditBorrowParams struct {
@@ -114,7 +15,7 @@ type CreditBorrowParams struct {
 	// Token to borrow from Aave.
 	Token string `json:"token"`
 	// Amount in token units to borrow.
-	Amount CreditBorrowParamsAmount `json:"amount"`
+	Amount string `json:"amount"`
 	// On AAVE there are 2 different interest modes.
 	//
 	// A stable (but typically higher rate), or a variable rate.
@@ -168,9 +69,9 @@ func (c *CreditBorrowParams) GetToken() string {
 	return c.Token
 }
 
-func (c *CreditBorrowParams) GetAmount() CreditBorrowParamsAmount {
+func (c *CreditBorrowParams) GetAmount() string {
 	if c == nil {
-		return CreditBorrowParamsAmount{}
+		return ""
 	}
 	return c.Amount
 }

@@ -4,9 +4,7 @@ package components
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
 // CreditTransferRequestChain - Blockchain network.
@@ -48,103 +46,6 @@ func (e *CreditTransferRequestChain) UnmarshalJSON(data []byte) error {
 	}
 }
 
-type CreditTransferRequestAmountType string
-
-const (
-	CreditTransferRequestAmountTypeNumber CreditTransferRequestAmountType = "number"
-	CreditTransferRequestAmountTypeStr    CreditTransferRequestAmountType = "str"
-)
-
-// CreditTransferRequestAmount - The amount of tokens to transfer (in token units, not wei).
-type CreditTransferRequestAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type CreditTransferRequestAmountType
-}
-
-func CreateCreditTransferRequestAmountNumber(number float64) CreditTransferRequestAmount {
-	typ := CreditTransferRequestAmountTypeNumber
-
-	return CreditTransferRequestAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateCreditTransferRequestAmountStr(str string) CreditTransferRequestAmount {
-	typ := CreditTransferRequestAmountTypeStr
-
-	return CreditTransferRequestAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *CreditTransferRequestAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = CreditTransferRequestAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditTransferRequestAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditTransferRequestAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditTransferRequestAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditTransferRequestAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(CreditTransferRequestAmountType)
-	switch best.Type {
-	case CreditTransferRequestAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case CreditTransferRequestAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditTransferRequestAmount", string(data))
-}
-
-func (u CreditTransferRequestAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type CreditTransferRequestAmount: all fields are null")
-}
-
 // CreditTransferRequestAction - Whether you are depositing to or withdrawing from your credit account.
 type CreditTransferRequestAction string
 
@@ -180,7 +81,7 @@ type CreditTransferRequest struct {
 	// The token to transfer.
 	Token string `json:"token"`
 	// The amount of tokens to transfer (in token units, not wei).
-	Amount CreditTransferRequestAmount `json:"amount"`
+	Amount string `json:"amount"`
 	// Whether you are depositing to or withdrawing from your credit account.
 	Action CreditTransferRequestAction `json:"action"`
 	// Optionally request gas sponsorship. If set to `true`, EIP-712 signature data will be returned that must be signed by the `owner` and submitted to the `/gas_sponsorship/prepare` endpoint.
@@ -210,9 +111,9 @@ func (c *CreditTransferRequest) GetToken() string {
 	return c.Token
 }
 
-func (c *CreditTransferRequest) GetAmount() CreditTransferRequestAmount {
+func (c *CreditTransferRequest) GetAmount() string {
 	if c == nil {
-		return CreditTransferRequestAmount{}
+		return ""
 	}
 	return c.Amount
 }

@@ -4,13 +4,14 @@ package components
 
 import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
+	"math/big"
 )
 
 type TokenPermissions struct {
 	// ERC-20 token address
 	Token string `json:"token"`
 	// Maximum amount allowed to transfer
-	Amount int64 `json:"amount"`
+	Amount *big.Int `json:"amount"`
 }
 
 func (t TokenPermissions) MarshalJSON() ([]byte, error) {
@@ -31,9 +32,9 @@ func (t *TokenPermissions) GetToken() string {
 	return t.Token
 }
 
-func (t *TokenPermissions) GetAmount() int64 {
+func (t *TokenPermissions) GetAmount() *big.Int {
 	if t == nil {
-		return 0
+		return big.NewInt(0)
 	}
 	return t.Amount
 }

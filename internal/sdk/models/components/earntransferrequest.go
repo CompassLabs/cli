@@ -4,9 +4,7 @@ package components
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
 // EarnTransferRequestChain - Blockchain network
@@ -48,103 +46,6 @@ func (e *EarnTransferRequestChain) UnmarshalJSON(data []byte) error {
 	}
 }
 
-type EarnTransferRequestAmountType string
-
-const (
-	EarnTransferRequestAmountTypeNumber EarnTransferRequestAmountType = "number"
-	EarnTransferRequestAmountTypeStr    EarnTransferRequestAmountType = "str"
-)
-
-// EarnTransferRequestAmount - The amount of 'token' to transfer.
-type EarnTransferRequestAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type EarnTransferRequestAmountType
-}
-
-func CreateEarnTransferRequestAmountNumber(number float64) EarnTransferRequestAmount {
-	typ := EarnTransferRequestAmountTypeNumber
-
-	return EarnTransferRequestAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateEarnTransferRequestAmountStr(str string) EarnTransferRequestAmount {
-	typ := EarnTransferRequestAmountTypeStr
-
-	return EarnTransferRequestAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *EarnTransferRequestAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = EarnTransferRequestAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnTransferRequestAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  EarnTransferRequestAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnTransferRequestAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnTransferRequestAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(EarnTransferRequestAmountType)
-	switch best.Type {
-	case EarnTransferRequestAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case EarnTransferRequestAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for EarnTransferRequestAmount", string(data))
-}
-
-func (u EarnTransferRequestAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type EarnTransferRequestAmount: all fields are null")
-}
-
 // EarnTransferRequestAction - Whether you are depositing to or withdrawing from your earn account.
 type EarnTransferRequestAction string
 
@@ -180,7 +81,7 @@ type EarnTransferRequest struct {
 	// The token you would like to transfer.
 	Token string `json:"token"`
 	// The amount of 'token' to transfer.
-	Amount EarnTransferRequestAmount `json:"amount"`
+	Amount string `json:"amount"`
 	// Whether you are depositing to or withdrawing from your earn account.
 	Action EarnTransferRequestAction `json:"action"`
 	// Optionally request gas sponsorship. If set to `true`, EIP-712 signature data will be returned that must be signed by the `owner` and submitted to the `/gas_sponsorship/prepare` endpoint.
@@ -212,9 +113,9 @@ func (e *EarnTransferRequest) GetToken() string {
 	return e.Token
 }
 
-func (e *EarnTransferRequest) GetAmount() EarnTransferRequestAmount {
+func (e *EarnTransferRequest) GetAmount() string {
 	if e == nil {
-		return EarnTransferRequestAmount{}
+		return ""
 	}
 	return e.Amount
 }

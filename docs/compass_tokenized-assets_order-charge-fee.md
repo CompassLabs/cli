@@ -18,7 +18,7 @@ compass tokenized-assets order-charge-fee [order-hash] [flags]
 ### Examples
 
 ```
-  compass tokenized-assets order-charge-fee --order-hash <value> --owner <value> --fee '{"recipient":"<value>","amount":8619.46,"denomination":"PERCENTAGE"}'
+  compass tokenized-assets order-charge-fee --order-hash <value> --owner <value> --fee '{"recipient":"<value>","amount":"441.70","denomination":"PERCENTAGE"}'
 ```
 
 ### Options

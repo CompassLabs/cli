@@ -18,7 +18,7 @@ var rebalanceCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "owner", FieldPath: "Owner", Kind: flagutil.FlagKindString, Required: true, Description: "The address that owns the Credit Account. [required]"},
 	{FlagName: "chain", Shorthand: "c", FieldPath: "Chain", Kind: flagutil.FlagKindEnum, Required: true, EnumValues: []string{"arbitrum", "base", "bsc", "ethereum", "tempo"}, Description: "Blockchain network. Rebalance is not available on HyperEVM yet; use loop/unloop there. (options: arbitrum, base, bsc, ethereum, tempo) [required]"},
 	{FlagName: "targets", Shorthand: "t", FieldPath: "Targets", Kind: flagutil.FlagKindJSON, Required: true, Annotations: `json:"targets"`, Description: "The positions to change. Scoped: only positions named here are touched; any position not listed is left untouched. [required]"},
-	{FlagName: "max-slippage-percent", Shorthand: "m", FieldPath: "MaxSlippagePercent", Kind: flagutil.FlagKindUnion, Union: &flagutil.UnionMeta{Discriminated: false, Optional: true, TypeDescription: "JSON value (one of: number | string)"}},
+	{FlagName: "max-slippage-percent", Shorthand: "m", FieldPath: "MaxSlippagePercent", Kind: flagutil.FlagKindString, Optional: true, Description: "Request-level per-swap slippage tolerance in percent (including routing swaps). A per-target max_slippage_percent overrides it where set."},
 	{FlagName: "gas-sponsorship", Shorthand: "g", FieldPath: "GasSponsorship", Kind: flagutil.FlagKindBool, Optional: true, Description: "If true, returns EIP-712 typed data for gas-sponsored execution instead of an unsigned transaction."},
 }
 
@@ -28,7 +28,7 @@ func initRebalanceCmd(parent *cobra.Command) error {
 		Use:     "rebalance",
 		Short:   "Rebalance the leveraged credit book",
 		Long:    "Move one or more leveraged positions to the state you want, in ONE atomic\ntransaction.\n\nList the positions to change and the end state you want for each. The API\nworks out whether that means opening, growing, shrinking, delevering or\nclosing, and does them all together.\n\nMoney freed by shrinking or closing one position pays for growing or opening\nanother, so shifting funds between positions needs no new deposit. Any\nshortfall is taken from the Credit Account's idle balance, and the call\nreturns 422 if that does not cover it either.\n\nSee the [Leveraged Looping guide](https://docs.compasslabs.ai/v2/Products/Looping)\nfor protocol and chain coverage, capital routing and the full error list.",
-		Example: "  compass credit rebalance --owner 0x4D3c07d1db7E4A9E44285fae9810d6549655bc74 --chain ethereum --targets '[{\"protocol\":\"AAVE\",\"collateral_token\":\"WETH\",\"borrow_token\":\"USDC\",\"target_multiplier\":2}]'",
+		Example: "  compass credit rebalance --owner 0x4D3c07d1db7E4A9E44285fae9810d6549655bc74 --chain ethereum --targets '[{\"protocol\":\"AAVE\",\"collateral_token\":\"WETH\",\"borrow_token\":\"USDC\",\"target_multiplier\":\"2\"}]'",
 		Args:    cobra.NoArgs,
 		RunE:    runRebalanceCmd,
 		Annotations: map[string]string{

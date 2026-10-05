@@ -186,6 +186,14 @@ func nativeNumber(n json.Number) (interface{}, bool) {
 	if i, err := n.Int64(); err == nil {
 		return i, true
 	}
+	// 01b-output-bigint.patch: an integer lexeme beyond int64 (a wei amount
+	// above ~9.22e18, e.g. a Permit2 `amount` of 10 WETH) must not become a
+	// float64 just because encoding/json would print it back without an
+	// exponent: yaml.v3 and the TOON encoder render that float64 as 1e+19.
+	// Callers fall back to the exact lexeme instead.
+	if isIntegerLexeme(n.String()) {
+		return nil, false
+	}
 	if f, err := n.Float64(); err == nil {
 		if b, err := json.Marshal(f); err == nil && string(b) == n.String() {
 			return f, true

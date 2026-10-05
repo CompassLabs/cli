@@ -1558,6 +1558,7 @@ func validateEnumValue(m FlagMeta, val string, changed bool) error {
 
 func buildStringField(cmd *cobra.Command, v reflect.Value, m FlagMeta) error {
 	val, changed := GetStringFlag(cmd, m.FlagName)
+	val = unquoteJSONString(val) // 09-flagutil-unquote.patch
 	if err := enforceStrictOrWarn(cmd, validateStringLength(m, val, changed)); err != nil {
 		return err
 	}

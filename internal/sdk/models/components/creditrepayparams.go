@@ -3,109 +3,10 @@
 package components
 
 import (
-	"errors"
-	"fmt"
 	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
-
-type CreditRepayParamsAmountType string
-
-const (
-	CreditRepayParamsAmountTypeNumber CreditRepayParamsAmountType = "number"
-	CreditRepayParamsAmountTypeStr    CreditRepayParamsAmountType = "str"
-)
-
-// CreditRepayParamsAmount - Amount in token units to repay.
-type CreditRepayParamsAmount struct {
-	Number *float64 `queryParam:"inline" union:"member"`
-	Str    *string  `queryParam:"inline" union:"member"`
-
-	Type CreditRepayParamsAmountType
-}
-
-func CreateCreditRepayParamsAmountNumber(number float64) CreditRepayParamsAmount {
-	typ := CreditRepayParamsAmountTypeNumber
-
-	return CreditRepayParamsAmount{
-		Number: &number,
-		Type:   typ,
-	}
-}
-
-func CreateCreditRepayParamsAmountStr(str string) CreditRepayParamsAmount {
-	typ := CreditRepayParamsAmountTypeStr
-
-	return CreditRepayParamsAmount{
-		Str:  &str,
-		Type: typ,
-	}
-}
-
-func (u *CreditRepayParamsAmount) UnmarshalJSON(data []byte) (err error) {
-	previous := *u
-	*u = CreditRepayParamsAmount{}
-	defer func() {
-		if err != nil {
-			*u = previous
-		}
-	}()
-
-	var candidates []utils.UnionCandidate
-
-	// Collect all valid candidates
-	var number float64 = float64(0)
-	if err := utils.UnmarshalJSON(data, &number, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditRepayParamsAmountTypeNumber,
-			Value: &number,
-		})
-	}
-
-	var str string = ""
-	if err := utils.UnmarshalJSON(data, &str, "", true, nil); err == nil {
-		candidates = append(candidates, utils.UnionCandidate{
-			Type:  CreditRepayParamsAmountTypeStr,
-			Value: &str,
-		})
-	}
-
-	if len(candidates) == 0 {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditRepayParamsAmount", string(data))
-	}
-
-	// Pick the best candidate using multi-stage filtering
-	best := utils.PickBestUnionCandidate(candidates, data)
-	if best == nil {
-		return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditRepayParamsAmount", string(data))
-	}
-
-	// Set the union type and value based on the best candidate
-	u.Type = best.Type.(CreditRepayParamsAmountType)
-	switch best.Type {
-	case CreditRepayParamsAmountTypeNumber:
-		u.Number = best.Value.(*float64)
-		return nil
-	case CreditRepayParamsAmountTypeStr:
-		u.Str = best.Value.(*string)
-		return nil
-	}
-
-	return fmt.Errorf("could not unmarshal `%s` into any supported union types for CreditRepayParamsAmount", string(data))
-}
-
-func (u CreditRepayParamsAmount) MarshalJSON() ([]byte, error) {
-	if u.Number != nil {
-		return utils.MarshalJSON(u.Number, "", true)
-	}
-
-	if u.Str != nil {
-		return utils.MarshalJSON(u.Str, "", true)
-	}
-
-	return nil, errors.New("could not marshal union type CreditRepayParamsAmount: all fields are null")
-}
 
 // CreditRepayParams - Repay debt to Aave via Credit Account.
 type CreditRepayParams struct {
@@ -114,7 +15,7 @@ type CreditRepayParams struct {
 	// Token to repay.
 	Token string `json:"token"`
 	// Amount in token units to repay.
-	Amount CreditRepayParamsAmount `json:"amount"`
+	Amount string `json:"amount"`
 	// On AAVE there are 2 different interest modes.
 	//
 	// A stable (but typically higher rate), or a variable rate.
@@ -166,9 +67,9 @@ func (c *CreditRepayParams) GetToken() string {
 	return c.Token
 }
 
-func (c *CreditRepayParams) GetAmount() CreditRepayParamsAmount {
+func (c *CreditRepayParams) GetAmount() string {
 	if c == nil {
-		return CreditRepayParamsAmount{}
+		return ""
 	}
 	return c.Amount
 }
