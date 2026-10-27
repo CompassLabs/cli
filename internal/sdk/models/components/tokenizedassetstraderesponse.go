@@ -7,20 +7,20 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
-// Settlement - How the trade settles. `instant`: the signed transaction completes the trade (Midas/Ondo swaps and IXS deposits). `async`: the transaction only *requests* an IXS redemption, which the vault operator settles off-chain later — poll `poll_endpoint` for status.
-type Settlement string
+// TokenizedAssetsTradeResponseSettlement - How the trade settles. `instant`: the signed transaction completes the trade (Midas/Ondo swaps and IXS deposits). `async`: the transaction only *requests* an IXS redemption, which the vault operator settles off-chain later — poll `poll_endpoint` for status.
+type TokenizedAssetsTradeResponseSettlement string
 
 const (
-	SettlementInstant Settlement = "instant"
-	SettlementAsync   Settlement = "async"
+	TokenizedAssetsTradeResponseSettlementInstant TokenizedAssetsTradeResponseSettlement = "instant"
+	TokenizedAssetsTradeResponseSettlementAsync   TokenizedAssetsTradeResponseSettlement = "async"
 )
 
-func (e Settlement) ToPointer() *Settlement {
+func (e TokenizedAssetsTradeResponseSettlement) ToPointer() *TokenizedAssetsTradeResponseSettlement {
 	return &e
 }
 
 // IsExact returns true if the value matches a known enum value, false otherwise.
-func (e *Settlement) IsExact() bool {
+func (e *TokenizedAssetsTradeResponseSettlement) IsExact() bool {
 	if e != nil {
 		switch *e {
 		case "instant", "async":
@@ -44,7 +44,7 @@ type TokenizedAssetsTradeResponse struct {
 	// Fee charged on the sell, in payout-token (USDC) units. Null when no fee was applied.
 	FeeAmount optionalnullable.OptionalNullable[string] `json:"fee_amount,omitzero"`
 	// How the trade settles. `instant`: the signed transaction completes the trade (Midas/Ondo swaps and IXS deposits). `async`: the transaction only *requests* an IXS redemption, which the vault operator settles off-chain later — poll `poll_endpoint` for status.
-	Settlement *Settlement `json:"settlement,omitzero"`
+	Settlement *TokenizedAssetsTradeResponseSettlement `json:"settlement,omitzero"`
 	// For `async` settlements, the endpoint to poll for redemption status (`GET /v2/tokenized_assets/redemptions`). Null for instant trades.
 	PollEndpoint optionalnullable.OptionalNullable[string] `json:"poll_endpoint,omitzero"`
 }
@@ -88,7 +88,7 @@ func (t *TokenizedAssetsTradeResponse) GetFeeAmount() optionalnullable.OptionalN
 	return t.FeeAmount
 }
 
-func (t *TokenizedAssetsTradeResponse) GetSettlement() *Settlement {
+func (t *TokenizedAssetsTradeResponse) GetSettlement() *TokenizedAssetsTradeResponseSettlement {
 	if t == nil {
 		return nil
 	}

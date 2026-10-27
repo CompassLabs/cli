@@ -42,6 +42,10 @@ func InitEarnRoot(parent *cobra.Command) error {
 		return err
 	}
 
+	if err := initEarnMaplePoolsCmd(EarnCmd); err != nil {
+		return err
+	}
+
 	if err := initSwapQuoteCmd(EarnCmd); err != nil {
 		return err
 	}

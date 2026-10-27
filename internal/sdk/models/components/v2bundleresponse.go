@@ -30,6 +30,29 @@ func (e *V2BundleResponseSwapProvider) IsExact() bool {
 	return false
 }
 
+// V2BundleResponseSettlement - 'async' when the bundle contains a MAPLE WITHDRAW: that action only requests the redemption from Maple's withdrawal queue, and the underlying asset arrives in the product account when Maple processes the queue (typically within minutes, at most 30 days). Its proceeds are not available to later actions in the same bundle. 'instant' otherwise.
+type V2BundleResponseSettlement string
+
+const (
+	V2BundleResponseSettlementInstant V2BundleResponseSettlement = "instant"
+	V2BundleResponseSettlementAsync   V2BundleResponseSettlement = "async"
+)
+
+func (e V2BundleResponseSettlement) ToPointer() *V2BundleResponseSettlement {
+	return &e
+}
+
+// IsExact returns true if the value matches a known enum value, false otherwise.
+func (e *V2BundleResponseSettlement) IsExact() bool {
+	if e != nil {
+		switch *e {
+		case "instant", "async":
+			return true
+		}
+	}
+	return false
+}
+
 type V2BundleResponse struct {
 	// Unsigned transaction for direct execution by the owner. Present when gas_sponsorship=false.
 	Transaction optionalnullable.OptionalNullable[UnsignedTransaction] `json:"transaction,omitzero"`
@@ -41,6 +64,10 @@ type V2BundleResponse struct {
 	SwapProvider optionalnullable.OptionalNullable[V2BundleResponseSwapProvider] `json:"swap_provider,omitzero"`
 	// Deadline of the firm swap quote inside the bundle. The transaction (or the sponsor's broadcast of the signed typed data) must be included before it or the bundle reverts on-chain; rebuild after it passes. Null unless a swap action was firm-priced.
 	QuoteExpiresAt optionalnullable.OptionalNullable[time.Time] `json:"quote_expires_at,omitzero"`
+	// 'async' when the bundle contains a MAPLE WITHDRAW: that action only requests the redemption from Maple's withdrawal queue, and the underlying asset arrives in the product account when Maple processes the queue (typically within minutes, at most 30 days). Its proceeds are not available to later actions in the same bundle. 'instant' otherwise.
+	Settlement *V2BundleResponseSettlement `json:"settlement,omitzero"`
+	// When `settlement` is 'async', the endpoint that shows the pending redemption until it settles. Null otherwise.
+	PollEndpoint optionalnullable.OptionalNullable[string] `json:"poll_endpoint,omitzero"`
 }
 
 func (v V2BundleResponse) MarshalJSON() ([]byte, error) {
@@ -87,6 +114,20 @@ func (v *V2BundleResponse) GetQuoteExpiresAt() optionalnullable.OptionalNullable
 		return nil
 	}
 	return v.QuoteExpiresAt
+}
+
+func (v *V2BundleResponse) GetSettlement() *V2BundleResponseSettlement {
+	if v == nil {
+		return nil
+	}
+	return v.Settlement
+}
+
+func (v *V2BundleResponse) GetPollEndpoint() optionalnullable.OptionalNullable[string] {
+	if v == nil {
+		return nil
+	}
+	return v.PollEndpoint
 }
 
 // #region class-body-v2bundleresponse

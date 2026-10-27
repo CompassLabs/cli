@@ -15,6 +15,7 @@ type EarnManageParamsVenueType string
 
 const (
 	EarnManageParamsVenueTypeAave     EarnManageParamsVenueType = "AAVE"
+	EarnManageParamsVenueTypeMaple    EarnManageParamsVenueType = "MAPLE"
 	EarnManageParamsVenueTypePendlePt EarnManageParamsVenueType = "PENDLE_PT"
 	EarnManageParamsVenueTypeVault    EarnManageParamsVenueType = "VAULT"
 )
@@ -24,6 +25,7 @@ type EarnManageParamsVenue struct {
 	VaultVenue    *VaultVenue    `queryParam:"inline" union:"member"`
 	AaveVenue     *AaveVenue     `queryParam:"inline" union:"member"`
 	PendlePTVenue *PendlePTVenue `queryParam:"inline" union:"member"`
+	MapleVenue    *MapleVenue    `queryParam:"inline" union:"member"`
 
 	Type EarnManageParamsVenueType
 }
@@ -34,6 +36,15 @@ func CreateEarnManageParamsVenueAave(aave AaveVenue) EarnManageParamsVenue {
 	return EarnManageParamsVenue{
 		AaveVenue: &aave,
 		Type:      typ,
+	}
+}
+
+func CreateEarnManageParamsVenueMaple(maple MapleVenue) EarnManageParamsVenue {
+	typ := EarnManageParamsVenueTypeMaple
+
+	return EarnManageParamsVenue{
+		MapleVenue: &maple,
+		Type:       typ,
 	}
 }
 
@@ -83,6 +94,15 @@ func (u *EarnManageParamsVenue) UnmarshalJSON(data []byte) (err error) {
 		u.AaveVenue = aaveVenue
 		u.Type = EarnManageParamsVenueTypeAave
 		return nil
+	case "MAPLE":
+		mapleVenue := new(MapleVenue)
+		if err := utils.UnmarshalJSON(data, &mapleVenue, "", true, nil); err != nil {
+			return fmt.Errorf("could not unmarshal `%s` into expected (Type == MAPLE) type MapleVenue within EarnManageParamsVenue: %w", string(data), err)
+		}
+
+		u.MapleVenue = mapleVenue
+		u.Type = EarnManageParamsVenueTypeMaple
+		return nil
 	case "PENDLE_PT":
 		pendlePTVenue := new(PendlePTVenue)
 		if err := utils.UnmarshalJSON(data, &pendlePTVenue, "", true, nil); err != nil {
@@ -119,6 +139,10 @@ func (u EarnManageParamsVenue) MarshalJSON() ([]byte, error) {
 		return utils.MarshalJSON(u.PendlePTVenue, "", true)
 	}
 
+	if u.MapleVenue != nil {
+		return utils.MarshalJSON(u.MapleVenue, "", true)
+	}
+
 	return nil, errors.New("could not marshal union type EarnManageParamsVenue: all fields are null")
 }
 
@@ -149,7 +173,8 @@ func (e *EarnManageParamsAction) UnmarshalJSON(data []byte) error {
 	}
 }
 
-// EarnManageParams - Parameters for earn manage operations (deposit/withdraw to vault/Aave/Pendle PT).
+// EarnManageParams - Parameters for earn manage operations (deposit/withdraw to vault/Aave/Pendle
+// PT/Maple).
 //
 // Used by multicall/bundle endpoint to specify manage actions. EarnManageRequest
 // inherits from this class.
@@ -161,7 +186,7 @@ type EarnManageParams struct {
 	Venue EarnManageParamsVenue `json:"venue"`
 	// Whether you are depositing into or withdrawing from the given Earn `venue`.
 	Action EarnManageParamsAction `json:"action"`
-	// Amount of the underlying asset to act on (deposit or withdraw). For VAULT, this is the vault's underlying token; for AAVE, this is the Aave reserve asset; for PENDLE_PT, this is the amount of `token` to spend (DEPOSIT) or PT to sell (WITHDRAW). Provide as a decimal in token units (not wei); must be > 0.
+	// Amount of the underlying asset to act on (deposit or withdraw). For VAULT, this is the vault's underlying token; for AAVE, this is the Aave reserve asset; for PENDLE_PT, this is the amount of `token` to spend (DEPOSIT) or PT to sell (WITHDRAW); for MAPLE, this is the pool's underlying asset (USDC for syrupUSDC, USDT for syrupUSDT). Provide as a decimal in token units (not wei); must be > 0.
 	Amount string `json:"amount"`
 	// Optional fee configuration. If provided, a fee will be applied to the transaction amount and sent to the specified recipient address. The fee can be specified as a percentage of the transaction amount, as a fixed token amount, or as a percentage of realized profit (PERFORMANCE).
 	Fee optionalnullable.OptionalNullable[Fee] `json:"fee,omitzero"`
@@ -191,6 +216,10 @@ func (e *EarnManageParams) GetVenue() EarnManageParamsVenue {
 
 func (e *EarnManageParams) GetVenueAave() *AaveVenue {
 	return e.GetVenue().AaveVenue
+}
+
+func (e *EarnManageParams) GetVenueMaple() *MapleVenue {
+	return e.GetVenue().MapleVenue
 }
 
 func (e *EarnManageParams) GetVenuePendlePt() *PendlePTVenue {

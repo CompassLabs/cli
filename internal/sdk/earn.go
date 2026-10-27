@@ -985,6 +985,200 @@ func (s *Earn) PendleMarkets(ctx context.Context, request *operations.V2EarnPend
 
 }
 
+// EarnMaplePools - List maple pools
+// List the Maple syrup pools (syrupUSDC, syrupUSDT) available through the
+// `MAPLE` venue, with exchange rate, TVL, 7-day APY and withdrawal-queue state.
+//
+// Deposit with the [manage endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/manage-earn-position)
+// using `{"type": "MAPLE", "pool_address": ...}`: shares are minted directly from
+// Maple at the pool exchange rate, and the Earn Account is authorized with Maple
+// automatically on its first deposit. Withdrawals are asynchronous (Maple's
+// withdrawal queue, typically minutes, at most 30 days); to exit immediately at
+// market price, use the [swap endpoint](https://docs.compasslabs.ai/v2/api-reference/earn/swap-tokens).
+//
+// Maple pools are on Ethereum; other chains return an empty list.
+func (s *Earn) EarnMaplePools(ctx context.Context, request operations.V2EarnMaplePoolsRequest, opts ...operations.Option) (*operations.V2EarnMaplePoolsResponse, error) {
+	o := operations.Options{}
+	supportedOptions := []string{
+		operations.SupportedOptionTimeout,
+		operations.SupportedOptionSkipDeserialization,
+	}
+
+	for _, opt := range opts {
+		if err := opt(&o, supportedOptions...); err != nil {
+			return nil, fmt.Errorf("error applying option: %w", err)
+		}
+	}
+
+	var baseURL string
+	if o.ServerURL == nil {
+		baseURL = utils.ReplaceParameters(s.sdkConfiguration.GetServerDetails())
+	} else {
+		baseURL = *o.ServerURL
+	}
+	opURL, err := url.JoinPath(baseURL, "/v2/earn/maple_pools")
+	if err != nil {
+		return nil, fmt.Errorf("error generating URL: %w", err)
+	}
+
+	hookCtx := hooks.HookContext{
+		SDK:              s.rootSDK,
+		SDKConfiguration: s.sdkConfiguration,
+		BaseURL:          baseURL,
+		Context:          ctx,
+		OperationID:      "v2_earn_maple_pools",
+		SecuritySource:   s.sdkConfiguration.Security,
+	}
+
+	timeout := o.Timeout
+	if timeout == nil {
+		timeout = s.sdkConfiguration.Timeout
+	}
+
+	var streamCancel context.CancelFunc
+
+	if timeout != nil {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, *timeout)
+		streamCancel = cancel
+		defer func() {
+			if streamCancel != nil {
+				streamCancel()
+			}
+		}()
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "GET", opURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("User-Agent", s.sdkConfiguration.UserAgent)
+
+	if err := utils.PopulateQueryParams(ctx, req, request, nil, nil); err != nil {
+		return nil, fmt.Errorf("error populating query params: %w", err)
+	}
+
+	if err := utils.PopulateSecurity(ctx, req, s.sdkConfiguration.Security); err != nil {
+		return nil, err
+	}
+
+	for k, v := range o.SetHeaders {
+		req.Header.Set(k, v)
+	}
+
+	req, err = s.hooks.BeforeRequest(hooks.BeforeRequestContext{HookContext: hookCtx}, req)
+	if err != nil {
+		return nil, err
+	}
+
+	httpRes, err := s.sdkConfiguration.Client.Do(req)
+	if err != nil || httpRes == nil {
+		if err != nil {
+			err = fmt.Errorf("error sending request: %w", err)
+		} else {
+			err = fmt.Errorf("error sending request: no response")
+		}
+
+		_, err = s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, nil, err)
+		return nil, err
+	} else if utils.MatchStatusCodes([]string{"4XX", "5XX"}, httpRes.StatusCode) {
+		_httpRes, err := s.hooks.AfterError(hooks.AfterErrorContext{HookContext: hookCtx}, httpRes, nil)
+		if err != nil {
+			return nil, err
+		} else if _httpRes != nil {
+			httpRes = _httpRes
+		}
+	} else {
+		httpRes, err = s.hooks.AfterSuccess(hooks.AfterSuccessContext{HookContext: hookCtx}, httpRes)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	res := &operations.V2EarnMaplePoolsResponse{
+		HTTPMeta: components.HTTPMetadata{
+			Request:  req,
+			Response: httpRes,
+		},
+	}
+
+	switch {
+	case httpRes.StatusCode == 200:
+		switch {
+		case utils.MatchContentType(httpRes.Header.Get("Content-Type"), `application/json`):
+			if o.SkipDeserialization != nil && *o.SkipDeserialization {
+				httpRes.Body = utils.BodyWithCancel(httpRes.Body, streamCancel)
+				streamCancel = nil
+			} else {
+				rawBody, err := utils.ConsumeRawBody(httpRes)
+				if err != nil {
+					return nil, err
+				}
+
+				var out components.MaplePoolsResponse
+				if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
+					return nil, err
+				}
+
+				res.MaplePoolsResponse = &out
+			}
+		default:
+			rawBody, err := utils.ConsumeRawBody(httpRes)
+			if err != nil {
+				return nil, err
+			}
+			return nil, sdkerrors.NewSDKDefaultError(fmt.Sprintf("unknown content-type received: %s", httpRes.Header.Get("Content-Type")), httpRes.StatusCode, string(rawBody), httpRes)
+		}
+	case httpRes.StatusCode == 422:
+		switch {
+		case utils.MatchContentType(httpRes.Header.Get("Content-Type"), `application/json`):
+			rawBody, err := utils.ConsumeRawBody(httpRes)
+			if err != nil {
+				return nil, err
+			}
+
+			var out sdkerrors.HTTPValidationError
+			if err := utils.UnmarshalJsonFromResponseBody(bytes.NewBuffer(rawBody), &out, ""); err != nil {
+				return nil, sdkerrors.NewResponseValidationError("response did not match the declared error schema", httpRes.StatusCode, string(rawBody), httpRes, err)
+			}
+
+			out.HTTPMeta = components.HTTPMetadata{
+				Request:  req,
+				Response: httpRes,
+			}
+			return nil, &out
+		default:
+			rawBody, err := utils.ConsumeRawBody(httpRes)
+			if err != nil {
+				return nil, err
+			}
+			return nil, sdkerrors.NewSDKDefaultError(fmt.Sprintf("unknown content-type received: %s", httpRes.Header.Get("Content-Type")), httpRes.StatusCode, string(rawBody), httpRes)
+		}
+	case httpRes.StatusCode >= 400 && httpRes.StatusCode < 500:
+		rawBody, err := utils.ConsumeRawBody(httpRes)
+		if err != nil {
+			return nil, err
+		}
+		return nil, sdkerrors.NewSDKDefaultError("API error occurred", httpRes.StatusCode, string(rawBody), httpRes)
+	case httpRes.StatusCode >= 500 && httpRes.StatusCode < 600:
+		rawBody, err := utils.ConsumeRawBody(httpRes)
+		if err != nil {
+			return nil, err
+		}
+		return nil, sdkerrors.NewSDKDefaultError("API error occurred", httpRes.StatusCode, string(rawBody), httpRes)
+	default:
+		rawBody, err := utils.ConsumeRawBody(httpRes)
+		if err != nil {
+			return nil, err
+		}
+		return nil, sdkerrors.NewSDKDefaultError("unknown status code returned", httpRes.StatusCode, string(rawBody), httpRes)
+	}
+
+	return res, nil
+
+}
+
 // SwapQuote - Quote a swap
 // Estimate the output of a swap without building a transaction.
 //
@@ -1772,12 +1966,13 @@ func (s *Earn) Transfer(ctx context.Context, request components.EarnTransferRequ
 // Manage earn position
 // Deposit into or withdraw from a yield venue.
 //
-// Use `DEPOSIT` to move tokens from the Earn Account into a vault, Aave market, or Pendle PT position. Use `WITHDRAW` to move tokens back from a venue into the Earn Account.
+// Use `DEPOSIT` to move tokens from the Earn Account into a vault, Aave market, Pendle PT position, or Maple syrup pool. Use `WITHDRAW` to move tokens back from a venue into the Earn Account.
 //
 // **Venue types:**
 // - `VAULT`: ERC-4626 vaults (see [/vaults](https://docs.compasslabs.ai/v2/api-reference/earn/list-vaults) for available options)
 // - `AAVE`: Aave lending pools (see [/aave_markets](https://docs.compasslabs.ai/v2/api-reference/earn/list-aave-markets) for available options)
 // - `PENDLE_PT`: Pendle Principal Tokens (see [/pendle_markets](https://docs.compasslabs.ai/v2/api-reference/earn/list-pendle-markets) for available options)
+// - `MAPLE`: Maple syrup pools on Ethereum, syrupUSDC and syrupUSDT (see [/maple_pools](https://docs.compasslabs.ai/v2/api-reference/earn/list-maple-pools)). Deposits mint shares directly from Maple at the pool exchange rate; the Earn Account is authorized with Maple automatically on its first deposit. Withdrawals are **asynchronous**: the response has `settlement: "async"`, and the asset arrives in the Earn Account when Maple processes its withdrawal queue (typically within minutes, at most 30 days). Fees are not supported on MAPLE withdrawals. To exit immediately at market price, use [/swap](https://docs.compasslabs.ai/v2/api-reference/earn/swap-tokens).
 //
 // **Fees:** A fee can be configured and deducted from the transaction amount (not supported for PENDLE_PT):
 // - `FIXED`: A fixed token amount (e.g., 0.1 means 0.1 tokens)

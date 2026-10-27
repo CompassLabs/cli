@@ -44,6 +44,7 @@ compass earn [flags]
 * [compass earn balances](compass_earn_balances.md)	 - Get token balances
 * [compass earn bundle](compass_earn_bundle.md)	 - Execute multiple earn actions
 * [compass earn create-account](compass_earn_create-account.md)	 - Create earn account
+* [compass earn earn-maple-pools](compass_earn_earn-maple-pools.md)	 - List maple pools
 * [compass earn manage](compass_earn_manage.md)	 - Manage earn position
 * [compass earn pendle-markets](compass_earn_pendle-markets.md)	 - List pendle markets
 * [compass earn positions](compass_earn_positions.md)	 - List earn positions

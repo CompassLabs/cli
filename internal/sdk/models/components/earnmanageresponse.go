@@ -7,11 +7,40 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
+// EarnManageResponseSettlement - 'instant' when the action completes in this transaction. 'async' for a MAPLE WITHDRAW: the transaction only requests the redemption from Maple's withdrawal queue, and the underlying asset arrives in the product account when Maple processes the queue (typically within minutes, at most 30 days). Until then the position shows a `pending_redemption`.
+type EarnManageResponseSettlement string
+
+const (
+	EarnManageResponseSettlementInstant EarnManageResponseSettlement = "instant"
+	EarnManageResponseSettlementAsync   EarnManageResponseSettlement = "async"
+)
+
+func (e EarnManageResponseSettlement) ToPointer() *EarnManageResponseSettlement {
+	return &e
+}
+
+// IsExact returns true if the value matches a known enum value, false otherwise.
+func (e *EarnManageResponseSettlement) IsExact() bool {
+	if e != nil {
+		switch *e {
+		case "instant", "async":
+			return true
+		}
+	}
+	return false
+}
+
 type EarnManageResponse struct {
 	// Unsigned transaction for direct execution. Present when gas_sponsorship=false.
 	Transaction optionalnullable.OptionalNullable[UnsignedTransaction] `json:"transaction,omitzero"`
 	// EIP-712 typed data for gas-sponsored execution. Present when gas_sponsorship=true.
 	Eip712 optionalnullable.OptionalNullable[BatchedSafeOperationsResponseOutput] `json:"eip_712,omitzero"`
+	// 'instant' when the action completes in this transaction. 'async' for a MAPLE WITHDRAW: the transaction only requests the redemption from Maple's withdrawal queue, and the underlying asset arrives in the product account when Maple processes the queue (typically within minutes, at most 30 days). Until then the position shows a `pending_redemption`.
+	Settlement *EarnManageResponseSettlement `json:"settlement,omitzero"`
+	// For an async withdrawal, the underlying asset expected at today's exit rate. Maple pays at the rate when it processes the request, so this is an estimate. Null for instant actions.
+	EstimatedAmountOut optionalnullable.OptionalNullable[string] `json:"estimated_amount_out,omitzero"`
+	// For an async withdrawal, the endpoint that shows its progress. Null for instant actions.
+	PollEndpoint optionalnullable.OptionalNullable[string] `json:"poll_endpoint,omitzero"`
 }
 
 func (e EarnManageResponse) MarshalJSON() ([]byte, error) {
@@ -37,4 +66,25 @@ func (e *EarnManageResponse) GetEip712() optionalnullable.OptionalNullable[Batch
 		return nil
 	}
 	return e.Eip712
+}
+
+func (e *EarnManageResponse) GetSettlement() *EarnManageResponseSettlement {
+	if e == nil {
+		return nil
+	}
+	return e.Settlement
+}
+
+func (e *EarnManageResponse) GetEstimatedAmountOut() optionalnullable.OptionalNullable[string] {
+	if e == nil {
+		return nil
+	}
+	return e.EstimatedAmountOut
+}
+
+func (e *EarnManageResponse) GetPollEndpoint() optionalnullable.OptionalNullable[string] {
+	if e == nil {
+		return nil
+	}
+	return e.PollEndpoint
 }

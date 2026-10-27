@@ -6,12 +6,13 @@ Manage earn position
 
 Deposit into or withdraw from a yield venue.
 
-Use `DEPOSIT` to move tokens from the Earn Account into a vault, Aave market, or Pendle PT position. Use `WITHDRAW` to move tokens back from a venue into the Earn Account.
+Use `DEPOSIT` to move tokens from the Earn Account into a vault, Aave market, Pendle PT position, or Maple syrup pool. Use `WITHDRAW` to move tokens back from a venue into the Earn Account.
 
 **Venue types:**
 - `VAULT`: ERC-4626 vaults (see [/vaults](https://docs.compasslabs.ai/v2/api-reference/earn/list-vaults) for available options)
 - `AAVE`: Aave lending pools (see [/aave_markets](https://docs.compasslabs.ai/v2/api-reference/earn/list-aave-markets) for available options)
 - `PENDLE_PT`: Pendle Principal Tokens (see [/pendle_markets](https://docs.compasslabs.ai/v2/api-reference/earn/list-pendle-markets) for available options)
+- `MAPLE`: Maple syrup pools on Ethereum, syrupUSDC and syrupUSDT (see [/maple_pools](https://docs.compasslabs.ai/v2/api-reference/earn/list-maple-pools)). Deposits mint shares directly from Maple at the pool exchange rate; the Earn Account is authorized with Maple automatically on its first deposit. Withdrawals are **asynchronous**: the response has `settlement: "async"`, and the asset arrives in the Earn Account when Maple processes its withdrawal queue (typically within minutes, at most 30 days). Fees are not supported on MAPLE withdrawals. To exit immediately at market price, use [/swap](https://docs.compasslabs.ai/v2/api-reference/earn/swap-tokens).
 
 **Fees:** A fee can be configured and deducted from the transaction amount (not supported for PENDLE_PT):
 - `FIXED`: A fixed token amount (e.g., 0.1 means 0.1 tokens)
@@ -33,24 +34,26 @@ compass earn manage [flags]
 ### Options
 
 ```
-      --action venue                                 Whether you are depositing into or withdrawing from the given Earn venue. (options: DEPOSIT, WITHDRAW) [required]
-      --amount token                                 Amount of the underlying asset to act on (deposit or withdraw). For VAULT, this is the vault's underlying token; for AAVE, this is the Aave reserve asset; for PENDLE_PT, this is the amount of token to spend (DEPOSIT) or PT to sell (WITHDRAW). Provide as a decimal in token units (not wei); must be > 0. [required]
-      --body string                                  Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.
-  -c, --chain string                                 Blockchain network (options: arbitrum, base, bsc, ethereum, hyperevm, tempo) [required]
-  -f, --fee string                                   Optional fee configuration. If provided, a fee will be applied to the transaction amount and sent to the specified recipient address. The fee can be specified as a percentage of the transaction amount, as a fixed token amount, or as a percentage of realized profit (PERFORMANCE).
-  -g, --gas-sponsorship true                         Optionally request gas sponsorship. If set to true, EIP-712 typed data will be returned that must be signed by the `owner` and submitted to the 'Prepare gas-sponsored transaction' endpoint (`/gas_sponsorship/prepare`).
-  -h, --help                                         help for manage
-      --owner string                                 The primary wallet address that owns and controls the Earn Account. [required]
-      --schema                                       Print the exact JSON Schema of the request body and exit
-  -v, --venue string                                 JSON value (variants: AAVE: { "token": string }, PENDLE_PT: { "market_address": string, ... }, VAULT: { "vault_address": string })
-      --venue.aave string                            AaveVenue variant as JSON
-      --venue.aave.token string                      The reserve token for the Aave pool you are interacting with. [required]
-      --venue.pendle-pt string                       PendlePTVenue variant as JSON
-      --venue.pendle-pt.market-address string        The Pendle market address identifying which PT to trade. [required]
-      --venue.pendle-pt.max-slippage-percent float   Maximum slippage allowed in percent (e.g., 1 means 1% slippage).
-      --venue.pendle-pt.token string                 The token to exchange for PT (only used for DEPOSIT/buy). For WITHDRAW/sell, this field must not be provided - withdrawals always return the underlying asset to ensure accurate yield fee calculation.
-      --venue.vault string                           VaultVenue variant as JSON
-      --venue.vault.vault-address string             The vault address you are interacting with for this action. [required]
+      --action venue                                        Whether you are depositing into or withdrawing from the given Earn venue. (options: DEPOSIT, WITHDRAW) [required]
+      --amount token                                        Amount of the underlying asset to act on (deposit or withdraw). For VAULT, this is the vault's underlying token; for AAVE, this is the Aave reserve asset; for PENDLE_PT, this is the amount of token to spend (DEPOSIT) or PT to sell (WITHDRAW); for MAPLE, this is the pool's underlying asset (USDC for syrupUSDC, USDT for syrupUSDT). Provide as a decimal in token units (not wei); must be > 0. [required]
+      --body string                                         Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.
+  -c, --chain string                                        Blockchain network (options: arbitrum, base, bsc, ethereum, hyperevm, tempo) [required]
+  -f, --fee string                                          Optional fee configuration. If provided, a fee will be applied to the transaction amount and sent to the specified recipient address. The fee can be specified as a percentage of the transaction amount, as a fixed token amount, or as a percentage of realized profit (PERFORMANCE).
+  -g, --gas-sponsorship true                                Optionally request gas sponsorship. If set to true, EIP-712 typed data will be returned that must be signed by the `owner` and submitted to the 'Prepare gas-sponsored transaction' endpoint (`/gas_sponsorship/prepare`).
+  -h, --help                                                help for manage
+      --owner string                                        The primary wallet address that owns and controls the Earn Account. [required]
+      --schema                                              Print the exact JSON Schema of the request body and exit
+  -v, --venue string                                        JSON value (variants: AAVE: { "token": string }, MAPLE: { "pool_address": string }, PENDLE_PT: { "market_address": string, ... }, VAULT: { "vault_address": string })
+      --venue.aave string                                   AaveVenue variant as JSON
+      --venue.aave.token string                             The reserve token for the Aave pool you are interacting with. [required]
+      --venue.maple string                                  MapleVenue variant as JSON
+      --venue.maple.pool-address GET /v2/earn/maple_pools   The Maple syrup pool, which is also the syrup token address (syrupUSDC or syrupUSDT). See GET /v2/earn/maple_pools. [required]
+      --venue.pendle-pt string                              PendlePTVenue variant as JSON
+      --venue.pendle-pt.market-address string               The Pendle market address identifying which PT to trade. [required]
+      --venue.pendle-pt.max-slippage-percent float          Maximum slippage allowed in percent (e.g., 1 means 1% slippage).
+      --venue.pendle-pt.token string                        The token to exchange for PT (only used for DEPOSIT/buy). For WITHDRAW/sell, this field must not be provided - withdrawals always return the underlying asset to ensure accurate yield fee calculation.
+      --venue.vault string                                  VaultVenue variant as JSON
+      --venue.vault.vault-address string                    The vault address you are interacting with for this action. [required]
 ```
 
 ### Options inherited from parent commands

@@ -18,6 +18,8 @@ type EarnPositionsResponse struct {
 	Vaults []CompassAPIBackendV2ModelsEarnReadResponsePositionsVaultPosition `json:"vaults,omitzero"`
 	// Pendle Principal Token positions.
 	PendlePt []PendlePTPosition `json:"pendle_pt,omitzero"`
+	// Maple syrup pool positions (Ethereum). A position with a `pending_redemption` has a MAPLE withdrawal waiting in Maple's queue.
+	Maple []MaplePosition `json:"maple,omitzero"`
 	// Total USD value of all positions (sum of available values).
 	TotalUsdValue optionalnullable.OptionalNullable[string] `json:"total_usd_value,omitzero"`
 }
@@ -52,6 +54,13 @@ func (e *EarnPositionsResponse) GetPendlePt() []PendlePTPosition {
 		return nil
 	}
 	return e.PendlePt
+}
+
+func (e *EarnPositionsResponse) GetMaple() []MaplePosition {
+	if e == nil {
+		return nil
+	}
+	return e.Maple
 }
 
 func (e *EarnPositionsResponse) GetTotalUsdValue() optionalnullable.OptionalNullable[string] {

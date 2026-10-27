@@ -283,6 +283,7 @@ Configuration is stored in `~/.config/compass/config.yaml`.
   * [`vaults`](docs/compass_earn_vaults.md) - List vaults
   * [`aave-markets`](docs/compass_earn_aave-markets.md) - List aave markets
   * [`pendle-markets`](docs/compass_earn_pendle-markets.md) - List pendle markets
+  * [`earn-maple-pools`](docs/compass_earn_earn-maple-pools.md) - List maple pools
   * [`swap-quote`](docs/compass_earn_swap-quote.md) - Quote a swap
   * [`balances`](docs/compass_earn_balances.md) - Get token balances
   * [`create-account`](docs/compass_earn_create-account.md) - Create earn account
