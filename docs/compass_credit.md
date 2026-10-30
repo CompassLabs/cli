@@ -40,14 +40,15 @@ compass credit [flags]
 ### SEE ALSO
 
 * [compass](compass.md)	 - Compass API: Compass Labs DeFi API
+* [compass credit aave-markets](compass_credit_aave-markets.md)	 - List Aave markets
 * [compass credit balances](compass_credit_balances.md)	 - Get credit account token balances
 * [compass credit borrow](compass_credit_borrow.md)	 - Borrow against collateral
 * [compass credit bundle](compass_credit_bundle.md)	 - Execute multiple credit actions
 * [compass credit create-account](compass_credit_create-account.md)	 - Create credit account
-* [compass credit euler-markets](compass_credit_euler-markets.md)	 - List curated Euler markets
+* [compass credit euler-markets](compass_credit_euler-markets.md)	 - List Euler markets
 * [compass credit loop](compass_credit_loop.md)	 - Open a leveraged loop
 * [compass credit looped-positions](compass_credit_looped-positions.md)	 - List looped (leveraged) credit positions
-* [compass credit morpho-markets](compass_credit_morpho-markets.md)	 - List curated Morpho markets
+* [compass credit morpho-markets](compass_credit_morpho-markets.md)	 - List Morpho markets
 * [compass credit positions](compass_credit_positions.md)	 - List credit positions
 * [compass credit rebalance](compass_credit_rebalance.md)	 - Rebalance the leveraged credit book
 * [compass credit repay](compass_credit_repay.md)	 - Repay debt and withdraw collateral

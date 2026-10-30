@@ -25,7 +25,7 @@ var morphoMarketsCmdMeta = []flagutil.FlagMeta{
 func initMorphoMarketsCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "morpho-markets",
-		Short:   "List curated Morpho markets",
+		Short:   "List Morpho markets",
 		Long:    "List curated Morpho Blue lending markets for a chain.\n\nMorpho Blue is permissionless, so credit actions identify a market by its\nbytes32 market id. This returns the curated market set with live LLTV,\nsupply/borrow APY, utilization, and available liquidity -- read on-chain per\nrequest -- so callers know which market_id to use and what it currently costs.",
 		Example: "  compass credit morpho-markets --chain ethereum",
 		Args:    cobra.NoArgs,

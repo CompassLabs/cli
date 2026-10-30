@@ -1,6 +1,6 @@
 ## compass credit morpho-markets
 
-List curated Morpho markets
+List Morpho markets
 
 ### Synopsis
 

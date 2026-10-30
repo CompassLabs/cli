@@ -126,11 +126,11 @@ This CLI is built to be driven by AI coding agents as well as people: everything
 
 | Run | You get |
 |-----|---------|
-| `compass --help`, `compass earn aave-markets --help` | Commands by category, runnable examples, flags |
-| `compass --usage`, `compass earn aave-markets --usage` | The command surface as machine-readable [KDL](https://kdl.dev): commands, aliases, flags, defaults, env vars, config keys |
+| `compass --help`, `compass credit aave-markets --help` | Commands by category, runnable examples, flags |
+| `compass --usage`, `compass credit aave-markets --usage` | The command surface as machine-readable [KDL](https://kdl.dev): commands, aliases, flags, defaults, env vars, config keys |
 | `compass credit create-account --schema` | The exact JSON Schema of the command's request body (all `$ref`s bundled) — build a valid `--body` from it |
-| `compass earn aave-markets --dry-run` | The exact HTTP request (method, URL, headers, body), with no credentials or network call |
-| `compass earn aave-markets --output-format json` (or `--jq`) | Machine-readable output |
+| `compass credit aave-markets --dry-run` | The exact HTTP request (method, URL, headers, body), with no credentials or network call |
+| `compass credit aave-markets --output-format json` (or `--jq`) | Machine-readable output |
 
 ### Discover the command surface
 
@@ -139,7 +139,7 @@ This CLI is built to be driven by AI coding agents as well as people: everything
 compass --usage
 
 # One command's subtree only
-compass earn aave-markets --usage
+compass credit aave-markets --usage
 ```
 
 ### Read the exact request schema
@@ -157,10 +157,10 @@ Start quota-spending commands with `--dry-run`. It validates inputs, resolves th
 
 ```bash
 # Human preview: the [DRY-RUN] block is on stderr and stdout is empty
-compass earn aave-markets --dry-run
+compass credit aave-markets --dry-run
 
 # Machine preview: compact JSON on stdout and silent stderr
-compass earn aave-markets --dry-run --output-format json
+compass credit aave-markets --dry-run --output-format json
 ```
 
 The machine form writes one object per would-be request, one per line (NDJSON for multi-request commands), with exactly this shape:
@@ -177,13 +177,13 @@ Local mutation commands make no request under `--dry-run`: instead of a preview 
 
 ```bash
 # JSON on stdout
-compass earn aave-markets --output-format json
+compass credit aave-markets --output-format json
 
 # Filter or reshape with a jq expression (always emits JSON, overrides --output-format)
-compass earn aave-markets --jq '.'
+compass credit aave-markets --jq '.'
 
 # Print jq string results as plain text instead of JSON strings (like jq -r)
-compass earn aave-markets --jq '.' --raw-output
+compass credit aave-markets --jq '.' --raw-output
 ```
 
 `--output-format toon` emits [TOON](https://github.com/toon-format/spec), a compact line-oriented format that uses fewer tokens than JSON; it is the default in agent mode.
@@ -193,7 +193,7 @@ Required-input prompts and guided `configure` / `auth login` forms are enabled b
 
 ```bash
 # Prompt for missing command inputs
-compass earn aave-markets --interactive
+compass credit aave-markets --interactive
 
 # Open the guided configuration form
 compass configure --interactive
@@ -231,7 +231,7 @@ Authentication credentials can be configured in four ways (in order of priority)
 Pass credentials directly as flags to any command:
 
 ```bash
-compass --api-key-auth "$COMPASS_API_KEY_AUTH" earn aave-markets
+compass --api-key-auth "$COMPASS_API_KEY_AUTH" credit aave-markets
 ```
 
 ### 2. Environment variables
@@ -295,8 +295,9 @@ Configuration is stored in `~/.config/compass/config.yaml`.
   * [`positions`](docs/compass_credit_positions.md) - List credit positions
   * [`balances`](docs/compass_credit_balances.md) - Get credit account token balances
   * [`looped-positions`](docs/compass_credit_looped-positions.md) - List looped (leveraged) credit positions
-  * [`euler-markets`](docs/compass_credit_euler-markets.md) - List curated Euler markets
-  * [`morpho-markets`](docs/compass_credit_morpho-markets.md) - List curated Morpho markets
+  * [`euler-markets`](docs/compass_credit_euler-markets.md) - List Euler markets
+  * [`morpho-markets`](docs/compass_credit_morpho-markets.md) - List Morpho markets
+  * [`aave-markets`](docs/compass_credit_aave-markets.md) - List Aave markets
   * [`create-account`](docs/compass_credit_create-account.md) - Create credit account
   * [`borrow`](docs/compass_credit_borrow.md) - Borrow against collateral
   * [`loop`](docs/compass_credit_loop.md) - Open a leveraged loop
@@ -414,7 +415,7 @@ When multiple input methods are used, the priority is:
 Use `--server-url` to override the server URL entirely, bypassing any named or indexed server selection:
 
 ```bash
-compass --server-url https://custom-api.example.com earn aave-markets
+compass --server-url https://custom-api.example.com credit aave-markets
 ```
 
 **Precedence**: `--server-url` > `--server` > default
@@ -437,16 +438,16 @@ Every command supports a `--output-format` flag that controls how the response i
 
 ```bash
 # Default pretty output
-compass earn aave-markets
+compass credit aave-markets
 
 # Machine-readable JSON
-compass earn aave-markets --output-format json
+compass credit aave-markets --output-format json
 
 # TOON for LLM-friendly compact output
-compass earn aave-markets --output-format toon
+compass credit aave-markets --output-format toon
 
 # Pipe JSON to jq without using --output-format
-compass earn aave-markets --output-format json | jq '.'
+compass credit aave-markets --output-format json | jq '.'
 ```
 
 ### jq filtering
@@ -455,10 +456,10 @@ Use `--jq` to filter or transform the response inline using a [jq](https://jqlan
 
 ```bash
 # Extract a single field
-compass earn aave-markets --jq '.'
+compass credit aave-markets --jq '.'
 
 # Reshape with any jq program; --raw-output prints string results as plain text (like jq -r)
-compass earn aave-markets --jq '.' --raw-output
+compass credit aave-markets --jq '.' --raw-output
 ```
 
 ### Color control
@@ -501,7 +502,7 @@ On success, the response data is printed to **stdout** as JSON. On failure, erro
 
 ```bash
 # Capture output and handle errors
-compass earn aave-markets --output-format json > output.json 2> error.log
+compass credit aave-markets --output-format json > output.json 2> error.log
 if [ $? -ne 0 ]; then
   echo "Error occurred, see error.log"
 fi
@@ -519,7 +520,7 @@ The CLI includes two diagnostic flags available on all commands:
 Preview what would be sent without making any network calls:
 
 ```bash
-compass earn aave-markets --dry-run
+compass credit aave-markets --dry-run
 ```
 
 In human output modes, stdout is empty and the `[DRY-RUN]` block goes to stderr. It includes:
@@ -542,7 +543,7 @@ Local mutation commands emit one `{"dry_run":true,"local":true,"command":"…","
 Log request and response diagnostics while running normally:
 
 ```bash
-compass earn aave-markets --debug
+compass credit aave-markets --debug
 ```
 
 Debug output goes to stderr and includes:

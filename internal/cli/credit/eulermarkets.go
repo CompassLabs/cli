@@ -21,7 +21,7 @@ var eulerMarketsCmdMeta = []flagutil.FlagMeta{
 func initEulerMarketsCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "euler-markets",
-		Short:   "List curated Euler markets",
+		Short:   "List Euler markets",
 		Long:    "List curated Euler V2 credit markets for a chain.\n\nEuler is permissionless, so credit borrow/repay identify a market by EVK vault\naddress. This returns the borrow markets from Euler's Governed Perspective (the\nDAO-vetted vault set) -- each with the collateral vaults it accepts and their\nLTVs -- so callers know which borrow_vault / collateral_vault to use.",
 		Example: "  compass credit euler-markets --chain ethereum",
 		Args:    cobra.NoArgs,

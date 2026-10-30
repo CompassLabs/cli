@@ -1,6 +1,6 @@
 ## compass credit euler-markets
 
-List curated Euler markets
+List Euler markets
 
 ### Synopsis
 
