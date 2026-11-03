@@ -82,6 +82,7 @@ type V2TokenizedAssetsPositionsResponse struct {
 	HTTPMeta components.HTTPMetadata `json:"-"`
 	// Successful Response
 	TokenizedAssetsPositionsResponse *components.TokenizedAssetsPositionsResponse
+	Headers                          map[string][]string
 }
 
 func (v V2TokenizedAssetsPositionsResponse) MarshalJSON() ([]byte, error) {
@@ -107,6 +108,13 @@ func (v *V2TokenizedAssetsPositionsResponse) GetTokenizedAssetsPositionsResponse
 		return nil
 	}
 	return v.TokenizedAssetsPositionsResponse
+}
+
+func (v *V2TokenizedAssetsPositionsResponse) GetHeaders() map[string][]string {
+	if v == nil {
+		return map[string][]string{}
+	}
+	return v.Headers
 }
 
 // #region class-body-v2tokenizedassetspositionsresponse

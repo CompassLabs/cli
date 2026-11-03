@@ -99,6 +99,7 @@ type V2TokenizedAssetsMarketsSymbolResponse struct {
 	HTTPMeta components.HTTPMetadata `json:"-"`
 	// Successful Response
 	MarketDetail *components.MarketDetail
+	Headers      map[string][]string
 }
 
 func (v V2TokenizedAssetsMarketsSymbolResponse) MarshalJSON() ([]byte, error) {
@@ -124,6 +125,13 @@ func (v *V2TokenizedAssetsMarketsSymbolResponse) GetMarketDetail() *components.M
 		return nil
 	}
 	return v.MarketDetail
+}
+
+func (v *V2TokenizedAssetsMarketsSymbolResponse) GetHeaders() map[string][]string {
+	if v == nil {
+		return map[string][]string{}
+	}
+	return v.Headers
 }
 
 // #region class-body-v2tokenizedassetsmarketssymbolresponse
