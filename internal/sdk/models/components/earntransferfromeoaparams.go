@@ -3,21 +3,23 @@
 package components
 
 import (
+	"github.com/CompassLabs/cli/internal/sdk/optionalnullable"
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 	"github.com/CompassLabs/cli/internal/sdk/types"
 )
 
-// EarnTransferFromEOAParams - Parameters for transferring tokens from EOA to Earn Account via Permit2.
+// EarnTransferFromEOAParams - Parameters for pulling tokens from the owner's wallet into the product account.
 //
-// Used by multicall/bundle endpoint to pull tokens from the owner's EOA
-// into their Earn Account (Safe) as part of an atomic bundle transaction.
+// Used by the earn and credit bundle endpoints to pull tokens from the owner's EOA
+// into their product account as part of an atomic bundle transaction. Two ways:
 //
-// The owner must have:
-// 1. Previously approved Permit2 for the token (one-time setup via /gas_sponsorship/approve_transfer)
-// 2. Signed a Permit2 message with spender = Earn Account address
-//
-// The signature is obtained by first calling /v2/earn/transfer with action=DEPOSIT
-// and gas_sponsorship=True, then signing the returned EIP-712 typed data.
+//  1. Allowance (no “permit2_*“ fields): the owner has approved the product account
+//     itself to spend the token (a one-time ERC-20 “approve“). The account calls
+//     “transferFrom(owner, account, amount)“. No per-transfer signature.
+//  2. Permit2 (all three “permit2_*“ fields): the owner approved Permit2 once and
+//     signed a Permit2 message with spender = the product account, obtained from
+//     “/v2/earn/transfer“ or “/v2/credit/transfer“ (action=DEPOSIT,
+//     gas_sponsorship=True).
 type EarnTransferFromEOAParams struct {
 	// Action type identifier for EOA-to-Earn-Account transfer operations.
 	//lint:ignore U1000 accessed via reflection for JSON marshaling
@@ -26,12 +28,12 @@ type EarnTransferFromEOAParams struct {
 	Token string `json:"token"`
 	// The amount of tokens to transfer (in token units, not wei).
 	Amount string `json:"amount"`
-	// The EOA owner's signature of the Permit2 PermitTransferFrom typed data. Obtain this by calling /v2/earn/transfer with action=DEPOSIT and gas_sponsorship=True, then signing the returned EIP-712 data with the owner's wallet.
-	Permit2Signature string `json:"permit2_signature"`
-	// The nonce used in the Permit2 signature (from the signed typed data).
-	Permit2Nonce int64 `json:"permit2_nonce"`
-	// The deadline timestamp used in the Permit2 signature (from the signed typed data).
-	Permit2Deadline int64 `json:"permit2_deadline"`
+	// Optional. The EOA owner's signature of the Permit2 PermitTransferFrom typed data. Obtain this by calling /v2/earn/transfer with action=DEPOSIT and gas_sponsorship=True, then signing the returned EIP-712 data with the owner's wallet. Omit all three permit2_* fields to pull with an ERC-20 allowance granted to the product account instead.
+	Permit2Signature optionalnullable.OptionalNullable[string] `json:"permit2_signature,omitzero"`
+	// The nonce used in the Permit2 signature (from the signed typed data). Omit when using an allowance.
+	Permit2Nonce optionalnullable.OptionalNullable[int64] `json:"permit2_nonce,omitzero"`
+	// The deadline timestamp used in the Permit2 signature (from the signed typed data). Omit when using an allowance.
+	Permit2Deadline optionalnullable.OptionalNullable[int64] `json:"permit2_deadline,omitzero"`
 }
 
 func (e EarnTransferFromEOAParams) MarshalJSON() ([]byte, error) {
@@ -63,23 +65,23 @@ func (e *EarnTransferFromEOAParams) GetAmount() string {
 	return e.Amount
 }
 
-func (e *EarnTransferFromEOAParams) GetPermit2Signature() string {
+func (e *EarnTransferFromEOAParams) GetPermit2Signature() optionalnullable.OptionalNullable[string] {
 	if e == nil {
-		return ""
+		return nil
 	}
 	return e.Permit2Signature
 }
 
-func (e *EarnTransferFromEOAParams) GetPermit2Nonce() int64 {
+func (e *EarnTransferFromEOAParams) GetPermit2Nonce() optionalnullable.OptionalNullable[int64] {
 	if e == nil {
-		return 0
+		return nil
 	}
 	return e.Permit2Nonce
 }
 
-func (e *EarnTransferFromEOAParams) GetPermit2Deadline() int64 {
+func (e *EarnTransferFromEOAParams) GetPermit2Deadline() optionalnullable.OptionalNullable[int64] {
 	if e == nil {
-		return 0
+		return nil
 	}
 	return e.Permit2Deadline
 }
