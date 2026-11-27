@@ -4,9 +4,9 @@ Borrow against collateral
 
 ### Synopsis
 
-Borrow an asset from Aave using a Credit Account.
+Borrow an asset from Aave, Morpho or Euler using a Credit Account.
 
-Bundles an optional swap, collateral supply, and borrow into a single atomic Safe transaction.
+Bundles an optional swap, collateral supply, and borrow into a single atomic transaction.
 
 - If `token_in` equals `collateral_token`, the tokens are supplied directly as collateral.
 - If `token_in` differs from `collateral_token`, a market swap is performed first.
@@ -29,10 +29,10 @@ compass credit borrow [flags]
   -a, --amount-in string            Amount of token_in to use (in token units, not wei). Omit together with token_in and collateral_token for borrow-only mode.
       --body string                 Request body as JSON (alternative to individual flags). Can also be provided via stdin; @path reads a file, @- reads stdin to EOF. Use --schema to print the exact JSON Schema.
       --borrow-amount string        Amount to borrow (in token units, not wei). [required]
-      --borrow-token string         Asset to borrow from Aave. [required]
+      --borrow-token string         Asset to borrow. [required]
       --borrow-vault string         Euler only: the EVK vault to borrow from. Required when protocol=EULER.
       --chain string                Blockchain network. (options: arbitrum, base, bsc, ethereum, hyperevm, tempo) [required]
-      --collateral-token string     Aave reserve token to supply as collateral. Omit together with token_in and amount_in for borrow-only mode.
+      --collateral-token string     Token to supply as collateral. Omit together with token_in and amount_in for borrow-only mode.
       --collateral-vault string     Euler only: the EVK collateral vault to supply into. Required when protocol=EULER and supplying collateral.
   -f, --fee string                  Optional fee configuration. If provided, a fee will be deducted from the borrowed amount and sent to the specified recipient address.
   -g, --gas-sponsorship             If true, returns EIP-712 signature data instead of an unsigned transaction.

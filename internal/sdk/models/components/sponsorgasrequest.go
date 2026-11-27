@@ -9,7 +9,7 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
-// Product - Which product the gas sponsorship is for. Determines which Product Account (Safe) address to use.
+// Product - Which product the gas sponsorship is for. Determines which Product Account address to use.
 type Product string
 
 const (
@@ -167,7 +167,7 @@ type SponsorGasRequest struct {
 	Owner string `json:"owner"`
 	// The chain to use.
 	Chain Chain `json:"chain"`
-	// Which product the gas sponsorship is for. Determines which Product Account (Safe) address to use.
+	// Which product the gas sponsorship is for. Determines which Product Account address to use.
 	Product *Product `json:"product,omitzero"`
 	// The EIP-712 typed data that was signed.
 	Eip712 SponsorGasRequestEip712 `json:"eip_712"`

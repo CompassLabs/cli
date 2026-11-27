@@ -82,9 +82,9 @@ type CreditBorrowRequest struct {
 	TokenIn *string `json:"token_in,omitzero"`
 	// Amount of token_in to use (in token units, not wei). Omit together with token_in and collateral_token for borrow-only mode.
 	AmountIn *string `json:"amount_in,omitzero"`
-	// Aave reserve token to supply as collateral. Omit together with token_in and amount_in for borrow-only mode.
+	// Token to supply as collateral. Omit together with token_in and amount_in for borrow-only mode.
 	CollateralToken *string `json:"collateral_token,omitzero"`
-	// Asset to borrow from Aave.
+	// Asset to borrow.
 	BorrowToken string `json:"borrow_token"`
 	// Amount to borrow (in token units, not wei).
 	BorrowAmount string `json:"borrow_amount"`

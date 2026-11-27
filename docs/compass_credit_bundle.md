@@ -5,7 +5,7 @@ Execute multiple credit actions
 ### Synopsis
 
 Compose individual credit operations (supply, withdraw, borrow, repay, swap, transfer)
-into a single atomic Safe transaction.
+into a single atomic transaction.
 
 The Credit Account must already be created via `/v2/credit/create_account`.
 

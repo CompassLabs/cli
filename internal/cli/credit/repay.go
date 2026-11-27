@@ -25,7 +25,7 @@ var repayCmdMeta = []flagutil.FlagMeta{
 	{FlagName: "repay-token", FieldPath: "RepayToken", Kind: flagutil.FlagKindString, Required: true, Description: "The borrowed asset to repay (e.g. WETH). Must match the debt position's token. [required]"},
 	{FlagName: "repay-amount", FieldPath: "RepayAmount", Kind: flagutil.FlagKindString, Required: true, Description: "Amount of repay_token to repay (in token units, not wei). [required]"},
 	{FlagName: "interest-rate-mode", Shorthand: "i", FieldPath: "InterestRateMode", Kind: flagutil.FlagKindEnum, Optional: true, EnumValues: []string{"stable", "variable"}, Description: "On AAVE there are 2 different interest modes.\n\nA stable (but typically higher rate), or a variable rate. (options: stable, variable)"},
-	{FlagName: "withdraw-token", FieldPath: "WithdrawToken", Kind: flagutil.FlagKindString, Optional: true, Description: "Collateral token to withdraw from Aave after repaying debt. Omit together with withdraw_amount for repay-only mode."},
+	{FlagName: "withdraw-token", FieldPath: "WithdrawToken", Kind: flagutil.FlagKindString, Optional: true, Description: "Collateral token to withdraw after repaying debt. Omit together with withdraw_amount for repay-only mode."},
 	{FlagName: "withdraw-amount", FieldPath: "WithdrawAmount", Kind: flagutil.FlagKindString, Optional: true, Description: "Amount of collateral to withdraw (in token units, not wei). Omit together with withdraw_token for repay-only mode."},
 	{FlagName: "token-out", Shorthand: "t", FieldPath: "TokenOut", Kind: flagutil.FlagKindString, Optional: true, Description: "Desired output token. If different from withdraw_token, a swap is performed after withdrawal. If None, the withdrawn collateral is kept as-is."},
 	{FlagName: "slippage", FieldPath: "Slippage", Kind: flagutil.FlagKindString, Optional: true, Description: "Maximum slippage tolerance as a percentage (e.g., 0.5 = 0.5%). Only used when a swap is needed."},
@@ -40,7 +40,7 @@ func initRepayCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "repay",
 		Short:   "Repay debt and withdraw collateral",
-		Long:    "Repay an Aave debt and withdraw collateral from a Credit Account.\n\nBundles repayment, collateral withdrawal, and an optional swap into a single atomic Safe transaction.\n\n- If `token_out` is None or equals `withdraw_token`, the withdrawn collateral is kept as-is.\n- If `token_out` differs from `withdraw_token`, a market swap is performed after withdrawal.\n\nThe Credit Account must already have a borrow position created via `/v2/credit/borrow`.\nThe repay_token must be available in the Credit Account (or pulled from EOA via Permit2).",
+		Long:    "Repay an Aave, Morpho or Euler debt and withdraw collateral from a Credit Account.\n\nBundles repayment, collateral withdrawal, and an optional swap into a single atomic transaction.\n\n- If `token_out` is None or equals `withdraw_token`, the withdrawn collateral is kept as-is.\n- If `token_out` differs from `withdraw_token`, a market swap is performed after withdrawal.\n\nThe Credit Account must already have a borrow position created via `/v2/credit/borrow`.\nThe repay_token must be available in the Credit Account (or pulled from EOA via Permit2).",
 		Example: "  compass credit repay --owner 0x831Ad0C52C77708DA5D49dc8278C966dfdD4ddA1 --chain base --repay-token WETH --repay-amount 0.01",
 		Args:    cobra.NoArgs,
 		RunE:    runRepayCmd,

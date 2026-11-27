@@ -22,7 +22,7 @@ func initPositionsAllCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "positions-all",
 		Short:   "List earn positions across all chains",
-		Long:    "List all Earn positions across all supported chains (Ethereum, Base, Arbitrum).\n\nReturns positions grouped by chain, with per-chain and total USD values.\nEach chain includes Aave, vault, and Pendle PT positions. Chains where\nthe user has no earn account return empty position lists.\n\nUse this endpoint for a cross-chain portfolio overview instead of making\nseparate calls per chain to /positions.",
+		Long:    "List Earn positions across Ethereum, Base, Arbitrum and HyperEVM in one call.\n\nReturns positions grouped by chain, with per-chain and total USD values.\nEach chain includes Aave, vault, and Pendle PT positions. Chains where\nthe user has no earn account return empty position lists.\n\nBNB Smart Chain and Tempo are not included: read those with /positions,\none chain at a time.\n\nUse this endpoint for a cross-chain portfolio overview instead of making\nseparate calls per chain to /positions.",
 		Example: "  compass earn positions-all --owner 0x01E62835dd7F52173546A325294762143eE4a882",
 		Args:    cobra.NoArgs,
 		RunE:    runPositionsAllCmd,

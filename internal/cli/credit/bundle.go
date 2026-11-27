@@ -26,7 +26,7 @@ func initBundleCmd(parent *cobra.Command) error {
 	var cmd = &cobra.Command{
 		Use:     "bundle",
 		Short:   "Execute multiple credit actions",
-		Long:    "Compose individual credit operations (supply, withdraw, borrow, repay, swap, transfer)\ninto a single atomic Safe transaction.\n\nThe Credit Account must already be created via `/v2/credit/create_account`.",
+		Long:    "Compose individual credit operations (supply, withdraw, borrow, repay, swap, transfer)\ninto a single atomic transaction.\n\nThe Credit Account must already be created via `/v2/credit/create_account`.",
 		Example: "  compass credit bundle --owner <value> --chain arbitrum --actions '[{\"body\":{\"action_type\":\"V2_TRANSFER_FROM_EOA\",\"token\":\"<value>\",\"amount\":\"709.93\",\"permit2_signature\":\"<value>\",\"permit2_nonce\":210517,\"permit2_deadline\":120606\x7d\x7d]'",
 		Args:    cobra.NoArgs,
 		RunE:    runBundleCmd,

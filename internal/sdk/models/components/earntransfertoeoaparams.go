@@ -9,11 +9,11 @@ import (
 
 // EarnTransferToEOAParams - Parameters for transferring tokens from Earn Account to EOA (withdrawal).
 //
-// Used by multicall/bundle endpoint to send tokens from the Earn Account (Safe) back
+// Used by multicall/bundle endpoint to send tokens from the Earn Account back
 // to the owner's EOA as part of an atomic bundle transaction.
 //
-// No signature is required for this action since the Safe already owns the tokens and
-// is executing the transfer as part of its own transaction.
+// No signature is required for this action since the Earn Account already owns the tokens
+// and is executing the transfer as part of its own transaction.
 type EarnTransferToEOAParams struct {
 	// Action type identifier for Earn-Account-to-EOA transfer operations.
 	//lint:ignore U1000 accessed via reflection for JSON marshaling

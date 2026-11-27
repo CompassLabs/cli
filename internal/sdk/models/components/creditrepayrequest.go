@@ -85,7 +85,7 @@ type CreditRepayRequest struct {
 	//
 	// A stable (but typically higher rate), or a variable rate.
 	InterestRateMode *InterestRateMode `json:"interest_rate_mode,omitzero"`
-	// Collateral token to withdraw from Aave after repaying debt. Omit together with withdraw_amount for repay-only mode.
+	// Collateral token to withdraw after repaying debt. Omit together with withdraw_amount for repay-only mode.
 	WithdrawToken *string `json:"withdraw_token,omitzero"`
 	// Amount of collateral to withdraw (in token units, not wei). Omit together with withdraw_token for repay-only mode.
 	WithdrawAmount *string `json:"withdraw_amount,omitzero"`

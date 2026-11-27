@@ -44,7 +44,7 @@ compass earn transfer [flags]
       --owner string           The owner's wallet address. [required]
   -r, --recipient action       Optional recipient address for withdrawals. When action is 'WITHDRAW': - If provided, tokens will be sent to this address instead of the owner. - If not provided, defaults to the owner's address. 
       --schema                 Print the exact JSON Schema of the request body and exit
-  -s, --spender action         The address that will call Permit2's permitTransferFrom to execute the transfer. When action is 'DEPOSIT' and `gas_sponsorship` is `true`: - If provided, the signature will authorize this address (typically a gas sponsor) to pull tokens. - If not provided, defaults to the Earn Account (Safe) address, allowing the transfer to be included in a bundle transaction where the Safe pulls the tokens itself.
+  -s, --spender action         The address that will call Permit2's permitTransferFrom to execute the transfer. When action is 'DEPOSIT' and `gas_sponsorship` is `true`: - If provided, the signature will authorize this address (typically a gas sponsor) to pull tokens. - If not provided, defaults to the Earn Account address, allowing the transfer to be included in a bundle transaction where the Earn Account pulls the tokens itself.
   -t, --token string           The token you would like to transfer. [required]
 ```
 

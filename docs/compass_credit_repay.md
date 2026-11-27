@@ -4,9 +4,9 @@ Repay debt and withdraw collateral
 
 ### Synopsis
 
-Repay an Aave debt and withdraw collateral from a Credit Account.
+Repay an Aave, Morpho or Euler debt and withdraw collateral from a Credit Account.
 
-Bundles repayment, collateral withdrawal, and an optional swap into a single atomic Safe transaction.
+Bundles repayment, collateral withdrawal, and an optional swap into a single atomic transaction.
 
 - If `token_out` is None or equals `withdraw_token`, the withdrawn collateral is kept as-is.
 - If `token_out` differs from `withdraw_token`, a market swap is performed after withdrawal.
@@ -64,7 +64,7 @@ compass credit repay [flags]
       --sub-account-id int          Euler only: EVC sub-account (0–255) holding the debt to repay. Each sub-account is an independent Euler position with its own collateral, borrow controller, and health. Defaults to 0. Ignored for Aave/Morpho.
   -t, --token-out string            Desired output token. If different from withdraw_token, a swap is performed after withdrawal. If None, the withdrawn collateral is kept as-is.
       --withdraw-amount string      Amount of collateral to withdraw (in token units, not wei). Omit together with withdraw_token for repay-only mode.
-      --withdraw-token string       Collateral token to withdraw from Aave after repaying debt. Omit together with withdraw_amount for repay-only mode.
+      --withdraw-token string       Collateral token to withdraw after repaying debt. Omit together with withdraw_amount for repay-only mode.
 ```
 
 ### Options inherited from parent commands

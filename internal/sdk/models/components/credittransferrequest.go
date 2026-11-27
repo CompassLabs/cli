@@ -86,7 +86,7 @@ type CreditTransferRequest struct {
 	Action CreditTransferRequestAction `json:"action"`
 	// Optionally request gas sponsorship. If set to `true`, EIP-712 signature data will be returned that must be signed by the `owner` and submitted to the `/gas_sponsorship/prepare` endpoint.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
-	// The address that will call Permit2's permitTransferFrom to execute the transfer. When `action` is 'DEPOSIT' and `gas_sponsorship` is `true`: - If provided, the signature will authorize this address (typically a gas sponsor) to pull tokens. - If not provided, defaults to the Credit Account (Safe) address, allowing the transfer to be included in a bundle transaction where the Safe pulls the tokens itself.
+	// The address that will call Permit2's permitTransferFrom to execute the transfer. When `action` is 'DEPOSIT' and `gas_sponsorship` is `true`: - If provided, the signature will authorize this address (typically a gas sponsor) to pull tokens. - If not provided, defaults to the Credit Account address, allowing the transfer to be included in a bundle transaction where the Credit Account pulls the tokens itself.
 	Spender *string `json:"spender,omitzero"`
 }
 

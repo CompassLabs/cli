@@ -37,7 +37,7 @@ compass credit transfer [flags]
   -h, --help                   help for transfer
       --owner string           The owner's wallet address (EOA). [required]
       --schema                 Print the exact JSON Schema of the request body and exit
-  -s, --spender action         The address that will call Permit2's permitTransferFrom to execute the transfer. When action is 'DEPOSIT' and `gas_sponsorship` is `true`: - If provided, the signature will authorize this address (typically a gas sponsor) to pull tokens. - If not provided, defaults to the Credit Account (Safe) address, allowing the transfer to be included in a bundle transaction where the Safe pulls the tokens itself.
+  -s, --spender action         The address that will call Permit2's permitTransferFrom to execute the transfer. When action is 'DEPOSIT' and `gas_sponsorship` is `true`: - If provided, the signature will authorize this address (typically a gas sponsor) to pull tokens. - If not provided, defaults to the Credit Account address, allowing the transfer to be included in a bundle transaction where the Credit Account pulls the tokens itself.
   -t, --token string           The token to transfer. [required]
 ```
 

@@ -34,7 +34,7 @@ compass gas-sponsorship prepare [flags]
   -e, --eip-712 string     JSON value (one of: { "domain": object, "types": object, "message": object } | { "types": object, "domain": object, "message": object })
   -h, --help               help for prepare
       --owner string       The wallet address that owns the Product Account. [required]
-  -p, --product string     Which product the gas sponsorship is for. Determines which Product Account (Safe) address to use. (options: earn, credit, tokenized_assets)
+  -p, --product string     Which product the gas sponsorship is for. Determines which Product Account address to use. (options: earn, credit, tokenized_assets)
       --schema             Print the exact JSON Schema of the request body and exit
       --sender string      The address of the wallet which will send the transaction. [required]
       --signature string   The EIP-712 signed typed data signature. [required]

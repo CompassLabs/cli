@@ -86,7 +86,7 @@ type EarnTransferRequest struct {
 	Action EarnTransferRequestAction `json:"action"`
 	// Optionally request gas sponsorship. If set to `true`, EIP-712 signature data will be returned that must be signed by the `owner` and submitted to the `/gas_sponsorship/prepare` endpoint.
 	GasSponsorship *bool `json:"gas_sponsorship,omitzero"`
-	// The address that will call Permit2's permitTransferFrom to execute the transfer. When `action` is 'DEPOSIT' and `gas_sponsorship` is `true`: - If provided, the signature will authorize this address (typically a gas sponsor) to pull tokens. - If not provided, defaults to the Earn Account (Safe) address, allowing the transfer to be included in a bundle transaction where the Safe pulls the tokens itself.
+	// The address that will call Permit2's permitTransferFrom to execute the transfer. When `action` is 'DEPOSIT' and `gas_sponsorship` is `true`: - If provided, the signature will authorize this address (typically a gas sponsor) to pull tokens. - If not provided, defaults to the Earn Account address, allowing the transfer to be included in a bundle transaction where the Earn Account pulls the tokens itself.
 	Spender *string `json:"spender,omitzero"`
 	// Optional recipient address for withdrawals. When `action` is 'WITHDRAW': - If provided, tokens will be sent to this address instead of the owner. - If not provided, defaults to the owner's address.
 	Recipient *string `json:"recipient,omitzero"`

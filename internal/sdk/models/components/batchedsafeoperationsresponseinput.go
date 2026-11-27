@@ -6,7 +6,7 @@ import (
 	"github.com/CompassLabs/cli/internal/sdk/sdkinternal/utils"
 )
 
-// BatchedSafeOperationsResponseInput - Response containing EIP-712 typed data for Safe transaction signing.
+// BatchedSafeOperationsResponseInput - Response containing EIP-712 typed data for signing a product account transaction.
 type BatchedSafeOperationsResponseInput struct {
 	// The EIP-712 domain separator.
 	Domain CompassAPIBackendV2ModelsSafeTransactResponseBatchedSafeOperationsEip712Domain `json:"domain"`

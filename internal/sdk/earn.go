@@ -222,11 +222,14 @@ func (s *Earn) Positions(ctx context.Context, request operations.V2EarnPositions
 }
 
 // PositionsAll - List earn positions across all chains
-// List all Earn positions across all supported chains (Ethereum, Base, Arbitrum).
+// List Earn positions across Ethereum, Base, Arbitrum and HyperEVM in one call.
 //
 // Returns positions grouped by chain, with per-chain and total USD values.
 // Each chain includes Aave, vault, and Pendle PT positions. Chains where
 // the user has no earn account return empty position lists.
+//
+// BNB Smart Chain and Tempo are not included: read those with /positions,
+// one chain at a time.
 //
 // Use this endpoint for a cross-chain portfolio overview instead of making
 // separate calls per chain to /positions.

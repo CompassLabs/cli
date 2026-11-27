@@ -1360,9 +1360,9 @@ func (s *Credit) CreateAccount(ctx context.Context, request components.CreateCre
 }
 
 // Borrow against collateral
-// Borrow an asset from Aave using a Credit Account.
+// Borrow an asset from Aave, Morpho or Euler using a Credit Account.
 //
-// Bundles an optional swap, collateral supply, and borrow into a single atomic Safe transaction.
+// Bundles an optional swap, collateral supply, and borrow into a single atomic transaction.
 //
 // - If `token_in` equals `collateral_token`, the tokens are supplied directly as collateral.
 // - If `token_in` differs from `collateral_token`, a market swap is performed first.
@@ -2534,9 +2534,9 @@ func (s *Credit) Swap(ctx context.Context, request components.CreditSwapRequest,
 }
 
 // Repay debt and withdraw collateral
-// Repay an Aave debt and withdraw collateral from a Credit Account.
+// Repay an Aave, Morpho or Euler debt and withdraw collateral from a Credit Account.
 //
-// Bundles repayment, collateral withdrawal, and an optional swap into a single atomic Safe transaction.
+// Bundles repayment, collateral withdrawal, and an optional swap into a single atomic transaction.
 //
 // - If `token_out` is None or equals `withdraw_token`, the withdrawn collateral is kept as-is.
 // - If `token_out` differs from `withdraw_token`, a market swap is performed after withdrawal.
@@ -2730,7 +2730,7 @@ func (s *Credit) Repay(ctx context.Context, request components.CreditRepayReques
 
 // Bundle - Execute multiple credit actions
 // Compose individual credit operations (supply, withdraw, borrow, repay, swap, transfer)
-// into a single atomic Safe transaction.
+// into a single atomic transaction.
 //
 // The Credit Account must already be created via `/v2/credit/create_account`.
 func (s *Credit) Bundle(ctx context.Context, request components.CreditBundleRequest, opts ...operations.Option) (*operations.V2CreditBundleResponse, error) {

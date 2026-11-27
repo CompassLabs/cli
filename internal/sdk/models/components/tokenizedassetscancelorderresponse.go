@@ -3,7 +3,7 @@
 package components
 
 type TokenizedAssetsCancelOrderResponse struct {
-	// Response containing EIP-712 typed data for Safe transaction signing.
+	// Response containing EIP-712 typed data for signing a product account transaction.
 	CancelSafeTxEip712 BatchedSafeOperationsResponseOutput `json:"cancel_safe_tx_eip712"`
 }
 
